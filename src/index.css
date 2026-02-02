@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,42 +11,42 @@
 @layer base {
   :root {
     /* Primary: Racing Blue */
-    --primary: 217 91% 40%;
+    --primary: 220 95% 57%;
     --primary-foreground: 0 0% 100%;
-    
+
     /* Secondary: Muted Blue-Gray */
     --secondary: 214 32% 91%;
     --secondary-foreground: 217 91% 25%;
-    
+
     /* Accent: Racing Yellow */
     --accent: 45 100% 50%;
     --accent-foreground: 217 91% 15%;
-    
+
     /* Background & Surfaces */
     --background: 0 0% 100%;
     --foreground: 217 91% 10%;
-    
+
     --card: 0 0% 100%;
     --card-foreground: 217 91% 10%;
-    
+
     --popover: 0 0% 100%;
     --popover-foreground: 217 91% 10%;
-    
+
     /* Muted & Subtle */
     --muted: 214 32% 96%;
     --muted-foreground: 217 25% 45%;
-    
+
     /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    
+
     /* Borders & Inputs */
     --border: 214 32% 85%;
     --input: 214 32% 85%;
     --ring: 217 91% 40%;
-    
+
     --radius: 0.5rem;
-    
+
     /* Sidebar */
     --sidebar-background: 217 91% 98%;
     --sidebar-foreground: 217 91% 25%;
@@ -55,7 +56,7 @@
     --sidebar-accent-foreground: 217 91% 15%;
     --sidebar-border: 214 32% 90%;
     --sidebar-ring: 217 91% 40%;
-    
+
     /* Custom: Motorsport Gradients */
     --gradient-racing: linear-gradient(135deg, hsl(217 91% 40%) 0%, hsl(217 91% 55%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(45 100% 50%) 0%, hsl(40 100% 45%) 100%);
@@ -67,38 +68,38 @@
     /* Primary: Bright Blue */
     --primary: 217 91% 60%;
     --primary-foreground: 217 91% 10%;
-    
+
     /* Secondary: Dark Blue-Gray */
     --secondary: 217 32% 18%;
     --secondary-foreground: 0 0% 95%;
-    
+
     /* Accent: Racing Yellow (prominent in dark) */
     --accent: 45 100% 55%;
     --accent-foreground: 217 91% 10%;
-    
+
     /* Background: Deep Racing Blue */
     --background: 217 50% 6%;
     --foreground: 0 0% 98%;
-    
+
     --card: 217 45% 10%;
     --card-foreground: 0 0% 98%;
-    
+
     --popover: 217 45% 10%;
     --popover-foreground: 0 0% 98%;
-    
+
     /* Muted */
     --muted: 217 32% 15%;
     --muted-foreground: 214 20% 65%;
-    
+
     /* Destructive */
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
-    
+
     /* Borders & Inputs */
     --border: 217 32% 20%;
     --input: 217 32% 20%;
     --ring: 217 91% 60%;
-    
+
     /* Sidebar */
     --sidebar-background: 217 45% 8%;
     --sidebar-foreground: 0 0% 95%;
@@ -108,7 +109,7 @@
     --sidebar-accent-foreground: 217 91% 10%;
     --sidebar-border: 217 32% 18%;
     --sidebar-ring: 217 91% 60%;
-    
+
     /* Custom: Dark Mode Gradients */
     --gradient-racing: linear-gradient(135deg, hsl(217 91% 50%) 0%, hsl(217 91% 65%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(45 100% 55%) 0%, hsl(40 100% 50%) 100%);
@@ -126,20 +127,20 @@
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
+
   /* Bold Motorsport Typography */
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold tracking-tight;
   }
-  
+
   h1 {
     @apply text-4xl md:text-5xl lg:text-6xl;
   }
-  
+
   h2 {
     @apply text-3xl md:text-4xl;
   }
-  
+
   h3 {
     @apply text-2xl md:text-3xl;
   }
@@ -156,12 +157,12 @@
       hsl(var(--primary) / 0.05) 20px
     );
   }
-  
+
   /* Accent highlight stripe */
   .accent-stripe {
     position: relative;
   }
-  
+
   .accent-stripe::before {
     content: '';
     position: absolute;
@@ -171,16 +172,16 @@
     width: 4px;
     background: hsl(var(--accent));
   }
-  
+
   /* Skewed/Diagonal sections */
   .skew-section {
     transform: skewY(-2deg);
   }
-  
+
   .skew-section > * {
     transform: skewY(2deg);
   }
-  
+
   /* Racing gradient text */
   .text-gradient-racing {
     background: var(--gradient-racing);
@@ -188,12 +189,12 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
+
   /* Accent button glow */
   .glow-accent {
     box-shadow: var(--shadow-accent);
   }
-  
+
   .glow-racing {
     box-shadow: var(--shadow-racing);
   }
