@@ -8,7 +8,7 @@ export function useSponsors() {
       const { data, error } = await supabase
         .from('sponsors')
         .select('*')
-        .order('sort_order', { ascending: true });
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data as Sponsor[];
