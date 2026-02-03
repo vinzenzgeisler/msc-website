@@ -1,32 +1,34 @@
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { useTranslation } from "@/i18n/LanguageContext";
+import { useTranslation, useLanguage } from "@/i18n/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin, Clock, ChevronLeft, ChevronRight, Download, List, CalendarDays, CalendarX, Star } from "lucide-react";
-import { de } from "date-fns/locale";
+import { de, cs, enUS } from "date-fns/locale";
 import { format, isSameMonth, isSameDay, isAfter, startOfDay } from "date-fns";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 
-type Category = "all" | "club" | "event" | "training" | "orgTeam" | "verein" | "veranstaltung" | "orgteam";
+type ViewMode = "month" | "upcoming";
 
-const categoryConfig: Record<string, { label: string; color: string; bgColor: string }> = {
-  all: { label: "Allgemein", color: "text-foreground", bgColor: "bg-muted-foreground" },
-  club: { label: "Verein", color: "text-primary-foreground", bgColor: "bg-primary" },
-  verein: { label: "Verein", color: "text-primary-foreground", bgColor: "bg-primary" },
-  event: { label: "Veranstaltung", color: "text-accent-foreground", bgColor: "bg-accent" },
-  veranstaltung: { label: "Veranstaltung", color: "text-accent-foreground", bgColor: "bg-accent" },
-  training: { label: "Training", color: "text-white", bgColor: "bg-green-600" },
-  orgTeam: { label: "Org-Team", color: "text-white", bgColor: "bg-purple-600" },
-  orgteam: { label: "Org-Team", color: "text-white", bgColor: "bg-purple-600" },
+// Category colors only - labels come from translations
+const categoryColors: Record<string, { color: string; bgColor: string }> = {
+  all: { color: "text-foreground", bgColor: "bg-muted-foreground" },
+  club: { color: "text-primary-foreground", bgColor: "bg-primary" },
+  verein: { color: "text-primary-foreground", bgColor: "bg-primary" },
+  event: { color: "text-accent-foreground", bgColor: "bg-accent" },
+  veranstaltung: { color: "text-accent-foreground", bgColor: "bg-accent" },
+  training: { color: "text-white", bgColor: "bg-green-600" },
+  orgTeam: { color: "text-white", bgColor: "bg-purple-600" },
+  orgteam: { color: "text-white", bgColor: "bg-purple-600" },
+  orga: { color: "text-white", bgColor: "bg-purple-600" },
 };
 
-type ViewMode = "month" | "upcoming";
 
 export default function CalendarPage() {
   const t = useTranslation();
+  const { locale } = useLanguage();
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -35,6 +37,9 @@ export default function CalendarPage() {
   const { data: events, isLoading } = useCalendarEvents();
 
   const today = startOfDay(new Date());
+  
+  // Get the appropriate date-fns locale
+  const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
 
   // Filter and sort events
   const filteredEvents = (events || [])
@@ -63,9 +68,14 @@ export default function CalendarPage() {
     setSelectedDate(undefined);
   };
 
-  const getCategoryStyle = (category: string | null) => {
+  const getCategoryColors = (category: string | null) => {
     const cat = category?.toLowerCase() || 'all';
-    return categoryConfig[cat] || categoryConfig.all;
+    return categoryColors[cat] || categoryColors.all;
+  };
+
+  const getCategoryLabel = (category: string): string => {
+    const filterKey = category as keyof typeof t.calendar.filter;
+    return t.calendar.filter[filterKey] || category;
   };
 
   // Unique categories from events
@@ -77,7 +87,7 @@ export default function CalendarPage() {
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container">
           <h1 className="mb-2">{t.calendar.title}</h1>
-          <p className="text-lg text-primary-foreground/80">Alle Termine des MSC Oberlausitzer Dreiländereck e.V.</p>
+          <p className="text-lg text-primary-foreground/80">{t.calendar.subtitle}</p>
         </div>
       </section>
 
@@ -87,7 +97,7 @@ export default function CalendarPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             {/* View Mode Toggle */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-muted-foreground hidden sm:inline">Ansicht:</span>
+              <span className="text-sm font-medium text-muted-foreground hidden sm:inline">{t.calendar.view}:</span>
               <Button
                 variant={viewMode === "upcoming" ? "default" : "outline"}
                 size="sm"
@@ -98,8 +108,8 @@ export default function CalendarPage() {
                 className="gap-2"
               >
                 <List className="h-4 w-4" />
-                <span className="hidden sm:inline">Kommende</span>
-                <span className="sm:hidden">Liste</span>
+                <span className="hidden sm:inline">{t.calendar.viewListFull}</span>
+                <span className="sm:hidden">{t.calendar.viewList}</span>
               </Button>
               <Button
                 variant={viewMode === "month" ? "default" : "outline"}
@@ -108,16 +118,16 @@ export default function CalendarPage() {
                 className="gap-2"
               >
                 <CalendarDays className="h-4 w-4" />
-                <span className="hidden sm:inline">Monatsansicht</span>
-                <span className="sm:hidden">Kalender</span>
+                <span className="hidden sm:inline">{t.calendar.viewMonthFull}</span>
+                <span className="sm:hidden">{t.calendar.viewMonth}</span>
               </Button>
             </div>
 
             {/* Category Filters */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-muted-foreground hidden sm:inline">Kategorie:</span>
+              <span className="text-sm font-medium text-muted-foreground hidden sm:inline">{t.calendar.category}:</span>
               {availableCategories.map((cat) => {
-                const style = getCategoryStyle(cat);
+                const colors = getCategoryColors(cat);
                 return (
                   <Button
                     key={cat}
@@ -126,8 +136,8 @@ export default function CalendarPage() {
                     onClick={() => setActiveFilter(cat)}
                     className="gap-1.5"
                   >
-                    <span className={`h-2.5 w-2.5 rounded-full ${style.bgColor}`} />
-                    {style.label}
+                    <span className={`h-2.5 w-2.5 rounded-full ${colors.bgColor}`} />
+                    {getCategoryLabel(cat)}
                   </Button>
                 );
               })}
@@ -149,7 +159,7 @@ export default function CalendarPage() {
                       <Button variant="ghost" size="icon" onClick={() => handleMonthChange("prev")}>
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
-                      <span className="font-semibold">{format(currentMonth, "MMMM yyyy", { locale: de })}</span>
+                      <span className="font-semibold">{format(currentMonth, "MMMM yyyy", { locale: dateLocale })}</span>
                       <Button variant="ghost" size="icon" onClick={() => handleMonthChange("next")}>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
@@ -160,7 +170,7 @@ export default function CalendarPage() {
                       onSelect={setSelectedDate}
                       month={currentMonth}
                       onMonthChange={setCurrentMonth}
-                      locale={de}
+                      locale={dateLocale}
                       className="pointer-events-auto"
                       modifiers={{
                         hasEvent: eventDates,
@@ -176,7 +186,7 @@ export default function CalendarPage() {
                         className="mt-2 w-full"
                         onClick={() => setSelectedDate(undefined)}
                       >
-                        Alle Termine im Monat anzeigen
+                        {t.calendar.showAllMonth}
                       </Button>
                     )}
                   </CardContent>
@@ -186,7 +196,7 @@ export default function CalendarPage() {
               {/* ICS Export */}
               <Button variant="outline" className="w-full gap-2">
                 <Download className="h-4 w-4" />
-                Kalender exportieren (ICS)
+                {t.calendar.exportCalendar}
               </Button>
             </div>
 
@@ -195,13 +205,13 @@ export default function CalendarPage() {
               <div className="mb-6 flex items-center justify-between">
                 <h2 className="text-2xl font-bold">
                   {viewMode === "upcoming"
-                    ? "Kommende Termine"
+                    ? t.calendar.upcomingAll
                     : selectedDate
-                      ? format(selectedDate, "d. MMMM yyyy", { locale: de })
-                      : format(currentMonth, "MMMM yyyy", { locale: de })}
+                      ? format(selectedDate, "d. MMMM yyyy", { locale: dateLocale })
+                      : format(currentMonth, "MMMM yyyy", { locale: dateLocale })}
                 </h2>
                 <span className="text-muted-foreground">
-                  {filteredEvents.length} Termin{filteredEvents.length !== 1 ? "e" : ""}
+                  {filteredEvents.length} {filteredEvents.length !== 1 ? t.calendar.eventCountPlural : t.calendar.eventCount}
                 </span>
               </div>
 
@@ -224,7 +234,8 @@ export default function CalendarPage() {
               ) : (
                 <div className="space-y-4">
                   {filteredEvents.map((event) => {
-                    const style = getCategoryStyle(event.category);
+                    const colors = getCategoryColors(event.category);
+                    const categoryLabel = getCategoryLabel(event.category || 'all');
                     const eventDate = new Date(event.start_dt);
                     const eventEndDate = event.end_dt ? new Date(event.end_dt) : null;
                     
@@ -238,11 +249,11 @@ export default function CalendarPage() {
                         <CardContent className="flex gap-4 p-0">
                           {/* Date sidebar */}
                           <div
-                            className={`flex w-24 shrink-0 flex-col items-center justify-center p-4 ${style.bgColor} ${style.color}`}
+                            className={`flex w-24 shrink-0 flex-col items-center justify-center p-4 ${colors.bgColor} ${colors.color}`}
                           >
                             <span className="text-3xl font-black">{eventDate.getDate()}</span>
                             <span className="text-sm font-medium uppercase">
-                              {format(eventDate, "MMM", { locale: de })}
+                              {format(eventDate, "MMM", { locale: dateLocale })}
                             </span>
                             {eventEndDate && !isSameDay(eventDate, eventEndDate) && (
                               <span className="mt-1 text-xs opacity-80">– {eventEndDate.getDate()}.</span>
@@ -253,14 +264,14 @@ export default function CalendarPage() {
                           <div className="flex-1 py-4 pr-4">
                             <div className="mb-1 flex items-center gap-2 flex-wrap">
                               <span
-                                className={`rounded px-2 py-0.5 text-xs font-semibold ${style.bgColor} ${style.color}`}
+                                className={`rounded px-2 py-0.5 text-xs font-semibold ${colors.bgColor} ${colors.color}`}
                               >
-                                {style.label}
+                                {categoryLabel}
                               </span>
                               {event.is_main_event && (
                                 <span className="flex items-center gap-1 rounded bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground">
                                   <Star className="h-3 w-3" />
-                                  Hauptevent
+                                  {t.calendar.mainEvent}
                                 </span>
                               )}
                             </div>
@@ -274,7 +285,7 @@ export default function CalendarPage() {
                             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                               <span className="flex items-center gap-1">
                                 <Clock className="h-4 w-4" />
-                                {format(eventDate, "HH:mm", { locale: de })} Uhr
+                                {format(eventDate, "HH:mm", { locale: dateLocale })}
                               </span>
                               {event.location && (
                                 <span className="flex items-center gap-1">
@@ -292,8 +303,8 @@ export default function CalendarPage() {
                   {filteredEvents.length === 0 && (
                     <div className="rounded-lg border-2 border-dashed border-border py-12 text-center text-muted-foreground">
                       <CalendarX className="h-12 w-12 mx-auto mb-4" />
-                      <p>Keine Termine gefunden.</p>
-                      <p className="mt-1 text-sm">Wähle einen anderen Monat oder eine andere Kategorie.</p>
+                      <p>{t.calendar.noEvents}</p>
+                      <p className="mt-1 text-sm">{t.calendar.noEventsHint}</p>
                     </div>
                   )}
                 </div>
