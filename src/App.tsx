@@ -38,6 +38,7 @@ import SponsorsAdminPage from "./pages/admin/SponsorsAdminPage";
 import SponsorFormPage from "./pages/admin/SponsorFormPage";
 import DownloadsAdminPage from "./pages/admin/DownloadsAdminPage";
 import MediaAdminPage from "./pages/admin/MediaAdminPage";
+import ContentAdminPage from "./pages/admin/ContentAdminPage";
 import UsersAdminPage from "./pages/admin/UsersAdminPage";
 import SettingsAdminPage from "./pages/admin/SettingsAdminPage";
 import { AdminLayout } from "./components/admin/AdminLayout";
@@ -97,6 +98,7 @@ const App = () => (
               <Route path="/admin/sponsors/:id" element={<AdminLayout><SponsorFormPage /></AdminLayout>} />
               <Route path="/admin/downloads" element={<AdminLayout><DownloadsAdminPage /></AdminLayout>} />
               <Route path="/admin/media" element={<AdminLayout><MediaAdminPage /></AdminLayout>} />
+              <Route path="/admin/content" element={<AdminLayout><ContentAdminPage /></AdminLayout>} />
               <Route path="/admin/users" element={<AdminLayout><UsersAdminPage /></AdminLayout>} />
               <Route path="/admin/settings" element={<AdminLayout><SettingsAdminPage /></AdminLayout>} />
               
