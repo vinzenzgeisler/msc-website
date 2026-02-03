@@ -3,94 +3,14 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Filter } from 'lucide-react';
+import { ArrowRight, Calendar, Filter, Newspaper } from 'lucide-react';
+import { usePosts } from '@/hooks/usePosts';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
 
 type NewsCategory = 'all' | 'event' | 'club';
-
-// Extended mock news data
-const newsArticles = [
-  {
-    id: 1,
-    slug: 'vorbereitung-2026',
-    title: 'Vorbereitungen für das 12. Oberlausitzer Dreieck laufen auf Hochtouren',
-    excerpt: 'Das Org-Team hat mit den Planungen für die kommende Jubiläumsveranstaltung begonnen. Erste Sponsorengespräche wurden bereits erfolgreich geführt und die Genehmigungen sind beantragt.',
-    content: 'Das Org-Team hat mit den Planungen für die kommende Jubiläumsveranstaltung begonnen...',
-    date: '2026-01-10',
-    category: 'event' as const,
-    featured: true,
-  },
-  {
-    id: 2,
-    slug: 'jahreshauptversammlung-2026',
-    title: 'Einladung zur Jahreshauptversammlung 2026',
-    excerpt: 'Wir laden alle Mitglieder herzlich zur ordentlichen Jahreshauptversammlung am 20. Februar 2026 um 18:00 Uhr ins Vereinsheim ein.',
-    content: 'Wir laden alle Mitglieder herzlich zur Jahreshauptversammlung...',
-    date: '2026-01-05',
-    category: 'club' as const,
-    featured: false,
-  },
-  {
-    id: 3,
-    slug: 'rueckblick-2025',
-    title: 'Rückblick: 11. Oberlausitzer Dreieck war voller Erfolg',
-    excerpt: 'Mit über 5.000 Besuchern und perfektem Wetter war die Veranstaltung 2025 ein großer Erfolg. Wir danken allen Helfern, Sponsoren und Teilnehmern für zwei unvergessliche Tage.',
-    content: 'Mit über 5.000 Besuchern war die Veranstaltung 2025 ein großer Erfolg...',
-    date: '2025-09-20',
-    category: 'event' as const,
-    featured: true,
-  },
-  {
-    id: 4,
-    slug: 'neue-mitglieder-willkommen',
-    title: 'Neue Mitglieder herzlich willkommen!',
-    excerpt: 'Der MSC Oberlausitzer Dreiländereck sucht motorsportbegeisterte Menschen, die Teil unserer Gemeinschaft werden möchten. Ob als aktiver Fahrer oder Helfer – jeder ist willkommen!',
-    content: 'Der MSC sucht motorsportbegeisterte Menschen...',
-    date: '2025-08-15',
-    category: 'club' as const,
-    featured: false,
-  },
-  {
-    id: 5,
-    slug: 'trial-training-sommer-2025',
-    title: 'Trial-Trainings im Sommer gut besucht',
-    excerpt: 'Die Trial-Abteilung freut sich über regen Zulauf bei den Sommertrainings. Auch Anfänger sind jederzeit willkommen.',
-    content: 'Die Trial-Abteilung freut sich über regen Zulauf...',
-    date: '2025-07-28',
-    category: 'club' as const,
-    featured: false,
-  },
-  {
-    id: 6,
-    slug: 'helfer-gesucht-2026',
-    title: 'Helfer für das 12. Oberlausitzer Dreieck gesucht',
-    excerpt: 'Für die Veranstaltung im September 2026 suchen wir noch engagierte Helfer für verschiedene Bereiche: Streckenposten, Catering, Parkplatz und mehr.',
-    content: 'Für die Veranstaltung suchen wir noch Helfer...',
-    date: '2025-06-10',
-    category: 'event' as const,
-    featured: false,
-  },
-  {
-    id: 7,
-    slug: 'motorradtouristik-fruehling',
-    title: 'Motorradtouristik startet in die Saison',
-    excerpt: 'Mit der ersten Ausfahrt des Jahres startet die Touristik-Abteilung in die neue Saison. Mehrere Touren sind bereits geplant.',
-    content: 'Mit der ersten Ausfahrt startet die Touristik-Abteilung...',
-    date: '2025-04-15',
-    category: 'club' as const,
-    featured: false,
-  },
-  {
-    id: 8,
-    slug: 'sponsoren-2026',
-    title: 'Hauptsponsoren für 2026 bestätigt',
-    excerpt: 'Wir freuen uns, dass unsere langjährigen Partner Havlat und DEKRA auch 2026 wieder als Hauptsponsoren dabei sind.',
-    content: 'Wir freuen uns über die Zusage unserer Hauptsponsoren...',
-    date: '2025-03-20',
-    category: 'event' as const,
-    featured: false,
-  },
-];
 
 const categoryConfig: Record<NewsCategory, { label: string; color: string }> = {
   all: { label: 'Alle', color: 'bg-muted text-foreground' },
@@ -101,13 +21,36 @@ const categoryConfig: Record<NewsCategory, { label: string; color: string }> = {
 export default function NewsPage() {
   const t = useTranslation();
   const [activeFilter, setActiveFilter] = useState<NewsCategory>('all');
+  const { data: posts, isLoading } = usePosts();
+
+  // Get only published posts
+  const publishedPosts = (posts || [])
+    .filter(post => post.status === 'published')
+    .sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime());
 
   const filteredArticles = activeFilter === 'all'
-    ? newsArticles
-    : newsArticles.filter((article) => article.category === activeFilter);
+    ? publishedPosts
+    : publishedPosts.filter((article) => article.category === activeFilter);
 
-  const featuredArticle = filteredArticles.find((a) => a.featured);
-  const regularArticles = filteredArticles.filter((a) => !a.featured || a !== featuredArticle);
+  const featuredArticle = filteredArticles[0];
+  const regularArticles = filteredArticles.slice(1);
+
+  const formatDate = (dateStr: string, short = false) => {
+    const formatStr = short ? 'd. MMM yyyy' : 'd. MMMM yyyy';
+    return format(new Date(dateStr), formatStr, { locale: de });
+  };
+
+  const getCategoryColor = (category: string | null) => {
+    if (category === 'event') return categoryConfig.event.color;
+    if (category === 'club') return categoryConfig.club.color;
+    return 'bg-muted text-foreground';
+  };
+
+  const getCategoryLabel = (category: string | null) => {
+    if (category === 'event') return categoryConfig.event.label;
+    if (category === 'club') return categoryConfig.club.label;
+    return 'Allgemein';
+  };
 
   return (
     <MainLayout>
@@ -144,97 +87,143 @@ export default function NewsPage() {
 
       <section className="py-12">
         <div className="container">
-          {/* Featured Article */}
-          {featuredArticle && (
-            <Card className="group mb-8 overflow-hidden border-2 border-accent transition-shadow hover:shadow-xl">
-              <div className="grid md:grid-cols-2">
-                {/* Image */}
-                <div className="flex h-64 items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 md:h-auto">
-                  <span className="text-muted-foreground">Bild</span>
-                </div>
-                
-                {/* Content */}
-                <CardContent className="flex flex-col justify-center p-8">
-                  <div className="mb-4 flex items-center gap-3">
-                    <span className={`rounded px-3 py-1 text-xs font-bold uppercase ${categoryConfig[featuredArticle.category].color}`}>
-                      {categoryConfig[featuredArticle.category].label}
-                    </span>
-                    <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(featuredArticle.date).toLocaleDateString('de-DE', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </span>
+          {isLoading ? (
+            <>
+              {/* Featured skeleton */}
+              <Card className="mb-8 overflow-hidden border-2">
+                <div className="grid md:grid-cols-2">
+                  <Skeleton className="h-64" />
+                  <div className="p-8">
+                    <Skeleton className="h-6 w-32 mb-4" />
+                    <Skeleton className="h-8 w-full mb-4" />
+                    <Skeleton className="h-20 w-full mb-6" />
+                    <Skeleton className="h-10 w-32" />
                   </div>
-                  
-                  <h2 className="mb-4 text-2xl font-bold transition-colors group-hover:text-primary md:text-3xl">
-                    {featuredArticle.title}
-                  </h2>
-                  
-                  <p className="mb-6 text-muted-foreground">
-                    {featuredArticle.excerpt}
-                  </p>
-                  
-                  <Button className="w-fit gap-2" asChild>
-                    <Link to={`/news/${featuredArticle.slug}`}>
-                      {t.news.readMore}
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </div>
-            </Card>
-          )}
-
-          {/* News Grid */}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {regularArticles.map((article) => (
-              <Card key={article.id} className="group overflow-hidden transition-shadow hover:shadow-lg">
-                {/* Image */}
-                <div className="flex h-40 items-center justify-center bg-muted">
-                  <span className="text-muted-foreground">Bild</span>
                 </div>
-                
-                <CardContent className="p-5">
-                  <div className="mb-3 flex items-center gap-3">
-                    <span className={`rounded px-2 py-0.5 text-xs font-semibold ${categoryConfig[article.category].color}`}>
-                      {categoryConfig[article.category].label}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(article.date).toLocaleDateString('de-DE', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
-                    </span>
-                  </div>
-                  
-                  <h3 className="mb-2 line-clamp-2 font-bold transition-colors group-hover:text-primary">
-                    {article.title}
-                  </h3>
-                  
-                  <p className="mb-4 line-clamp-2 text-sm text-muted-foreground">
-                    {article.excerpt}
-                  </p>
-                  
-                  <Link 
-                    to={`/news/${article.slug}`}
-                    className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
-                  >
-                    {t.news.readMore}
-                    <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </CardContent>
               </Card>
-            ))}
-          </div>
+              {/* Grid skeleton */}
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} className="overflow-hidden">
+                    <Skeleton className="h-40" />
+                    <CardContent className="p-5">
+                      <Skeleton className="h-4 w-24 mb-3" />
+                      <Skeleton className="h-6 w-full mb-2" />
+                      <Skeleton className="h-12 w-full mb-4" />
+                      <Skeleton className="h-4 w-20" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Featured Article */}
+              {featuredArticle && (
+                <Card className="group mb-8 overflow-hidden border-2 border-accent transition-shadow hover:shadow-xl">
+                  <div className="grid md:grid-cols-2">
+                    {/* Image */}
+                    <div className="flex h-64 items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 md:h-auto">
+                      {featuredArticle.image_url ? (
+                        <img 
+                          src={featuredArticle.image_url} 
+                          alt={featuredArticle.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Newspaper className="h-16 w-16 text-muted-foreground" />
+                      )}
+                    </div>
+                    
+                    {/* Content */}
+                    <CardContent className="flex flex-col justify-center p-8">
+                      <div className="mb-4 flex items-center gap-3">
+                        <span className={`rounded px-3 py-1 text-xs font-bold uppercase ${getCategoryColor(featuredArticle.category)}`}>
+                          {getCategoryLabel(featuredArticle.category)}
+                        </span>
+                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Calendar className="h-3 w-3" />
+                          {formatDate(featuredArticle.published_at || featuredArticle.created_at)}
+                        </span>
+                      </div>
+                      
+                      <h2 className="mb-4 text-2xl font-bold transition-colors group-hover:text-primary md:text-3xl">
+                        {featuredArticle.title}
+                      </h2>
+                      
+                      {featuredArticle.excerpt && (
+                        <p className="mb-6 text-muted-foreground line-clamp-3">
+                          {featuredArticle.excerpt}
+                        </p>
+                      )}
+                      
+                      <Button className="w-fit gap-2" asChild>
+                        <Link to={`/news/${featuredArticle.slug}`}>
+                          {t.news.readMore}
+                          <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </div>
+                </Card>
+              )}
 
-          {filteredArticles.length === 0 && (
-            <div className="rounded-lg border-2 border-dashed border-border py-12 text-center text-muted-foreground">
-              <p>Keine Artikel in dieser Kategorie gefunden.</p>
-            </div>
+              {/* News Grid */}
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {regularArticles.map((article) => (
+                  <Card key={article.id} className="group overflow-hidden transition-shadow hover:shadow-lg">
+                    {/* Image */}
+                    <div className="flex h-40 items-center justify-center bg-muted">
+                      {article.image_url ? (
+                        <img 
+                          src={article.image_url} 
+                          alt={article.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Newspaper className="h-8 w-8 text-muted-foreground" />
+                      )}
+                    </div>
+                    
+                    <CardContent className="p-5">
+                      <div className="mb-3 flex items-center gap-3">
+                        <span className={`rounded px-2 py-0.5 text-xs font-semibold ${getCategoryColor(article.category)}`}>
+                          {getCategoryLabel(article.category)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(article.published_at || article.created_at, true)}
+                        </span>
+                      </div>
+                      
+                      <h3 className="mb-2 line-clamp-2 font-bold transition-colors group-hover:text-primary">
+                        {article.title}
+                      </h3>
+                      
+                      {article.excerpt && (
+                        <p className="mb-4 line-clamp-2 text-sm text-muted-foreground">
+                          {article.excerpt}
+                        </p>
+                      )}
+                      
+                      <Link 
+                        to={`/news/${article.slug}`}
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                      >
+                        {t.news.readMore}
+                        <ArrowRight className="h-3 w-3" />
+                      </Link>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {filteredArticles.length === 0 && (
+                <div className="rounded-lg border-2 border-dashed border-border py-12 text-center text-muted-foreground">
+                  <Newspaper className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <p>Keine Artikel gefunden.</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
