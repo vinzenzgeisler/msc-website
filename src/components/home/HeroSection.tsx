@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Calendar, Flag } from 'lucide-react';
+import { ArrowRight, Calendar } from 'lucide-react';
+import heroVideo from '@/assets/hero-video.mp4';
 
 // Event date: September 12-13, 2026
 const EVENT_DATE = new Date('2026-09-12T09:00:00');
@@ -49,18 +50,28 @@ export function HeroSection() {
   const countdown = useCountdown(EVENT_DATE);
 
   return (
-    <section className="relative overflow-hidden bg-primary py-20 text-primary-foreground md:py-32">
-      {/* Subtle diagonal stripes */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="racing-stripe h-full w-full" />
+    <section className="relative min-h-[85vh] overflow-hidden">
+      {/* Background Video */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="h-full w-full object-cover"
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/90" />
       </div>
-      
-      {/* Accent stripe */}
-      <div className="absolute -right-20 top-0 h-full w-40 skew-x-[-15deg] bg-accent opacity-90" />
-      <div className="absolute -right-32 top-0 h-full w-16 skew-x-[-15deg] bg-accent/50" />
 
-      <div className="container relative z-10">
-        <div className="mx-auto max-w-4xl text-center">
+      {/* Accent stripe */}
+      <div className="absolute -right-20 top-0 z-10 h-full w-40 skew-x-[-15deg] bg-accent opacity-80" />
+      <div className="absolute -right-32 top-0 z-10 h-full w-16 skew-x-[-15deg] bg-accent/40" />
+
+      <div className="container relative z-20 flex min-h-[85vh] items-center py-20">
+        <div className="mx-auto max-w-4xl text-center text-primary-foreground">
           {/* Event Badge */}
           <div className="mb-6 inline-flex items-center gap-2 bg-accent px-5 py-2 text-sm font-bold uppercase tracking-wider text-accent-foreground">
             <Calendar className="h-4 w-4" />
@@ -72,11 +83,11 @@ export function HeroSection() {
             {t.hero.eventTitle}
           </h1>
 
-          <p className="mb-10 text-lg text-primary-foreground/80 md:text-xl">
+          <p className="mb-10 text-lg text-primary-foreground/90 md:text-xl">
             {t.event.description}
           </p>
 
-          {/* Countdown - Clean style */}
+          {/* Countdown */}
           <div className="mb-12 grid grid-cols-4 gap-4 md:gap-6">
             {[
               { value: countdown.days, label: t.hero.days },
@@ -86,7 +97,7 @@ export function HeroSection() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="bg-background/10 p-4 backdrop-blur-sm md:p-6"
+                className="bg-background/15 p-4 backdrop-blur-sm md:p-6"
               >
                 <div className="font-display text-4xl font-black md:text-6xl">
                   {String(item.value).padStart(2, '0')}
