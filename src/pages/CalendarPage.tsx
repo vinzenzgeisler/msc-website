@@ -329,20 +329,14 @@ export default function CalendarPage() {
                       </Button>
                     )}
                   </CardContent>
-
-                  {/* ICS Export */}
-                  <Button variant="outline" className="w-full gap-2">
-                    <Download className="h-4 w-4" />
-                    Kalender exportieren (ICS)
-                  </Button>
                 </Card>
               )}
-              /* {/* ICS Export */}
+
+              {/* ICS Export */}
               <Button variant="outline" className="w-full gap-2">
                 <Download className="h-4 w-4" />
                 Kalender exportieren (ICS)
-              </Button>{" "}
-              */
+              </Button>
             </div>
 
             {/* Events List */}
