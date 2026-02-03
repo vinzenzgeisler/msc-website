@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: profile, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .single();
 
     if (error || !profile) {
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const typedProfile = profile as Profile;
     return {
-      id: typedProfile.id,
+      id: typedProfile.user_id,
       email: typedProfile.email,
       name: typedProfile.full_name || typedProfile.email,
       role: typedProfile.role,
