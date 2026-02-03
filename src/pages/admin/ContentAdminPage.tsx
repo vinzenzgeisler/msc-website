@@ -86,10 +86,36 @@ function ContentEditor({
     subtitle: initialData?.subtitle || '',
     content: initialData?.content || '',
   });
+  const [isDirty, setIsDirty] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Reset form when initialData or locale changes
+  const dataKey = `${pageKey}-${sectionKey}-${locale}`;
+  const [lastDataKey, setLastDataKey] = useState(dataKey);
+  
+  if (dataKey !== lastDataKey) {
+    setFormData({
+      title: initialData?.title || '',
+      subtitle: initialData?.subtitle || '',
+      content: initialData?.content || '',
+    });
+    setIsDirty(false);
+    setSaveSuccess(false);
+    setLastDataKey(dataKey);
+  }
+
+  const handleChange = (field: keyof ContentFormData, value: string) => {
+    setFormData({ ...formData, [field]: value });
+    setIsDirty(true);
+    setSaveSuccess(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    await onSave(formData);
+    setIsDirty(false);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
   };
 
   return (
@@ -99,8 +125,9 @@ function ContentEditor({
         <Input
           id={`title-${sectionKey}-${locale}`}
           value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          onChange={(e) => handleChange('title', e.target.value)}
           placeholder="Titel eingeben..."
+          className="max-w-xl"
         />
       </div>
       
@@ -109,8 +136,9 @@ function ContentEditor({
         <Input
           id={`subtitle-${sectionKey}-${locale}`}
           value={formData.subtitle}
-          onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+          onChange={(e) => handleChange('subtitle', e.target.value)}
           placeholder="Untertitel eingeben..."
+          className="max-w-xl"
         />
       </div>
       
@@ -119,20 +147,38 @@ function ContentEditor({
         <Textarea
           id={`content-${sectionKey}-${locale}`}
           value={formData.content}
-          onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-          placeholder="Inhalt eingeben..."
-          rows={8}
+          onChange={(e) => handleChange('content', e.target.value)}
+          placeholder="Inhalt eingeben... (Markdown wird unterstützt)"
+          rows={10}
+          className="font-mono text-sm"
         />
+        <p className="text-xs text-muted-foreground">
+          Markdown-Formatierung wird unterstützt: **fett**, *kursiv*, [Link](url)
+        </p>
       </div>
       
-      <Button type="submit" disabled={isSaving}>
-        {isSaving ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <Save className="mr-2 h-4 w-4" />
+      <div className="flex items-center gap-3">
+        <Button type="submit" disabled={isSaving || !isDirty}>
+          {isSaving ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="mr-2 h-4 w-4" />
+          )}
+          Speichern
+        </Button>
+        
+        {isDirty && (
+          <span className="text-sm text-muted-foreground">
+            Ungespeicherte Änderungen
+          </span>
         )}
-        Speichern
-      </Button>
+        
+        {saveSuccess && (
+          <span className="text-sm text-green-600 dark:text-green-400">
+            ✓ Gespeichert
+          </span>
+        )}
+      </div>
     </form>
   );
 }

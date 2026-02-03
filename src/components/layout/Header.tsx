@@ -1,9 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import { Menu, X, ChevronDown, Sun, Moon } from 'lucide-react';
+import { Menu, X, ChevronDown, ChevronRight, Sun, Moon } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useTheme } from '@/hooks/useTheme';
 import { Button } from '@/components/ui/button';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -171,30 +176,16 @@ export function Header() {
       {isMenuOpen && (
         <div className="border-t border-border bg-background lg:hidden">
           <nav className="container py-4">
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {navItems.map((item) =>
                 item.children ? (
-                  <li key={item.label}>
-                    <div className="mb-1 px-3 text-sm font-semibold text-muted-foreground">
-                      {item.label}
-                    </div>
-                    <ul className="ml-4 space-y-1">
-                      {item.children.map((child) => (
-                        <li key={child.path}>
-                          <Link
-                            to={child.path}
-                            onClick={() => setIsMenuOpen(false)}
-                            className={cn(
-                              'block rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
-                              isActive(child.path) && 'bg-accent font-medium'
-                            )}
-                          >
-                            {child.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
+                  <MobileSubmenu
+                    key={item.label}
+                    label={item.label}
+                    children={item.children}
+                    isActive={isActive}
+                    onNavigate={() => setIsMenuOpen(false)}
+                  />
                 ) : (
                   <li key={item.path}>
                     <Link
@@ -215,5 +206,59 @@ export function Header() {
         </div>
       )}
     </header>
+  );
+}
+
+// Collapsible submenu component for mobile
+function MobileSubmenu({
+  label,
+  children,
+  isActive,
+  onNavigate,
+}: {
+  label: string;
+  children: { path: string; label: string }[];
+  isActive: (path: string) => boolean;
+  onNavigate: () => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const hasActiveChild = children.some((child) => isActive(child.path));
+
+  return (
+    <li>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleTrigger asChild>
+          <button
+            className={cn(
+              'flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent',
+              hasActiveChild && 'text-primary'
+            )}
+          >
+            {label}
+            <ChevronRight
+              className={cn(
+                'h-4 w-4 transition-transform duration-200',
+                isOpen && 'rotate-90'
+              )}
+            />
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="mt-1 ml-3 space-y-1 border-l-2 border-border pl-3">
+          {children.map((child) => (
+            <Link
+              key={child.path}
+              to={child.path}
+              onClick={onNavigate}
+              className={cn(
+                'block rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent',
+                isActive(child.path) && 'bg-accent font-medium'
+              )}
+            >
+              {child.label}
+            </Link>
+          ))}
+        </CollapsibleContent>
+      </Collapsible>
+    </li>
   );
 }
