@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -18,63 +19,52 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react';
-
-// Mock data
-const mockNews = [
-  {
-    id: 1,
-    title: 'Vorbereitung für das 12. Oberlausitzer Dreieck läuft',
-    category: 'Veranstaltung',
-    status: 'published',
-    author: 'Administrator',
-    date: '2024-01-15',
-    views: 245,
-  },
-  {
-    id: 2,
-    title: 'Neue Trainingszeiten für Motocross-Strecke',
-    category: 'Verein',
-    status: 'published',
-    author: 'Redakteur',
-    date: '2024-01-10',
-    views: 128,
-  },
-  {
-    id: 3,
-    title: 'Jahreshauptversammlung 2024 - Einladung',
-    category: 'Verein',
-    status: 'draft',
-    author: 'Administrator',
-    date: '2024-01-05',
-    views: 0,
-  },
-  {
-    id: 4,
-    title: 'Rückblick: Erfolgreiche Trial-Saison 2023',
-    category: 'Sparten',
-    status: 'published',
-    author: 'Redakteur',
-    date: '2023-12-20',
-    views: 312,
-  },
-  {
-    id: 5,
-    title: 'Sponsoren-Partner für 2024 bestätigt',
-    category: 'Partner',
-    status: 'published',
-    author: 'Administrator',
-    date: '2023-12-15',
-    views: 189,
-  },
-];
+import { usePosts, useDeletePost } from '@/hooks/usePosts';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
+import { toast } from 'sonner';
 
 export default function NewsAdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  
+  const { data: posts, isLoading, error } = usePosts();
+  const deletePost = useDeletePost();
 
-  const filteredNews = mockNews.filter((article) =>
+  const filteredNews = posts?.filter((article) =>
     article.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ) || [];
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    
+    try {
+      await deletePost.mutateAsync(deleteId);
+      toast.success('Artikel gelöscht');
+    } catch (err) {
+      toast.error('Fehler beim Löschen');
+    }
+    setDeleteId(null);
+  };
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-destructive">Fehler beim Laden der Artikel</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -107,13 +97,13 @@ export default function NewsAdminPage() {
             </div>
             <div className="flex gap-2">
               <Badge variant="outline" className="cursor-pointer hover:bg-muted">
-                Alle ({mockNews.length})
+                Alle ({posts?.length || 0})
               </Badge>
               <Badge variant="outline" className="cursor-pointer hover:bg-muted">
-                Veröffentlicht ({mockNews.filter(n => n.status === 'published').length})
+                Veröffentlicht ({posts?.filter(n => n.status === 'published').length || 0})
               </Badge>
               <Badge variant="outline" className="cursor-pointer hover:bg-muted">
-                Entwürfe ({mockNews.filter(n => n.status === 'draft').length})
+                Entwürfe ({posts?.filter(n => n.status === 'draft').length || 0})
               </Badge>
             </div>
           </div>
@@ -126,74 +116,105 @@ export default function NewsAdminPage() {
           <CardTitle>Alle Artikel</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Titel</TableHead>
-                <TableHead>Kategorie</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Autor</TableHead>
-                <TableHead>Datum</TableHead>
-                <TableHead className="text-right">Aktionen</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredNews.map((article) => (
-                <TableRow key={article.id}>
-                  <TableCell className="font-medium max-w-xs truncate">
-                    {article.title}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{article.category}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={article.status === 'published' ? 'default' : 'secondary'}
-                    >
-                      {article.status === 'published' ? 'Veröffentlicht' : 'Entwurf'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{article.author}</TableCell>
-                  <TableCell>{article.date}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link to={`/news/${article.id}`} target="_blank">
-                            <Eye className="mr-2 h-4 w-4" />
-                            Vorschau
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to={`/admin/news/${article.id}`}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Bearbeiten
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Löschen
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+          {isLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex gap-4">
+                  <Skeleton className="h-12 flex-1" />
+                </div>
               ))}
-            </TableBody>
-          </Table>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Titel</TableHead>
+                  <TableHead>Kategorie</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Datum</TableHead>
+                  <TableHead className="text-right">Aktionen</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredNews.map((article) => (
+                  <TableRow key={article.id}>
+                    <TableCell className="font-medium max-w-xs truncate">
+                      {article.title}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{article.category || 'Allgemein'}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={article.status === 'published' ? 'default' : 'secondary'}
+                      >
+                        {article.status === 'published' ? 'Veröffentlicht' : 'Entwurf'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {format(new Date(article.created_at), 'dd.MM.yyyy', { locale: de })}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem asChild>
+                            <Link to={`/news/${article.slug}`} target="_blank">
+                              <Eye className="mr-2 h-4 w-4" />
+                              Vorschau
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to={`/admin/news/${article.id}`}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Bearbeiten
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => setDeleteId(article.id)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Löschen
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
 
-          {filteredNews.length === 0 && (
+          {!isLoading && filteredNews.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
               Keine Artikel gefunden
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Artikel löschen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Diese Aktion kann nicht rückgängig gemacht werden.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+              Löschen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
