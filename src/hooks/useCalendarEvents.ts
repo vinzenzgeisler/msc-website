@@ -1,14 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase, CalendarEvent } from '@/integrations/supabase/client';
+import { useLanguage } from '@/i18n/LanguageContext';
 
-export function useCalendarEvents() {
+export function useCalendarEvents(filterByLocale = true) {
+  const { locale } = useLanguage();
+  
   return useQuery({
-    queryKey: ['calendar_events'],
+    queryKey: ['calendar_events', filterByLocale ? locale : 'all'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('calendar_events')
         .select('*')
         .order('start_dt', { ascending: true });
+      
+      if (filterByLocale) {
+        query = query.eq('locale', locale);
+      }
+      
+      const { data, error } = await query;
       
       if (error) throw error;
       return data as CalendarEvent[];

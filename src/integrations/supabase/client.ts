@@ -35,6 +35,7 @@ export interface Post {
   author_id: string | null;
   published_at: string | null;
   locale: string;
+  is_pinned: boolean;
   created_at: string;
   updated_at: string;
 }
