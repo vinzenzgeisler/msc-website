@@ -34,6 +34,7 @@ export interface Post {
   status: 'draft' | 'published';
   author_id: string | null;
   published_at: string | null;
+  locale: string;
   created_at: string;
   updated_at: string;
 }

@@ -52,6 +52,7 @@ export default function NewsFormPage() {
     content: '',
     category: '',
     image_url: '',
+    locale: 'de',
     status: 'draft' as 'draft' | 'published',
   });
 
@@ -64,6 +65,7 @@ export default function NewsFormPage() {
         content: existingPost.content || '',
         category: existingPost.category || '',
         image_url: existingPost.image_url || '',
+        locale: existingPost.locale || 'de',
         status: existingPost.status || 'draft',
       });
     }
@@ -93,6 +95,7 @@ export default function NewsFormPage() {
         content: formData.content || null,
         category: formData.category || null,
         image_url: formData.image_url || null,
+        locale: formData.locale,
         status: formData.status,
         author_id: null,
         published_at: formData.status === 'published' ? new Date().toISOString() : null,
