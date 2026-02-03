@@ -1,120 +1,120 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* MSC Oberlausitzer Dreiländereck - Design System
-   Dynamisch & Bold: Kräftiges Blau + energetische gelbe Akzente
-   Motorsport-Atmosphäre mit diagonalen Elementen
+   Dynamisch & Bold: Tiefes Racing Blau + energetisches Orange-Gelb
+   Motorsport-Atmosphäre mit diagonalen Elementen & aggressiver Typografie
 */
 
 @layer base {
   :root {
-    /* Primary: Racing Blue */
-    --primary: 220 95% 57%;
+    /* Primary: Deep Racing Blue */
+    --primary: 222 84% 25%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Muted Blue-Gray */
-    --secondary: 214 32% 91%;
-    --secondary-foreground: 217 91% 25%;
+    /* Secondary: Steel Gray */
+    --secondary: 220 14% 90%;
+    --secondary-foreground: 222 84% 20%;
 
-    /* Accent: Racing Yellow */
-    --accent: 45 100% 50%;
-    --accent-foreground: 217 91% 15%;
+    /* Accent: Racing Orange-Yellow */
+    --accent: 38 100% 50%;
+    --accent-foreground: 222 84% 10%;
 
     /* Background & Surfaces */
     --background: 0 0% 100%;
-    --foreground: 217 91% 10%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 217 91% 10%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 217 91% 10%;
+    --popover-foreground: 222 47% 11%;
 
     /* Muted & Subtle */
-    --muted: 214 32% 96%;
-    --muted-foreground: 217 25% 45%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
     /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders & Inputs */
-    --border: 214 32% 85%;
-    --input: 214 32% 85%;
-    --ring: 217 91% 40%;
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 222 84% 25%;
 
-    --radius: 0.5rem;
+    --radius: 0rem;
 
     /* Sidebar */
-    --sidebar-background: 217 91% 98%;
-    --sidebar-foreground: 217 91% 25%;
-    --sidebar-primary: 217 91% 40%;
+    --sidebar-background: 222 47% 98%;
+    --sidebar-foreground: 222 84% 20%;
+    --sidebar-primary: 222 84% 25%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 45 100% 50%;
-    --sidebar-accent-foreground: 217 91% 15%;
-    --sidebar-border: 214 32% 90%;
-    --sidebar-ring: 217 91% 40%;
+    --sidebar-accent: 38 100% 50%;
+    --sidebar-accent-foreground: 222 84% 10%;
+    --sidebar-border: 220 13% 90%;
+    --sidebar-ring: 222 84% 25%;
 
-    /* Custom: Motorsport Gradients */
-    --gradient-racing: linear-gradient(135deg, hsl(217 91% 40%) 0%, hsl(217 91% 55%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(45 100% 50%) 0%, hsl(40 100% 45%) 100%);
-    --shadow-racing: 0 10px 40px -10px hsl(217 91% 40% / 0.35);
-    --shadow-accent: 0 10px 30px -10px hsl(45 100% 50% / 0.4);
+    /* Custom: Motorsport Effects */
+    --gradient-racing: linear-gradient(135deg, hsl(222 84% 25%) 0%, hsl(222 84% 35%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(38 100% 50%) 0%, hsl(32 100% 45%) 100%);
+    --shadow-racing: 0 10px 40px -10px hsl(222 84% 25% / 0.4);
+    --shadow-accent: 0 10px 30px -10px hsl(38 100% 50% / 0.5);
   }
 
   .dark {
-    /* Primary: Bright Blue */
+    /* Primary: Electric Blue */
     --primary: 217 91% 60%;
-    --primary-foreground: 217 91% 10%;
+    --primary-foreground: 222 47% 5%;
 
-    /* Secondary: Dark Blue-Gray */
-    --secondary: 217 32% 18%;
+    /* Secondary: Dark Steel */
+    --secondary: 222 30% 16%;
     --secondary-foreground: 0 0% 95%;
 
-    /* Accent: Racing Yellow (prominent in dark) */
-    --accent: 45 100% 55%;
-    --accent-foreground: 217 91% 10%;
+    /* Accent: Bright Racing Orange */
+    --accent: 38 100% 55%;
+    --accent-foreground: 222 47% 5%;
 
-    /* Background: Deep Racing Blue */
-    --background: 217 50% 6%;
+    /* Background: Deep Racing Black-Blue */
+    --background: 222 47% 5%;
     --foreground: 0 0% 98%;
 
-    --card: 217 45% 10%;
+    --card: 222 40% 8%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 217 45% 10%;
+    --popover: 222 40% 8%;
     --popover-foreground: 0 0% 98%;
 
     /* Muted */
-    --muted: 217 32% 15%;
-    --muted-foreground: 214 20% 65%;
+    --muted: 222 30% 12%;
+    --muted-foreground: 220 14% 60%;
 
     /* Destructive */
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders & Inputs */
-    --border: 217 32% 20%;
-    --input: 217 32% 20%;
+    --border: 222 30% 18%;
+    --input: 222 30% 18%;
     --ring: 217 91% 60%;
 
     /* Sidebar */
-    --sidebar-background: 217 45% 8%;
+    --sidebar-background: 222 40% 6%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 217 91% 10%;
-    --sidebar-accent: 45 100% 55%;
-    --sidebar-accent-foreground: 217 91% 10%;
-    --sidebar-border: 217 32% 18%;
+    --sidebar-primary-foreground: 222 47% 5%;
+    --sidebar-accent: 38 100% 55%;
+    --sidebar-accent-foreground: 222 47% 5%;
+    --sidebar-border: 222 30% 16%;
     --sidebar-ring: 217 91% 60%;
 
-    /* Custom: Dark Mode Gradients */
+    /* Custom: Dark Mode Motorsport Effects */
     --gradient-racing: linear-gradient(135deg, hsl(217 91% 50%) 0%, hsl(217 91% 65%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(45 100% 55%) 0%, hsl(40 100% 50%) 100%);
-    --shadow-racing: 0 10px 40px -10px hsl(217 91% 60% / 0.25);
-    --shadow-accent: 0 10px 30px -10px hsl(45 100% 55% / 0.3);
+    --gradient-accent: linear-gradient(135deg, hsl(38 100% 55%) 0%, hsl(32 100% 50%) 100%);
+    --shadow-racing: 0 10px 40px -10px hsl(217 91% 60% / 0.3);
+    --shadow-accent: 0 10px 30px -10px hsl(38 100% 55% / 0.4);
   }
 }
 
@@ -130,19 +130,24 @@
 
   /* Bold Motorsport Typography */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
+    @apply font-display font-bold tracking-tight;
   }
 
   h1 {
-    @apply text-4xl md:text-5xl lg:text-6xl;
+    @apply text-4xl md:text-5xl lg:text-6xl uppercase;
   }
 
   h2 {
-    @apply text-3xl md:text-4xl;
+    @apply text-3xl md:text-4xl uppercase;
   }
 
   h3 {
     @apply text-2xl md:text-3xl;
+  }
+
+  /* Racing buttons default style */
+  button, .btn {
+    @apply font-sans font-semibold;
   }
 }
 
