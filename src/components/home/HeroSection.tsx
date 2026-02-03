@@ -113,7 +113,7 @@ export function HeroSection() {
           </p>
 
           {/* Countdown */}
-          <div className="mb-12 grid grid-cols-4 gap-4 md:gap-6">
+          <div className="mb-12 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 md:gap-6">
             {[
               { value: countdown.days, label: t.hero.days },
               { value: countdown.hours, label: t.hero.hours },
@@ -122,9 +122,9 @@ export function HeroSection() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="bg-background/10 p-4 backdrop-blur-sm md:p-6"
+                className="bg-background/10 p-3 sm:p-4 md:p-6"
               >
-                <div className="font-display text-4xl font-black md:text-6xl">
+                <div className="font-display text-3xl font-black sm:text-4xl md:text-6xl">
                   {String(item.value).padStart(2, '0')}
                 </div>
                 <div className="mt-1 text-xs font-medium uppercase tracking-wider text-primary-foreground/70 md:text-sm">

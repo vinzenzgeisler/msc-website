@@ -19,6 +19,7 @@ import {
   Menu,
   X,
   Loader2,
+  FileText,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -32,6 +33,7 @@ const navItems = [
   { href: '/admin/events', label: 'Veranstaltungen', icon: Trophy },
   { href: '/admin/news', label: 'News', icon: Newspaper },
   { href: '/admin/calendar', label: 'Terminkalender', icon: CalendarDays },
+  { href: '/admin/content', label: 'Inhalte', icon: FileText },
   { href: '/admin/sponsors', label: 'Sponsoren', icon: Users },
   { href: '/admin/downloads', label: 'Downloads', icon: Download },
   { href: '/admin/media', label: 'Medien', icon: Image },
