@@ -87,7 +87,7 @@ export default function CalendarPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             {/* View Mode Toggle */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-muted-foreground">Ansicht:</span>
+              <span className="text-sm font-medium text-muted-foreground hidden sm:inline">Ansicht:</span>
               <Button
                 variant={viewMode === "upcoming" ? "default" : "outline"}
                 size="sm"
@@ -98,8 +98,8 @@ export default function CalendarPage() {
                 className="gap-2"
               >
                 <List className="h-4 w-4" />
-                <span className="hidden sm:inline">Alle kommenden</span>
-                <span className="sm:hidden">Alle</span>
+                <span className="hidden sm:inline">Kommende</span>
+                <span className="sm:hidden">Liste</span>
               </Button>
               <Button
                 variant={viewMode === "month" ? "default" : "outline"}
@@ -109,15 +109,16 @@ export default function CalendarPage() {
               >
                 <CalendarDays className="h-4 w-4" />
                 <span className="hidden sm:inline">Monatsansicht</span>
-                <span className="sm:hidden">Monat</span>
+                <span className="sm:hidden">Kalender</span>
               </Button>
             </div>
 
             {/* Category Filters */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-muted-foreground">Kategorie:</span>
+              <span className="text-sm font-medium text-muted-foreground hidden sm:inline">Kategorie:</span>
               {availableCategories.map((cat) => {
                 const style = getCategoryStyle(cat);
+                const isAll = cat === 'all';
                 return (
                   <Button
                     key={cat}
@@ -126,7 +127,7 @@ export default function CalendarPage() {
                     onClick={() => setActiveFilter(cat)}
                     className="gap-1.5"
                   >
-                    <span className={`h-2.5 w-2.5 rounded-full ${style.bgColor}`} />
+                    {!isAll && <span className={`h-2.5 w-2.5 rounded-full ${style.bgColor}`} />}
                     {style.label}
                   </Button>
                 );
@@ -195,7 +196,7 @@ export default function CalendarPage() {
               <div className="mb-6 flex items-center justify-between">
                 <h2 className="text-2xl font-bold">
                   {viewMode === "upcoming"
-                    ? "Alle kommenden Termine"
+                    ? "Kommende Termine"
                     : selectedDate
                       ? format(selectedDate, "d. MMMM yyyy", { locale: de })
                       : format(currentMonth, "MMMM yyyy", { locale: de })}
