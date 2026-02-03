@@ -46,6 +46,7 @@ export interface CalendarEvent {
   start_dt: string;
   end_dt: string | null;
   location: string | null;
+  locale: string;
   created_at: string;
 }
 
