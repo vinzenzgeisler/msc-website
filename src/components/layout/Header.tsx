@@ -122,8 +122,7 @@ export function Header() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-1">
-                <span>{currentLang.flag}</span>
-                <span className="hidden sm:inline">{currentLang.code.toUpperCase()}</span>
+                <span>{currentLang.code.toUpperCase()}</span>
                 <ChevronDown className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
