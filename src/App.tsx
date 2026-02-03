@@ -30,9 +30,12 @@ import ForgotPasswordPage from "./pages/admin/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/admin/ResetPasswordPage";
 import DashboardPage from "./pages/admin/DashboardPage";
 import NewsAdminPage from "./pages/admin/NewsAdminPage";
+import NewsFormPage from "./pages/admin/NewsFormPage";
 import EventsAdminPage from "./pages/admin/EventsAdminPage";
 import CalendarAdminPage from "./pages/admin/CalendarAdminPage";
+import CalendarFormPage from "./pages/admin/CalendarFormPage";
 import SponsorsAdminPage from "./pages/admin/SponsorsAdminPage";
+import SponsorFormPage from "./pages/admin/SponsorFormPage";
 import DownloadsAdminPage from "./pages/admin/DownloadsAdminPage";
 import MediaAdminPage from "./pages/admin/MediaAdminPage";
 import UsersAdminPage from "./pages/admin/UsersAdminPage";
@@ -83,9 +86,15 @@ const App = () => (
               <Route path="/admin/reset-password" element={<ResetPasswordPage />} />
               <Route path="/admin" element={<AdminLayout><DashboardPage /></AdminLayout>} />
               <Route path="/admin/news" element={<AdminLayout><NewsAdminPage /></AdminLayout>} />
+              <Route path="/admin/news/new" element={<AdminLayout><NewsFormPage /></AdminLayout>} />
+              <Route path="/admin/news/:id" element={<AdminLayout><NewsFormPage /></AdminLayout>} />
               <Route path="/admin/events" element={<AdminLayout><EventsAdminPage /></AdminLayout>} />
               <Route path="/admin/calendar" element={<AdminLayout><CalendarAdminPage /></AdminLayout>} />
+              <Route path="/admin/calendar/new" element={<AdminLayout><CalendarFormPage /></AdminLayout>} />
+              <Route path="/admin/calendar/:id" element={<AdminLayout><CalendarFormPage /></AdminLayout>} />
               <Route path="/admin/sponsors" element={<AdminLayout><SponsorsAdminPage /></AdminLayout>} />
+              <Route path="/admin/sponsors/new" element={<AdminLayout><SponsorFormPage /></AdminLayout>} />
+              <Route path="/admin/sponsors/:id" element={<AdminLayout><SponsorFormPage /></AdminLayout>} />
               <Route path="/admin/downloads" element={<AdminLayout><DownloadsAdminPage /></AdminLayout>} />
               <Route path="/admin/media" element={<AdminLayout><MediaAdminPage /></AdminLayout>} />
               <Route path="/admin/users" element={<AdminLayout><UsersAdminPage /></AdminLayout>} />
