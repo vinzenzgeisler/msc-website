@@ -47,7 +47,11 @@ export interface CalendarEvent {
   end_dt: string | null;
   location: string | null;
   locale: string;
+  is_main_event: boolean;
+  contact_email: string | null;
+  published: boolean;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Sponsor {

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -12,10 +13,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Calendar, Users, Trophy, Wrench } from 'lucide-react';
-import { useCalendarEvent, useCreateCalendarEvent, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
+import { ArrowLeft, Loader2, Calendar, Users, Trophy, Wrench, Star, AlertCircle } from 'lucide-react';
+import { useCalendarEvent, useCalendarEvents, useCreateCalendarEvent, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const categories = [
   { value: 'verein', label: 'Verein', icon: Users },
@@ -30,6 +32,7 @@ export default function CalendarFormPage() {
   const isEditing = id && id !== 'new';
 
   const { data: existingEvent, isLoading: isLoadingEvent } = useCalendarEvent(isEditing ? id : '');
+  const { data: allEvents } = useCalendarEvents();
   const createEvent = useCreateCalendarEvent();
   const updateEvent = useUpdateCalendarEvent();
 
@@ -40,7 +43,13 @@ export default function CalendarFormPage() {
     start_dt: '',
     end_dt: '',
     location: '',
+    contact_email: '',
+    is_main_event: false,
+    published: true,
   });
+
+  // Check if there's already a main event
+  const existingMainEvent = allEvents?.find(e => e.is_main_event && e.id !== id);
 
   useEffect(() => {
     if (existingEvent) {
@@ -51,6 +60,9 @@ export default function CalendarFormPage() {
         start_dt: existingEvent.start_dt ? format(new Date(existingEvent.start_dt), "yyyy-MM-dd'T'HH:mm") : '',
         end_dt: existingEvent.end_dt ? format(new Date(existingEvent.end_dt), "yyyy-MM-dd'T'HH:mm") : '',
         location: existingEvent.location || '',
+        contact_email: existingEvent.contact_email || '',
+        is_main_event: existingEvent.is_main_event || false,
+        published: existingEvent.published !== false,
       });
     }
   }, [existingEvent]);
@@ -71,7 +83,10 @@ export default function CalendarFormPage() {
         start_dt: new Date(formData.start_dt).toISOString(),
         end_dt: formData.end_dt ? new Date(formData.end_dt).toISOString() : null,
         location: formData.location || null,
-        locale: 'de', // Default locale
+        contact_email: formData.contact_email || null,
+        is_main_event: formData.is_main_event,
+        published: formData.published,
+        locale: 'de',
       };
 
       if (isEditing) {
@@ -131,7 +146,7 @@ export default function CalendarFormPage() {
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="z.B. Jahreshauptversammlung"
+                placeholder="z.B. 12. Oberlausitzer Dreieck"
                 required
               />
             </div>
@@ -186,7 +201,18 @@ export default function CalendarFormPage() {
                 id="location"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                placeholder="z.B. Vereinsheim"
+                placeholder="z.B. Saalendorf - Jonsdorf - Waltersdorf"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contact_email">Kontakt-E-Mail</Label>
+              <Input
+                id="contact_email"
+                type="email"
+                value={formData.contact_email}
+                onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
+                placeholder="info@msc-dreilaendereck.de"
               />
             </div>
 
@@ -198,6 +224,56 @@ export default function CalendarFormPage() {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Weitere Informationen zum Termin..."
                 rows={4}
+              />
+            </div>
+
+            {/* Main Event Toggle */}
+            <Card className="border-accent/50 bg-accent/5">
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <Star className="h-5 w-5 text-accent mt-0.5" />
+                    <div>
+                      <Label htmlFor="is_main_event" className="text-base font-medium">
+                        Hauptevent
+                      </Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Zeigt dieses Event auf der Startseite mit Countdown an
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    id="is_main_event"
+                    checked={formData.is_main_event}
+                    onCheckedChange={(checked) => setFormData({ ...formData, is_main_event: checked })}
+                    disabled={!!existingMainEvent && !formData.is_main_event}
+                  />
+                </div>
+                
+                {existingMainEvent && !formData.is_main_event && (
+                  <Alert className="mt-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      <strong>„{existingMainEvent.title}"</strong> ist bereits als Hauptevent gesetzt.
+                      Entfernen Sie dort zuerst die Markierung, um dieses Event als Hauptevent zu setzen.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Published Toggle */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div>
+                <Label htmlFor="published" className="font-medium">Veröffentlicht</Label>
+                <p className="text-sm text-muted-foreground">
+                  Termin im Kalender anzeigen
+                </p>
+              </div>
+              <Switch
+                id="published"
+                checked={formData.published}
+                onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
               />
             </div>
 

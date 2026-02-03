@@ -37,7 +37,7 @@ export function useCreateCalendarEvent() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (event: Omit<CalendarEvent, 'id' | 'created_at'>) => {
+    mutationFn: async (event: Omit<CalendarEvent, 'id' | 'created_at' | 'updated_at'>) => {
       const { data, error } = await supabase
         .from('calendar_events')
         .insert(event)
@@ -49,6 +49,7 @@ export function useCreateCalendarEvent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendar_events'] });
+      queryClient.invalidateQueries({ queryKey: ['main_event'] });
     },
   });
 }
@@ -57,7 +58,7 @@ export function useUpdateCalendarEvent() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<CalendarEvent> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: Partial<Omit<CalendarEvent, 'created_at' | 'updated_at'>> & { id: string }) => {
       const { data, error } = await supabase
         .from('calendar_events')
         .update(updates)
@@ -71,6 +72,7 @@ export function useUpdateCalendarEvent() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['calendar_events'] });
       queryClient.invalidateQueries({ queryKey: ['calendar_events', data.id] });
+      queryClient.invalidateQueries({ queryKey: ['main_event'] });
     },
   });
 }

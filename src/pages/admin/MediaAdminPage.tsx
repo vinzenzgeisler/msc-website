@@ -48,7 +48,9 @@ export default function MediaAdminPage() {
         await uploadFile.mutateAsync({ file });
         toast.success(`${file.name} hochgeladen`);
       } catch (err) {
-        toast.error(`Fehler beim Hochladen von ${file.name}`);
+        const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler';
+        toast.error(errorMessage);
+        console.error('Upload error:', err);
       }
     }
     
