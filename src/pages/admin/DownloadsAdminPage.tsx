@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -18,33 +19,63 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, Download, FileText, FileImage, File } from 'lucide-react';
+import { useDownloads, useDeleteDownload } from '@/hooks/useDownloads';
+import { toast } from 'sonner';
 
-const fileTypeConfig: Record<string, { label: string; icon: React.ElementType; color: string }> = {
-  pdf: { label: 'PDF', icon: FileText, color: 'text-red-500' },
-  image: { label: 'Bild', icon: FileImage, color: 'text-blue-500' },
-  other: { label: 'Datei', icon: File, color: 'text-gray-500' },
+const getFileTypeConfig = (fileType: string | null) => {
+  if (fileType?.includes('pdf')) return { label: 'PDF', icon: FileText, color: 'text-red-500' };
+  if (fileType?.includes('image')) return { label: 'Bild', icon: FileImage, color: 'text-blue-500' };
+  return { label: 'Datei', icon: File, color: 'text-gray-500' };
 };
 
-// Mock data
-const mockDownloads = [
-  { id: 1, title: 'Programmheft 2026', filename: 'programmheft-2026.pdf', type: 'pdf', size: '2.4 MB', downloads: 156, year: 2026 },
-  { id: 2, title: 'Ausschreibung 2026', filename: 'ausschreibung-2026.pdf', type: 'pdf', size: '1.2 MB', downloads: 89, year: 2026 },
-  { id: 3, title: 'Streckenplan', filename: 'streckenplan.pdf', type: 'pdf', size: '850 KB', downloads: 234, year: null },
-  { id: 4, title: 'Anmeldeformular', filename: 'anmeldung.pdf', type: 'pdf', size: '120 KB', downloads: 312, year: null },
-  { id: 5, title: 'Programmheft 2025', filename: 'programmheft-2025.pdf', type: 'pdf', size: '2.1 MB', downloads: 445, year: 2025 },
-  { id: 6, title: 'Ergebnisliste 2025', filename: 'ergebnisse-2025.pdf', type: 'pdf', size: '340 KB', downloads: 178, year: 2025 },
-];
+const formatFileSize = (bytes: number | null) => {
+  if (!bytes) return '-';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
 
 export default function DownloadsAdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const filteredDownloads = mockDownloads.filter((download) =>
-    download.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    download.filename.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const { data: downloads, isLoading, error } = useDownloads();
+  const deleteDownload = useDeleteDownload();
 
-  const totalDownloads = mockDownloads.reduce((sum, d) => sum + d.downloads, 0);
+  const filteredDownloads = downloads?.filter((download) =>
+    download.title.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    
+    try {
+      await deleteDownload.mutateAsync(deleteId);
+      toast.success('Datei gelöscht');
+    } catch (err) {
+      toast.error('Fehler beim Löschen');
+    }
+    setDeleteId(null);
+  };
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-destructive">Fehler beim Laden der Downloads</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -71,7 +102,11 @@ export default function DownloadsAdminPage() {
                 <FileText className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{mockDownloads.length}</p>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  <p className="text-2xl font-bold">{downloads?.length || 0}</p>
+                )}
                 <p className="text-sm text-muted-foreground">Dateien</p>
               </div>
             </div>
@@ -84,8 +119,14 @@ export default function DownloadsAdminPage() {
                 <Download className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{totalDownloads}</p>
-                <p className="text-sm text-muted-foreground">Downloads gesamt</p>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  <p className="text-2xl font-bold">
+                    {downloads?.filter(d => d.file_type?.includes('pdf')).length || 0}
+                  </p>
+                )}
+                <p className="text-sm text-muted-foreground">PDF-Dokumente</p>
               </div>
             </div>
           </CardContent>
@@ -97,10 +138,14 @@ export default function DownloadsAdminPage() {
                 <FileText className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-2xl font-bold">
-                  {mockDownloads.filter(d => d.type === 'pdf').length}
-                </p>
-                <p className="text-sm text-muted-foreground">PDF-Dokumente</p>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  <p className="text-2xl font-bold">
+                    {formatFileSize(downloads?.reduce((sum, d) => sum + (d.file_size || 0), 0) || 0)}
+                  </p>
+                )}
+                <p className="text-sm text-muted-foreground">Gesamtgröße</p>
               </div>
             </div>
           </CardContent>
@@ -128,77 +173,110 @@ export default function DownloadsAdminPage() {
           <CardTitle>Alle Dateien</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Titel</TableHead>
-                <TableHead>Dateiname</TableHead>
-                <TableHead>Typ</TableHead>
-                <TableHead>Größe</TableHead>
-                <TableHead>Jahr</TableHead>
-                <TableHead>Downloads</TableHead>
-                <TableHead className="text-right">Aktionen</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredDownloads.map((download) => {
-                const fileType = fileTypeConfig[download.type] || fileTypeConfig.other;
-                const Icon = fileType.icon;
-                return (
-                  <TableRow key={download.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <Icon className={`h-4 w-4 ${fileType.color}`} />
-                        {download.title}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
-                      {download.filename}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{fileType.label}</Badge>
-                    </TableCell>
-                    <TableCell>{download.size}</TableCell>
-                    <TableCell>
-                      {download.year ? (
-                        <Badge variant="secondary">{download.year}</Badge>
-                      ) : (
-                        <span className="text-muted-foreground">–</span>
-                      )}
-                    </TableCell>
-                    <TableCell>{download.downloads}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Download className="mr-2 h-4 w-4" />
-                            Herunterladen
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link to={`/admin/downloads/${download.id}`}>
-                              <Pencil className="mr-2 h-4 w-4" />
-                              Bearbeiten
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Löschen
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+          {isLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex gap-4">
+                  <Skeleton className="h-12 flex-1" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Titel</TableHead>
+                  <TableHead>Typ</TableHead>
+                  <TableHead>Größe</TableHead>
+                  <TableHead>Kategorie</TableHead>
+                  <TableHead className="text-right">Aktionen</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDownloads.map((download) => {
+                  const fileType = getFileTypeConfig(download.file_type);
+                  const Icon = fileType.icon;
+                  return (
+                    <TableRow key={download.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <Icon className={`h-4 w-4 ${fileType.color}`} />
+                          {download.title}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{fileType.label}</Badge>
+                      </TableCell>
+                      <TableCell>{formatFileSize(download.file_size)}</TableCell>
+                      <TableCell>
+                        {download.category ? (
+                          <Badge variant="secondary">{download.category}</Badge>
+                        ) : (
+                          <span className="text-muted-foreground">–</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <a href={download.file_url} target="_blank" rel="noopener noreferrer">
+                                <Download className="mr-2 h-4 w-4" />
+                                Herunterladen
+                              </a>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link to={`/admin/downloads/${download.id}`}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Bearbeiten
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => setDeleteId(download.id)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Löschen
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+
+          {!isLoading && filteredDownloads.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              Keine Dateien gefunden
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Datei löschen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Diese Aktion kann nicht rückgängig gemacht werden.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+              Löschen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

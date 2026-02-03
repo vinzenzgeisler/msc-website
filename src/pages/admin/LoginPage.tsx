@@ -21,12 +21,12 @@ export default function LoginPage() {
     setError('');
     setIsLoading(true);
 
-    const success = await login(email, password);
+    const result = await login(email, password);
 
-    if (success) {
+    if (result.success) {
       navigate('/admin');
     } else {
-      setError('Ungültige E-Mail-Adresse oder Passwort');
+      setError(result.error || 'Ungültige E-Mail-Adresse oder Passwort');
     }
     setIsLoading(false);
   };
@@ -103,13 +103,11 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            {/* Demo credentials hint */}
+            {/* Info hint */}
             <div className="mt-6 p-4 rounded-lg bg-muted/50 text-sm">
-              <p className="font-medium mb-2">Demo-Zugänge:</p>
-              <div className="space-y-1 text-muted-foreground">
-                <p>Admin: admin@msc-dreilaendereck.de / admin123</p>
-                <p>Redakteur: redaktion@msc-dreilaendereck.de / editor123</p>
-              </div>
+              <p className="text-muted-foreground">
+                Verwende deine Zugangsdaten, um dich anzumelden.
+              </p>
             </div>
           </CardContent>
         </Card>

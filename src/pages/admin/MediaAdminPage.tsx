@@ -1,38 +1,93 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Search, FolderOpen, Image, Upload, Trash2, MoreHorizontal, Grid, List } from 'lucide-react';
+import { Plus, Search, FolderOpen, Image, Upload, Trash2, MoreHorizontal, Grid, List, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-// Mock data
-const mockAlbums = [
-  { id: 1, title: '11. Oberlausitzer Dreieck 2025', imageCount: 48, cover: '/placeholder.svg', year: 2025 },
-  { id: 2, title: '10. Oberlausitzer Dreieck 2024', imageCount: 52, cover: '/placeholder.svg', year: 2024 },
-  { id: 3, title: 'Motocross Training 2024', imageCount: 24, cover: '/placeholder.svg', year: 2024 },
-  { id: 4, title: 'Vereinsfeier 2023', imageCount: 36, cover: '/placeholder.svg', year: 2023 },
-  { id: 5, title: 'Trial-Meisterschaft 2023', imageCount: 18, cover: '/placeholder.svg', year: 2023 },
-];
-
-const mockImages = [
-  { id: 1, filename: 'start-2025-01.jpg', size: '2.4 MB', dimensions: '1920x1080', album: '11. Oberlausitzer Dreieck 2025' },
-  { id: 2, filename: 'seitenwagen-action.jpg', size: '1.8 MB', dimensions: '1920x1280', album: '11. Oberlausitzer Dreieck 2025' },
-  { id: 3, filename: 'zuschauer-tribüne.jpg', size: '3.1 MB', dimensions: '2560x1440', album: '11. Oberlausitzer Dreieck 2025' },
-  { id: 4, filename: 'siegerehrung.jpg', size: '2.0 MB', dimensions: '1920x1080', album: '11. Oberlausitzer Dreieck 2025' },
-  { id: 5, filename: 'fahrerlager-panorama.jpg', size: '4.2 MB', dimensions: '3840x2160', album: null },
-  { id: 6, filename: 'logo-msc.png', size: '120 KB', dimensions: '800x800', album: null },
-];
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useMediaAlbums, useMediaFiles, useUploadMediaFile, useDeleteMediaFile, useDeleteMediaAlbum } from '@/hooks/useMedia';
+import type { MediaFile } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export default function MediaAdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [deleteAlbumId, setDeleteAlbumId] = useState<string | null>(null);
+  const [deleteFile, setDeleteFile] = useState<MediaFile | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: albums, isLoading: albumsLoading } = useMediaAlbums();
+  const { data: files, isLoading: filesLoading } = useMediaFiles();
+  const uploadFile = useUploadMediaFile();
+  const deleteMediaFile = useDeleteMediaFile();
+  const deleteAlbum = useDeleteMediaAlbum();
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files;
+    if (!selectedFiles?.length) return;
+
+    for (const file of Array.from(selectedFiles)) {
+      try {
+        await uploadFile.mutateAsync({ file });
+        toast.success(`${file.name} hochgeladen`);
+      } catch (err) {
+        toast.error(`Fehler beim Hochladen von ${file.name}`);
+      }
+    }
+    
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDeleteFile = async () => {
+    if (!deleteFile) return;
+    
+    try {
+      await deleteMediaFile.mutateAsync(deleteFile);
+      toast.success('Datei gelöscht');
+    } catch (err) {
+      toast.error('Fehler beim Löschen');
+    }
+    setDeleteFile(null);
+  };
+
+  const handleDeleteAlbum = async () => {
+    if (!deleteAlbumId) return;
+    
+    try {
+      await deleteAlbum.mutateAsync(deleteAlbumId);
+      toast.success('Album gelöscht');
+    } catch (err) {
+      toast.error('Fehler beim Löschen');
+    }
+    setDeleteAlbumId(null);
+  };
+
+  const filteredAlbums = albums?.filter(a => 
+    a.title.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
+
+  const filteredFiles = files?.filter(f => 
+    f.file_name.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
 
   return (
     <div className="space-y-6">
@@ -47,10 +102,22 @@ export default function MediaAdminPage() {
             <FolderOpen className="mr-2 h-4 w-4" />
             Neues Album
           </Button>
-          <Button>
-            <Upload className="mr-2 h-4 w-4" />
+          <Button onClick={() => fileInputRef.current?.click()} disabled={uploadFile.isPending}>
+            {uploadFile.isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="mr-2 h-4 w-4" />
+            )}
             Hochladen
           </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileUpload}
+          />
         </div>
       </div>
 
@@ -63,7 +130,11 @@ export default function MediaAdminPage() {
                 <FolderOpen className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{mockAlbums.length}</p>
+                {albumsLoading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  <p className="text-2xl font-bold">{albums?.length || 0}</p>
+                )}
                 <p className="text-sm text-muted-foreground">Alben</p>
               </div>
             </div>
@@ -76,10 +147,12 @@ export default function MediaAdminPage() {
                 <Image className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-2xl font-bold">
-                  {mockAlbums.reduce((sum, a) => sum + a.imageCount, 0)}
-                </p>
-                <p className="text-sm text-muted-foreground">Bilder in Alben</p>
+                {filesLoading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  <p className="text-2xl font-bold">{files?.length || 0}</p>
+                )}
+                <p className="text-sm text-muted-foreground">Dateien gesamt</p>
               </div>
             </div>
           </CardContent>
@@ -91,8 +164,14 @@ export default function MediaAdminPage() {
                 <Image className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{mockImages.length}</p>
-                <p className="text-sm text-muted-foreground">Dateien gesamt</p>
+                {filesLoading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  <p className="text-2xl font-bold">
+                    {files?.filter(f => f.album_id).length || 0}
+                  </p>
+                )}
+                <p className="text-sm text-muted-foreground">In Alben</p>
               </div>
             </div>
           </CardContent>
@@ -136,52 +215,77 @@ export default function MediaAdminPage() {
         </div>
 
         <TabsContent value="albums">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {mockAlbums.map((album) => (
-              <Card key={album.id} className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
-                <div className="aspect-video bg-muted relative">
-                  <img
-                    src={album.cover}
-                    alt={album.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <Badge className="absolute top-2 right-2">
-                    {album.imageCount} Bilder
-                  </Badge>
-                </div>
-                <CardContent className="pt-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-medium line-clamp-1">{album.title}</h3>
-                      <p className="text-sm text-muted-foreground">{album.year}</p>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Bearbeiten</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Löschen
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+          {albumsLoading ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {[1, 2, 3, 4].map((i) => (
+                <Card key={i} className="overflow-hidden">
+                  <Skeleton className="aspect-video" />
+                  <CardContent className="pt-4">
+                    <Skeleton className="h-5 w-3/4" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredAlbums.map((album) => (
+                <Card key={album.id} className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="aspect-video bg-muted relative">
+                    {album.cover_image_url ? (
+                      <img
+                        src={album.cover_image_url}
+                        alt={album.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <FolderOpen className="h-12 w-12 text-muted-foreground" />
+                      </div>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardContent className="pt-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-medium line-clamp-1">{album.title}</h3>
+                        <p className="text-sm text-muted-foreground">{album.description || 'Keine Beschreibung'}</p>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>Bearbeiten</DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => setDeleteAlbumId(album.id)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Löschen
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
 
-            {/* Add Album Card */}
-            <Card className="overflow-hidden border-dashed hover:border-primary/50 transition-colors cursor-pointer">
-              <div className="aspect-video bg-muted/50 flex flex-col items-center justify-center text-muted-foreground hover:text-primary transition-colors">
-                <Plus className="h-8 w-8 mb-2" />
-                <span className="text-sm font-medium">Neues Album</span>
-              </div>
-            </Card>
-          </div>
+              {/* Add Album Card */}
+              <Card className="overflow-hidden border-dashed hover:border-primary/50 transition-colors cursor-pointer">
+                <div className="aspect-video bg-muted/50 flex flex-col items-center justify-center text-muted-foreground hover:text-primary transition-colors">
+                  <Plus className="h-8 w-8 mb-2" />
+                  <span className="text-sm font-medium">Neues Album</span>
+                </div>
+              </Card>
+            </div>
+          )}
+
+          {!albumsLoading && filteredAlbums.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground">
+              Keine Alben gefunden
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="all">
@@ -191,51 +295,56 @@ export default function MediaAdminPage() {
               <CardDescription>Alle hochgeladenen Medien</CardDescription>
             </CardHeader>
             <CardContent>
-              {viewMode === 'grid' ? (
+              {filesLoading ? (
                 <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-                  {mockImages.map((image) => (
-                    <div key={image.id} className="group relative">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <Skeleton key={i} className="aspect-square rounded-lg" />
+                  ))}
+                </div>
+              ) : viewMode === 'grid' ? (
+                <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                  {filteredFiles.map((file) => (
+                    <div key={file.id} className="group relative">
                       <div className="aspect-square bg-muted rounded-lg overflow-hidden">
                         <img
-                          src="/placeholder.svg"
-                          alt={image.filename}
+                          src={file.file_url}
+                          alt={file.alt_text || file.file_name}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                        <Button variant="secondary" size="sm">
-                          Auswählen
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                        <Button 
+                          variant="secondary" 
+                          size="sm"
+                          onClick={() => setDeleteFile(file)}
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                      <p className="mt-1 text-xs truncate">{image.filename}</p>
+                      <p className="mt-1 text-xs truncate">{file.file_name}</p>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {mockImages.map((image) => (
+                  {filteredFiles.map((file) => (
                     <div
-                      key={image.id}
+                      key={file.id}
                       className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors"
                     >
                       <div className="w-12 h-12 bg-muted rounded overflow-hidden flex-shrink-0">
                         <img
-                          src="/placeholder.svg"
-                          alt={image.filename}
+                          src={file.file_url}
+                          alt={file.alt_text || file.file_name}
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{image.filename}</p>
+                        <p className="font-medium truncate">{file.file_name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {image.dimensions} • {image.size}
+                          {file.file_type} • {file.file_size ? `${(file.file_size / 1024).toFixed(1)} KB` : '-'}
                         </p>
                       </div>
-                      {image.album && (
-                        <Badge variant="outline" className="hidden sm:flex">
-                          {image.album}
-                        </Badge>
-                      )}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -243,8 +352,15 @@ export default function MediaAdminPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Details</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem asChild>
+                            <a href={file.file_url} target="_blank" rel="noopener noreferrer">
+                              Details
+                            </a>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => setDeleteFile(file)}
+                          >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Löschen
                           </DropdownMenuItem>
@@ -254,10 +370,52 @@ export default function MediaAdminPage() {
                   ))}
                 </div>
               )}
+
+              {!filesLoading && filteredFiles.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  Keine Dateien gefunden
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Delete Album Dialog */}
+      <AlertDialog open={!!deleteAlbumId} onOpenChange={() => setDeleteAlbumId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Album löschen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Diese Aktion kann nicht rückgängig gemacht werden.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteAlbum} className="bg-destructive text-destructive-foreground">
+              Löschen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete File Dialog */}
+      <AlertDialog open={!!deleteFile} onOpenChange={() => setDeleteFile(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Datei löschen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Diese Aktion kann nicht rückgängig gemacht werden.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteFile} className="bg-destructive text-destructive-foreground">
+              Löschen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

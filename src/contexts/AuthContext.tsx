@@ -1,8 +1,10 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { Session } from '@supabase/supabase-js';
+import { supabase, UserRole, Profile } from '@/integrations/supabase/client';
 
-export type UserRole = 'admin' | 'editor';
+export type { UserRole };
 
-export interface User {
+export interface AuthUser {
   id: string;
   email: string;
   name: string;
@@ -10,59 +12,114 @@ export interface User {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
+  session: Session | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
   hasPermission: (requiredRole: UserRole) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demo - replace with real auth later
-const MOCK_USERS: Record<string, { password: string; user: User }> = {
-  'admin@msc-dreilaendereck.de': {
-    password: 'admin123',
-    user: {
-      id: '1',
-      email: 'admin@msc-dreilaendereck.de',
-      name: 'Administrator',
-      role: 'admin',
-    },
-  },
-  'redaktion@msc-dreilaendereck.de': {
-    password: 'editor123',
-    user: {
-      id: '2',
-      email: 'redaktion@msc-dreilaendereck.de',
-      name: 'Redakteur',
-      role: 'editor',
-    },
-  },
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    const stored = localStorage.getItem('msc_admin_user');
-    return stored ? JSON.parse(stored) : null;
-  });
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  const fetchUserProfile = async (userId: string): Promise<AuthUser | null> => {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
 
-    const mockUser = MOCK_USERS[email.toLowerCase()];
-    if (mockUser && mockUser.password === password) {
-      setUser(mockUser.user);
-      localStorage.setItem('msc_admin_user', JSON.stringify(mockUser.user));
-      return true;
+    if (error || !profile) {
+      console.error('Error fetching profile:', error);
+      return null;
     }
-    return false;
+
+    const typedProfile = profile as Profile;
+    return {
+      id: typedProfile.id,
+      email: typedProfile.email,
+      name: typedProfile.full_name || typedProfile.email,
+      role: typedProfile.role,
+    };
   };
 
-  const logout = () => {
+  useEffect(() => {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, newSession) => {
+        setSession(newSession);
+        
+        if (newSession?.user) {
+          // Defer Supabase call with setTimeout to prevent deadlock
+          setTimeout(() => {
+            fetchUserProfile(newSession.user.id).then((profile) => {
+              setUser(profile);
+              setIsLoading(false);
+            });
+          }, 0);
+        } else {
+          setUser(null);
+          setIsLoading(false);
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+      setSession(existingSession);
+      
+      if (existingSession?.user) {
+        fetchUserProfile(existingSession.user.id).then((profile) => {
+          setUser(profile);
+          setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    if (data.user) {
+      const profile = await fetchUserProfile(data.user.id);
+      if (!profile) {
+        await supabase.auth.signOut();
+        return { success: false, error: 'Benutzerprofil nicht gefunden' };
+      }
+      
+      // Check if user has admin or editor role
+      if (profile.role !== 'admin' && profile.role !== 'editor') {
+        await supabase.auth.signOut();
+        return { success: false, error: 'Keine Berechtigung für den Admin-Bereich' };
+      }
+      
+      setUser(profile);
+    }
+
+    return { success: true };
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem('msc_admin_user');
+    setSession(null);
   };
 
   const hasPermission = (requiredRole: UserRole): boolean => {
@@ -75,7 +132,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user,
+        session,
+        isAuthenticated: !!user && !!session,
+        isLoading,
         login,
         logout,
         hasPermission,

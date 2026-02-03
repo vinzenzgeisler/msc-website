@@ -1,43 +1,57 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import { usePosts } from '@/hooks/usePosts';
+import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useSponsors } from '@/hooks/useSponsors';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
 import {
   Trophy,
   Newspaper,
   CalendarDays,
   Users,
-  Download,
   Image,
   Plus,
   ArrowRight,
-  TrendingUp,
   Clock,
 } from 'lucide-react';
 
-// Mock data for dashboard
-const stats = [
-  { label: 'Events', value: 12, icon: Trophy, href: '/admin/events', change: '+2' },
-  { label: 'News-Artikel', value: 24, icon: Newspaper, href: '/admin/news', change: '+5' },
-  { label: 'Termine', value: 18, icon: CalendarDays, href: '/admin/calendar', change: '+3' },
-  { label: 'Sponsoren', value: 8, icon: Users, href: '/admin/sponsors', change: '0' },
-];
-
-const recentNews = [
-  { id: 1, title: 'Vorbereitung für das 12. Oberlausitzer Dreieck läuft', date: '2024-01-15', status: 'published' },
-  { id: 2, title: 'Neue Trainingszeiten für Motocross-Strecke', date: '2024-01-10', status: 'published' },
-  { id: 3, title: 'Jahreshauptversammlung 2024 - Einladung', date: '2024-01-05', status: 'draft' },
-];
-
-const upcomingEvents = [
-  { id: 1, title: 'Org-Team Sitzung', date: '2024-02-15', type: 'meeting' },
-  { id: 2, title: '12. Oberlausitzer Dreieck', date: '2024-09-12', type: 'event' },
-  { id: 3, title: 'Motocross Training', date: '2024-02-20', type: 'training' },
-];
-
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { data: posts, isLoading: postsLoading } = usePosts();
+  const { data: events, isLoading: eventsLoading } = useCalendarEvents();
+  const { data: sponsors, isLoading: sponsorsLoading } = useSponsors();
+
+  const recentPosts = posts?.slice(0, 3) || [];
+  const upcomingEvents = events?.filter(e => new Date(e.start_dt) >= new Date()).slice(0, 3) || [];
+
+  const stats = [
+    { 
+      label: 'News-Artikel', 
+      value: posts?.length || 0, 
+      icon: Newspaper, 
+      href: '/admin/news',
+      loading: postsLoading 
+    },
+    { 
+      label: 'Termine', 
+      value: events?.length || 0, 
+      icon: CalendarDays, 
+      href: '/admin/calendar',
+      loading: eventsLoading 
+    },
+    { 
+      label: 'Sponsoren', 
+      value: sponsors?.filter(s => s.active).length || 0, 
+      icon: Users, 
+      href: '/admin/sponsors',
+      loading: sponsorsLoading 
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -60,7 +74,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => (
           <Card key={stat.label} className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -71,12 +85,10 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-baseline justify-between">
-                <div className="text-2xl font-bold">{stat.value}</div>
-                {stat.change !== '0' && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    <TrendingUp className="h-3 w-3" />
-                    {stat.change}
-                  </Badge>
+                {stat.loading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  <div className="text-2xl font-bold">{stat.value}</div>
                 )}
               </div>
               <Link
@@ -107,35 +119,53 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentNews.map((article) => (
-                <div
-                  key={article.id}
-                  className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Newspaper className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{article.title}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-muted-foreground">{article.date}</span>
-                      <Badge
-                        variant={article.status === 'published' ? 'default' : 'secondary'}
-                        className="text-xs"
-                      >
-                        {article.status === 'published' ? 'Veröffentlicht' : 'Entwurf'}
-                      </Badge>
+            {postsLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-start gap-4 p-3">
+                    <Skeleton className="w-10 h-10 rounded" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to={`/admin/news/${article.id}`}>
-                      Bearbeiten
-                    </Link>
-                  </Button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : recentPosts.length === 0 ? (
+              <p className="text-center py-8 text-muted-foreground">Keine Artikel vorhanden</p>
+            ) : (
+              <div className="space-y-4">
+                {recentPosts.map((article) => (
+                  <div
+                    key={article.id}
+                    className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Newspaper className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{article.title}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(article.created_at), 'dd.MM.yyyy', { locale: de })}
+                        </span>
+                        <Badge
+                          variant={article.status === 'published' ? 'default' : 'secondary'}
+                          className="text-xs"
+                        >
+                          {article.status === 'published' ? 'Veröffentlicht' : 'Entwurf'}
+                        </Badge>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to={`/admin/news/${article.id}`}>
+                        Bearbeiten
+                      </Link>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -153,33 +183,53 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {upcomingEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="w-10 h-10 rounded bg-accent/50 flex items-center justify-center flex-shrink-0">
-                    <CalendarDays className="h-5 w-5 text-accent-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{event.title}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Clock className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">{event.date}</span>
-                      <Badge variant="outline" className="text-xs capitalize">
-                        {event.type}
-                      </Badge>
+            {eventsLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-start gap-4 p-3">
+                    <Skeleton className="w-10 h-10 rounded" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to={`/admin/calendar/${event.id}`}>
-                      Details
-                    </Link>
-                  </Button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : upcomingEvents.length === 0 ? (
+              <p className="text-center py-8 text-muted-foreground">Keine anstehenden Termine</p>
+            ) : (
+              <div className="space-y-4">
+                {upcomingEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded bg-accent/50 flex items-center justify-center flex-shrink-0">
+                      <CalendarDays className="h-5 w-5 text-accent-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{event.title}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Clock className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(event.start_dt), 'dd.MM.yyyy', { locale: de })}
+                        </span>
+                        {event.category && (
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {event.category}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to={`/admin/calendar/${event.id}`}>
+                        Details
+                      </Link>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -216,24 +266,6 @@ export default function DashboardPage() {
                 <span>Medien verwalten</span>
               </Link>
             </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Info Banner */}
-      <Card className="bg-primary/5 border-primary/20">
-        <CardContent className="py-4">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Trophy className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-medium">Demo-Modus</p>
-              <p className="text-sm text-muted-foreground">
-                Dies ist ein statisches Admin-Interface. Änderungen werden nicht gespeichert.
-                Für eine vollständige Lösung mit Datenpersistenz aktivieren Sie Lovable Cloud.
-              </p>
-            </div>
           </div>
         </CardContent>
       </Card>
