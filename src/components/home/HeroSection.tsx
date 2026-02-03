@@ -113,7 +113,7 @@ export function HeroSection() {
             <Button
               size="lg"
               variant="outline"
-              className="border-primary-foreground/30 px-8 text-base font-medium text-primary-foreground hover:bg-primary-foreground/10"
+              className="border-2 border-white/50 bg-white/10 px-8 text-base font-medium text-white hover:border-white hover:bg-white/20"
               asChild
             >
               <Link to="/event#schedule">{t.hero.ctaSchedule}</Link>
