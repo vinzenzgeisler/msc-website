@@ -24,7 +24,7 @@ export function ClubTeaserSection() {
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
           {/* Content */}
           <div>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-none border-l-4 border-accent bg-accent/10 px-4 py-2 text-sm font-bold uppercase tracking-wider text-accent-foreground">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-none border-l-4 border-accent bg-accent/10 px-4 py-2 text-sm font-bold uppercase tracking-wider text-foreground">
               Seit 1984
             </div>
             
