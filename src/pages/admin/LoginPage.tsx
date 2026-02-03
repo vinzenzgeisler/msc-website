@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -103,11 +103,10 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            {/* Info hint */}
-            <div className="mt-6 p-4 rounded-lg bg-muted/50 text-sm">
-              <p className="text-muted-foreground">
-                Verwende deine Zugangsdaten, um dich anzumelden.
-              </p>
+            <div className="mt-4 text-center">
+              <Link to="/admin/forgot-password" className="text-sm text-muted-foreground hover:text-primary">
+                Passwort vergessen?
+              </Link>
             </div>
           </CardContent>
         </Card>

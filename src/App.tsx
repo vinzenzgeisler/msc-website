@@ -26,6 +26,8 @@ import NotFound from "./pages/NotFound";
 
 // Admin Pages
 import LoginPage from "./pages/admin/LoginPage";
+import ForgotPasswordPage from "./pages/admin/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/admin/ResetPasswordPage";
 import DashboardPage from "./pages/admin/DashboardPage";
 import NewsAdminPage from "./pages/admin/NewsAdminPage";
 import EventsAdminPage from "./pages/admin/EventsAdminPage";
@@ -77,6 +79,8 @@ const App = () => (
               
               {/* Admin Pages */}
               <Route path="/admin/login" element={<LoginPage />} />
+              <Route path="/admin/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/admin/reset-password" element={<ResetPasswordPage />} />
               <Route path="/admin" element={<AdminLayout><DashboardPage /></AdminLayout>} />
               <Route path="/admin/news" element={<AdminLayout><NewsAdminPage /></AdminLayout>} />
               <Route path="/admin/events" element={<AdminLayout><EventsAdminPage /></AdminLayout>} />
