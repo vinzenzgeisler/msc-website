@@ -14,17 +14,29 @@ const FALLBACK_EVENT_DATE = new Date('2026-09-12T09:00:00');
 const FALLBACK_EVENT_TITLE = '12th Oberlausitzer Dreieck';
 
 function useCountdown(targetDate: Date) {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const now = new Date().getTime();
+    const distance = targetDate.getTime() - now;
+
+    if (distance < 0) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+
+    return {
+      days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+      minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+      seconds: Math.floor((distance % (1000 * 60)) / 1000),
+    };
   });
+
+  // Store timestamp to avoid Date object reference issues
+  const targetTimestamp = targetDate.getTime();
 
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date().getTime();
-      const distance = targetDate.getTime() - now;
+      const distance = targetTimestamp - now;
 
       if (distance < 0) {
         return { days: 0, hours: 0, minutes: 0, seconds: 0 };
@@ -38,14 +50,12 @@ function useCountdown(targetDate: Date) {
       };
     };
 
-    setTimeLeft(calculateTimeLeft());
-
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [targetDate]);
+  }, [targetTimestamp]);
 
   return timeLeft;
 }
