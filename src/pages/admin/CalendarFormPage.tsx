@@ -71,6 +71,7 @@ export default function CalendarFormPage() {
         start_dt: new Date(formData.start_dt).toISOString(),
         end_dt: formData.end_dt ? new Date(formData.end_dt).toISOString() : null,
         location: formData.location || null,
+        locale: 'de', // Default locale
       };
 
       if (isEditing) {
