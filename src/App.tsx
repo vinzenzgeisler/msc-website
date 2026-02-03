@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import EventPage from "./pages/EventPage";
 import CalendarPage from "./pages/CalendarPage";
 import NewsPage from "./pages/NewsPage";
+import NewsDetailPage from "./pages/NewsDetailPage";
 import AboutPage from "./pages/club/AboutPage";
 import BoardPage from "./pages/club/BoardPage";
 import HistoryPage from "./pages/club/HistoryPage";
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/event" element={<EventPage />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/news" element={<NewsPage />} />
+            <Route path="/news/:slug" element={<NewsDetailPage />} />
             
             {/* Club Pages */}
             <Route path="/club/about" element={<AboutPage />} />
