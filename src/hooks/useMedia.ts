@@ -70,7 +70,16 @@ export function useUploadMediaFile() {
         .from('media')
         .upload(filePath, file);
       
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        // Provide more detailed error messages
+        if (uploadError.message.includes('bucket') || uploadError.message.includes('not found')) {
+          throw new Error('Storage-Bucket "media" nicht gefunden. Bitte im Supabase Dashboard erstellen.');
+        }
+        if (uploadError.message.includes('policy') || uploadError.message.includes('security')) {
+          throw new Error('Keine Upload-Berechtigung. Bitte RLS-Policies im Supabase Dashboard prüfen.');
+        }
+        throw new Error(`Upload-Fehler: ${uploadError.message}`);
+      }
       
       // Get public URL
       const { data: urlData } = supabase.storage
@@ -91,7 +100,9 @@ export function useUploadMediaFile() {
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        throw new Error(`Datenbank-Fehler: ${error.message}`);
+      }
       return data as MediaFile;
     },
     onSuccess: () => {

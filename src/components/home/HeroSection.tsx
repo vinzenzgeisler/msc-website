@@ -2,10 +2,16 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowRight, Calendar } from 'lucide-react';
+import { useMainEvent } from '@/hooks/useMainEvent';
+import { format } from 'date-fns';
+import { de, enUS } from 'date-fns/locale';
+import { useLanguage } from '@/i18n/LanguageContext';
 
-// Event date: September 12-13, 2026
-const EVENT_DATE = new Date('2026-09-12T09:00:00');
+// Fallback event date if no main event is set
+const FALLBACK_EVENT_DATE = new Date('2026-09-12T09:00:00');
+const FALLBACK_EVENT_TITLE = '12th Oberlausitzer Dreieck';
 
 function useCountdown(targetDate: Date) {
   const [timeLeft, setTimeLeft] = useState({
@@ -46,7 +52,29 @@ function useCountdown(targetDate: Date) {
 
 export function HeroSection() {
   const t = useTranslation();
-  const countdown = useCountdown(EVENT_DATE);
+  const { locale } = useLanguage();
+  const { data: mainEvent, isLoading } = useMainEvent();
+  
+  // Use main event data or fallback
+  const eventDate = mainEvent ? new Date(mainEvent.start_dt) : FALLBACK_EVENT_DATE;
+  const eventEndDate = mainEvent?.end_dt ? new Date(mainEvent.end_dt) : null;
+  const eventTitle = mainEvent?.title || FALLBACK_EVENT_TITLE;
+  const eventDescription = mainEvent?.description || t.event.description;
+  
+  const countdown = useCountdown(eventDate);
+  
+  // Format the event date display
+  const formatEventDate = () => {
+    const dateLocale = locale === 'de' ? de : enUS;
+    const startFormatted = format(eventDate, 'MMMM d', { locale: dateLocale });
+    
+    if (eventEndDate) {
+      const endFormatted = format(eventEndDate, 'd, yyyy', { locale: dateLocale });
+      return `${startFormatted}-${endFormatted}`;
+    }
+    
+    return format(eventDate, 'MMMM d, yyyy', { locale: dateLocale });
+  };
 
   return (
     <section className="relative overflow-hidden bg-primary py-20 text-primary-foreground md:py-32">
@@ -64,16 +92,24 @@ export function HeroSection() {
           {/* Event Badge */}
           <div className="mb-6 inline-flex items-center gap-2 bg-accent px-5 py-2 text-sm font-bold uppercase tracking-wider text-accent-foreground">
             <Calendar className="h-4 w-4" />
-            {t.hero.eventDate}
+            {isLoading ? (
+              <Skeleton className="h-4 w-32 bg-accent-foreground/20" />
+            ) : (
+              formatEventDate()
+            )}
           </div>
 
           {/* Main Title */}
-          <h1 className="mb-6 font-display text-5xl font-black uppercase tracking-tight md:text-7xl">
-            {t.hero.eventTitle}
-          </h1>
+          {isLoading ? (
+            <Skeleton className="h-16 w-3/4 mx-auto mb-6 bg-primary-foreground/10" />
+          ) : (
+            <h1 className="mb-6 font-display text-5xl font-black uppercase tracking-tight md:text-7xl">
+              {eventTitle}
+            </h1>
+          )}
 
           <p className="mb-10 text-lg text-primary-foreground/80 md:text-xl">
-            {t.event.description}
+            {eventDescription}
           </p>
 
           {/* Countdown */}
