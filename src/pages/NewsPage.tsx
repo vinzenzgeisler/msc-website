@@ -1,55 +1,78 @@
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { useTranslation } from '@/i18n/LanguageContext';
+import { useTranslation, useLanguage } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Filter, Newspaper } from 'lucide-react';
+import { ArrowRight, Calendar, Filter, Newspaper, Pin } from 'lucide-react';
 import { usePosts } from '@/hooks/usePosts';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, cs, enUS } from 'date-fns/locale';
 
-type NewsCategory = 'all' | 'event' | 'club';
-
-const categoryConfig: Record<NewsCategory, { label: string; color: string }> = {
-  all: { label: 'Alle', color: 'bg-muted text-foreground' },
-  event: { label: 'Veranstaltung', color: 'bg-accent text-accent-foreground' },
-  club: { label: 'Verein', color: 'bg-primary text-primary-foreground' },
+// Map database categories to display categories
+const dbCategoryMap: Record<string, string> = {
+  'allgemein': 'allgemein',
+  'verein': 'club',
+  'motocross': 'motocross',
+  'trial': 'trial',
+  'touring': 'touring',
 };
+
+type NewsCategory = 'all' | 'club' | 'allgemein' | 'motocross' | 'trial' | 'touring';
 
 export default function NewsPage() {
   const t = useTranslation();
+  const { locale } = useLanguage();
   const [activeFilter, setActiveFilter] = useState<NewsCategory>('all');
   const { data: posts, isLoading } = usePosts();
 
-  // Get only published posts
+  const categoryConfig: Record<NewsCategory, { label: string; color: string }> = {
+    all: { label: locale === 'de' ? 'Alle' : locale === 'cz' ? 'Vše' : 'All', color: 'bg-muted text-foreground' },
+    club: { label: t.news.categories.club, color: 'bg-primary text-primary-foreground' },
+    allgemein: { label: locale === 'de' ? 'Allgemein' : locale === 'cz' ? 'Obecné' : 'General', color: 'bg-secondary text-secondary-foreground' },
+    motocross: { label: 'Motocross', color: 'bg-accent text-accent-foreground' },
+    trial: { label: 'Trial', color: 'bg-accent text-accent-foreground' },
+    touring: { label: t.nav.touring, color: 'bg-accent text-accent-foreground' },
+  };
+
+  const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
+
+  // Get only published posts - sorted by is_pinned first, then by date
   const publishedPosts = (posts || [])
     .filter(post => post.status === 'published')
-    .sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime());
+    .sort((a, b) => {
+      // Pinned posts first
+      if (a.is_pinned && !b.is_pinned) return -1;
+      if (!a.is_pinned && b.is_pinned) return 1;
+      // Then by date
+      return new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime();
+    });
 
   const filteredArticles = activeFilter === 'all'
     ? publishedPosts
-    : publishedPosts.filter((article) => article.category === activeFilter);
+    : publishedPosts.filter((article) => {
+        const mappedCategory = dbCategoryMap[article.category || ''] || article.category;
+        return mappedCategory === activeFilter || article.category === activeFilter;
+      });
 
   const featuredArticle = filteredArticles[0];
   const regularArticles = filteredArticles.slice(1);
 
   const formatDate = (dateStr: string, short = false) => {
     const formatStr = short ? 'd. MMM yyyy' : 'd. MMMM yyyy';
-    return format(new Date(dateStr), formatStr, { locale: de });
+    return format(new Date(dateStr), formatStr, { locale: dateLocale });
   };
 
   const getCategoryColor = (category: string | null) => {
-    if (category === 'event') return categoryConfig.event.color;
-    if (category === 'club') return categoryConfig.club.color;
-    return 'bg-muted text-foreground';
+    const mapped = dbCategoryMap[category || ''] || category;
+    return categoryConfig[mapped as NewsCategory]?.color || 'bg-muted text-foreground';
   };
 
   const getCategoryLabel = (category: string | null) => {
-    if (category === 'event') return categoryConfig.event.label;
-    if (category === 'club') return categoryConfig.club.label;
-    return 'Allgemein';
+    const mapped = dbCategoryMap[category || ''] || category;
+    return categoryConfig[mapped as NewsCategory]?.label || category || 'Allgemein';
   };
 
   return (
@@ -59,7 +82,9 @@ export default function NewsPage() {
         <div className="container">
           <h1 className="mb-2">{t.news.title}</h1>
           <p className="text-lg text-primary-foreground/80">
-            Neuigkeiten aus dem Verein und rund um die Veranstaltung
+            {locale === 'de' && 'Neuigkeiten aus dem Verein und rund um die Veranstaltung'}
+            {locale === 'cz' && 'Novinky z klubu a kolem akce'}
+            {locale === 'en' && 'News from the club and around the event'}
           </p>
         </div>
       </section>
@@ -70,7 +95,7 @@ export default function NewsPage() {
           <div className="flex items-center gap-4">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <div className="flex flex-wrap gap-2">
-              {(Object.keys(categoryConfig) as NewsCategory[]).map((cat) => (
+              {(['all', 'club', 'allgemein', 'motocross', 'trial', 'touring'] as NewsCategory[]).map((cat) => (
                 <Button
                   key={cat}
                   variant={activeFilter === cat ? 'default' : 'outline'}
@@ -123,7 +148,7 @@ export default function NewsPage() {
                 <Card className="group mb-8 overflow-hidden border-2 border-accent transition-shadow hover:shadow-xl">
                   <div className="grid md:grid-cols-2">
                     {/* Image */}
-                    <div className="flex h-64 items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 md:h-auto">
+                    <div className="flex h-64 items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 md:h-auto relative">
                       {featuredArticle.image_url ? (
                         <img 
                           src={featuredArticle.image_url} 
@@ -132,6 +157,12 @@ export default function NewsPage() {
                         />
                       ) : (
                         <Newspaper className="h-16 w-16 text-muted-foreground" />
+                      )}
+                      {featuredArticle.is_pinned && (
+                        <Badge className="absolute top-4 left-4 gap-1 bg-accent">
+                          <Pin className="h-3 w-3" />
+                          {locale === 'de' ? 'Angeheftet' : locale === 'cz' ? 'Připnuto' : 'Pinned'}
+                        </Badge>
                       )}
                     </div>
                     
@@ -173,7 +204,7 @@ export default function NewsPage() {
                 {regularArticles.map((article) => (
                   <Card key={article.id} className="group overflow-hidden transition-shadow hover:shadow-lg">
                     {/* Image */}
-                    <div className="flex h-40 items-center justify-center bg-muted">
+                    <div className="flex h-40 items-center justify-center bg-muted relative">
                       {article.image_url ? (
                         <img 
                           src={article.image_url} 
@@ -182,6 +213,11 @@ export default function NewsPage() {
                         />
                       ) : (
                         <Newspaper className="h-8 w-8 text-muted-foreground" />
+                      )}
+                      {article.is_pinned && (
+                        <Badge className="absolute top-2 left-2 gap-1 bg-accent text-xs">
+                          <Pin className="h-3 w-3" />
+                        </Badge>
                       )}
                     </div>
                     
@@ -220,7 +256,11 @@ export default function NewsPage() {
               {filteredArticles.length === 0 && (
                 <div className="rounded-lg border-2 border-dashed border-border py-12 text-center text-muted-foreground">
                   <Newspaper className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p>Keine Artikel gefunden.</p>
+                  <p>
+                    {locale === 'de' && 'Keine Artikel gefunden.'}
+                    {locale === 'cz' && 'Žádné články nenalezeny.'}
+                    {locale === 'en' && 'No articles found.'}
+                  </p>
                 </div>
               )}
             </>

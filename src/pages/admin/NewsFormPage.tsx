@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Pin } from 'lucide-react';
 import { usePost, useCreatePost, useUpdatePost } from '@/hooks/usePosts';
 import { toast } from 'sonner';
 
@@ -53,6 +53,7 @@ export default function NewsFormPage() {
     category: '',
     image_url: '',
     locale: 'de',
+    is_pinned: false,
     status: 'draft' as 'draft' | 'published',
   });
 
@@ -66,6 +67,7 @@ export default function NewsFormPage() {
         category: existingPost.category || '',
         image_url: existingPost.image_url || '',
         locale: existingPost.locale || 'de',
+        is_pinned: existingPost.is_pinned || false,
         status: existingPost.status || 'draft',
       });
     }
@@ -96,6 +98,7 @@ export default function NewsFormPage() {
         category: formData.category || null,
         image_url: formData.image_url || null,
         locale: formData.locale,
+        is_pinned: formData.is_pinned,
         status: formData.status,
         author_id: null,
         published_at: formData.status === 'published' ? new Date().toISOString() : null,
@@ -235,6 +238,25 @@ export default function NewsFormPage() {
                   placeholder="https://..."
                 />
               </div>
+            </div>
+
+            <div className="flex items-center justify-between rounded-lg border border-accent/50 bg-accent/5 p-4">
+              <div className="flex items-start gap-3">
+                <Pin className="h-5 w-5 text-accent mt-0.5" />
+                <div className="space-y-0.5">
+                  <Label htmlFor="is_pinned">Angeheftet</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Artikel oben in der Liste anzeigen
+                  </p>
+                </div>
+              </div>
+              <Switch
+                id="is_pinned"
+                checked={formData.is_pinned}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, is_pinned: checked })
+                }
+              />
             </div>
 
             <div className="flex items-center justify-between rounded-lg border p-4">

@@ -1,14 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase, Post } from '@/integrations/supabase/client';
+import { useLanguage } from '@/i18n/LanguageContext';
 
-export function usePosts() {
+export function usePosts(filterByLocale = true) {
+  const { locale } = useLanguage();
+  
   return useQuery({
-    queryKey: ['posts'],
+    queryKey: ['posts', filterByLocale ? locale : 'all'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('posts')
         .select('*')
+        .order('is_pinned', { ascending: false })
+        .order('published_at', { ascending: false, nullsFirst: false })
         .order('created_at', { ascending: false });
+      
+      if (filterByLocale) {
+        query = query.eq('locale', locale);
+      }
+      
+      const { data, error } = await query;
       
       if (error) throw error;
       return data as Post[];
@@ -34,14 +45,17 @@ export function usePost(id: string) {
 }
 
 export function usePostBySlug(slug: string) {
+  const { locale } = useLanguage();
+  
   return useQuery({
-    queryKey: ['posts', 'slug', slug],
+    queryKey: ['posts', 'slug', slug, locale],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('posts')
         .select('*')
         .eq('slug', slug)
         .eq('status', 'published')
+        .eq('locale', locale)
         .single();
       
       if (error) throw error;
