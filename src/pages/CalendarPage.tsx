@@ -34,7 +34,8 @@ export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("upcoming");
   
-  const { data: events, isLoading } = useCalendarEvents();
+  // Load all events regardless of locale - calendar shows all events, UI is translated
+  const { data: events, isLoading } = useCalendarEvents(false);
 
   const today = startOfDay(new Date());
   
