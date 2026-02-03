@@ -90,8 +90,8 @@ export function UpcomingEventsSection() {
                 <div className="mb-4 flex items-center gap-2">
                   <span className={`rounded-none px-3 py-1 text-xs font-bold uppercase tracking-wider ${
                     event.highlight 
-                      ? 'bg-accent/20 text-accent-foreground' 
-                      : 'bg-primary/10 text-primary'
+                      ? 'bg-accent text-accent-foreground' 
+                      : 'bg-primary text-primary-foreground'
                   }`}>
                     {t.calendar.filter[event.category as keyof typeof t.calendar.filter]}
                   </span>
