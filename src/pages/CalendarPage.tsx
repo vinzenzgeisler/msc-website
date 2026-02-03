@@ -236,29 +236,53 @@ export default function CalendarPage() {
         </div>
       </section>
 
-      {/* View Mode Toggle */}
+      {/* Filter Bar */}
       <section className="border-b border-border bg-muted/50 py-4">
         <div className="container">
-          <div className="flex items-center gap-2">
-            <span className="mr-2 text-sm font-medium text-muted-foreground">Ansicht:</span>
-            <Button
-              variant={viewMode === 'upcoming' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => { setViewMode('upcoming'); setSelectedDate(undefined); }}
-              className="gap-2"
-            >
-              <List className="h-4 w-4" />
-              Alle kommenden
-            </Button>
-            <Button
-              variant={viewMode === 'month' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('month')}
-              className="gap-2"
-            >
-              <CalendarDays className="h-4 w-4" />
-              Monatsansicht
-            </Button>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-muted-foreground">Ansicht:</span>
+              <Button
+                variant={viewMode === 'upcoming' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => { setViewMode('upcoming'); setSelectedDate(undefined); }}
+                className="gap-2"
+              >
+                <List className="h-4 w-4" />
+                <span className="hidden sm:inline">Alle kommenden</span>
+                <span className="sm:hidden">Alle</span>
+              </Button>
+              <Button
+                variant={viewMode === 'month' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('month')}
+                className="gap-2"
+              >
+                <CalendarDays className="h-4 w-4" />
+                <span className="hidden sm:inline">Monatsansicht</span>
+                <span className="sm:hidden">Monat</span>
+              </Button>
+            </div>
+
+            {/* Category Filters */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-muted-foreground">Kategorie:</span>
+              {(Object.keys(categoryConfig) as Category[]).map((cat) => (
+                <Button
+                  key={cat}
+                  variant={activeFilter === cat ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setActiveFilter(cat)}
+                  className="gap-1.5"
+                >
+                  <span 
+                    className={`h-2.5 w-2.5 rounded-full ${categoryConfig[cat].bgColor}`} 
+                  />
+                  {categoryConfig[cat].label}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -319,29 +343,6 @@ export default function CalendarPage() {
                 </CardContent>
               </Card>
               )}
-
-              {/* Filters */}
-              <Card>
-                <CardContent className="p-4">
-                  <h3 className="mb-3 font-semibold">Kategorien</h3>
-                  <div className="flex flex-col gap-2">
-                    {(Object.keys(categoryConfig) as Category[]).map((cat) => (
-                      <Button
-                        key={cat}
-                        variant={activeFilter === cat ? 'default' : 'ghost'}
-                        size="sm"
-                        className="justify-start"
-                        onClick={() => setActiveFilter(cat)}
-                      >
-                        <span 
-                          className={`mr-2 h-3 w-3 rounded-full ${categoryConfig[cat].bgColor}`} 
-                        />
-                        {categoryConfig[cat].label}
-                      </Button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
 
               {/* ICS Export */}
               <Button variant="outline" className="w-full gap-2">
