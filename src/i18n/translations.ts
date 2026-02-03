@@ -69,14 +69,32 @@ export const translations = {
     // Calendar
     calendar: {
       title: 'Termine',
-      upcoming: 'Nächste Termine',
+      subtitle: 'Alle Termine des MSC Oberlausitzer Dreiländereck e.V.',
+      upcoming: 'Kommende Termine',
+      upcomingAll: 'Kommende Termine',
+      view: 'Ansicht',
+      viewList: 'Liste',
+      viewListFull: 'Kommende',
+      viewMonth: 'Kalender',
+      viewMonthFull: 'Monatsansicht',
+      category: 'Kategorie',
+      showAllMonth: 'Alle Termine im Monat anzeigen',
+      exportCalendar: 'Kalender exportieren (ICS)',
+      noEvents: 'Keine Termine gefunden.',
+      noEventsHint: 'Wähle einen anderen Monat oder eine andere Kategorie.',
+      eventCount: 'Termin',
+      eventCountPlural: 'Termine',
       filter: {
-        all: 'Alle',
+        all: 'Allgemein',
         club: 'Verein',
+        verein: 'Verein',
         event: 'Veranstaltung',
+        veranstaltung: 'Veranstaltung',
         training: 'Training',
         orgTeam: 'Org-Team',
+        orga: 'Org-Team',
       },
+      mainEvent: 'Hauptevent',
     },
     // News
     news: {
@@ -178,14 +196,32 @@ export const translations = {
     // Calendar
     calendar: {
       title: 'Termíny',
+      subtitle: 'Všechny termíny MSC Oberlausitzer Dreiländereck e.V.',
       upcoming: 'Nadcházející události',
+      upcomingAll: 'Nadcházející termíny',
+      view: 'Zobrazení',
+      viewList: 'Seznam',
+      viewListFull: 'Nadcházející',
+      viewMonth: 'Kalendář',
+      viewMonthFull: 'Měsíční zobrazení',
+      category: 'Kategorie',
+      showAllMonth: 'Zobrazit všechny termíny v měsíci',
+      exportCalendar: 'Exportovat kalendář (ICS)',
+      noEvents: 'Žádné termíny nenalezeny.',
+      noEventsHint: 'Vyberte jiný měsíc nebo jinou kategorii.',
+      eventCount: 'termín',
+      eventCountPlural: 'termínů',
       filter: {
-        all: 'Vše',
+        all: 'Obecné',
         club: 'Klub',
+        verein: 'Klub',
         event: 'Akce',
+        veranstaltung: 'Akce',
         training: 'Trénink',
         orgTeam: 'Org-tým',
+        orga: 'Org-tým',
       },
+      mainEvent: 'Hlavní akce',
     },
     // News
     news: {
@@ -287,14 +323,32 @@ export const translations = {
     // Calendar
     calendar: {
       title: 'Events',
+      subtitle: 'All events of MSC Oberlausitzer Dreiländereck e.V.',
       upcoming: 'Upcoming Events',
+      upcomingAll: 'Upcoming Events',
+      view: 'View',
+      viewList: 'List',
+      viewListFull: 'Upcoming',
+      viewMonth: 'Calendar',
+      viewMonthFull: 'Month View',
+      category: 'Category',
+      showAllMonth: 'Show all events in month',
+      exportCalendar: 'Export Calendar (ICS)',
+      noEvents: 'No events found.',
+      noEventsHint: 'Select a different month or category.',
+      eventCount: 'event',
+      eventCountPlural: 'events',
       filter: {
-        all: 'All',
+        all: 'General',
         club: 'Club',
+        verein: 'Club',
         event: 'Event',
+        veranstaltung: 'Event',
         training: 'Training',
         orgTeam: 'Org Team',
+        orga: 'Org Team',
       },
+      mainEvent: 'Main Event',
     },
     // News
     news: {
@@ -394,14 +448,32 @@ export type Translations = {
   };
   calendar: {
     title: string;
+    subtitle: string;
     upcoming: string;
+    upcomingAll: string;
+    view: string;
+    viewList: string;
+    viewListFull: string;
+    viewMonth: string;
+    viewMonthFull: string;
+    category: string;
+    showAllMonth: string;
+    exportCalendar: string;
+    noEvents: string;
+    noEventsHint: string;
+    eventCount: string;
+    eventCountPlural: string;
     filter: {
       all: string;
       club: string;
+      verein: string;
       event: string;
+      veranstaltung: string;
       training: string;
       orgTeam: string;
+      orga: string;
     };
+    mainEvent: string;
   };
   news: {
     title: string;
