@@ -152,7 +152,7 @@ export function HeroSection() {
               className="border-2 border-white/50 bg-white/10 px-8 text-base font-medium text-white hover:border-white hover:bg-white/20"
               asChild
             >
-              <Link to="/event#schedule">{t.hero.ctaSchedule}</Link>
+              <Link to="/club/about">{t.hero.ctaDiscover}</Link>
             </Button>
           </div>
         </div>

@@ -35,6 +35,7 @@ export const translations = {
       seconds: 'Sekunden',
       ctaEvent: 'Zur Veranstaltung',
       ctaSchedule: 'Zeitplan ansehen',
+      ctaDiscover: 'Entdecken',
     },
     // Club Teaser
     clubTeaser: {
@@ -143,6 +144,7 @@ export const translations = {
       seconds: 'Sekund',
       ctaEvent: 'K akci',
       ctaSchedule: 'Zobrazit harmonogram',
+      ctaDiscover: 'Objevit',
     },
     // Club Teaser
     clubTeaser: {
@@ -251,6 +253,7 @@ export const translations = {
       seconds: 'Seconds',
       ctaEvent: 'View Event',
       ctaSchedule: 'See Schedule',
+      ctaDiscover: 'Discover',
     },
     // Club Teaser
     clubTeaser: {
@@ -360,6 +363,7 @@ export type Translations = {
     seconds: string;
     ctaEvent: string;
     ctaSchedule: string;
+    ctaDiscover: string;
   };
   clubTeaser: {
     title: string;
