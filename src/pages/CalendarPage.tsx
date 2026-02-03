@@ -13,7 +13,7 @@ import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 type Category = "all" | "club" | "event" | "training" | "orgTeam" | "verein" | "veranstaltung" | "orgteam";
 
 const categoryConfig: Record<string, { label: string; color: string; bgColor: string }> = {
-  all: { label: "Alle", color: "text-foreground", bgColor: "bg-muted" },
+  all: { label: "Allgemein", color: "text-foreground", bgColor: "bg-muted-foreground" },
   club: { label: "Verein", color: "text-primary-foreground", bgColor: "bg-primary" },
   verein: { label: "Verein", color: "text-primary-foreground", bgColor: "bg-primary" },
   event: { label: "Veranstaltung", color: "text-accent-foreground", bgColor: "bg-accent" },
@@ -118,7 +118,6 @@ export default function CalendarPage() {
               <span className="text-sm font-medium text-muted-foreground hidden sm:inline">Kategorie:</span>
               {availableCategories.map((cat) => {
                 const style = getCategoryStyle(cat);
-                const isAll = cat === 'all';
                 return (
                   <Button
                     key={cat}
@@ -127,7 +126,7 @@ export default function CalendarPage() {
                     onClick={() => setActiveFilter(cat)}
                     className="gap-1.5"
                   >
-                    {!isAll && <span className={`h-2.5 w-2.5 rounded-full ${style.bgColor}`} />}
+                    <span className={`h-2.5 w-2.5 rounded-full ${style.bgColor}`} />
                     {style.label}
                   </Button>
                 );
