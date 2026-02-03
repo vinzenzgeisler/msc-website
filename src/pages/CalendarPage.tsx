@@ -4,9 +4,9 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { MapPin, Clock, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { MapPin, Clock, ChevronLeft, ChevronRight, Download, List, CalendarDays } from 'lucide-react';
 import { de } from 'date-fns/locale';
-import { format, isSameMonth, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { format, isSameMonth, isSameDay, isAfter, startOfDay } from 'date-fns';
 
 type Category = 'all' | 'club' | 'event' | 'training' | 'orgTeam';
 
@@ -186,15 +186,25 @@ const categoryConfig: Record<Category, { label: string; color: string; bgColor: 
   orgTeam: { label: 'Org-Team', color: 'text-white', bgColor: 'bg-purple-600' },
 };
 
+type ViewMode = 'month' | 'upcoming';
+
 export default function CalendarPage() {
   const t = useTranslation();
   const [activeFilter, setActiveFilter] = useState<Category>('all');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 1)); // Start in January 2026
+  const [viewMode, setViewMode] = useState<ViewMode>('upcoming');
+
+  const today = new Date(2026, 1, 3); // Simulated "today" for demo (Feb 3, 2026)
 
   const filteredEvents = calendarEvents
     .filter((event) => activeFilter === 'all' || event.category === activeFilter)
     .filter((event) => {
+      if (viewMode === 'upcoming') {
+        // Show all future events
+        return isAfter(new Date(event.date), startOfDay(today)) || 
+               isSameDay(new Date(event.date), today);
+      }
       if (selectedDate) {
         return isSameDay(new Date(event.date), selectedDate);
       }
@@ -226,12 +236,40 @@ export default function CalendarPage() {
         </div>
       </section>
 
+      {/* View Mode Toggle */}
+      <section className="border-b border-border bg-muted/50 py-4">
+        <div className="container">
+          <div className="flex items-center gap-2">
+            <span className="mr-2 text-sm font-medium text-muted-foreground">Ansicht:</span>
+            <Button
+              variant={viewMode === 'upcoming' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => { setViewMode('upcoming'); setSelectedDate(undefined); }}
+              className="gap-2"
+            >
+              <List className="h-4 w-4" />
+              Alle kommenden
+            </Button>
+            <Button
+              variant={viewMode === 'month' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('month')}
+              className="gap-2"
+            >
+              <CalendarDays className="h-4 w-4" />
+              Monatsansicht
+            </Button>
+          </div>
+        </div>
+      </section>
+
       <section className="py-12">
         <div className="container">
           <div className="grid gap-8 lg:grid-cols-[350px_1fr]">
             {/* Sidebar with Calendar and Filters */}
             <div className="space-y-6">
-              {/* Mini Calendar */}
+              {/* Mini Calendar - only show in month view */}
+              {viewMode === 'month' && (
               <Card>
                 <CardContent className="p-4">
                   <div className="mb-4 flex items-center justify-between">
@@ -280,6 +318,7 @@ export default function CalendarPage() {
                   )}
                 </CardContent>
               </Card>
+              )}
 
               {/* Filters */}
               <Card>
@@ -312,12 +351,14 @@ export default function CalendarPage() {
             </div>
 
             {/* Events List */}
-            <div>
+            <div className={viewMode === 'upcoming' ? 'lg:col-span-2' : ''}>
               <div className="mb-6 flex items-center justify-between">
                 <h2 className="text-2xl font-bold">
-                  {selectedDate 
-                    ? format(selectedDate, 'd. MMMM yyyy', { locale: de })
-                    : format(currentMonth, 'MMMM yyyy', { locale: de })
+                  {viewMode === 'upcoming'
+                    ? 'Alle kommenden Termine'
+                    : selectedDate 
+                      ? format(selectedDate, 'd. MMMM yyyy', { locale: de })
+                      : format(currentMonth, 'MMMM yyyy', { locale: de })
                   }
                 </h2>
                 <span className="text-muted-foreground">
