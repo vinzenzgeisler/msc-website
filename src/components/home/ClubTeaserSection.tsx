@@ -1,10 +1,19 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronRight, Users, Trophy, MapPin } from 'lucide-react';
+import { useContentWithFallback } from '@/hooks/usePageContent';
 
 export function ClubTeaserSection() {
   const t = useTranslation();
+  
+  // Fetch content from database with fallbacks
+  const clubTeaser = useContentWithFallback('home', 'club_teaser', {
+    title: t.clubTeaser.title,
+    subtitle: t.clubTeaser.subtitle,
+    content: t.clubTeaser.description,
+  });
 
   const stats = [
     { icon: Users, value: '150+', label: 'Mitglieder' },
@@ -28,17 +37,27 @@ export function ClubTeaserSection() {
               Seit 1984
             </div>
             
-            <h2 className="mb-4 text-4xl font-black uppercase tracking-tight md:text-5xl">
-              {t.clubTeaser.title}
-            </h2>
-            
-            <p className="mb-2 text-xl font-semibold text-primary">
-              {t.clubTeaser.subtitle}
-            </p>
-            
-            <p className="mb-8 text-lg text-muted-foreground leading-relaxed">
-              {t.clubTeaser.description}
-            </p>
+            {clubTeaser.isLoading ? (
+              <>
+                <Skeleton className="h-12 w-3/4 mb-4" />
+                <Skeleton className="h-6 w-1/2 mb-2" />
+                <Skeleton className="h-20 w-full mb-8" />
+              </>
+            ) : (
+              <>
+                <h2 className="mb-4 text-4xl font-black uppercase tracking-tight md:text-5xl">
+                  {clubTeaser.title}
+                </h2>
+                
+                <p className="mb-2 text-xl font-semibold text-primary">
+                  {clubTeaser.subtitle}
+                </p>
+                
+                <p className="mb-8 text-lg text-muted-foreground leading-relaxed">
+                  {clubTeaser.content}
+                </p>
+              </>
+            )}
             
             <Button 
               size="lg" 
@@ -54,7 +73,7 @@ export function ClubTeaserSection() {
 
           {/* Stats Cards */}
           <div className="grid gap-4 sm:grid-cols-3">
-            {stats.map((stat, index) => (
+            {stats.map((stat) => (
               <div
                 key={stat.label}
                 className="group relative overflow-hidden rounded-none border-2 border-border bg-card p-6 text-center transition-all hover:border-primary hover:shadow-lg"

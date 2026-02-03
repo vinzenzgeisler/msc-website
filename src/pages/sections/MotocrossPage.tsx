@@ -1,22 +1,41 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { MapPin, Calendar, Trophy } from 'lucide-react';
+import { useContentWithFallback } from '@/hooks/usePageContent';
 
 export default function MotocrossPage() {
   const t = useTranslation();
+  
+  const intro = useContentWithFallback('motocross', 'intro', {
+    title: t.nav.motocross,
+    subtitle: 'Action und Adrenalin im Gelände',
+    content: `Unsere Motocross-Sparte bietet Training und Fahrpraxis auf 
+    unserer vereinseigenen Strecke. Ob Anfänger oder Fortgeschrittener – 
+    bei uns findest du die perfekte Umgebung, um deine Fähigkeiten zu verbessern.`,
+  });
 
   return (
     <MainLayout>
       {/* Header */}
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container">
-          <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-            {t.nav.motocross}
-          </h1>
-          <p className="text-lg text-primary-foreground/80">
-            Action und Adrenalin im Gelände
-          </p>
+          {intro.isLoading ? (
+            <>
+              <Skeleton className="h-12 w-48 mb-2 bg-primary-foreground/10" />
+              <Skeleton className="h-6 w-72 bg-primary-foreground/10" />
+            </>
+          ) : (
+            <>
+              <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
+                {intro.title}
+              </h1>
+              <p className="text-lg text-primary-foreground/80">
+                {intro.subtitle}
+              </p>
+            </>
+          )}
         </div>
       </section>
 
@@ -24,11 +43,14 @@ export default function MotocrossPage() {
       <section className="py-16">
         <div className="container">
           <div className="mx-auto max-w-3xl">
-            <p className="mb-8 text-lg text-muted-foreground">
-              Unsere Motocross-Sparte bietet Training und Fahrpraxis auf 
-              unserer vereinseigenen Strecke. Ob Anfänger oder Fortgeschrittener – 
-              bei uns findest du die perfekte Umgebung, um deine Fähigkeiten zu verbessern.
-            </p>
+            {intro.isLoading ? (
+              <Skeleton className="h-24 w-full mb-8" />
+            ) : (
+              <div 
+                className="mb-8 text-lg text-muted-foreground prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }}
+              />
+            )}
 
             <div className="grid gap-6 md:grid-cols-3">
               <Card>

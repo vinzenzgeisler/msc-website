@@ -1,24 +1,43 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { MapPin, Calendar, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useContentWithFallback } from '@/hooks/usePageContent';
 
 export default function TouringPage() {
   const t = useTranslation();
+  
+  const intro = useContentWithFallback('touring', 'intro', {
+    title: t.nav.touring,
+    subtitle: 'Gemeinsam die schönsten Strecken erleben',
+    content: `Die Sparte Motorradtouristik organisiert regelmäßige Ausfahrten durch das 
+    Zittauer Gebirge und darüber hinaus. Von gemütlichen Tagestouren bis zu 
+    mehrtägigen Fahrten – bei uns steht das gemeinsame Erlebnis im Vordergrund.`,
+  });
 
   return (
     <MainLayout>
       {/* Header */}
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container">
-          <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-            {t.nav.touring}
-          </h1>
-          <p className="text-lg text-primary-foreground/80">
-            Gemeinsam die schönsten Strecken erleben
-          </p>
+          {intro.isLoading ? (
+            <>
+              <Skeleton className="h-12 w-56 mb-2 bg-primary-foreground/10" />
+              <Skeleton className="h-6 w-80 bg-primary-foreground/10" />
+            </>
+          ) : (
+            <>
+              <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
+                {intro.title}
+              </h1>
+              <p className="text-lg text-primary-foreground/80">
+                {intro.subtitle}
+              </p>
+            </>
+          )}
         </div>
       </section>
 
@@ -26,11 +45,14 @@ export default function TouringPage() {
       <section className="py-16">
         <div className="container">
           <div className="mx-auto max-w-3xl">
-            <p className="mb-8 text-lg text-muted-foreground">
-              Die Sparte Motorradtouristik organisiert regelmäßige Ausfahrten durch das 
-              Zittauer Gebirge und darüber hinaus. Von gemütlichen Tagestouren bis zu 
-              mehrtägigen Fahrten – bei uns steht das gemeinsame Erlebnis im Vordergrund.
-            </p>
+            {intro.isLoading ? (
+              <Skeleton className="h-24 w-full mb-8" />
+            ) : (
+              <div 
+                className="mb-8 text-lg text-muted-foreground prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }}
+              />
+            )}
 
             <div className="grid gap-6 md:grid-cols-3">
               <Card>
