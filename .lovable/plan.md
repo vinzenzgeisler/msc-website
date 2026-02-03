@@ -1,151 +1,172 @@
 
-# MSC Oberlausitzer Dreiländereck e.V. – Website MVP
+# Supabase Backend Integration
 
-## Projektübersicht
-Eine moderne, mehrsprachige Vereinswebsite für den MSC Oberlausitzer Dreiländereck e.V. mit Fokus auf das jährliche Event "Oberlausitzer Dreieck" (Demolauf). Die Website verbindet dynamisches, sportliches Design mit einem vollständigen CMS für die Inhaltspflege.
-
----
-
-## Phase 1: Grundgerüst & Design-System
-
-### Design-Konzept
-- **Stil**: Dynamisch & Bold – kräftiges Blau, energetische gelbe Akzente
-- **Elemente**: Diagonale Linien, sportliche Typografie, Motorsport-Atmosphäre
-- **Modi**: Light Mode (heller Hintergrund) + Dark Mode (hoher Kontrast)
-- **Responsiv**: Mobile First, optimiert für alle Geräte
-
-### Mehrsprachigkeit (DE/CZ/EN)
-- Sprachumschalter in der Navigation
-- Alle Texte als editierbare Inhalte vorbereitet
-- URL-Struktur mit Sprachpräfix (/de/, /cz/, /en/)
+## Übersicht
+Anbindung deines selbst gehosteten Supabase-Backends an das bestehende Admin-Interface mit Authentifizierung und Datenbank-Integration.
 
 ---
 
-## Phase 2: Startseite
+## Voraussetzungen
 
-### Hero-Bereich
-- Event-Countdown
-- **"12. Oberlausitzer Dreieck – 12./13. September 2026"**
-- Call-to-Action Buttons: "Zur Veranstaltung" & "Zeitplan ansehen"
+Du benötigst folgende Angaben von deinem Supabase-Projekt:
+- **Supabase URL** (z.B. `https://deinprojekt.supabase.co`)
+- **Anon Key** (öffentlicher API-Schlüssel)
 
-### Weitere Sektionen
-- **Vereins-Teaser**: Kurze Vorstellung des MSC
-- **Nächste Termine**: Teaser-Kalender mit den wichtigsten Daten
-- **Aktuelle News**: Die neuesten Vereinsnachrichten
-- **Sponsoren-Slider**: Havlat, DEKRA, Bergquell, Auto-Fit, Kummer, Auto Jahn
+Diese Keys sind **öffentlich nutzbar** und können sicher im Code gespeichert werden.
 
 ---
 
-## Phase 3: Veranstaltung – "Oberlausitzer Dreieck"
+## Implementierungsschritte
 
-### Hub-Seite mit allen Event-Infos
-- **Überblick**: Beschreibung des Demolaufs (kein Rennen!)
-- **Strecke & Region**: 5,9 km zwischen Saalendorf, Jonsdorf, Waltersdorf
-- **Zeitplan**: Detaillierte Tagesübersicht (Sa/So) mit allen Klassen
-- **Teilnehmerklassen**: Rennmotorräder, Seitenwagen, Karts, Formelwagen, Tourenwagen
-- **Besucherinformationen**: Anreise, Eintritt, Parken
-- **Fahrerlager**: Lager 1 (Motorräder/Festzelt), Lager 2 (Seitenwagen/Rennwagen)
-- **Downloads**: Programmheft, Ausschreibung
-- **Galerie**: Impressionen vergangener Events
-- **Sponsoren**: Alle Partner der Veranstaltung
-- **Archiv**: Vergangene Jahre (2025, 2024, 2023...)
+### Schritt 1: Supabase Client einrichten
+Erstellen einer Supabase-Client-Konfiguration:
 
----
+```text
+src/
+└── integrations/
+    └── supabase/
+        ├── client.ts      # Supabase Client-Instanz
+        └── types.ts       # TypeScript-Typen für Tabellen
+```
 
-## Phase 4: Kalender & News
+### Schritt 2: Authentifizierung umstellen
+Der aktuelle `AuthContext` mit Mock-Usern wird auf echte Supabase-Authentifizierung umgestellt:
 
-### Terminkalender
-- Übersicht aller Vereinstermine
-- Kategoriefilter: Verein | Veranstaltung | Training | Org-Team
-- Termine wie: Org-Team Sitzungen, Hauptversammlung, Weihnachtsfeier
-- Optional: ICS-Export für Kalender-Apps
+- Login über `supabase.auth.signInWithPassword()`
+- Logout über `supabase.auth.signOut()`
+- Session-Verwaltung mit `onAuthStateChange`
+- Benutzerrollen aus einer `profiles`-Tabelle laden
 
-### News-Bereich
-- Übersichtsseite mit Kacheln/Liste
-- Kategorien: Verein, Veranstaltung
-- Detailseiten für jeden Beitrag
+### Schritt 3: Datenbank-Schema erstellen
+SQL-Migrationen für die benötigten Tabellen:
 
----
+| Tabelle | Beschreibung |
+|---------|--------------|
+| `profiles` | Benutzerprofile mit Rollen (admin/editor) |
+| `posts` | News-Artikel |
+| `calendar_events` | Kalendertermine |
+| `sponsors` | Sponsoren |
+| `downloads` | Download-Dateien |
+| `media_albums` | Medien-Alben |
+| `media_files` | Einzelne Mediendateien |
 
-## Phase 5: Vereinsseiten
+### Schritt 4: Admin-Seiten mit echten Daten verbinden
+Die Mock-Daten in den Admin-Seiten werden durch Supabase-Queries ersetzt:
 
-### Über den Verein
-- **Über uns**: Geschichte und Mission des MSC
-- **Vorstand**: Vorstellung des Teams
-- **Geschichte**: Tradition seit Gründung
+- React Query Hooks für Datenabruf
+- CRUD-Operationen (Erstellen, Lesen, Aktualisieren, Löschen)
+- Echtzeit-Updates bei Datenänderungen
 
-### Sparten (Abteilungen)
-- **Motorradtouristik**: Gemeinsame Touren
-- **Motocross**: Strecke und Aktivitäten
-- **Trial**: Geschicklichkeitsfahren
+### Schritt 5: Row Level Security (RLS)
+Sicherheitsregeln für jede Tabelle:
 
-### Mitgliedschaft
-- Informationen zum Beitritt
-- Vorteile der Mitgliedschaft
-
----
-
-## Phase 6: Partner & Kontakt
-
-### Sponsoren & Partner
-- Alle Sponsoren mit Logo und Link
-- Einteilung nach Tier (Hauptsponsor, Partner, Unterstützer)
-- Partnervereine
-
-### Kontakt
-- Kontaktformular mit Validierung
-- Vereinsadresse und E-Mail
-- Social Media Links (Instagram, Facebook)
-
-### Rechtliches
-- Impressum
-- Datenschutzerklärung
+- Öffentliche Inhalte: Jeder kann lesen
+- Admin/Editor: Können schreiben basierend auf ihrer Rolle
 
 ---
 
-## Phase 7: Backend & Admin (Supabase)
+## Datenbank-Schema (SQL)
 
-### Authentifizierung
-- Sicheres Login für Redakteure und Admins
-- Rollensystem: **Admin** (Nutzerverwaltung) | **Editor** (Inhaltspflege)
+```text
+-- Benutzerprofile
+profiles
+├── id (UUID, FK zu auth.users)
+├── email (TEXT)
+├── full_name (TEXT)
+├── role (TEXT: 'admin' | 'editor')
+└── created_at (TIMESTAMP)
 
-### Datenbank-Struktur
-- **events**: Veranstaltungsdaten mit Jahrgang
-- **schedule_items**: Zeitplan-Einträge pro Event
-- **posts**: News-Artikel mit Kategorien
-- **calendar_events**: Vereinstermine
-- **sponsors**: Sponsoren mit Logo und Tier
-- **downloads**: Dateien zum Herunterladen
-- **media_albums** & **media_images**: Bildergalerien
+-- News-Artikel
+posts
+├── id (UUID)
+├── title (TEXT)
+├── slug (TEXT, UNIQUE)
+├── content (TEXT)
+├── excerpt (TEXT)
+├── category (TEXT)
+├── image_url (TEXT)
+├── status (TEXT: 'draft' | 'published')
+├── author_id (UUID, FK zu profiles)
+├── published_at (TIMESTAMP)
+└── created_at (TIMESTAMP)
 
-### Admin-Dashboard
-- Übersicht aller Inhalte
-- CRUD-Funktionen für alle Datenbereiche
-- Medien-Upload (Bilder, Logos, PDFs)
-- Vorschau-Funktion vor Veröffentlichung
+-- Kalendertermine
+calendar_events
+├── id (UUID)
+├── title (TEXT)
+├── description (TEXT)
+├── category (TEXT)
+├── date (DATE)
+├── time (TEXT)
+├── location (TEXT)
+└── created_at (TIMESTAMP)
+
+-- Sponsoren
+sponsors
+├── id (UUID)
+├── name (TEXT)
+├── logo_url (TEXT)
+├── website (TEXT)
+├── tier (TEXT: 'main' | 'partner' | 'supporter')
+├── active (BOOLEAN)
+└── created_at (TIMESTAMP)
+```
 
 ---
 
-## Umsetzungsreihenfolge
+## Technische Details
 
-1. **Design-System & Layout** – Farbpalette, Typografie, Komponenten
-2. **Navigation & Routing** – Mehrsprachige Seitenstruktur
-3. **Startseite** – Hero, Teaser, Sponsoren
-4. **Veranstaltungs-Hub** – Event-Informationen mit Zeitplan
-5. **Kalender & News** – Terminübersicht und Beiträge
-6. **Vereinsseiten** – Über uns, Sparten, Mitgliedschaft
-7. **Supabase-Setup** – Datenbank, Auth, Rollen
-8. **Admin-Bereich** – CMS für Inhaltspflege
+### Supabase Client Konfiguration
+```text
+Datei: src/integrations/supabase/client.ts
+
+- Import von createClient aus @supabase/supabase-js
+- Konfiguration mit URL und Anon Key
+- Export der Client-Instanz
+```
+
+### AuthContext Anpassungen
+```text
+Datei: src/contexts/AuthContext.tsx
+
+- Entfernung der Mock-User-Daten
+- Integration von supabase.auth Methoden
+- Laden der Benutzerrolle aus profiles-Tabelle
+- onAuthStateChange für Session-Management
+```
+
+### Neue React Query Hooks
+```text
+Datei: src/hooks/useSupabase.ts
+
+- useNews() - Posts laden/erstellen/aktualisieren
+- useCalendarEvents() - Termine verwalten
+- useSponsors() - Sponsoren verwalten
+- useMedia() - Mediendateien verwalten
+```
 
 ---
 
-## Inhalte aus bestehenden Websites
+## Erforderliche Aktionen
 
-Die folgenden Inhalte werden übernommen:
-- Vereinslogo und Banner
-- Zeitplan-Struktur (Klassen, Zeiten)
-- Terminkalender (Org-Team, Events)
-- Sponsorenlogos und Links
-- Streckeninformationen (Saalendorf–Jonsdorf–Waltersdorf)
+1. **Supabase URL und Anon Key bereitstellen** - Ich benötige diese Werte, um den Client zu konfigurieren
+2. **Datenbank-Schema ausführen** - SQL-Befehle in deinem Supabase Dashboard ausführen
+3. **Ersten Admin-User erstellen** - Über Supabase Authentication einen User anlegen und in profiles als 'admin' eintragen
 
-Texte werden in deutscher Sprache angelegt, CZ und EN als Platzhalter zum Übersetzen.
+---
+
+## Zeitplan
+
+| Phase | Beschreibung | Aufwand |
+|-------|--------------|---------|
+| 1 | Client-Setup + Auth | Schnell |
+| 2 | Datenbank-Schema | Schnell |
+| 3 | News-Verwaltung | Mittel |
+| 4 | Kalender + Sponsoren | Mittel |
+| 5 | Medien-Upload | Mittel |
+
+---
+
+## Nächster Schritt
+
+Bitte teile mir deine **Supabase URL** und den **Anon Key** mit, damit ich mit der Implementierung beginnen kann.
