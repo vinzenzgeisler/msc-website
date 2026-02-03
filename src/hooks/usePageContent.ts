@@ -29,6 +29,51 @@ export const PAGE_SECTIONS = {
 
 export type PageKey = keyof typeof PAGE_SECTIONS;
 
+// Helper hook to get a specific section's content
+export function useSectionContent(pageKey: PageKey, sectionKey: string) {
+  const { locale } = useLanguage();
+  
+  return useQuery({
+    queryKey: ['page_content', pageKey, sectionKey, locale],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('page_content')
+        .select('*')
+        .eq('page_key', pageKey)
+        .eq('section_key', sectionKey)
+        .eq('locale', locale)
+        .maybeSingle();
+      
+      if (error) {
+        // If table doesn't exist, return null
+        if (error.code === '42P01') {
+          return null;
+        }
+        throw error;
+      }
+      
+      return data as PageContent | null;
+    },
+  });
+}
+
+// Helper to get content with fallback
+export function useContentWithFallback(
+  pageKey: PageKey, 
+  sectionKey: string, 
+  fallback: { title?: string; subtitle?: string; content?: string }
+) {
+  const { data, isLoading } = useSectionContent(pageKey, sectionKey);
+  
+  return {
+    title: data?.title || fallback.title || '',
+    subtitle: data?.subtitle || fallback.subtitle || '',
+    content: data?.content || fallback.content || '',
+    isLoading,
+    hasDbContent: !!data,
+  };
+}
+
 export function usePageContent(pageKey: PageKey, sectionKey?: string) {
   const { locale } = useLanguage();
   
