@@ -95,7 +95,7 @@ export default function NewsPage() {
           <div className="flex items-center gap-4">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <div className="flex flex-wrap gap-2">
-              {(['all', 'club', 'allgemein', 'motocross', 'trial', 'touring'] as NewsCategory[]).map((cat) => (
+              {(['all', 'club', 'motocross', 'trial', 'touring'] as NewsCategory[]).map((cat) => (
                 <Button
                   key={cat}
                   variant={activeFilter === cat ? 'default' : 'outline'}
