@@ -10,17 +10,17 @@
 
 @layer base {
   :root {
-    /* Primary: Deep Racing Blue */
-    --primary: 222 84% 25%;
+    /* Primary: Racing Blue */
+    --primary: 220 70% 35%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Steel Gray */
-    --secondary: 220 14% 90%;
-    --secondary-foreground: 222 84% 20%;
+    /* Secondary: Neutral Gray */
+    --secondary: 220 14% 92%;
+    --secondary-foreground: 220 40% 20%;
 
-    /* Accent: Racing Orange-Yellow */
-    --accent: 38 100% 50%;
-    --accent-foreground: 222 84% 10%;
+    /* Accent: Racing Yellow */
+    --accent: 48 100% 50%;
+    --accent-foreground: 220 40% 10%;
 
     /* Background & Surfaces */
     --background: 0 0% 100%;
@@ -58,24 +58,24 @@
     --sidebar-ring: 222 84% 25%;
 
     /* Custom: Motorsport Effects */
-    --gradient-racing: linear-gradient(135deg, hsl(222 84% 25%) 0%, hsl(222 84% 35%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(38 100% 50%) 0%, hsl(32 100% 45%) 100%);
-    --shadow-racing: 0 10px 40px -10px hsl(222 84% 25% / 0.4);
-    --shadow-accent: 0 10px 30px -10px hsl(38 100% 50% / 0.5);
+    --gradient-racing: linear-gradient(135deg, hsl(220 70% 35%) 0%, hsl(220 70% 45%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(48 100% 50%) 0%, hsl(45 100% 45%) 100%);
+    --shadow-racing: 0 10px 40px -10px hsl(220 70% 35% / 0.35);
+    --shadow-accent: 0 10px 30px -10px hsl(48 100% 50% / 0.4);
   }
 
   .dark {
-    /* Primary: Electric Blue */
+    /* Primary: Bright Blue */
     --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 5%;
+    --primary-foreground: 220 40% 8%;
 
-    /* Secondary: Dark Steel */
-    --secondary: 222 30% 16%;
+    /* Secondary: Dark Gray */
+    --secondary: 220 20% 18%;
     --secondary-foreground: 0 0% 95%;
 
-    /* Accent: Bright Racing Orange */
-    --accent: 38 100% 55%;
-    --accent-foreground: 222 47% 5%;
+    /* Accent: Bright Yellow */
+    --accent: 48 100% 55%;
+    --accent-foreground: 220 40% 8%;
 
     /* Background: Deep Racing Black-Blue */
     --background: 222 47% 5%;
