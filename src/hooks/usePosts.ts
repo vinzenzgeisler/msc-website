@@ -33,6 +33,24 @@ export function usePost(id: string) {
   });
 }
 
+export function usePostBySlug(slug: string) {
+  return useQuery({
+    queryKey: ['posts', 'slug', slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('slug', slug)
+        .eq('status', 'published')
+        .single();
+      
+      if (error) throw error;
+      return data as Post;
+    },
+    enabled: !!slug,
+  });
+}
+
 export function useCreatePost() {
   const queryClient = useQueryClient();
   

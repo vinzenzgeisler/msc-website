@@ -2,38 +2,77 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronRight, ArrowUpRight } from 'lucide-react';
-
-// Mock news data - will be replaced with database data
-const newsItems = [
-  {
-    id: 1,
-    date: '2026-01-15',
-    title: 'Planungen für das 12. Oberlausitzer Dreieck laufen',
-    excerpt: 'Die Vorbereitungen für unsere Jubiläumsveranstaltung sind in vollem Gange. Das Org-Team trifft sich regelmäßig...',
-    category: 'event',
-    image: null,
-  },
-  {
-    id: 2,
-    date: '2025-12-20',
-    title: 'Rückblick Weihnachtsfeier 2025',
-    excerpt: 'Bei unserer traditionellen Weihnachtsfeier kamen wieder über 60 Mitglieder zusammen...',
-    category: 'club',
-    image: null,
-  },
-  {
-    id: 3,
-    date: '2025-11-10',
-    title: 'Neue Trial-Sektion eröffnet',
-    excerpt: 'Ab sofort steht unseren Trial-Fahrern ein erweitertes Übungsgelände zur Verfügung...',
-    category: 'club',
-    image: null,
-  },
-];
+import { Skeleton } from '@/components/ui/skeleton';
+import { ChevronRight, ArrowUpRight, Newspaper } from 'lucide-react';
+import { usePosts } from '@/hooks/usePosts';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
 
 export function NewsSection() {
   const t = useTranslation();
+  const { data: posts, isLoading } = usePosts();
+  
+  // Get only published posts, sorted by date, limit to 3
+  const newsItems = (posts || [])
+    .filter(post => post.status === 'published')
+    .sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime())
+    .slice(0, 3);
+
+  const formatDate = (dateStr: string) => {
+    return format(new Date(dateStr), 'd. MMMM yyyy', { locale: de });
+  };
+
+  if (isLoading) {
+    return (
+      <section className="relative py-20 md:py-28">
+        <div className="absolute right-0 top-0 bottom-0 w-1 bg-gradient-to-b from-accent via-primary to-accent" />
+        <div className="container">
+          <div className="mb-12">
+            <Skeleton className="h-10 w-48 mb-2" />
+            <Skeleton className="h-5 w-64" />
+          </div>
+          <div className="grid gap-6 lg:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="overflow-hidden rounded-none border-2">
+                <Skeleton className="h-32" />
+                <CardContent className="p-6">
+                  <Skeleton className="h-4 w-24 mb-2" />
+                  <Skeleton className="h-6 w-full mb-2" />
+                  <Skeleton className="h-4 w-20" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (newsItems.length === 0) {
+    return (
+      <section className="relative py-20 md:py-28">
+        <div className="absolute right-0 top-0 bottom-0 w-1 bg-gradient-to-b from-accent via-primary to-accent" />
+        <div className="container">
+          <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-3xl font-black uppercase tracking-tight md:text-4xl">
+                {t.nav.news}
+              </h2>
+              <p className="mt-2 text-muted-foreground">
+                Aktuelles aus dem Vereinsleben
+              </p>
+            </div>
+          </div>
+          <Card className="border-dashed border-2 bg-muted/50">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <Newspaper className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Noch keine News veröffentlicht</p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative py-20 md:py-28">
@@ -72,22 +111,28 @@ export function NewsSection() {
             >
               {/* Image placeholder */}
               <div className={`relative bg-muted ${index === 0 ? 'h-48 lg:h-64' : 'h-32'}`}>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-muted-foreground">Bild</span>
-                </div>
+                {news.image_url ? (
+                  <img 
+                    src={news.image_url} 
+                    alt={news.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Newspaper className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                )}
                 {/* Category badge */}
-                <div className="absolute left-4 top-4 rounded-none bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground">
-                  {t.news.categories[news.category as keyof typeof t.news.categories]}
-                </div>
+                {news.category && (
+                  <div className="absolute left-4 top-4 rounded-none bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground">
+                    {news.category === 'event' ? t.news.categories.event : t.news.categories.club}
+                  </div>
+                )}
               </div>
 
               <CardContent className="p-6">
                 <p className="mb-2 text-sm text-muted-foreground">
-                  {new Date(news.date).toLocaleDateString('de-DE', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
+                  {formatDate(news.published_at || news.created_at)}
                 </p>
                 
                 <h3 className={`font-bold transition-colors group-hover:text-primary ${
@@ -96,14 +141,14 @@ export function NewsSection() {
                   {news.title}
                 </h3>
                 
-                {index === 0 && (
-                  <p className="mb-4 text-muted-foreground">
+                {index === 0 && news.excerpt && (
+                  <p className="mb-4 text-muted-foreground line-clamp-3">
                     {news.excerpt}
                   </p>
                 )}
 
                 <Link 
-                  to={`/news/${news.id}`}
+                  to={`/news/${news.slug}`}
                   className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary/80"
                 >
                   Weiterlesen
