@@ -1,11 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase configuration missing. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY secrets.');
-}
+const supabaseUrl = 'https://jctmxknklxyisydtsmfw.supabase.co';
+const supabaseAnonKey = 'sb_publishable_67GBWnZ-NifTPvBzcrG3ag_aV61rx5W';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
