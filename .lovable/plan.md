@@ -1,96 +1,125 @@
 
 
-# Plan: Unterseiten verbessern + CMS-Felder anpassen
+# Plan: Website vorzeigefähig machen
 
-## Bestandsaufnahme
+## Überblick
 
-Nach Analyse aller Seiten und des CMS-Backends (PocketBase) ergibt sich folgendes Bild:
+Sechs Arbeitsbereiche: Header aufwerten, Mitgliedschaft verschönern, Veranstaltungsseite fixen, Karten-Funktionen, Cookie-Banner, und CMS-Dokumentation erweitern. Texte von der alten Website werden als CMS-Fallbacks eingebaut wo sinnvoll.
 
-**Gut funktionierend:**
-- Startseite, News, Kalender, Event-Seite, Kontakt -- vielseitig, CMS-angebunden
-- Admin unter /admin mit Content-Editor, strukturierten Inhalten, Settings
+---
 
-**Unterseiten mit Verbesserungspotential:**
+## 1. Blaue Subpage-Header aufwerten
 
-| Seite | Problem |
-|---|---|
-| **Über uns** | Mission/Werte nur als einfacher Text in Cards -- kein Rich-Content, kein Bild, keine CTA |
-| **Vorstand** | Funktional ok, aber Foto-Bereich wirkt leer ohne Bilder; kein Intro-Bild |
-| **Geschichte** | Timeline funktioniert, aber kein Intro-Bild; leere Seite ohne Einträge wirkt kahl |
-| **Mitgliedschaft** | Hardcoded Überschriften ("Vorteile einer Mitgliedschaft", "So werden Sie Mitglied"), CTA-Texte hardcoded |
-| **Motocross/Trial/Touring** | Alle drei identisch aufgebaut, sehr dünn -- nur Intro + 3 kleine Cards; kein Bild, keine Links zu passenden Events |
-| **Sponsoren** | Gut, aber CTA-Bereich könnte visuell stärker sein |
-| **Partnervereine** | Kein Intro-Bild; leere Seite wirkt leer |
-| **Impressum/Datenschutz** | Funktional ok, Fallback-Texte mit Platzhaltern |
+**Problem:** Alle Unterseiten haben denselben langweiligen `bg-primary py-16` Block.
 
-## Geplante Verbesserungen
+**Lösung:** Einen wiederverwendbaren `PageHeader`-Komponenten erstellen mit:
+- Diagonalem Accent-Stripe (wie im Hero der Startseite)
+- Subtiles Racing-Stripe-Pattern im Hintergrund
+- Optionales CMS-Bild bleibt weiterhin unterstützt (opacity-20 overlay)
+- Größerer Padding, bessere Typografie-Hierarchie
 
-### 1. Sparten-Seiten aufwerten (Motocross, Trial, Touring)
-- Hero-Bild aus CMS (`image_url` aus `pageContents` intro)
-- Neuer CMS-Abschnitt `training` und `events` pro Sparte (je `pageContents`-Einträge)
-- Verknüpfung zu den nächsten Kalender-Terminen der jeweiligen Kategorie
-- CTA-Button ("Alle Termine ansehen" / "Kontakt aufnehmen") -- bereits bei Touring vorhanden, bei den anderen fehlt er
+**Dateien:**
+- Neu: `src/components/layout/PageHeader.tsx`
+- Änderungen in: `AboutPage`, `BoardPage`, `HistoryPage`, `MembershipPage`, `ContactPage`, `SponsorsPage`, `PartnerClubsPage`, `ImprintPage`, `PrivacyPage`, `EventPage`
 
-### 2. Über-uns-Seite aufwerten
-- Mission/Werte: `content` als Rich-HTML statt Plaintext rendern (dangerouslySetInnerHTML)
-- Intro-Bild prominenter darstellen (volle Breite)
-- Quick-Links Texte ("Lernen Sie unser Vorstandsteam kennen" etc.) aus CMS laden -- neuer section_key `quick_links` oder bestehende `pageContents`-Felder `primary_button_label`/`url` nutzen
+---
 
-### 3. Mitgliedschaft -- hardcoded Texte ersetzen
-- "Vorteile einer Mitgliedschaft" und "So werden Sie Mitglied" als CMS-Felder (`membership/benefits` title, `membership/how_to_join` title)
-- CTA-Sektion ("Interesse geweckt?", Beschreibungstext) als neuer `pageContents`-Eintrag `membership/cta`
-- Neue PAGE_SECTIONS-Einträge: `membership: ['intro', 'benefits', 'how_to_join', 'cta']`
+## 2. Mitgliedschaft-Seite verschönern
 
-### 4. Geschichte -- visuell aufwerten
-- Intro-Bild anzeigen falls vorhanden
-- Leerer Zustand visuell verbessern (Icon + erklärender Text)
+**Problem:** Seite wirkt flach, der CTA-Bereich passt nicht zum Design.
 
-### 5. Vorstand -- Intro-Bild und besseres Empty-State
-- Intro-Bild aus CMS anzeigen
-- Fallback-Subtitle aus CMS statt hardcoded "Vorstand"
+**Änderungen:**
+- Header nutzt neuen `PageHeader`
+- Benefits-Sektion: Icons variieren (nicht alle CheckCircle2), leichter farbiger Hintergrund pro Card
+- How-to-join: Verbindungslinie zwischen Steps (wie Timeline)
+- CTA: Racing-Stripe Hintergrund mit Primary-Farbe statt flachem Weiß, gelber Accent-Button
+- Intro-Text aus alter Website als besserer Fallback: "Der MSC Oberlausitzer Dreiländereck e.V. freut sich über jedes neue Mitglied..."
 
-### 6. Partnervereine -- Intro-Bild
-- Intro-Bild anzeigen falls vorhanden
-- Leerer Zustand visuell besser
+---
 
-### 7. PAGE_SECTIONS erweitern
-Neue Einträge in `usePageContent.ts`:
-```
-membership: ['intro', 'benefits', 'how_to_join', 'cta'],
-motocross: ['intro', 'training', 'events'],
-trial: ['intro', 'training', 'events'],
-touring: ['intro', 'training', 'events'],
-```
+## 3. Veranstaltungsseite fixen
 
-### 8. Backend-Anforderungen dokumentieren
-Eine MD-Datei `docs/pocketbase-requirements.md` erstellen, die fehlende Collections/Felder für PocketBase beschreibt, falls neue `pageContents` section_keys oder Felder benötigt werden.
+**Problem:** "Zur Anmeldung"-Button fehlt bzw. wird nur angezeigt wenn `registration_url` gesetzt ist.
 
-## Technische Umsetzung
+**Änderungen:**
+- Im Header-Bereich: "Zur Anmeldung"-Button immer anzeigen wenn `registration_url` vorhanden (bereits im Code, prüfen ob mainEvent geladen wird)
+- Button prominent als CTA im Hero-Bereich positionieren (aktuell `Jetzt anmelden`)
+- Anchor-Navigation-Bar: "Anmeldung" Link beibehalten
+- Fallback-Text von alter Website einbauen: "Das traditionsreiche Oberlausitzer Dreieck... auf der legendären 5,9 km langen Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf"
+- Sicherstellen dass der Registrierungsbereich (#registration) auch ohne mainEvent sichtbar bleibt mit CMS-Fallback
 
-### Dateien die geändert werden:
+---
+
+## 4. Karten-Funktionen (Google Maps / OpenStreetMap)
+
+**Lösung:** Auf der Kontaktseite und Veranstaltungsseite:
+- Kontaktseite: `contact_map_embed_url` aus Settings wird bereits unterstützt -- sicherstellen dass es funktioniert
+- Veranstaltungsseite (Strecke): Neues CMS-Feld `event/track_map` mit `mapEmbedUrl` oder direkt OpenStreetMap-Embed für den Streckenbereich
+- Neuer `pageContents`-Eintrag `event/location_map` mit `content` = embed-URL
+- Fallback: Statischer Link zu Google Maps mit Adresse aus `mainEvent.location`
+
+**Dateien:** `EventPage.tsx` (Track-Sektion um Karten-Embed erweitern), `docs/pocketbase-requirements.md`
+
+---
+
+## 5. Cookie-Banner
+
+**Lösung:** Einfacher, DSGVO-konformer Cookie-Banner:
+- Neu: `src/components/layout/CookieBanner.tsx`
+- Zeigt sich am unteren Bildschirmrand
+- "Akzeptieren" und "Nur notwendige" Buttons
+- Consent wird in `localStorage` gespeichert
+- Einbindung in `MainLayout.tsx`
+- Link zu Datenschutzerklärung
+
+---
+
+## 6. Texte von alter Website übernehmen
+
+Aus der alten Website extrahierte Texte als verbesserte Fallbacks:
+- **Event-Intro:** "Das traditionsreiche Oberlausitzer Dreieck... mitten im Zittauer Gebirge eine spannende Motorshow auf der legendären 5,9 km langen Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf."
+- **Anmeldung:** Hinweise zu Vereinsmitgliedern (kein Nenngeld), Nachwuchsfahrer-Regelung, Attest ab 70 Jahren
+- Rest soll über CMS gepflegt werden -- Fallbacks nur als Platzhalter
+
+---
+
+## 7. CMS-Dokumentation erweitern
+
+`docs/pocketbase-requirements.md` aktualisieren:
+
+| pageKey | sectionKey | Felder | Beschreibung |
+|---|---|---|---|
+| `event` | `location_map` | content (embed URL) | Karten-Embed für Streckenbereich |
+| `event` | `registration_info` | title, content | Anmelde-Hinweise und Regelungen |
+
+`docs/cms-content-matrix.md` aktualisieren mit neuen Feldern.
+
+---
+
+## Technische Übersicht
 
 | Datei | Änderung |
 |---|---|
-| `src/hooks/usePageContent.ts` | PAGE_SECTIONS erweitern (membership, motocross, trial, touring) |
-| `src/pages/sections/MotocrossPage.tsx` | Hero-Bild, Training/Events-Sektionen, Kategorie-Termine, CTA |
-| `src/pages/sections/TrialPage.tsx` | Analog Motocross |
-| `src/pages/sections/TouringPage.tsx` | Analog, bereits teilweise vorhanden |
-| `src/pages/club/AboutPage.tsx` | Rich-HTML für Mission/Werte, Intro-Bild volle Breite |
-| `src/pages/club/MembershipPage.tsx` | CMS-Texte statt Hardcoded, neuer CTA-Bereich aus CMS |
-| `src/pages/club/HistoryPage.tsx` | Intro-Bild, besserer Empty-State |
-| `src/pages/club/BoardPage.tsx` | Intro-Bild, besserer Subtitle-Fallback |
-| `src/pages/partners/PartnerClubsPage.tsx` | Intro-Bild |
-| `docs/pocketbase-requirements.md` | Neue Anforderungen an Backend dokumentieren |
-
-### Neue Datei:
-- `docs/pocketbase-requirements.md` -- beschreibt welche neuen `pageContents`-Einträge (section_keys) im PocketBase angelegt werden müssen
-
-### Keine Backend-Änderungen nötig
-Die bestehende `pageContents`-Collection unterstützt beliebige `pageKey`/`sectionKey`-Kombinationen. Es müssen lediglich neue Datensätze im PocketBase angelegt werden. Die MD-Datei dokumentiert welche.
+| `src/components/layout/PageHeader.tsx` | **Neu** -- wiederverwendbarer Subpage-Header |
+| `src/components/layout/CookieBanner.tsx` | **Neu** -- DSGVO Cookie-Banner |
+| `src/components/layout/MainLayout.tsx` | CookieBanner einbinden |
+| `src/pages/EventPage.tsx` | Registration-Button fix, Karten-Embed, bessere Fallback-Texte |
+| `src/pages/club/MembershipPage.tsx` | Visuelles Redesign |
+| `src/pages/club/AboutPage.tsx` | PageHeader nutzen |
+| `src/pages/club/BoardPage.tsx` | PageHeader nutzen |
+| `src/pages/club/HistoryPage.tsx` | PageHeader nutzen |
+| `src/pages/ContactPage.tsx` | PageHeader nutzen |
+| `src/pages/partners/SponsorsPage.tsx` | PageHeader nutzen |
+| `src/pages/partners/PartnerClubsPage.tsx` | PageHeader nutzen |
+| `src/pages/ImprintPage.tsx` | PageHeader nutzen |
+| `src/pages/PrivacyPage.tsx` | PageHeader nutzen |
+| `docs/pocketbase-requirements.md` | Neue Einträge dokumentieren |
+| `docs/cms-content-matrix.md` | Aktualisieren |
 
 ## Reihenfolge
-1. `usePageContent.ts` -- PAGE_SECTIONS erweitern
-2. Sparten-Seiten (alle drei parallel da gleiche Struktur)
-3. Über uns, Mitgliedschaft, Geschichte, Vorstand, Partnervereine
-4. `docs/pocketbase-requirements.md` erstellen
+1. `PageHeader`-Komponente + alle Seiten umstellen
+2. Mitgliedschaft-Redesign
+3. Veranstaltungsseite fixen (Button + Karte + Texte)
+4. Cookie-Banner
+5. CMS-Dokumentation erweitern
 
