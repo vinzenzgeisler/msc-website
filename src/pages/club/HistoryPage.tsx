@@ -2,6 +2,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { History } from 'lucide-react';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useHistoryTimelineEntries } from '@/hooks/useStructuredContent';
 
@@ -16,11 +17,16 @@ export default function HistoryPage() {
 
   return (
     <MainLayout>
-      {/* Header */}
-      <section className="bg-primary py-16 text-primary-foreground">
-        <div className="container">
+      {/* Header with optional hero image */}
+      <section className="relative bg-primary py-16 text-primary-foreground">
+        {intro.image_url && (
+          <div className="absolute inset-0">
+            <img src={intro.image_url} alt={intro.image_alt || intro.title} className="h-full w-full object-cover opacity-20" />
+          </div>
+        )}
+        <div className="container relative">
           <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-            {t.nav.history}
+            {intro.title}
           </h1>
           <p className="text-lg text-primary-foreground/80">
             {intro.subtitle || 'Geschichte des Vereins'}
@@ -71,8 +77,10 @@ export default function HistoryPage() {
               </div>
             ) : (
               <Card className="border-dashed">
-                <CardContent className="py-12 text-center text-muted-foreground">
-                  Noch keine Chronik hinterlegt.
+                <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center text-muted-foreground">
+                  <History className="h-10 w-10" />
+                  <p className="font-medium">Noch keine Chronik hinterlegt.</p>
+                  <p className="text-sm">Die Vereinsgeschichte kann im Admin-Bereich gepflegt werden.</p>
                 </CardContent>
               </Card>
             )}

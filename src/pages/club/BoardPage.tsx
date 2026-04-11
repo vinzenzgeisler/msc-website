@@ -9,18 +9,26 @@ import { useContentWithFallback } from '@/hooks/usePageContent';
 export default function BoardPage() {
   const t = useTranslation();
   const { data: boardMembers, isLoading } = useBoardMembers();
-  const intro = useContentWithFallback('board', 'intro');
+  const intro = useContentWithFallback('board', 'intro', {
+    title: t.nav.board,
+    subtitle: 'Unser Vorstandsteam',
+  });
 
   return (
     <MainLayout>
-      {/* Header */}
-      <section className="bg-primary py-16 text-primary-foreground">
-        <div className="container">
+      {/* Header with optional hero image */}
+      <section className="relative bg-primary py-16 text-primary-foreground">
+        {intro.image_url && (
+          <div className="absolute inset-0">
+            <img src={intro.image_url} alt={intro.image_alt || intro.title} className="h-full w-full object-cover opacity-20" />
+          </div>
+        )}
+        <div className="container relative">
           <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-            {t.nav.board}
+            {intro.title}
           </h1>
           <p className="text-lg text-primary-foreground/80">
-            {intro.subtitle || 'Vorstand'}
+            {intro.subtitle || 'Unser Vorstandsteam'}
           </p>
         </div>
       </section>
@@ -94,7 +102,8 @@ export default function BoardPage() {
             <Card className="border-dashed">
               <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center text-muted-foreground">
                 <Users className="h-10 w-10" />
-                <p>Noch keine Vorstandsmitglieder hinterlegt.</p>
+                <p className="font-medium">Noch keine Vorstandsmitglieder hinterlegt.</p>
+                <p className="text-sm">Der Vorstand kann im Admin-Bereich gepflegt werden.</p>
               </CardContent>
             </Card>
           )}

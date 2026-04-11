@@ -16,16 +16,31 @@ export default function MembershipPage() {
     subtitle: 'Mitglied werden',
     content: '',
   });
-  const { data: benefits, isLoading: benefitsLoading } = useMembershipBenefits();
+  const benefits = useContentWithFallback('membership', 'benefits', {
+    title: 'Vorteile einer Mitgliedschaft',
+  });
+  const howToJoin = useContentWithFallback('membership', 'how_to_join', {
+    title: 'So werden Sie Mitglied',
+  });
+  const cta = useContentWithFallback('membership', 'cta', {
+    title: 'Interesse geweckt?',
+    content: 'Schreiben Sie uns eine E-Mail. Wir freuen uns auf Sie!',
+  });
+  const { data: benefitsList, isLoading: benefitsLoading } = useMembershipBenefits();
   const { data: steps, isLoading: stepsLoading } = useMembershipSteps();
 
   return (
     <MainLayout>
       {/* Header */}
-      <section className="bg-primary py-16 text-primary-foreground">
-        <div className="container">
+      <section className="relative bg-primary py-16 text-primary-foreground">
+        {intro.image_url && (
+          <div className="absolute inset-0">
+            <img src={intro.image_url} alt={intro.image_alt || intro.title} className="h-full w-full object-cover opacity-20" />
+          </div>
+        )}
+        <div className="container relative">
           <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-            {t.nav.membership}
+            {intro.title}
           </h1>
           <p className="text-lg text-primary-foreground/80">
             {intro.subtitle || 'Mitglied werden'}
@@ -48,15 +63,15 @@ export default function MembershipPage() {
         <div className="container">
           <div className="grid gap-12 lg:grid-cols-2">
             <div>
-              <h2 className="mb-6">Vorteile einer Mitgliedschaft</h2>
+              <h2 className="mb-6">{benefits.title}</h2>
               {benefitsLoading ? (
                 <div className="grid gap-4">
                   <Skeleton className="h-24 w-full" />
                   <Skeleton className="h-24 w-full" />
                 </div>
-              ) : benefits && benefits.length > 0 ? (
+              ) : benefitsList && benefitsList.length > 0 ? (
                 <div className="grid gap-4">
-                  {benefits.map((benefit) => (
+                  {benefitsList.map((benefit) => (
                     <Card key={benefit.id}>
                       <CardContent className="flex gap-4 p-5">
                         <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-primary" />
@@ -75,7 +90,7 @@ export default function MembershipPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>So werden Sie Mitglied</CardTitle>
+                <CardTitle>{howToJoin.title}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {stepsLoading ? (
@@ -110,21 +125,21 @@ export default function MembershipPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Section from CMS */}
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container text-center">
-          <h2 className="mb-4 text-3xl font-bold">Interesse geweckt?</h2>
+          <h2 className="mb-4 text-3xl font-bold">{cta.title}</h2>
           <p className="mx-auto mb-8 max-w-2xl text-primary-foreground/80">
-            Schreiben Sie uns eine E-Mail. Wir freuen uns auf Sie!
+            {cta.content}
           </p>
           <Button
             size="lg"
             className="bg-accent text-accent-foreground hover:bg-accent/90"
             asChild
           >
-            <a href={`mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`}>
+            <a href={cta.primary_button_url || `mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`}>
               <Mail className="mr-2 h-5 w-5" />
-              Kontakt aufnehmen
+              {cta.primary_button_label || 'Kontakt aufnehmen'}
               <ArrowRight className="ml-2 h-4 w-4" />
             </a>
           </Button>
