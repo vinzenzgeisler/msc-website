@@ -137,7 +137,7 @@ export default function EventPage() {
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
                 {mainEvent.registration_url && (
-                  <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold" asChild>
+                  <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg px-10 py-6 glow-accent" asChild>
                     <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
                       <ClipboardList className="h-5 w-5" />
                       {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'Přihlásit se' : 'Register Now'}
