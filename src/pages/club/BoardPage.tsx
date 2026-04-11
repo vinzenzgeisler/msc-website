@@ -5,6 +5,7 @@ import { Mail, Phone, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useBoardMembers } from '@/hooks/useBoardMembers';
 import { useContentWithFallback } from '@/hooks/usePageContent';
+import heroAbout from '@/assets/hero-about.jpg';
 
 export default function BoardPage() {
   const t = useTranslation();
@@ -13,21 +14,21 @@ export default function BoardPage() {
     title: t.nav.board,
     subtitle: 'Unser Vorstandsteam',
   });
+  const heroImage = intro.image_url || heroAbout;
 
   return (
     <MainLayout>
-      {/* Header with optional hero image */}
-      <section className="relative bg-primary py-16 text-primary-foreground">
-        {intro.image_url && (
-          <div className="absolute inset-0">
-            <img src={intro.image_url} alt={intro.image_alt || intro.title} className="h-full w-full object-cover opacity-20" />
-          </div>
-        )}
-        <div className="container relative">
+      {/* Hero with image */}
+      <section className="relative min-h-[300px] flex items-end overflow-hidden">
+        <div className="absolute inset-0">
+          <img src={heroImage} alt={intro.image_alt || intro.title} className="h-full w-full object-cover" width={1920} height={640} />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
+        </div>
+        <div className="container relative z-10 pb-10 pt-24">
           <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
             {intro.title}
           </h1>
-          <p className="text-lg text-primary-foreground/80">
+          <p className="text-lg text-muted-foreground">
             {intro.subtitle || 'Unser Vorstandsteam'}
           </p>
         </div>
@@ -45,17 +46,16 @@ export default function BoardPage() {
       )}
 
       {/* Board Members */}
-      <section className="py-16">
+      <section className="border-t border-border py-16">
         <div className="container">
           {isLoading ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3].map((item) => (
                 <Card key={item} className="overflow-hidden">
-                  <Skeleton className="h-48 w-full" />
+                  <Skeleton className="aspect-[4/3] w-full" />
                   <CardContent className="space-y-3 p-6">
                     <Skeleton className="h-6 w-2/3" />
                     <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-4 w-3/4" />
                   </CardContent>
                 </Card>
               ))}
@@ -63,13 +63,13 @@ export default function BoardPage() {
           ) : boardMembers && boardMembers.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {boardMembers.map((member) => (
-                <Card key={member.id} className="overflow-hidden">
+                <Card key={member.id} className="overflow-hidden transition-shadow hover:shadow-lg">
                   <div className="aspect-[4/3] overflow-hidden bg-muted">
                     {member.photo_url ? (
                       <img
                         src={member.photo_url}
                         alt={member.name}
-                        className="h-full w-full object-cover object-top"
+                        className="h-full w-full object-cover object-top transition-transform duration-300 hover:scale-105"
                         loading="lazy"
                       />
                     ) : (
@@ -84,12 +84,12 @@ export default function BoardPage() {
                   <CardContent className="space-y-3 p-6 text-center">
                     <div>
                       <h3 className="text-xl font-semibold">{member.name}</h3>
-                      <p className="text-primary">{member.role}</p>
+                      <p className="text-sm font-medium text-primary">{member.role}</p>
                     </div>
                     {member.email && (
                       <a
                         href={`mailto:${member.email}`}
-                        className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+                        className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
                       >
                         <Mail className="h-4 w-4" />
                         {member.email}
@@ -107,9 +107,9 @@ export default function BoardPage() {
             </div>
           ) : (
             <Card className="border-dashed">
-              <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center text-muted-foreground">
-                <Users className="h-10 w-10" />
-                <p className="font-medium">Noch keine Vorstandsmitglieder hinterlegt.</p>
+              <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center text-muted-foreground">
+                <Users className="h-12 w-12" />
+                <p className="text-lg font-medium">Noch keine Vorstandsmitglieder hinterlegt.</p>
                 <p className="text-sm">Der Vorstand kann im Admin-Bereich gepflegt werden.</p>
               </CardContent>
             </Card>
