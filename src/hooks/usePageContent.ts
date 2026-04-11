@@ -36,7 +36,7 @@ export const PAGE_SECTIONS = {
   touring: ['intro', 'training', 'events'],
   calendar: ['intro'],
   news: ['intro'],
-  event: ['intro', 'track_map', 'gallery', 'archive'],
+  event: ['intro', 'track_map', 'location_map', 'registration_info', 'gallery', 'archive'],
   contact: ['intro'],
   sponsors: ['intro', 'cta'],
   partner_clubs: ['intro'],

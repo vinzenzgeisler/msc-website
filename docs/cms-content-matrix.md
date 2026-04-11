@@ -1,6 +1,6 @@
 # CMS Soll-Matrix (Frontend <-> PocketBase)
 
-Stand: 10.04.2026  
+Stand: 11.04.2026  
 Prinzip: `DE ist führend`, EN/CZ als Übersetzungen pro Datensatz (`locale`).
 
 ## Global (Layout)
@@ -75,6 +75,9 @@ Prinzip: `DE ist führend`, EN/CZ als Übersetzungen pro Datensatz (`locale`).
 | Fallback-Text ohne Hauptevent | `content` (`event/intro`) | `pageContents` | optional |
 | Streckenkarte Bild | `image`,`imageAlt` (`event/track_map`) | `pageContents` | optional |
 | Streckenkarte Label/Text | `title`,`content` (`event/track_map`) | `pageContents` | optional |
+| **Karten-Embed URL** | `content` (`event/location_map`) | `pageContents` | optional |
+| **Anmelde-Hinweise Titel** | `title` (`event/registration_info`) | `pageContents` | optional |
+| **Anmelde-Hinweise Text** | `content` (`event/registration_info`) | `pageContents` | optional |
 | Galerie-Fallbacktext | `content` (`event/gallery`) | `pageContents` | optional |
 | Archiv-Fallbacktext | `content` (`event/archive`) | `pageContents` | optional |
 | Zeitplan je Tag | `dayLabel`,`dayNumber`,`entries`,`locale` | `eventSchedules` | required |
@@ -94,15 +97,16 @@ Prinzip: `DE ist führend`, EN/CZ als Übersetzungen pro Datensatz (`locale`).
 | Historie Intro | `subtitle` (`history/intro`) | `pageContents` | optional |
 | Historie Timeline | `content` (`history/timeline`) | `pageContents` | required |
 | Mitgliedschaft Intro | `subtitle`,`content` (`membership/intro`) | `pageContents` | optional |
-| Mitgliedschaft Vorteile | `title`,`content` (`membership/benefits`) | `pageContents` | optional |
-| Mitgliedschaft Beitritt | `title`,`subtitle`,`content` (`membership/how_to_join`) | `pageContents` | optional |
+| Mitgliedschaft Vorteile Überschrift | `title` (`membership/benefits`) | `pageContents` | optional |
+| Mitgliedschaft Beitritt Überschrift | `title` (`membership/how_to_join`) | `pageContents` | optional |
+| **Mitgliedschaft CTA** | `title`,`content`,`primaryButtonLabel`,`primaryButtonUrl` (`membership/cta`) | `pageContents` | optional |
 
 ## Sektionen
 | Frontend-Element | CMS-Feld | Collection | Pflicht |
 |---|---|---|---|
-| Motocross Intro/Training/Events | `title`,`subtitle`,`content` je SectionKey | `pageContents` | optional |
-| Trial Intro/Training/Events | `title`,`subtitle`,`content` je SectionKey | `pageContents` | optional |
-| Touring Intro/Tours/Community | `title`,`subtitle`,`content` je SectionKey | `pageContents` | optional |
+| Motocross Intro/Training/Events | `title`,`subtitle`,`content`,`image`,`imageAlt` je SectionKey | `pageContents` | optional |
+| Trial Intro/Training/Events | `title`,`subtitle`,`content`,`image`,`imageAlt` je SectionKey | `pageContents` | optional |
+| Touring Intro/Tours/Community | `title`,`subtitle`,`content`,`image`,`imageAlt` je SectionKey | `pageContents` | optional |
 
 ## Partner
 | Frontend-Element | CMS-Feld | Collection | Pflicht |
@@ -111,7 +115,7 @@ Prinzip: `DE ist führend`, EN/CZ als Übersetzungen pro Datensatz (`locale`).
 | Sponsoren CTA Text | `title`,`content` (`sponsors/cta`) | `pageContents` | optional |
 | Sponsoring Kontaktadresse | `sponsoringEmail` | `siteSettings` | optional |
 | Sponsoreneinträge | `name`,`logo`,`website`,`tier`,`active`,`sortOrder` | `sponsors` | required (`name`,`tier`) |
-| Partnervereine Header/Content | `title`,`subtitle`,`content` (`partner_clubs/intro`) | `pageContents` | optional |
+| Partnervereine Header/Content | `title`,`subtitle`,`content`,`image`,`imageAlt` (`partner_clubs/intro`) | `pageContents` | optional |
 
 ## Kontakt & Recht
 | Frontend-Element | CMS-Feld | Collection | Pflicht |

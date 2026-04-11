@@ -1,4 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Users } from 'lucide-react';
@@ -16,33 +17,15 @@ export default function PartnerClubsPage() {
 
   return (
     <MainLayout>
-      {/* Header with optional hero image */}
-      <section className="relative bg-primary py-16 text-primary-foreground">
-        {intro.image_url && (
-          <div className="absolute inset-0">
-            <img src={intro.image_url} alt={intro.image_alt || intro.title} className="h-full w-full object-cover opacity-20" />
-          </div>
-        )}
-        <div className="container relative">
-          <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-            {intro.title}
-          </h1>
-          <p className="text-lg text-primary-foreground/80">
-            {intro.subtitle}
-          </p>
-        </div>
-      </section>
+      <PageHeader title={intro.title} subtitle={intro.subtitle || undefined} imageUrl={intro.image_url} imageAlt={intro.image_alt || intro.title} />
 
-      {/* Partner Clubs */}
       <section className="py-16">
         <div className="container">
           {intro.content ? (
             <div className="mb-8">
               <Card>
-                <CardContent
-                  className="prose prose-slate dark:prose-invert max-w-none p-8 text-muted-foreground"
-                  dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }}
-                />
+                <CardContent className="prose prose-slate dark:prose-invert max-w-none p-8 text-muted-foreground"
+                  dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }} />
               </Card>
             </div>
           ) : null}
@@ -55,20 +38,14 @@ export default function PartnerClubsPage() {
                     {club.logo_url ? (
                       <img src={club.logo_url} alt={club.name} className="h-20 w-full object-contain" />
                     ) : (
-                      <div className="flex h-20 items-center justify-center rounded bg-muted">
-                        <Users className="h-8 w-8 text-muted-foreground" />
-                      </div>
+                      <div className="flex h-20 items-center justify-center bg-muted"><Users className="h-8 w-8 text-muted-foreground" /></div>
                     )}
                     <div>
                       <h2 className="text-xl font-semibold">{club.name}</h2>
                       {club.location ? <p className="text-sm text-muted-foreground">{club.location}</p> : null}
                     </div>
                     {club.description ? <p className="text-sm text-muted-foreground">{club.description}</p> : null}
-                    {club.website ? (
-                      <a href={club.website} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline">
-                        Website ansehen
-                      </a>
-                    ) : null}
+                    {club.website ? <a href={club.website} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline">Website ansehen</a> : null}
                   </CardContent>
                 </Card>
               ))}

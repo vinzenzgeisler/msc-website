@@ -1,4 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useContentWithFallback } from '@/hooks/usePageContent';
@@ -75,7 +76,6 @@ const DEFAULT_IMPRINT_CONTENT = `
 
 export default function ImprintPage() {
   const t = useTranslation();
-  
   const imprint = useContentWithFallback('imprint', 'content', {
     title: t.nav.imprint,
     content: DEFAULT_IMPRINT_CONTENT,
@@ -83,26 +83,20 @@ export default function ImprintPage() {
 
   return (
     <MainLayout>
+      <PageHeader title={imprint.title} />
+
       <section className="py-16">
         <div className="container">
           <div className="mx-auto max-w-3xl">
             {imprint.isLoading ? (
-              <>
-                <Skeleton className="h-10 w-48 mb-8" />
-                <div className="space-y-4">
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-3/4" />
-                </div>
-              </>
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-6 w-3/4" />
+              </div>
             ) : (
-              <>
-                <h1 className="mb-8">{imprint.title}</h1>
-                <div 
-                  className="prose prose-slate dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: imprint.content }}
-                />
-              </>
+              <div className="prose prose-slate dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: imprint.content }} />
             )}
           </div>
         </div>

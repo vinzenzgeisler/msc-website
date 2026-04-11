@@ -1,4 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,18 +18,7 @@ export default function HistoryPage() {
 
   return (
     <MainLayout>
-      {/* Header — classic primary, image only if CMS provides one */}
-      <section className="relative bg-primary py-16 text-primary-foreground">
-        {intro.image_url && (
-          <div className="absolute inset-0">
-            <img src={intro.image_url} alt={intro.image_alt || intro.title} className="h-full w-full object-cover opacity-20" />
-          </div>
-        )}
-        <div className="container relative">
-          <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">{intro.title}</h1>
-          <p className="text-lg text-primary-foreground/80">{intro.subtitle || 'Geschichte des Vereins'}</p>
-        </div>
-      </section>
+      <PageHeader title={intro.title} subtitle={intro.subtitle || 'Geschichte des Vereins'} imageUrl={intro.image_url} imageAlt={intro.image_alt || intro.title} />
 
       {intro.content ? (
         <section className="py-12">
@@ -50,13 +40,13 @@ export default function HistoryPage() {
               <div className="relative space-y-12 pl-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-primary/20">
                 {timelineEntries.map((entry) => (
                   <div key={entry.id} className="relative">
-                    <div className="absolute -left-8 top-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-primary bg-background">
+                    <div className="absolute -left-8 top-1 flex h-6 w-6 items-center justify-center border-2 border-primary bg-background">
                       <Clock className="h-3 w-3 text-primary" />
                     </div>
                     <div className="space-y-3">
-                      <span className="inline-block rounded bg-primary/10 px-3 py-1 text-sm font-bold text-primary">{entry.year_label}</span>
+                      <span className="inline-block bg-primary/10 px-3 py-1 text-sm font-bold text-primary">{entry.year_label}</span>
                       <h2 className="text-xl font-bold">{entry.title}</h2>
-                      {entry.image_url ? <img src={entry.image_url} alt={entry.title} className="h-48 w-full rounded-lg object-cover" loading="lazy" /> : null}
+                      {entry.image_url ? <img src={entry.image_url} alt={entry.title} className="h-48 w-full object-cover" loading="lazy" /> : null}
                       {entry.description ? (
                         <div className="prose dark:prose-invert max-w-none text-muted-foreground"
                           dangerouslySetInnerHTML={{ __html: entry.description.replace(/\n/g, '<br />') }} />

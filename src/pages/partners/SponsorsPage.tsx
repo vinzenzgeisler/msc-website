@@ -1,4 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -28,47 +29,23 @@ export default function SponsorsPage() {
 
   const renderSponsorSection = (title: string, items: typeof sponsors.main, size: 'lg' | 'md' | 'sm') => {
     if (items.length === 0) return null;
-
-    const sizeClasses = {
-      lg: 'h-32',
-      md: 'h-24',
-      sm: 'h-20',
-    };
-
-    const gridClasses = {
-      lg: 'grid-cols-1 sm:grid-cols-2',
-      md: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
-      sm: 'grid-cols-2 sm:grid-cols-4 lg:grid-cols-6',
-    };
+    const sizeClasses = { lg: 'h-32', md: 'h-24', sm: 'h-20' };
+    const gridClasses = { lg: 'grid-cols-1 sm:grid-cols-2', md: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4', sm: 'grid-cols-2 sm:grid-cols-4 lg:grid-cols-6' };
 
     return (
       <div className="mb-12 last:mb-0">
         <h2 className="mb-6">{title}</h2>
         <div className={`grid gap-4 ${gridClasses[size]}`}>
           {items.map((sponsor) => (
-            <a
-              key={sponsor.id}
-              href={sponsor.website || '#'}
-              target={sponsor.website ? '_blank' : undefined}
-              rel="noopener noreferrer"
-              className="group"
-            >
+            <a key={sponsor.id} href={sponsor.website || '#'} target={sponsor.website ? '_blank' : undefined} rel="noopener noreferrer" className="group">
               <Card className="transition-shadow hover:shadow-lg">
                 <CardContent className={`flex items-center justify-center ${sizeClasses[size]} p-4`}>
                   {sponsor.logo_url ? (
-                    <img 
-                      src={sponsor.logo_url} 
-                      alt={sponsor.name}
-                      className="max-h-full max-w-full object-contain transition-transform group-hover:scale-105"
-                    />
+                    <img src={sponsor.logo_url} alt={sponsor.name} className="max-h-full max-w-full object-contain transition-transform group-hover:scale-105" />
                   ) : (
                     <div className="text-center">
-                      <span className="text-lg font-semibold text-muted-foreground group-hover:text-primary">
-                        {sponsor.name}
-                      </span>
-                      {sponsor.website && (
-                        <ExternalLink className="mx-auto mt-2 h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                      )}
+                      <span className="text-lg font-semibold text-muted-foreground group-hover:text-primary">{sponsor.name}</span>
+                      {sponsor.website && <ExternalLink className="mx-auto mt-2 h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />}
                     </div>
                   )}
                 </CardContent>
@@ -82,38 +59,13 @@ export default function SponsorsPage() {
 
   return (
     <MainLayout>
-      {/* Header */}
-      <section className="bg-primary py-16 text-primary-foreground">
-        <div className="container">
-          <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-            {intro.title}
-          </h1>
-          <p className="text-lg text-primary-foreground/80">
-            {intro.subtitle}
-          </p>
-        </div>
-      </section>
+      <PageHeader title={intro.title} subtitle={intro.subtitle || undefined} />
 
-      {/* Sponsors */}
       <section className="py-16">
         <div className="container">
           {isLoading ? (
             <div className="space-y-12">
-              <div>
-                <Skeleton className="h-8 w-48 mb-6" />
-                <div className="grid grid-cols-2 gap-4">
-                  <Skeleton className="h-32" />
-                  <Skeleton className="h-32" />
-                </div>
-              </div>
-              <div>
-                <Skeleton className="h-8 w-32 mb-6" />
-                <div className="grid grid-cols-4 gap-4">
-                  {[1, 2, 3, 4].map((i) => (
-                    <Skeleton key={i} className="h-24" />
-                  ))}
-                </div>
-              </div>
+              <div><Skeleton className="h-8 w-48 mb-6" /><div className="grid grid-cols-2 gap-4"><Skeleton className="h-32" /><Skeleton className="h-32" /></div></div>
             </div>
           ) : error || (!sponsors.main.length && !sponsors.partner.length && !sponsors.supporter.length) ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -130,18 +82,11 @@ export default function SponsorsPage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="bg-muted/50 py-16">
         <div className="container text-center">
           <h2 className="mb-4">{cta.title || 'Sponsor werden?'}</h2>
-          <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">
-            {cta.content ||
-              'Werden Sie Partner des MSC Oberlausitzer Dreiländereck und unterstützen Sie den Motorsport im Dreiländereck.'}
-          </p>
-          <a
-            href={`mailto:${settings?.sponsoring_email || settings?.contact_email || 'sponsoring@msc-oberlausitzer-dreilaendereck.de'}`}
-            className="text-primary hover:underline"
-          >
+          <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">{cta.content}</p>
+          <a href={`mailto:${settings?.sponsoring_email || settings?.contact_email || 'sponsoring@msc-oberlausitzer-dreilaendereck.de'}`} className="text-primary hover:underline">
             {settings?.sponsoring_email || settings?.contact_email || 'sponsoring@msc-oberlausitzer-dreilaendereck.de'}
           </a>
         </div>

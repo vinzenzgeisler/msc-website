@@ -1,4 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useContentWithFallback } from '@/hooks/usePageContent';
@@ -26,26 +27,20 @@ export default function PrivacyPage() {
 
   return (
     <MainLayout>
+      <PageHeader title={privacy.title} />
+
       <section className="py-16">
         <div className="container">
           <div className="mx-auto max-w-3xl">
             {privacy.isLoading ? (
-              <>
-                <Skeleton className="mb-8 h-10 w-48" />
-                <div className="space-y-4">
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-3/4" />
-                </div>
-              </>
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-6 w-3/4" />
+              </div>
             ) : (
-              <>
-                <h1 className="mb-8">{privacy.title}</h1>
-                <div
-                  className="prose prose-slate dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: privacy.content }}
-                />
-              </>
+              <div className="prose prose-slate dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: privacy.content }} />
             )}
           </div>
         </div>

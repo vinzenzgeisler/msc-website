@@ -1,4 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { useContentWithFallback } from '@/hooks/usePageContent';
 
 export default function AboutPage() {
   const t = useTranslation();
-  
+
   const intro = useContentWithFallback('about', 'intro', {
     title: t.nav.about,
     subtitle: '',
@@ -23,8 +24,6 @@ export default function AboutPage() {
     title: 'Unsere Werte',
     content: '',
   });
-
-  const heroImage = intro.image_url || null;
 
   const quickLinks = [
     { icon: Users, title: t.nav.board, description: intro.primary_button_label || 'Lernen Sie unser Vorstandsteam kennen', path: '/club/board' },
@@ -40,27 +39,12 @@ export default function AboutPage() {
 
   return (
     <MainLayout>
-      {/* Header — solid primary, image only if CMS provides one */}
-      <section className="relative bg-primary py-16 text-primary-foreground">
-        {heroImage && (
-          <div className="absolute inset-0">
-            <img src={heroImage} alt={intro.image_alt || intro.title} className="h-full w-full object-cover opacity-20" />
-          </div>
-        )}
-        <div className="container relative">
-          {intro.isLoading ? (
-            <>
-              <Skeleton className="h-12 w-64 mb-2 bg-primary-foreground/10" />
-              <Skeleton className="h-6 w-96 bg-primary-foreground/10" />
-            </>
-          ) : (
-            <>
-              <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">{intro.title}</h1>
-              {intro.subtitle && <p className="text-lg text-primary-foreground/80">{intro.subtitle}</p>}
-            </>
-          )}
-        </div>
-      </section>
+      <PageHeader
+        title={intro.isLoading ? '...' : intro.title}
+        subtitle={intro.subtitle || undefined}
+        imageUrl={intro.image_url}
+        imageAlt={intro.image_alt || intro.title}
+      />
 
       {/* About Content */}
       {(intro.isLoading || intro.content) && (
@@ -119,9 +103,9 @@ export default function AboutPage() {
           <div className="grid gap-4 md:grid-cols-3">
             {sections.map((section) => (
               <Link key={section.path} to={section.path}
-                className="group relative overflow-hidden rounded-lg border border-border bg-card p-6 transition-all hover:border-primary hover:shadow-lg">
+                className="group relative overflow-hidden border border-border bg-card p-6 transition-all hover:border-primary hover:shadow-lg">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 transition-colors group-hover:bg-primary/20">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-primary/10 transition-colors group-hover:bg-primary/20">
                     <section.icon className="h-6 w-6 text-primary" />
                   </div>
                   <div className="flex-1">
@@ -142,7 +126,7 @@ export default function AboutPage() {
             {quickLinks.map((link) => (
               <Card key={link.path} className="group transition-shadow hover:shadow-lg">
                 <CardContent className="flex flex-col items-center p-8 text-center">
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 transition-colors group-hover:bg-primary/20">
+                  <div className="mb-4 flex h-16 w-16 items-center justify-center bg-primary/10 transition-colors group-hover:bg-primary/20">
                     <link.icon className="h-8 w-8 text-primary" />
                   </div>
                   <h3 className="mb-2 text-xl font-semibold">{link.title}</h3>
