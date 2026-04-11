@@ -136,15 +136,16 @@ export default function EventPage() {
                 {mainEvent.description || eventIntro.content}
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
-                {mainEvent.registration_url && (
-                  <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg px-10 py-6 glow-accent" asChild>
-                    <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
-                      <ClipboardList className="h-5 w-5" />
-                      {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'Přihlásit se' : 'Register Now'}
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </Button>
-                )}
+                <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg px-10 py-6 glow-accent" asChild>
+                  <a
+                    href={mainEvent.registration_url || '#registration'}
+                    {...(mainEvent.registration_url ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  >
+                    <ClipboardList className="h-5 w-5" />
+                    {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'Přihlásit se' : 'Register Now'}
+                    {mainEvent.registration_url && <ExternalLink className="h-4 w-4" />}
+                  </a>
+                </Button>
                 {mainEvent.location && (
                   <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
                     <a href={googleMapsLink || '#track'}>
