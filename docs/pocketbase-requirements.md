@@ -4,15 +4,15 @@ Die bestehende `pageContents`-Collection unterstützt beliebige `pageKey`/`secti
 
 ## Neue section_keys
 
-### Sparten-Seiten (Motocross, Trial, Touring)
+### Sektionen-Seiten (Motocross, Trial, Touring)
 
-Für jede der drei Sparten (`motocross`, `trial`, `touring`) müssen diese `sectionKey`-Einträge angelegt werden:
+Für jede der drei Sektionen (`motocross`, `trial`, `touring`) müssen diese `sectionKey`-Einträge angelegt werden:
 
 | pageKey | sectionKey | Felder die genutzt werden | Beschreibung |
 |---|---|---|---|
 | `motocross` | `intro` | title, subtitle, content, image (Datei-Upload), imageAlt | Bereits vorhanden – jetzt auch mit Hero-Bild |
 | `motocross` | `training` | title, content | Trainingszeiten, Übungsgelände etc. |
-| `motocross` | `events` | title, content | Beschreibung der Veranstaltungen der Sparte |
+| `motocross` | `events` | title, content | Beschreibung der Veranstaltungen der Sektion |
 | `trial` | `intro` | title, subtitle, content, image, imageAlt | Analog |
 | `trial` | `training` | title, content | Analog |
 | `trial` | `events` | title, content | Analog |
@@ -37,6 +37,17 @@ Für jede der drei Sparten (`motocross`, `trial`, `touring`) müssen diese `sect
 | `about` | `mission` | title, content | **Bestehend** – content wird jetzt als Rich-HTML gerendert |
 | `about` | `values` | title, content | **Bestehend** – content wird jetzt als Rich-HTML gerendert |
 
+### Veranstaltungsseite
+
+| pageKey | sectionKey | Felder | Beschreibung |
+|---|---|---|---|
+| `event` | `intro` | title, content | Fallback-Texte ohne Hauptevent |
+| `event` | `track_map` | title, content, image, imageAlt | Streckenkarte (Bild oder Text) |
+| `event` | `location_map` | content | **Neu** – Google Maps/OSM Embed-URL für Karten-Einbettung |
+| `event` | `registration_info` | title, content | **Neu** – Anmelde-Hinweise (Nenngeld, Regelungen etc.) |
+| `event` | `gallery` | content | Galerie-Fallbacktext |
+| `event` | `archive` | content | Archiv-Fallbacktext |
+
 ### Weitere Seiten (bestehende Einträge, jetzt mit Bild-Unterstützung)
 
 | pageKey | sectionKey | Neues Feld | Beschreibung |
@@ -51,7 +62,7 @@ Die `pageContents`-Collection hat bereits alle benötigten Felder (title, subtit
 
 ## Kalender-Kategorien
 
-Die Sparten-Seiten zeigen automatisch die nächsten Kalender-Termine der jeweiligen Kategorie an. Die Kalender-Termine müssen das Feld `category` entsprechend gesetzt haben:
+Die Sektionen-Seiten zeigen automatisch die nächsten Kalender-Termine der jeweiligen Kategorie an. Die Kalender-Termine müssen das Feld `category` entsprechend gesetzt haben:
 
 - `motocross` – für Motocross-Termine
 - `trial` – für Trial-Termine
