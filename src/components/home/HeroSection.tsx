@@ -10,13 +10,6 @@ import { useContentWithFallback } from '@/hooks/usePageContent';
 import { format } from 'date-fns';
 import { cs, de, enUS } from 'date-fns/locale';
 import { useLanguage } from '@/i18n/LanguageContext';
-
-import heroImg1 from '@/assets/event-racing.jpg';
-import heroImg2 from '@/assets/event-start-1.jpg';
-import heroImg3 from '@/assets/event-melkus.jpg';
-import heroImg4 from '@/assets/event-start-2.jpg';
-
-const HERO_IMAGES = [heroImg1, heroImg2, heroImg3, heroImg4];
 const CYCLE_INTERVAL = 8000;
 
 function isExternalUrl(url: string) {
@@ -94,20 +87,6 @@ function useCountdown(targetDate: Date | null) {
   return timeLeft;
 }
 
-/** Cycles through hero images with crossfade */
-function useImageCycle(images: string[], interval: number, enabled: boolean) {
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    if (!enabled || images.length <= 1) return;
-    const timer = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % images.length);
-    }, interval);
-    return () => clearInterval(timer);
-  }, [images.length, interval, enabled]);
-
-  return activeIndex;
-}
 
 export function HeroSection() {
   const t = useTranslation();
