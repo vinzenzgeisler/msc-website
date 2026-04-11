@@ -6,7 +6,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { Users, History, Award, ChevronRight, Bike, Target, MapPin } from 'lucide-react';
 import { useContentWithFallback } from '@/hooks/usePageContent';
-import heroAbout from '@/assets/event-start-1.jpg';
 
 export default function AboutPage() {
   const t = useTranslation();
