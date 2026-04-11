@@ -28,7 +28,7 @@ export default function SettingsAdminPage() {
     }
   }, [settings]);
 
-  const handleChange = (key: keyof SettingsData, value: string | boolean) => {
+  const handleChange = (key: keyof SettingsData, value: string | boolean | number) => {
     setFormData(prev => ({ ...prev, [key]: value }));
     setHasChanges(true);
   };

@@ -64,6 +64,7 @@ export default function SponsorFormPage() {
     try {
       const sponsorData = {
         name: formData.name,
+        logo_url: null as string | null,
         website: formData.website || null,
         tier: formData.tier,
         active: formData.active,

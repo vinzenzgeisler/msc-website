@@ -1,6 +1,6 @@
 import PocketBase, { RecordModel } from 'pocketbase';
 
-const pocketbaseUrl = import.meta.env.VITE_POCKETBASE_URL || 'http://127.0.0.1:8090';
+const pocketbaseUrl = import.meta.env.VITE_POCKETBASE_URL || 'https://cream-salamander.pikapod.net';
 
 export const pb = new PocketBase(pocketbaseUrl);
 pb.autoCancellation(false);
