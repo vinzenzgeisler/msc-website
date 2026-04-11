@@ -64,12 +64,19 @@ export default function BoardPage() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {boardMembers.map((member) => (
                 <Card key={member.id} className="overflow-hidden">
-                  <div className="flex h-48 items-center justify-center bg-muted">
+                  <div className="aspect-[4/3] overflow-hidden bg-muted">
                     {member.photo_url ? (
-                      <img src={member.photo_url} alt={member.name} className="h-full w-full object-cover" />
+                      <img
+                        src={member.photo_url}
+                        alt={member.name}
+                        className="h-full w-full object-cover object-top"
+                        loading="lazy"
+                      />
                     ) : (
-                      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary text-3xl font-bold text-primary-foreground">
-                        {member.name.split(' ').map(n => n[0]).join('')}
+                      <div className="flex h-full items-center justify-center">
+                        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary text-3xl font-bold text-primary-foreground">
+                          {member.name.split(' ').map(n => n[0]).join('')}
+                        </div>
                       </div>
                     )}
                   </div>

@@ -125,11 +125,11 @@ export default function MembershipPage() {
         </div>
       </section>
 
-      {/* CTA Section from CMS */}
-      <section className="bg-primary py-16 text-primary-foreground">
+      {/* CTA Section - styled as accent banner instead of full primary */}
+      <section className="border-t border-border bg-muted/50 py-16">
         <div className="container text-center">
           <h2 className="mb-4 text-3xl font-bold">{cta.title}</h2>
-          <p className="mx-auto mb-8 max-w-2xl text-primary-foreground/80">
+          <p className="mx-auto mb-8 max-w-2xl text-muted-foreground">
             {cta.content}
           </p>
           <Button
