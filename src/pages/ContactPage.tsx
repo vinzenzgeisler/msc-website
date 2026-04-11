@@ -157,7 +157,7 @@ export default function ContactPage() {
               <div className="mt-8 overflow-hidden border border-border">
                 <iframe
                   title={settings?.contact_map_label || mapContent.title || 'Karte'}
-                  src={settings?.contact_map_embed_url || 'https://www.openstreetmap.org/export/embed.html?bbox=14.72%2C50.84%2C14.78%2C50.88&layer=mapnik&marker=50.86%2C14.75'}
+                  src={settings?.contact_map_embed_url || 'https://www.openstreetmap.org/export/embed.html?bbox=14.7050%2C50.8450%2C14.7650%2C50.8720&layer=mapnik&marker=50.8585%2C14.7350'}
                   className="h-72 w-full border-0"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
