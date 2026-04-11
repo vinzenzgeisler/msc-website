@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { Calendar, MapPin, Trophy, Bike, Target, Users, Award, Mail, ArrowRight } from 'lucide-react';
 import { useContentWithFallback, PageKey } from '@/hooks/usePageContent';
 import { useDisciplineHighlights } from '@/hooks/useStructuredContent';
+import type { DisciplineHighlight } from '@/integrations/pocketbase/client';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useSettings } from '@/hooks/useSettings';
 import { format } from 'date-fns';
@@ -25,7 +26,7 @@ const iconMap: Record<string, LucideIcon> = {
 
 interface DisciplinePageProps {
   pageKey: PageKey;
-  categoryFilter: string;
+  categoryFilter: DisciplineHighlight['discipline_key'];
   fallbackTitle: string;
   defaultIcon: LucideIcon;
   fallbackHighlights: Array<{ id: string; title: string; description: string; icon: string }>;
