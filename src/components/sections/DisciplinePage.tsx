@@ -13,26 +13,9 @@ import { de } from 'date-fns/locale';
 import { LucideIcon } from 'lucide-react';
 import type { DisciplineHighlight } from '@/integrations/pocketbase/client';
 
-// Fallback images per discipline
-import heroMotocross from '@/assets/hero-motocross.jpg';
-import heroTrial from '@/assets/hero-trial.jpg';
-import heroTouring from '@/assets/hero-touring.jpg';
-
-const fallbackImages: Record<string, string> = {
-  motocross: heroMotocross,
-  trial: heroTrial,
-  touring: heroTouring,
-};
-
 const iconMap: Record<string, LucideIcon> = {
-  training: MapPin,
-  events: Calendar,
-  award: Award,
-  track: Bike,
-  community: Users,
-  tour: MapPin,
-  target: Target,
-  trophy: Trophy,
+  training: MapPin, events: Calendar, award: Award, track: Bike,
+  community: Users, tour: MapPin, target: Target, trophy: Trophy,
 };
 
 interface DisciplinePageProps {
@@ -40,15 +23,12 @@ interface DisciplinePageProps {
   categoryFilter: DisciplineHighlight['discipline_key'];
   fallbackTitle: string;
   defaultIcon: LucideIcon;
+  fallbackImage: string;
   fallbackHighlights: Array<{ id: string; title: string; description: string; icon: string }>;
 }
 
 export default function DisciplinePage({
-  pageKey,
-  categoryFilter,
-  fallbackTitle,
-  defaultIcon: DefaultIcon,
-  fallbackHighlights,
+  pageKey, categoryFilter, fallbackTitle, defaultIcon: DefaultIcon, fallbackImage, fallbackHighlights,
 }: DisciplinePageProps) {
   const intro = useContentWithFallback(pageKey, 'intro', { title: fallbackTitle, subtitle: '', content: '' });
   const training = useContentWithFallback(pageKey, 'training', { title: 'Training', content: '' });
@@ -57,7 +37,7 @@ export default function DisciplinePage({
   const { data: calendarEvents } = useCalendarEvents(false);
   const { data: settings } = useSettings();
 
-  const heroImage = intro.image_url || fallbackImages[categoryFilter] || '';
+  const heroImage = intro.image_url || fallbackImage;
 
   const upcomingEvents = (calendarEvents || [])
     .filter((e) => e.category === categoryFilter && e.published && new Date(e.start_dt) >= new Date())
@@ -68,13 +48,7 @@ export default function DisciplinePage({
       {/* Hero with image */}
       <section className="relative min-h-[340px] flex items-end overflow-hidden">
         <div className="absolute inset-0">
-          <img
-            src={heroImage}
-            alt={intro.image_alt || intro.title || fallbackTitle}
-            className="h-full w-full object-cover"
-            width={1920}
-            height={640}
-          />
+          <img src={heroImage} alt={intro.image_alt || intro.title || fallbackTitle} className="h-full w-full object-cover" width={1920} height={640} />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/30" />
         </div>
         <div className="container relative z-10 pb-10 pt-24">
@@ -85,12 +59,8 @@ export default function DisciplinePage({
             </>
           ) : (
             <>
-              <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-                {intro.title || fallbackTitle}
-              </h1>
-              {intro.subtitle && (
-                <p className="text-lg text-muted-foreground">{intro.subtitle}</p>
-              )}
+              <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">{intro.title || fallbackTitle}</h1>
+              {intro.subtitle && <p className="text-lg text-muted-foreground">{intro.subtitle}</p>}
             </>
           )}
         </div>
@@ -101,10 +71,8 @@ export default function DisciplinePage({
         <section className="py-12">
           <div className="container">
             <div className="mx-auto max-w-3xl">
-              <div
-                className="text-lg text-muted-foreground prose dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }}
-              />
+              <div className="text-lg text-muted-foreground prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }} />
             </div>
           </div>
         </section>
@@ -134,35 +102,28 @@ export default function DisciplinePage({
         </div>
       </section>
 
-      {/* Training Section */}
+      {/* Training */}
       {training.content && (
         <section className="border-t border-border py-16">
           <div className="container">
             <div className="mx-auto max-w-3xl">
               <h2 className="mb-6 text-2xl font-bold">{training.title}</h2>
-              <div
-                className="prose dark:prose-invert max-w-none text-muted-foreground"
-                dangerouslySetInnerHTML={{ __html: training.content.replace(/\n/g, '<br />') }}
-              />
+              <div className="prose dark:prose-invert max-w-none text-muted-foreground"
+                dangerouslySetInnerHTML={{ __html: training.content.replace(/\n/g, '<br />') }} />
             </div>
           </div>
         </section>
       )}
 
-      {/* Events / Upcoming from Calendar */}
+      {/* Events */}
       <section className="border-t border-border py-16">
         <div className="container">
           <div className="mx-auto max-w-3xl">
-            <h2 className="mb-6 text-2xl font-bold">
-              {eventsContent.title || 'Kommende Termine'}
-            </h2>
+            <h2 className="mb-6 text-2xl font-bold">{eventsContent.title || 'Kommende Termine'}</h2>
             {eventsContent.content && (
-              <div
-                className="mb-6 prose dark:prose-invert max-w-none text-muted-foreground"
-                dangerouslySetInnerHTML={{ __html: eventsContent.content.replace(/\n/g, '<br />') }}
-              />
+              <div className="mb-6 prose dark:prose-invert max-w-none text-muted-foreground"
+                dangerouslySetInnerHTML={{ __html: eventsContent.content.replace(/\n/g, '<br />') }} />
             )}
-
             {upcomingEvents.length > 0 ? (
               <div className="space-y-4">
                 {upcomingEvents.map((event) => (
@@ -185,19 +146,13 @@ export default function DisciplinePage({
             ) : (
               <p className="text-muted-foreground">Derzeit keine anstehenden Termine.</p>
             )}
-
             <div className="mt-8 flex flex-wrap gap-4 justify-center">
               <Button asChild>
-                <Link to="/calendar">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Alle Termine ansehen
-                </Link>
+                <Link to="/calendar"><Calendar className="mr-2 h-4 w-4" />Alle Termine ansehen</Link>
               </Button>
               <Button variant="outline" asChild>
                 <a href={`mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`}>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Kontakt aufnehmen
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <Mail className="mr-2 h-4 w-4" />Kontakt aufnehmen<ArrowRight className="ml-2 h-4 w-4" />
                 </a>
               </Button>
             </div>
