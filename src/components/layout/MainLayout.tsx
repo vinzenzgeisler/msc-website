@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { CookieBanner } from './CookieBanner';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -12,6 +13,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
+      <CookieBanner />
     </div>
   );
 }

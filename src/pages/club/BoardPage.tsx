@@ -1,4 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mail, Phone, Users } from 'lucide-react';
@@ -16,18 +17,7 @@ export default function BoardPage() {
 
   return (
     <MainLayout>
-      {/* Header — classic primary, image only if CMS provides one */}
-      <section className="relative bg-primary py-16 text-primary-foreground">
-        {intro.image_url && (
-          <div className="absolute inset-0">
-            <img src={intro.image_url} alt={intro.image_alt || intro.title} className="h-full w-full object-cover opacity-20" />
-          </div>
-        )}
-        <div className="container relative">
-          <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">{intro.title}</h1>
-          <p className="text-lg text-primary-foreground/80">{intro.subtitle || 'Unser Vorstandsteam'}</p>
-        </div>
-      </section>
+      <PageHeader title={intro.title} subtitle={intro.subtitle || 'Unser Vorstandsteam'} imageUrl={intro.image_url} imageAlt={intro.image_alt || intro.title} />
 
       {intro.content && (
         <section className="py-10">
@@ -59,7 +49,7 @@ export default function BoardPage() {
                         className="h-full w-full object-cover object-top transition-transform duration-300 hover:scale-105" loading="lazy" />
                     ) : (
                       <div className="flex h-full items-center justify-center">
-                        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary text-3xl font-bold text-primary-foreground">
+                        <div className="flex h-24 w-24 items-center justify-center bg-primary text-3xl font-bold text-primary-foreground">
                           {member.name.split(' ').map(n => n[0]).join('')}
                         </div>
                       </div>
