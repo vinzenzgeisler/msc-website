@@ -37,17 +37,28 @@ export default function EventPage() {
   const { data: eventContent } = useEventContent(mainEvent?.id);
   const { data: downloads } = useDownloads();
   const eventIntro = useContentWithFallback('event', 'intro', {
-    title: locale === 'de' ? 'Veranstaltung' : locale === 'cz' ? 'Akce' : 'Event',
+    title: locale === 'de' ? 'Das Oberlausitzer Dreieck' : locale === 'cz' ? 'Horní Lužický trojúhelník' : 'The Oberlausitz Triangle',
     content:
       locale === 'de'
-        ? 'Sobald eine Hauptveranstaltung im CMS veröffentlicht ist, erscheint sie hier.'
+        ? 'Erleben Sie mitten im Zittauer Gebirge eine spannende Motorshow auf der legendären 5,9 km langen Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf.'
         : locale === 'cz'
-          ? 'Jakmile bude v CMS zveřejněna hlavní akce, zobrazí se zde.'
-          : 'As soon as a main event is published in the CMS, it will appear here.',
+          ? 'Zažijte napínavou motoristickou show uprostřed Žitavských hor na legendární 5,9 km dlouhé trati mezi Saalendorfem, Jonsdorfem a Waltersdorfem.'
+          : 'Experience an exciting motor show in the heart of the Zittau Mountains on the legendary 5.9 km track between Saalendorf, Jonsdorf and Waltersdorf.',
   });
   const trackMapContent = useContentWithFallback('event', 'track_map', {
     title: locale === 'de' ? 'Streckenkarte' : locale === 'cz' ? 'Mapa tratě' : 'Track map',
     content: '',
+  });
+  const locationMapContent = useContentWithFallback('event', 'location_map', {
+    title: '',
+    content: '', // embed URL
+  });
+  const registrationContent = useContentWithFallback('event', 'registration_info', {
+    title: locale === 'de' ? 'Teilnehmer-Anmeldung' : locale === 'cz' ? 'Registrace účastníků' : 'Participant Registration',
+    content:
+      locale === 'de'
+        ? 'Vereinsmitglieder des MSC Oberlausitzer Dreiländereck e.V. zahlen kein Nenngeld. Nachwuchsfahrer unter 18 Jahren benötigen eine schriftliche Einverständniserklärung eines Erziehungsberechtigten. Ab 70 Jahren ist ein ärztliches Attest erforderlich.'
+        : '',
   });
   const galleryContent = useContentWithFallback('event', 'gallery', {
     content:
@@ -71,7 +82,6 @@ export default function EventPage() {
   const formatEventDate = (startDt: string, endDt: string | null) => {
     const start = new Date(startDt);
     const end = endDt ? new Date(endDt) : null;
-
     if (end) {
       return `${format(start, 'd.', { locale: dateLocale })}/${format(end, 'd. MMMM yyyy', { locale: dateLocale })}`;
     }
@@ -92,8 +102,15 @@ export default function EventPage() {
   const registrationInfo = eventContent?.infos?.find((item) => item.section === 'registration');
   const eventDownloads = (downloads || []).filter((item) => item.category === 'event');
 
+  // Map embed URL: from CMS or fallback to Google Maps link
+  const mapEmbedUrl = locationMapContent.content || null;
+  const googleMapsLink = mainEvent?.location
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mainEvent.location)}`
+    : null;
+
   return (
     <MainLayout>
+      {/* Hero */}
       <section className="relative overflow-hidden bg-primary py-20 text-primary-foreground">
         <div className="absolute inset-0 opacity-10">
           <div className="racing-stripe h-full w-full" />
@@ -116,19 +133,23 @@ export default function EventPage() {
                 {mainEvent.title}
               </h1>
               <p className="max-w-2xl text-xl text-primary-foreground/80">
-                {mainEvent.description || (locale === 'de'
-                  ? 'Für diese Veranstaltung liegt noch keine Beschreibung vor.'
-                  : locale === 'cz'
-                    ? 'Pro tuto akci zatím není k dispozici popis.'
-                    : 'No description is available for this event yet.')}
+                {mainEvent.description || eventIntro.content}
               </p>
-              <div className="mt-8">
+              <div className="mt-8 flex flex-wrap gap-4">
                 {mainEvent.registration_url && (
                   <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold" asChild>
                     <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
                       <ClipboardList className="h-5 w-5" />
-                      {locale === 'de' ? 'Jetzt anmelden' : locale === 'cz' ? 'Přihlásit se' : 'Register Now'}
+                      {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'Přihlásit se' : 'Register Now'}
                       <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </Button>
+                )}
+                {mainEvent.location && (
+                  <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
+                    <a href={googleMapsLink || '#track'}>
+                      <MapPin className="mr-2 h-5 w-5" />
+                      {mainEvent.location}
                     </a>
                   </Button>
                 )}
@@ -150,6 +171,7 @@ export default function EventPage() {
         </div>
       </section>
 
+      {/* Navigation bar */}
       <section className="border-b border-border bg-muted/50 py-4">
         <div className="container">
           <div className="flex flex-wrap gap-2">
@@ -172,6 +194,7 @@ export default function EventPage() {
         </div>
       </section>
 
+      {/* Track */}
       <section id="track" className="py-16">
         <div className="container">
           <h2 className="mb-8">{t.event.track}</h2>
@@ -181,10 +204,10 @@ export default function EventPage() {
                 {trackInfo?.content ||
                   trackMapContent.content ||
                   (locale === 'de'
-                    ? 'Noch keine Streckeninformationen hinterlegt.'
+                    ? 'Die legendäre 5,9 km lange Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf bietet Motorsport-Fans ein unvergessliches Erlebnis mitten im Zittauer Gebirge.'
                     : locale === 'cz'
-                      ? 'Zatím nejsou k dispozici žádné informace o trati.'
-                      : 'No track information has been added yet.')}
+                      ? 'Legendární 5,9 km dlouhá trať mezi Saalendorfem, Jonsdorfem a Waltersdorfem nabízí fanouškům motorsportu nezapomenutelný zážitek uprostřed Žitavských hor.'
+                      : 'The legendary 5.9 km track between Saalendorf, Jonsdorf and Waltersdorf offers motorsport fans an unforgettable experience in the heart of the Zittau Mountains.')}
               </p>
               {mainEvent?.location && (
                 <ul className="space-y-2">
@@ -199,10 +222,26 @@ export default function EventPage() {
               <img
                 src={trackMapContent.image_url}
                 alt={trackMapContent.image_alt || trackMapContent.title}
-                className="h-64 w-full rounded-lg border border-border object-cover"
+                className="h-64 w-full border border-border object-cover"
               />
+            ) : mapEmbedUrl ? (
+              <iframe
+                title={locale === 'de' ? 'Streckenkarte' : 'Track Map'}
+                src={mapEmbedUrl}
+                className="h-64 w-full border border-border"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            ) : googleMapsLink ? (
+              <a href={googleMapsLink} target="_blank" rel="noopener noreferrer"
+                className="flex h-64 items-center justify-center border border-border bg-muted text-muted-foreground hover:text-primary transition-colors">
+                <div className="text-center">
+                  <MapPin className="mx-auto mb-2 h-8 w-8" />
+                  <span>{locale === 'de' ? 'Karte öffnen' : locale === 'cz' ? 'Otevřít mapu' : 'Open Map'}</span>
+                </div>
+              </a>
             ) : (
-              <div className="flex h-64 items-center justify-center rounded-lg border border-border bg-muted">
+              <div className="flex h-64 items-center justify-center border border-border bg-muted">
                 <span className="text-muted-foreground">{trackMapContent.title}</span>
               </div>
             )}
@@ -210,6 +249,7 @@ export default function EventPage() {
         </div>
       </section>
 
+      {/* Classes */}
       <section id="classes" className="bg-muted/50 py-16">
         <div className="container">
           <h2 className="mb-8">{t.event.classes.title}</h2>
@@ -239,34 +279,35 @@ export default function EventPage() {
         </div>
       </section>
 
-      <section id="registration" className="py-16">
+      {/* Registration */}
+      <section id="registration" className="relative overflow-hidden py-16">
         <div className="container">
           <div className="mx-auto max-w-2xl text-center">
             <ClipboardList className="mx-auto mb-4 h-16 w-16 text-accent" />
             <h2 className="mb-4">
-              {locale === 'de' ? 'Teilnehmer-Anmeldung' : locale === 'cz' ? 'Registrace účastníků' : 'Participant Registration'}
+              {registrationContent.title}
             </h2>
             <p className="mb-8 text-lg text-muted-foreground">
-              {registrationInfo?.content ||
-                (locale === 'de'
-                  ? 'Noch keine Anmeldeinformationen hinterlegt.'
-                  : locale === 'cz'
-                    ? 'Zatím nejsou k dispozici žádné registrační informace.'
-                    : 'No registration information has been added yet.')}
+              {registrationInfo?.content || registrationContent.content}
             </p>
-            {mainEvent?.registration_url && (
+            {mainEvent?.registration_url ? (
               <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold" asChild>
                 <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
                   <ClipboardList className="h-5 w-5" />
-                  {locale === 'de' ? 'Zum Anmeldeportal' : locale === 'cz' ? 'K registračnímu portálu' : 'Go to Registration Portal'}
+                  {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'K registračnímu portálu' : 'Go to Registration Portal'}
                   <ExternalLink className="h-4 w-4" />
                 </a>
               </Button>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {locale === 'de' ? 'Das Anmeldeportal wird rechtzeitig vor der Veranstaltung freigeschaltet.' : locale === 'cz' ? 'Registrační portál bude otevřen včas před akcí.' : 'The registration portal will be opened in time before the event.'}
+              </p>
             )}
           </div>
         </div>
       </section>
 
+      {/* Schedule */}
       <section id="schedule" className="bg-muted/50 py-16">
         <div className="container">
           <h2 className="mb-8">{t.event.schedule}</h2>
@@ -284,9 +325,7 @@ export default function EventPage() {
                     <ul className="space-y-3">
                       {day.entries.map((item, index) => (
                         <li key={`${day.day_number}-${index}`} className="flex gap-4 border-b border-border pb-3 last:border-0">
-                          <span className="w-14 shrink-0 font-mono text-sm font-semibold text-primary">
-                            {item.time}
-                          </span>
+                          <span className="w-14 shrink-0 font-mono text-sm font-semibold text-primary">{item.time}</span>
                           <span>{item.title}</span>
                         </li>
                       ))}
@@ -298,49 +337,35 @@ export default function EventPage() {
           ) : (
             <Card>
               <CardContent className="p-6 text-muted-foreground">
-                {locale === 'de'
-                  ? 'Noch kein Zeitplan hinterlegt.'
-                  : locale === 'cz'
-                    ? 'Zatím není k dispozici žádný harmonogram.'
-                    : 'No schedule has been added yet.'}
+                {locale === 'de' ? 'Noch kein Zeitplan hinterlegt.' : locale === 'cz' ? 'Zatím není k dispozici žádný harmonogram.' : 'No schedule has been added yet.'}
               </CardContent>
             </Card>
           )}
         </div>
       </section>
 
+      {/* Visitors */}
       <section id="visitors" className="py-16">
         <div className="container">
           <h2 className="mb-8">{t.event.visitors}</h2>
           <div className="grid gap-6 md:grid-cols-3">
             <Card>
-              <CardHeader>
-                <CardTitle>{locale === 'de' ? 'Anreise' : locale === 'cz' ? 'Příjezd' : 'Getting There'}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{arrivalInfo?.content || mainEvent?.location || '-'}</p>
-              </CardContent>
+              <CardHeader><CardTitle>{locale === 'de' ? 'Anreise' : locale === 'cz' ? 'Příjezd' : 'Getting There'}</CardTitle></CardHeader>
+              <CardContent className="text-muted-foreground"><p>{arrivalInfo?.content || mainEvent?.location || '-'}</p></CardContent>
             </Card>
             <Card>
-              <CardHeader>
-                <CardTitle>{locale === 'de' ? 'Eintritt' : locale === 'cz' ? 'Vstupné' : 'Admission'}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{admissionInfo?.content || '-'}</p>
-              </CardContent>
+              <CardHeader><CardTitle>{locale === 'de' ? 'Eintritt' : locale === 'cz' ? 'Vstupné' : 'Admission'}</CardTitle></CardHeader>
+              <CardContent className="text-muted-foreground"><p>{admissionInfo?.content || '-'}</p></CardContent>
             </Card>
             <Card>
-              <CardHeader>
-                <CardTitle>{locale === 'de' ? 'Fahrerlager' : locale === 'cz' ? 'Depo' : 'Paddock'}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{paddockInfo?.content || '-'}</p>
-              </CardContent>
+              <CardHeader><CardTitle>{locale === 'de' ? 'Fahrerlager' : locale === 'cz' ? 'Depo' : 'Paddock'}</CardTitle></CardHeader>
+              <CardContent className="text-muted-foreground"><p>{paddockInfo?.content || '-'}</p></CardContent>
             </Card>
           </div>
         </div>
       </section>
 
+      {/* Downloads */}
       <section id="downloads" className="bg-muted/50 py-16">
         <div className="container">
           <h2 className="mb-8">{t.event.downloads}</h2>
@@ -348,13 +373,9 @@ export default function EventPage() {
             {eventDownloads.length > 0 ? eventDownloads.map((download) => (
               <Card key={download.id} className="group transition-shadow hover:shadow-lg">
                 <CardContent className="flex items-center gap-4 p-4">
-                  <div className="rounded-lg bg-primary/10 p-3">
-                    <Download className="h-6 w-6 text-primary" />
-                  </div>
+                  <div className="bg-primary/10 p-3"><Download className="h-6 w-6 text-primary" /></div>
                   <div className="min-w-0">
-                    <a href={download.file_url} target="_blank" rel="noopener noreferrer" className="font-medium group-hover:text-primary">
-                      {download.title}
-                    </a>
+                    <a href={download.file_url} target="_blank" rel="noopener noreferrer" className="font-medium group-hover:text-primary">{download.title}</a>
                     <p className="text-sm text-muted-foreground">{download.file_type?.toUpperCase() || 'DATEI'}</p>
                   </div>
                 </CardContent>
@@ -370,29 +391,25 @@ export default function EventPage() {
         </div>
       </section>
 
+      {/* Gallery */}
       <section className="py-16">
         <div className="container">
-          <div className="flex items-center justify-between mb-8">
-            <h2>{t.event.gallery}</h2>
-          </div>
+          <h2 className="mb-8">{t.event.gallery}</h2>
           <Card>
             <CardContent className="flex items-center gap-3 p-6 text-muted-foreground">
               <Image className="h-5 w-5" />
-              <span>
-                {galleryContent.content}
-              </span>
+              <span>{galleryContent.content}</span>
             </CardContent>
           </Card>
         </div>
       </section>
 
+      {/* Archive */}
       <section className="bg-muted/50 py-16">
         <div className="container">
           <h2 className="mb-8">{t.event.archive}</h2>
           <Card>
-            <CardContent className="p-6 text-muted-foreground">
-              {archiveContent.content}
-            </CardContent>
+            <CardContent className="p-6 text-muted-foreground">{archiveContent.content}</CardContent>
           </Card>
         </div>
       </section>
