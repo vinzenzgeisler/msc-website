@@ -1,17 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase, Download } from '@/integrations/supabase/client';
+import { pb, Download, listAllRecords, mapDownloadRecord } from '@/integrations/pocketbase/client';
+import { getSafeTimestamp } from '@/lib/date';
 
 export function useDownloads() {
   return useQuery({
     queryKey: ['downloads'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('downloads')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as Download[];
+      const data = await listAllRecords('downloads');
+      return (data.map(mapDownloadRecord) as Download[]).sort(
+        (a, b) => getSafeTimestamp(b.created_at) - getSafeTimestamp(a.created_at),
+      );
     },
   });
 }
@@ -20,14 +18,8 @@ export function useDownload(id: string) {
   return useQuery({
     queryKey: ['downloads', id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('downloads')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) throw error;
-      return data as Download;
+      const data = await pb.collection('downloads').getOne(id);
+      return mapDownloadRecord(data) as Download;
     },
     enabled: !!id,
   });
@@ -35,17 +27,16 @@ export function useDownload(id: string) {
 
 export function useCreateDownload() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (download: Omit<Download, 'id' | 'created_at'>) => {
-      const { data, error } = await supabase
-        .from('downloads')
-        .insert(download)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data as Download;
+    mutationFn: async (download: Omit<Download, 'id' | 'created_at'> & { file?: File | null }) => {
+      const data = await pb.collection('downloads').create({
+        title: download.title,
+        description: download.description || '',
+        file: download.file,
+        category: download.category || '',
+      });
+      return mapDownloadRecord(data) as Download;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['downloads'] });
@@ -55,18 +46,17 @@ export function useCreateDownload() {
 
 export function useUpdateDownload() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Download> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('downloads')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data as Download;
+    mutationFn: async ({ id, file, ...updates }: Partial<Download> & { id: string; file?: File | null }) => {
+      const payload: Record<string, unknown> = {};
+      if (updates.title !== undefined) payload.title = updates.title;
+      if (updates.description !== undefined) payload.description = updates.description || '';
+      if (updates.category !== undefined) payload.category = updates.category || '';
+      if (file) payload.file = file;
+
+      const data = await pb.collection('downloads').update(id, payload);
+      return mapDownloadRecord(data) as Download;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['downloads'] });
@@ -77,15 +67,10 @@ export function useUpdateDownload() {
 
 export function useDeleteDownload() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('downloads')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
+      await pb.collection('downloads').delete(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['downloads'] });

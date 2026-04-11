@@ -32,6 +32,7 @@ import {
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, ExternalLink, Image } from 'lucide-react';
 import { useSponsors, useDeleteSponsor } from '@/hooks/useSponsors';
 import { toast } from 'sonner';
+import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 
 const tierConfig: Record<string, { label: string; color: string }> = {
   main: { label: 'Hauptsponsor', color: 'bg-yellow-500' },
@@ -56,8 +57,8 @@ export default function SponsorsAdminPage() {
     try {
       await deleteSponsor.mutateAsync(deleteId);
       toast.success('Sponsor gelöscht');
-    } catch (err) {
-      toast.error('Fehler beim Löschen');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Löschen'));
     }
     setDeleteId(null);
   };

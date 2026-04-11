@@ -5,21 +5,40 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronRight, ArrowUpRight, Newspaper } from 'lucide-react';
 import { usePosts } from '@/hooks/usePosts';
+import { useContentWithFallback } from '@/hooks/usePageContent';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 export function NewsSection() {
   const t = useTranslation();
+  const { locale } = useLanguage();
   const { data: posts, isLoading } = usePosts();
+  const sectionContent = useContentWithFallback('home', 'news', {
+    title: t.nav.news,
+    subtitle:
+      locale === 'de'
+        ? 'Aktuelles aus dem Vereinsleben'
+        : locale === 'cz'
+          ? 'Aktuálně ze života klubu'
+          : 'Latest updates from club life',
+  });
   
   // Get only published posts, sorted by date, limit to 3
   const newsItems = (posts || [])
     .filter(post => post.status === 'published')
-    .sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime())
+    .sort((a, b) => {
+      const timeA = new Date(a.published_at || a.created_at || 0).getTime();
+      const timeB = new Date(b.published_at || b.created_at || 0).getTime();
+      return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+    })
     .slice(0, 3);
 
-  const formatDate = (dateStr: string) => {
-    return format(new Date(dateStr), 'd. MMMM yyyy', { locale: de });
+  const formatDate = (dateStr?: string | null) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+    return format(date, 'd. MMMM yyyy', { locale: de });
   };
 
   if (isLoading) {
@@ -56,10 +75,10 @@ export function NewsSection() {
           <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-3xl font-black uppercase tracking-tight md:text-4xl">
-                {t.nav.news}
+                {sectionContent.title}
               </h2>
               <p className="mt-2 text-muted-foreground">
-                Aktuelles aus dem Vereinsleben
+                {sectionContent.subtitle}
               </p>
             </div>
           </div>
@@ -83,10 +102,10 @@ export function NewsSection() {
         <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-3xl font-black uppercase tracking-tight md:text-4xl">
-              {t.nav.news}
+              {sectionContent.title}
             </h2>
             <p className="mt-2 text-muted-foreground">
-              Aktuelles aus dem Vereinsleben
+              {sectionContent.subtitle}
             </p>
           </div>
           <Button 

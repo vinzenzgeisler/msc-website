@@ -4,10 +4,21 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ExternalLink, Building2 } from 'lucide-react';
 import { useSponsors } from '@/hooks/useSponsors';
+import { useSettings } from '@/hooks/useSettings';
+import { useContentWithFallback } from '@/hooks/usePageContent';
 
 export default function SponsorsPage() {
   const t = useTranslation();
   const { data: allSponsors, isLoading, error } = useSponsors();
+  const { data: settings } = useSettings();
+  const intro = useContentWithFallback('sponsors', 'intro', {
+    title: t.nav.sponsors,
+    subtitle: 'Unsere Partner machen das Oberlausitzer Dreieck möglich',
+  });
+  const cta = useContentWithFallback('sponsors', 'cta', {
+    title: 'Sponsor werden?',
+    content: 'Werden Sie Partner des MSC Oberlausitzer Dreiländereck und unterstützen Sie den Motorsport im Dreiländereck.',
+  });
 
   const sponsors = {
     main: (allSponsors || []).filter(s => s.tier === 'main' && s.active),
@@ -75,10 +86,10 @@ export default function SponsorsPage() {
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container">
           <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-            {t.nav.sponsors}
+            {intro.title}
           </h1>
           <p className="text-lg text-primary-foreground/80">
-            Unsere Partner machen das Oberlausitzer Dreieck möglich
+            {intro.subtitle}
           </p>
         </div>
       </section>
@@ -122,16 +133,16 @@ export default function SponsorsPage() {
       {/* CTA */}
       <section className="bg-muted/50 py-16">
         <div className="container text-center">
-          <h2 className="mb-4">Sponsor werden?</h2>
+          <h2 className="mb-4">{cta.title || 'Sponsor werden?'}</h2>
           <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">
-            Werden Sie Partner des MSC Oberlausitzer Dreiländereck und unterstützen Sie 
-            den Motorsport im Dreiländereck. Wir bieten attraktive Werbemöglichkeiten.
+            {cta.content ||
+              'Werden Sie Partner des MSC Oberlausitzer Dreiländereck und unterstützen Sie den Motorsport im Dreiländereck.'}
           </p>
           <a
-            href="mailto:sponsoring@msc-oberlausitzer-dreilaendereck.de"
+            href={`mailto:${settings?.sponsoring_email || settings?.contact_email || 'sponsoring@msc-oberlausitzer-dreilaendereck.de'}`}
             className="text-primary hover:underline"
           >
-            sponsoring@msc-oberlausitzer-dreilaendereck.de
+            {settings?.sponsoring_email || settings?.contact_email || 'sponsoring@msc-oberlausitzer-dreilaendereck.de'}
           </a>
         </div>
       </section>

@@ -5,12 +5,24 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronRight, Calendar, Flag, CalendarX } from 'lucide-react';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useContentWithFallback } from '@/hooks/usePageContent';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { format, isAfter, startOfDay } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 export function UpcomingEventsSection() {
   const t = useTranslation();
+  const { locale } = useLanguage();
   const { data: events, isLoading } = useCalendarEvents();
+  const sectionContent = useContentWithFallback('home', 'upcoming_events', {
+    title: t.calendar.upcoming,
+    subtitle:
+      locale === 'de'
+        ? 'Die nächsten Termine im Überblick'
+        : locale === 'cz'
+          ? 'Přehled nejbližších termínů'
+          : 'Overview of upcoming dates',
+  });
   
   const today = startOfDay(new Date());
   
@@ -28,10 +40,26 @@ export function UpcomingEventsSection() {
     return t.calendar.filter[key] || category || 'Termin';
   };
 
+  const gridOverlay = (
+    <div className="absolute inset-0 opacity-[0.02]">
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `
+            linear-gradient(hsl(var(--foreground)) 1px, transparent 1px),
+            linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px',
+        }}
+      />
+    </div>
+  );
+
   if (isLoading) {
     return (
       <section className="relative bg-muted/50 py-20 md:py-28">
-        <div className="container">
+        {gridOverlay}
+        <div className="container relative">
           <div className="mb-12">
             <Skeleton className="h-10 w-48 mb-2" />
             <Skeleton className="h-5 w-64" />
@@ -55,14 +83,15 @@ export function UpcomingEventsSection() {
   if (upcomingEvents.length === 0) {
     return (
       <section className="relative bg-muted/50 py-20 md:py-28">
-        <div className="container">
+        {gridOverlay}
+        <div className="container relative">
           <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-3xl font-black uppercase tracking-tight md:text-4xl">
-                {t.calendar.upcoming}
+                {sectionContent.title}
               </h2>
               <p className="mt-2 text-muted-foreground">
-                Die nächsten Termine im Überblick
+                {sectionContent.subtitle}
               </p>
             </div>
             <Button 
@@ -89,28 +118,16 @@ export function UpcomingEventsSection() {
 
   return (
     <section className="relative bg-muted/50 py-20 md:py-28">
-      {/* Racing grid pattern */}
-      <div className="absolute inset-0 opacity-[0.02]">
-        <div 
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `
-              linear-gradient(hsl(var(--foreground)) 1px, transparent 1px),
-              linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)
-            `,
-            backgroundSize: '40px 40px',
-          }}
-        />
-      </div>
+      {gridOverlay}
 
       <div className="container relative">
         <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-3xl font-black uppercase tracking-tight md:text-4xl">
-              {t.calendar.upcoming}
+              {sectionContent.title}
             </h2>
             <p className="mt-2 text-muted-foreground">
-              Die nächsten Termine im Überblick
+              {sectionContent.subtitle}
             </p>
           </div>
           <Button 

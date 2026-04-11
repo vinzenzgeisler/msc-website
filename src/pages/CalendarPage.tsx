@@ -9,6 +9,7 @@ import { MapPin, Clock, ChevronLeft, ChevronRight, Download, List, CalendarDays,
 import { de, cs, enUS } from "date-fns/locale";
 import { format, isSameMonth, isSameDay, isAfter, startOfDay } from "date-fns";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
+import { useContentWithFallback } from '@/hooks/usePageContent';
 
 type ViewMode = "month" | "upcoming";
 
@@ -36,6 +37,10 @@ export default function CalendarPage() {
   
   // Load all events regardless of locale - calendar shows all events, UI is translated
   const { data: events, isLoading } = useCalendarEvents(false);
+  const intro = useContentWithFallback('calendar', 'intro', {
+    title: t.calendar.title,
+    subtitle: t.calendar.subtitle,
+  });
 
   const today = startOfDay(new Date());
   
@@ -87,8 +92,8 @@ export default function CalendarPage() {
       {/* Header */}
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container">
-          <h1 className="mb-2">{t.calendar.title}</h1>
-          <p className="text-lg text-primary-foreground/80">{t.calendar.subtitle}</p>
+          <h1 className="mb-2">{intro.title}</h1>
+          <p className="text-lg text-primary-foreground/80">{intro.subtitle}</p>
         </div>
       </section>
 

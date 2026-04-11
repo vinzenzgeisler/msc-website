@@ -34,26 +34,37 @@ import { usePosts, useDeletePost } from '@/hooks/usePosts';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+import { formatDateSafe } from '@/lib/date';
 
 export default function NewsAdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   
-  const { data: posts, isLoading, error } = usePosts();
+  const { data: posts, isLoading, error } = usePosts(false);
   const deletePost = useDeletePost();
+  const germanPosts = (posts || []).filter((post) => post.locale === 'de');
 
-  const filteredNews = posts?.filter((article) =>
-    article.title.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredNews = germanPosts.filter((article) =>
+    article.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   const handleDelete = async () => {
     if (!deleteId) return;
     
     try {
-      await deletePost.mutateAsync(deleteId);
+      const source = germanPosts.find((post) => post.id === deleteId);
+      const variantIds = source
+        ? (posts || []).filter((post) => post.slug === source.slug).map((post) => post.id)
+        : [deleteId];
+
+      for (const recordId of variantIds) {
+        await deletePost.mutateAsync(recordId);
+      }
+
       toast.success('Artikel gelöscht');
-    } catch (err) {
-      toast.error('Fehler beim Löschen');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Löschen'));
     }
     setDeleteId(null);
   };
@@ -97,13 +108,13 @@ export default function NewsAdminPage() {
             </div>
             <div className="flex gap-2">
               <Badge variant="outline" className="cursor-pointer hover:bg-muted">
-                Alle ({posts?.length || 0})
+                Alle ({germanPosts.length})
               </Badge>
               <Badge variant="outline" className="cursor-pointer hover:bg-muted">
-                Veröffentlicht ({posts?.filter(n => n.status === 'published').length || 0})
+                Veröffentlicht ({germanPosts.filter((post) => post.status === 'published').length})
               </Badge>
               <Badge variant="outline" className="cursor-pointer hover:bg-muted">
-                Entwürfe ({posts?.filter(n => n.status === 'draft').length || 0})
+                Entwürfe ({germanPosts.filter((post) => post.status === 'draft').length})
               </Badge>
             </div>
           </div>
@@ -152,7 +163,7 @@ export default function NewsAdminPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {format(new Date(article.created_at), 'dd.MM.yyyy', { locale: de })}
+                      {formatDateSafe(article.created_at, 'dd.MM.yyyy', de)}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>

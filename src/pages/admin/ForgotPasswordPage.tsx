@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { pb } from '@/integrations/pocketbase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,16 +19,11 @@ export default function ForgotPasswordPage() {
     setError('');
     setIsLoading(true);
 
-    const redirectUrl = `${window.location.origin}/admin/reset-password`;
-
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: redirectUrl,
-    });
-
-    if (error) {
-      setError(error.message);
-    } else {
+    try {
+      await pb.collection('cms_users').requestPasswordReset(email);
       setSuccess(true);
+    } catch (error) {
+      setError((error as Error).message);
     }
     setIsLoading(false);
   };

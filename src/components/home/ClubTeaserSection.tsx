@@ -4,21 +4,36 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronRight, Users, Trophy, MapPin } from 'lucide-react';
 import { useContentWithFallback } from '@/hooks/usePageContent';
+import { useSettings } from '@/hooks/useSettings';
 
 export function ClubTeaserSection() {
   const t = useTranslation();
+  const { data: settings } = useSettings();
   
-  // Fetch content from database with fallbacks
   const clubTeaser = useContentWithFallback('home', 'club_teaser', {
-    title: t.clubTeaser.title,
+    title: settings?.site_name || t.clubTeaser.title,
     subtitle: t.clubTeaser.subtitle,
-    content: t.clubTeaser.description,
+    content: settings?.description || '',
   });
 
+  const foundingYear = settings?.founding_year || 1984;
+  const traditionYears = Math.max(new Date().getFullYear() - foundingYear, 1);
   const stats = [
-    { icon: Users, value: '150+', label: 'Mitglieder' },
-    { icon: Trophy, value: '40+', label: 'Jahre Tradition' },
-    { icon: MapPin, value: '3', label: 'Sparten' },
+    {
+      icon: Users,
+      value: settings?.member_count || '150+',
+      label: clubTeaser.stat_one_label || t.clubTeaser.statOneLabel || settings?.member_count_label || 'Mitglieder',
+    },
+    {
+      icon: Trophy,
+      value: `${traditionYears}+`,
+      label: clubTeaser.stat_two_label || t.clubTeaser.statTwoLabel || settings?.tradition_years_label || 'Jahre Tradition',
+    },
+    {
+      icon: MapPin,
+      value: settings?.section_count || '3',
+      label: clubTeaser.stat_three_label || t.clubTeaser.statThreeLabel || settings?.section_count_label || 'Sektionen',
+    },
   ];
 
   return (
@@ -34,9 +49,9 @@ export function ClubTeaserSection() {
           {/* Content */}
           <div>
             <div className="mb-6 inline-flex items-center gap-2 rounded-none border-l-4 border-accent bg-accent/10 px-4 py-2 text-sm font-bold uppercase tracking-wider text-foreground">
-              Seit 1984
+              Seit {foundingYear}
             </div>
-            
+
             {clubTeaser.isLoading ? (
               <>
                 <Skeleton className="h-12 w-3/4 mb-4" />
@@ -71,14 +86,12 @@ export function ClubTeaserSection() {
             </Button>
           </div>
 
-          {/* Stats Cards */}
           <div className="grid gap-4 sm:grid-cols-3">
             {stats.map((stat) => (
               <div
                 key={stat.label}
                 className="group relative overflow-hidden rounded-none border-2 border-border bg-card p-6 text-center transition-all hover:border-primary hover:shadow-lg"
               >
-                {/* Diagonal accent */}
                 <div className="absolute -right-6 -top-6 h-12 w-12 rotate-45 bg-primary/10 transition-all group-hover:bg-accent/20" />
                 
                 <stat.icon className="mx-auto mb-3 h-8 w-8 text-primary" />

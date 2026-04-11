@@ -10,23 +10,18 @@ import { useContentWithFallback } from '@/hooks/usePageContent';
 export default function AboutPage() {
   const t = useTranslation();
   
-  // Fetch content from database with fallbacks
   const intro = useContentWithFallback('about', 'intro', {
     title: t.nav.about,
-    subtitle: 'Motorsport mit Leidenschaft im Dreiländereck',
-    content: `Der MSC Oberlausitzer Dreiländereck e.V. ist ein traditionsreicher 
-    Motorsportverein im Herzen des Zittauer Gebirges. Mit unseren drei 
-    Sparten – Motorradtouristik, Motocross und Trial – bieten wir für 
-    jeden Motorsportbegeisterten das passende Angebot.
-    
-    Unser Höhepunkt ist das jährliche „Oberlausitzer Dreieck", ein 
-    Demolauf für historische und moderne Renn- und Sportfahrzeuge auf 
-    der legendären 5,9 km langen Bergstrecke zwischen Saalendorf, 
-    Jonsdorf und Waltersdorf.
-    
-    Als Verein leben wir nicht nur den Motorsport, sondern auch die 
-    Gemeinschaft. Regelmäßige Treffen, gemeinsame Ausfahrten und unsere 
-    Vereinsveranstaltungen schweißen uns zusammen.`,
+    subtitle: '',
+    content: '',
+  });
+  const mission = useContentWithFallback('about', 'mission', {
+    title: 'Unsere Mission',
+    content: '',
+  });
+  const values = useContentWithFallback('about', 'values', {
+    title: 'Unsere Werte',
+    content: '',
   });
 
   return (
@@ -56,6 +51,13 @@ export default function AboutPage() {
       <section className="py-16">
         <div className="container">
           <div className="mx-auto max-w-3xl">
+            {!intro.isLoading && intro.image_url && (
+              <img
+                src={intro.image_url}
+                alt={intro.image_alt || intro.title}
+                className="mb-8 h-72 w-full rounded-lg object-cover"
+              />
+            )}
             {intro.isLoading ? (
               <div className="space-y-4">
                 <Skeleton className="h-6 w-full" />
@@ -66,10 +68,29 @@ export default function AboutPage() {
               <div 
                 className="prose prose-lg dark:prose-invert max-w-none text-muted-foreground"
                 dangerouslySetInnerHTML={{ 
-                  __html: intro.content.replace(/\n/g, '<br />') 
+                  __html: (intro.content || '').replace(/\n/g, '<br />') 
                 }}
               />
             )}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-muted/30 py-16">
+        <div className="container">
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardContent className="p-8">
+                <h2 className="mb-4 text-2xl font-bold">{mission.title || 'Unsere Mission'}</h2>
+                <p className="text-muted-foreground">{mission.content || 'Noch keine Inhalte hinterlegt.'}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-8">
+                <h2 className="mb-4 text-2xl font-bold">{values.title || 'Unsere Werte'}</h2>
+                <p className="text-muted-foreground">{values.content || 'Noch keine Inhalte hinterlegt.'}</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>

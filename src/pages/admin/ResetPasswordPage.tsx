@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { pb } from '@/integrations/pocketbase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,25 +14,15 @@ export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [resetToken, setResetToken] = useState('');
   const [isValidSession, setIsValidSession] = useState<boolean | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user has a valid recovery session
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsValidSession(!!session);
-    };
-    checkSession();
-
-    // Listen for auth state changes (when user clicks the reset link)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setIsValidSession(true);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token') || params.get('code') || '';
+    setResetToken(token);
+    setIsValidSession(Boolean(token));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,20 +41,17 @@ export default function ResetPasswordPage() {
 
     setIsLoading(true);
 
-    const { error } = await supabase.auth.updateUser({
-      password: password,
-    });
-
-    if (error) {
-      setError(error.message);
-    } else {
+    try {
+      await pb.collection('cms_users').confirmPasswordReset(resetToken, password, confirmPassword);
       setSuccess(true);
-      // Redirect to login after 3 seconds
       setTimeout(() => {
         navigate('/admin/login');
       }, 3000);
+    } catch (error) {
+      setError((error as Error).message);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   if (isValidSession === null) {
@@ -90,8 +77,8 @@ export default function ResetPasswordPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full"
                 onClick={() => navigate('/admin/forgot-password')}
               >
@@ -119,7 +106,7 @@ export default function ResetPasswordPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button 
+              <Button
                 className="w-full"
                 onClick={() => navigate('/admin/login')}
               >

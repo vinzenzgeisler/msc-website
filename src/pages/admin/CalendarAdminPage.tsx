@@ -29,17 +29,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Search, MoreHorizontal, Pencil, Trash2, Calendar, Users, Trophy, Wrench } from 'lucide-react';
+import { Plus, Search, MoreHorizontal, Pencil, Trash2, Calendar, Trophy, Bike, MapPin } from 'lucide-react';
 import { useCalendarEvents, useDeleteCalendarEvent } from '@/hooks/useCalendarEvents';
-import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+import { formatDateSafe } from '@/lib/date';
 
 const categoryConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  verein: { label: 'Verein', color: 'bg-blue-500', icon: Users },
-  veranstaltung: { label: 'Veranstaltung', color: 'bg-green-500', icon: Trophy },
-  training: { label: 'Training', color: 'bg-orange-500', icon: Calendar },
-  orgteam: { label: 'Org-Team', color: 'bg-purple-500', icon: Wrench },
+  allgemein: { label: 'Allgemein', color: 'bg-blue-500', icon: Calendar },
+  event: { label: 'Veranstaltung', color: 'bg-green-500', icon: Trophy },
+  motocross: { label: 'Motocross', color: 'bg-orange-500', icon: Bike },
+  trial: { label: 'Trial', color: 'bg-purple-500', icon: MapPin },
+  touring: { label: 'Touring', color: 'bg-sky-500', icon: Calendar },
 };
 
 export default function CalendarAdminPage() {
@@ -47,23 +49,31 @@ export default function CalendarAdminPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const { data: events, isLoading, error } = useCalendarEvents();
+  const { data: events, isLoading, error } = useCalendarEvents(false);
   const deleteEvent = useDeleteCalendarEvent();
+  const germanEvents = (events || []).filter((event) => event.locale === 'de');
 
-  const filteredEvents = events?.filter((event) => {
+  const filteredEvents = germanEvents.filter((event) => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !selectedCategory || event.category === selectedCategory;
     return matchesSearch && matchesCategory;
-  }) || [];
+  });
 
   const handleDelete = async () => {
     if (!deleteId) return;
     
     try {
-      await deleteEvent.mutateAsync(deleteId);
+      const source = germanEvents.find((event) => event.id === deleteId);
+      const variantIds = source
+        ? (events || []).filter((event) => event.slug === source.slug).map((event) => event.id)
+        : [deleteId];
+
+      for (const recordId of variantIds) {
+        await deleteEvent.mutateAsync(recordId);
+      }
       toast.success('Termin gelöscht');
-    } catch (err) {
-      toast.error('Fehler beim Löschen');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Löschen'));
     }
     setDeleteId(null);
   };
@@ -111,7 +121,7 @@ export default function CalendarAdminPage() {
                 className="cursor-pointer"
                 onClick={() => setSelectedCategory(null)}
               >
-                Alle ({events?.length || 0})
+                Alle ({germanEvents.length})
               </Badge>
               {Object.entries(categoryConfig).map(([key, config]) => (
                 <Badge
@@ -120,7 +130,7 @@ export default function CalendarAdminPage() {
                   className="cursor-pointer"
                   onClick={() => setSelectedCategory(key)}
                 >
-                  {config.label} ({events?.filter(e => e.category === key).length || 0})
+                  {config.label} ({germanEvents.filter((event) => event.category === key).length})
                 </Badge>
               ))}
             </div>
@@ -162,7 +172,7 @@ export default function CalendarAdminPage() {
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
                           <div className={`w-2 h-2 rounded-full ${category?.color || 'bg-gray-400'}`} />
-                          {event.title}
+                          <div>{event.title}</div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -176,7 +186,7 @@ export default function CalendarAdminPage() {
                         )}
                       </TableCell>
                       <TableCell>
-                        {format(new Date(event.start_dt), 'dd.MM.yyyy', { locale: de })}
+                        {formatDateSafe(event.start_dt, 'dd.MM.yyyy', de)}
                       </TableCell>
                       <TableCell className="max-w-[150px] truncate">
                         {event.location || '-'}

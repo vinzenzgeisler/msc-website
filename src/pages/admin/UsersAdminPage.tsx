@@ -36,15 +36,21 @@ import { Label } from '@/components/ui/label';
 import { Search, MoreHorizontal, Pencil, Trash2, Shield, User, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfiles, useUpdateProfile, useDeleteProfile } from '@/hooks/useProfiles';
-import { Profile, UserRole } from '@/integrations/supabase/client';
+import { Profile, UserRole } from '@/integrations/pocketbase/client';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+import { formatDateSafe as formatDateValueSafe } from '@/lib/date';
 
 const roleConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  admin: { label: 'Administrator', color: 'bg-red-500', icon: Shield },
-  editor: { label: 'Redakteur', color: 'bg-blue-500', icon: User },
+  super_admin: { label: 'Admin', color: 'bg-red-500', icon: Shield },
+  admin: { label: 'Admin', color: 'bg-red-500', icon: Shield },
+  editor: { label: 'Bearbeiter', color: 'bg-blue-500', icon: User },
 };
+
+function formatDateSafe(value?: string | null) {
+  return formatDateValueSafe(value, 'dd.MM.yyyy', de);
+}
 
 export default function UsersAdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -97,8 +103,8 @@ export default function UsersAdminPage() {
       });
       toast.success('Benutzer aktualisiert');
       setEditingUser(null);
-    } catch (err) {
-      toast.error('Fehler beim Aktualisieren');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Aktualisieren'));
     }
   };
 
@@ -109,8 +115,8 @@ export default function UsersAdminPage() {
       await deleteProfile.mutateAsync(deleteUserId);
       toast.success('Benutzer gelöscht');
       setDeleteUserId(null);
-    } catch (err) {
-      toast.error('Fehler beim Löschen. Bitte im Supabase Dashboard löschen.');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Löschen'));
     }
   };
 
@@ -136,7 +142,7 @@ export default function UsersAdminPage() {
     );
   }
 
-  const adminCount = filteredUsers.filter(u => u.role === 'admin').length;
+  const adminCount = filteredUsers.filter(u => u.role === 'super_admin' || u.role === 'admin').length;
   const editorCount = filteredUsers.filter(u => u.role === 'editor').length;
 
   return (
@@ -148,7 +154,7 @@ export default function UsersAdminPage() {
           <p className="text-muted-foreground">Verwalten Sie Benutzerkonten und Berechtigungen</p>
         </div>
         <p className="text-sm text-muted-foreground">
-          Neue Benutzer werden über das Supabase Dashboard erstellt
+          Neue Benutzer werden direkt im CMS-Backend angelegt
         </p>
       </div>
 
@@ -188,7 +194,7 @@ export default function UsersAdminPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{editorCount}</p>
-                <p className="text-sm text-muted-foreground">Redakteure</p>
+                <p className="text-sm text-muted-foreground">Bearbeiter</p>
               </div>
             </div>
           </CardContent>
@@ -256,7 +262,7 @@ export default function UsersAdminPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {format(new Date(user.created_at), 'dd.MM.yyyy', { locale: de })}
+                      {formatDateSafe(user.created_at)}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -318,7 +324,7 @@ export default function UsersAdminPage() {
             <div className="p-4 rounded-lg border">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-3 h-3 rounded-full bg-blue-500" />
-                <span className="font-medium">Redakteur</span>
+                <span className="font-medium">Bearbeiter</span>
               </div>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• News & Termine verwalten</li>
@@ -358,7 +364,7 @@ export default function UsersAdminPage() {
                 className="bg-muted"
               />
               <p className="text-xs text-muted-foreground">
-                E-Mail kann nur im Supabase Dashboard geändert werden
+                Die E-Mail wird in der Auth-Collection verwaltet
               </p>
             </div>
             <div className="space-y-2">
@@ -368,8 +374,8 @@ export default function UsersAdminPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Administrator</SelectItem>
-                  <SelectItem value="editor">Redakteur</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="editor">Bearbeiter</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -7,8 +7,8 @@ import { Link } from 'react-router-dom';
 import { usePosts } from '@/hooks/usePosts';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useSponsors } from '@/hooks/useSponsors';
-import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { formatDateSafe, getSafeTimestamp } from '@/lib/date';
 import {
   Trophy,
   Newspaper,
@@ -27,7 +27,7 @@ export default function DashboardPage() {
   const { data: sponsors, isLoading: sponsorsLoading } = useSponsors();
 
   const recentPosts = posts?.slice(0, 3) || [];
-  const upcomingEvents = events?.filter(e => new Date(e.start_dt) >= new Date()).slice(0, 3) || [];
+  const upcomingEvents = events?.filter((event) => getSafeTimestamp(event.start_dt, -1) >= Date.now()).slice(0, 3) || [];
 
   const stats = [
     { 
@@ -147,7 +147,7 @@ export default function DashboardPage() {
                       <p className="font-medium truncate">{article.title}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-muted-foreground">
-                          {format(new Date(article.created_at), 'dd.MM.yyyy', { locale: de })}
+                          {formatDateSafe(article.created_at, 'dd.MM.yyyy', de)}
                         </span>
                         <Badge
                           variant={article.status === 'published' ? 'default' : 'secondary'}
@@ -212,7 +212,7 @@ export default function DashboardPage() {
                       <div className="flex items-center gap-2 mt-1">
                         <Clock className="h-3 w-3 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">
-                          {format(new Date(event.start_dt), 'dd.MM.yyyy', { locale: de })}
+                          {formatDateSafe(event.start_dt, 'dd.MM.yyyy', de)}
                         </span>
                         {event.category && (
                           <Badge variant="outline" className="text-xs capitalize">

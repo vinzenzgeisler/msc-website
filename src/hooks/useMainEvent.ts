@@ -1,22 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase, CalendarEvent } from '@/integrations/supabase/client';
+import { CalendarEvent, listAllRecords, mapCalendarEventRecord } from '@/integrations/pocketbase/client';
+import { useLanguage } from '@/i18n/LanguageContext';
+import { getSafeTimestamp } from '@/lib/date';
 
 export function useMainEvent() {
+  const { locale } = useLanguage();
+
   return useQuery({
-    queryKey: ['main_event'],
+    queryKey: ['main_event', locale],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('calendar_events')
-        .select('*')
-        .eq('is_main_event', true)
-        .eq('published', true)
-        .gte('start_dt', new Date().toISOString())
-        .order('start_dt', { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data as CalendarEvent | null;
+      const data = await listAllRecords('calendarEvents');
+      const events = data
+        .map(mapCalendarEventRecord)
+        .filter((event): event is CalendarEvent => event.published && event.is_main_event)
+        .sort((a, b) => getSafeTimestamp(a.start_dt) - getSafeTimestamp(b.start_dt));
+
+      return (
+        events.find((event) => event.locale === locale) ??
+        events.find((event) => event.locale === 'de') ??
+        null
+      );
     },
   });
 }

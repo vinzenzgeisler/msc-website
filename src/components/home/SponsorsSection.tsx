@@ -3,9 +3,21 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronRight, Building2 } from 'lucide-react';
 import { useSponsors } from '@/hooks/useSponsors';
+import { useContentWithFallback } from '@/hooks/usePageContent';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 export function SponsorsSection() {
+  const { locale } = useLanguage();
   const { data: sponsors, isLoading, error } = useSponsors();
+  const sectionContent = useContentWithFallback('home', 'sponsors', {
+    title: locale === 'de' ? 'Partner & Sponsoren' : locale === 'cz' ? 'Partneři a sponzoři' : 'Partners & Sponsors',
+    subtitle:
+      locale === 'de'
+        ? 'Danke an alle, die unsere Veranstaltung unterstützen'
+        : locale === 'cz'
+          ? 'Děkujeme všem, kteří podporují naši akci'
+          : 'Thanks to everyone supporting our event',
+  });
   
   const mainSponsors = (sponsors || []).filter(s => s.tier === 'main' && s.active);
   const partners = (sponsors || []).filter(s => s.tier === 'partner' && s.active);
@@ -43,10 +55,10 @@ export function SponsorsSection() {
         <div className="container relative">
           <div className="mb-12 text-center">
             <h2 className="mb-2 text-3xl font-black uppercase tracking-tight md:text-4xl">
-              Partner & Sponsoren
+              {sectionContent.title}
             </h2>
             <p className="text-muted-foreground">
-              Danke an alle, die unsere Veranstaltung unterstützen
+              {sectionContent.subtitle}
             </p>
           </div>
 
@@ -67,10 +79,10 @@ export function SponsorsSection() {
       <div className="container relative">
         <div className="mb-12 text-center">
           <h2 className="mb-2 text-3xl font-black uppercase tracking-tight md:text-4xl">
-            Partner & Sponsoren
+            {sectionContent.title}
           </h2>
           <p className="text-muted-foreground">
-            Danke an alle, die unsere Veranstaltung unterstützen
+            {sectionContent.subtitle}
           </p>
         </div>
 
