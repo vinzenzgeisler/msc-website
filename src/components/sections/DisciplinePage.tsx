@@ -6,12 +6,23 @@ import { Link } from 'react-router-dom';
 import { Calendar, MapPin, Trophy, Bike, Target, Users, Award, Mail, ArrowRight } from 'lucide-react';
 import { useContentWithFallback, PageKey } from '@/hooks/usePageContent';
 import { useDisciplineHighlights } from '@/hooks/useStructuredContent';
-import type { DisciplineHighlight } from '@/integrations/pocketbase/client';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useSettings } from '@/hooks/useSettings';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { LucideIcon } from 'lucide-react';
+import type { DisciplineHighlight } from '@/integrations/pocketbase/client';
+
+// Fallback images per discipline
+import heroMotocross from '@/assets/hero-motocross.jpg';
+import heroTrial from '@/assets/hero-trial.jpg';
+import heroTouring from '@/assets/hero-touring.jpg';
+
+const fallbackImages: Record<string, string> = {
+  motocross: heroMotocross,
+  trial: heroTrial,
+  touring: heroTouring,
+};
 
 const iconMap: Record<string, LucideIcon> = {
   training: MapPin,
@@ -46,24 +57,31 @@ export default function DisciplinePage({
   const { data: calendarEvents } = useCalendarEvents(false);
   const { data: settings } = useSettings();
 
+  const heroImage = intro.image_url || fallbackImages[categoryFilter] || '';
+
   const upcomingEvents = (calendarEvents || [])
     .filter((e) => e.category === categoryFilter && e.published && new Date(e.start_dt) >= new Date())
     .slice(0, 3);
 
   return (
     <MainLayout>
-      {/* Hero with optional image */}
-      <section className="relative bg-primary py-16 text-primary-foreground">
-        {intro.image_url && (
-          <div className="absolute inset-0">
-            <img src={intro.image_url} alt={intro.image_alt || intro.title} className="h-full w-full object-cover opacity-20" />
-          </div>
-        )}
-        <div className="container relative">
+      {/* Hero with image */}
+      <section className="relative min-h-[340px] flex items-end overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src={heroImage}
+            alt={intro.image_alt || intro.title || fallbackTitle}
+            className="h-full w-full object-cover"
+            width={1920}
+            height={640}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/30" />
+        </div>
+        <div className="container relative z-10 pb-10 pt-24">
           {isLoading ? (
             <>
-              <Skeleton className="h-12 w-48 mb-2 bg-primary-foreground/10" />
-              <Skeleton className="h-6 w-72 bg-primary-foreground/10" />
+              <Skeleton className="h-12 w-48 mb-2 bg-foreground/10" />
+              <Skeleton className="h-6 w-72 bg-foreground/10" />
             </>
           ) : (
             <>
@@ -71,7 +89,7 @@ export default function DisciplinePage({
                 {intro.title || fallbackTitle}
               </h1>
               {intro.subtitle && (
-                <p className="text-lg text-primary-foreground/80">{intro.subtitle}</p>
+                <p className="text-lg text-muted-foreground">{intro.subtitle}</p>
               )}
             </>
           )}
@@ -79,28 +97,34 @@ export default function DisciplinePage({
       </section>
 
       {/* Intro Content */}
-      <section className="py-16">
-        <div className="container">
-          <div className="mx-auto max-w-3xl">
-            {isLoading ? (
-              <Skeleton className="h-24 w-full mb-8" />
-            ) : intro.content ? (
+      {intro.content && (
+        <section className="py-12">
+          <div className="container">
+            <div className="mx-auto max-w-3xl">
               <div
-                className="mb-8 text-lg text-muted-foreground prose dark:prose-invert max-w-none"
+                className="text-lg text-muted-foreground prose dark:prose-invert max-w-none"
                 dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }}
               />
-            ) : null}
+            </div>
+          </div>
+        </section>
+      )}
 
-            {/* Highlight Cards */}
+      {/* Highlight Cards */}
+      <section className={intro.content ? 'pb-16' : 'py-16'}>
+        <div className="container">
+          <div className="mx-auto max-w-3xl">
             <div className="grid gap-6 md:grid-cols-3">
               {(highlights && highlights.length > 0 ? highlights : fallbackHighlights).map((item) => {
                 const Icon = iconMap[item.icon] || DefaultIcon;
                 return (
-                  <Card key={item.id}>
+                  <Card key={item.id} className="group transition-shadow hover:shadow-lg">
                     <CardContent className="p-6 text-center">
-                      <Icon className="mx-auto mb-3 h-10 w-10 text-primary" />
+                      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                        <Icon className="h-7 w-7 text-primary" />
+                      </div>
                       <h3 className="font-semibold">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground">{item.description}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
                     </CardContent>
                   </Card>
                 );
@@ -112,7 +136,7 @@ export default function DisciplinePage({
 
       {/* Training Section */}
       {training.content && (
-        <section className="bg-muted/30 py-16">
+        <section className="border-t border-border py-16">
           <div className="container">
             <div className="mx-auto max-w-3xl">
               <h2 className="mb-6 text-2xl font-bold">{training.title}</h2>
@@ -126,7 +150,7 @@ export default function DisciplinePage({
       )}
 
       {/* Events / Upcoming from Calendar */}
-      <section className="py-16">
+      <section className="border-t border-border py-16">
         <div className="container">
           <div className="mx-auto max-w-3xl">
             <h2 className="mb-6 text-2xl font-bold">
@@ -142,9 +166,11 @@ export default function DisciplinePage({
             {upcomingEvents.length > 0 ? (
               <div className="space-y-4">
                 {upcomingEvents.map((event) => (
-                  <Card key={event.id}>
+                  <Card key={event.id} className="transition-shadow hover:shadow-md">
                     <CardContent className="flex items-center gap-4 p-5">
-                      <Calendar className="h-8 w-8 shrink-0 text-primary" />
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                        <Calendar className="h-6 w-6 text-primary" />
+                      </div>
                       <div className="min-w-0 flex-1">
                         <h3 className="font-semibold">{event.title}</h3>
                         <p className="text-sm text-muted-foreground">
@@ -162,7 +188,7 @@ export default function DisciplinePage({
 
             <div className="mt-8 flex flex-wrap gap-4 justify-center">
               <Button asChild>
-                <Link to={`/calendar`}>
+                <Link to="/calendar">
                   <Calendar className="mr-2 h-4 w-4" />
                   Alle Termine ansehen
                 </Link>

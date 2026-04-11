@@ -10,6 +10,7 @@ import { useContentWithFallback } from '@/hooks/usePageContent';
 import { format } from 'date-fns';
 import { cs, de, enUS } from 'date-fns/locale';
 import { useLanguage } from '@/i18n/LanguageContext';
+import heroClub from '@/assets/hero-club.jpg';
 
 function isExternalUrl(url: string) {
   return /^(https?:\/\/|mailto:|tel:)/i.test(url);
@@ -41,13 +42,7 @@ function renderHeroCta(
   );
 }
 
-function HeroPrimaryButton({
-  url,
-  label,
-}: {
-  url: string;
-  label: string;
-}) {
+function HeroPrimaryButton({ url, label }: { url: string; label: string }) {
   return renderHeroCta(
     url,
     <>
@@ -62,13 +57,7 @@ function HeroPrimaryButton({
   );
 }
 
-function HeroSecondaryButton({
-  url,
-  label,
-}: {
-  url: string;
-  label: string;
-}) {
+function HeroSecondaryButton({ url, label }: { url: string; label: string }) {
   return renderHeroCta(url, label, {
     size: 'lg',
     variant: 'outline',
@@ -79,17 +68,10 @@ function HeroSecondaryButton({
 
 function useCountdown(targetDate: Date | null) {
   const [timeLeft, setTimeLeft] = useState(() => {
-    if (!targetDate) {
-      return null;
-    }
-
+    if (!targetDate) return null;
     const now = new Date().getTime();
     const distance = targetDate.getTime() - now;
-
-    if (distance < 0) {
-      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-    }
-
+    if (distance < 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
     return {
       days: Math.floor(distance / (1000 * 60 * 60 * 24)),
       hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
@@ -105,15 +87,10 @@ function useCountdown(targetDate: Date | null) {
       setTimeLeft(null);
       return;
     }
-
     const calculateTimeLeft = () => {
       const now = new Date().getTime();
       const distance = targetTimestamp - now;
-
-      if (distance < 0) {
-        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-      }
-
+      if (distance < 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
       return {
         days: Math.floor(distance / (1000 * 60 * 60 * 24)),
         hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
@@ -121,11 +98,7 @@ function useCountdown(targetDate: Date | null) {
         seconds: Math.floor((distance % (1000 * 60)) / 1000),
       };
     };
-
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-
+    const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
     return () => clearInterval(timer);
   }, [targetTimestamp]);
 
@@ -158,38 +131,42 @@ export function HeroSection() {
   const secondaryButtonUrl = heroContent.secondary_button_url || (hasMainEvent ? '/event#schedule' : '/calendar');
 
   const countdown = useCountdown(eventDate);
-  
-  // Format the event date display
+  const heroImage = heroContent.image_url || heroClub;
+
   const formatEventDate = () => {
     if (!eventDate) return '';
-
     const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
     const startFormat = locale === 'en' ? 'MMMM d' : 'd. MMMM';
     const endFormat = locale === 'en' ? 'MMMM d, yyyy' : 'd. MMMM yyyy';
     const singleFormat = locale === 'en' ? 'MMMM d, yyyy' : 'd. MMMM yyyy';
     const startFormatted = format(eventDate, startFormat, { locale: dateLocale });
-    
     if (eventEndDate) {
       const endFormatted = format(eventEndDate, endFormat, { locale: dateLocale });
-      return `${startFormatted}-${endFormatted}`;
+      return `${startFormatted}–${endFormatted}`;
     }
-    
     return format(eventDate, singleFormat, { locale: dateLocale });
   };
 
   return (
-    <section className="relative overflow-hidden bg-primary py-20 text-primary-foreground md:py-32">
-      {/* Subtle diagonal stripes */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="racing-stripe h-full w-full" />
+    <section className="relative overflow-hidden min-h-[520px] flex items-center md:min-h-[600px]">
+      {/* Background image */}
+      <div className="absolute inset-0">
+        <img
+          src={heroImage}
+          alt=""
+          className="h-full w-full object-cover"
+          width={1920}
+          height={640}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/85 to-primary/60" />
       </div>
-      
-      {/* Accent stripe */}
-      <div className="absolute -right-20 top-0 h-full w-40 skew-x-[-15deg] bg-accent opacity-90" />
-      <div className="absolute -right-32 top-0 h-full w-16 skew-x-[-15deg] bg-accent/50" />
 
-      <div className="container relative z-10">
-        <div className="mx-auto max-w-4xl text-center">
+      {/* Accent stripe */}
+      <div className="absolute -right-20 top-0 h-full w-40 skew-x-[-15deg] bg-accent opacity-80" />
+      <div className="absolute -right-32 top-0 h-full w-16 skew-x-[-15deg] bg-accent/40" />
+
+      <div className="container relative z-10 py-16">
+        <div className="mx-auto max-w-4xl text-center text-white">
           {/* Event Badge */}
           {isLoading ? (
             <div className="mb-6 inline-flex items-center gap-2 bg-accent px-5 py-2 text-sm font-bold uppercase tracking-wider text-accent-foreground">
@@ -205,19 +182,19 @@ export function HeroSection() {
 
           {/* Main Title */}
           {isLoading ? (
-            <Skeleton className="h-16 w-3/4 mx-auto mb-6 bg-primary-foreground/10" />
+            <Skeleton className="h-16 w-3/4 mx-auto mb-6 bg-white/10" />
           ) : (
             <h1 className="mb-6 font-display text-5xl font-black uppercase tracking-tight md:text-7xl">
               {heroTitle}
             </h1>
           )}
 
-          <p className="mb-10 text-lg text-primary-foreground/80 md:text-xl">
+          <p className="mb-10 text-lg text-white/80 md:text-xl">
             {heroSubtitle}
           </p>
 
           {hasMainEvent && countdown ? (
-            <div className="mb-12 grid grid-cols-4 gap-4 md:gap-6">
+            <div className="mb-12 inline-grid grid-cols-4 gap-3 md:gap-5">
               {[
                 { value: countdown.days, label: t.hero.days },
                 { value: countdown.hours, label: t.hero.hours },
@@ -226,12 +203,12 @@ export function HeroSection() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="bg-background/10 p-4 backdrop-blur-sm md:p-6"
+                  className="rounded-lg border border-white/20 bg-white/10 px-5 py-4 md:px-8 md:py-5"
                 >
-                  <div className="font-display text-4xl font-black md:text-6xl">
+                  <div className="font-display text-3xl font-black md:text-5xl">
                     {String(item.value).padStart(2, '0')}
                   </div>
-                  <div className="mt-1 text-xs font-medium uppercase tracking-wider text-primary-foreground/70 md:text-sm">
+                  <div className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-white/60 md:text-xs">
                     {item.label}
                   </div>
                 </div>
