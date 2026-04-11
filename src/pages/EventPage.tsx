@@ -135,8 +135,8 @@ export default function EventPage() {
               <p className="max-w-2xl text-xl text-primary-foreground/80">
                 {mainEvent.description || eventIntro.content}
               </p>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg px-10 py-6 glow-accent" asChild>
+              <div className="mt-8">
+                <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold" asChild>
                   <a
                     href={mainEvent.registration_url || '#registration'}
                     {...(mainEvent.registration_url ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
@@ -146,14 +146,6 @@ export default function EventPage() {
                     {mainEvent.registration_url && <ExternalLink className="h-4 w-4" />}
                   </a>
                 </Button>
-                {mainEvent.location && (
-                  <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
-                    <a href={googleMapsLink || '#track'}>
-                      <MapPin className="mr-2 h-5 w-5" />
-                      {mainEvent.location}
-                    </a>
-                  </Button>
-                )}
               </div>
             </>
           ) : (
