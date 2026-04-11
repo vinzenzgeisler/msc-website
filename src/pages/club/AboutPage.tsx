@@ -24,7 +24,7 @@ export default function AboutPage() {
     content: '',
   });
 
-  const heroImage = intro.image_url || heroAbout;
+  const heroImage = intro.image_url || null;
 
   const quickLinks = [
     { icon: Users, title: t.nav.board, description: intro.primary_button_label || 'Lernen Sie unser Vorstandsteam kennen', path: '/club/board' },
