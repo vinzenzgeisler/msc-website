@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
+import { useSettings } from '@/hooks/useSettings';
 
 export function Footer() {
   const t = useTranslation();
+  const { data: settings } = useSettings();
 
   const currentYear = new Date().getFullYear();
 
@@ -15,17 +17,25 @@ export function Footer() {
           {/* Club Info */}
           <div>
             <div className="mb-4 flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold">
-                MSC
-              </div>
-              <span className="font-bold">MSC Oberlausitzer Dreiländereck e.V.</span>
+              {settings?.logo_url ? (
+                <img
+                  src={settings.logo_url}
+                  alt={settings.logo_alt || settings.site_short_name || settings.site_name || 'Logo'}
+                  className="h-10 w-10 rounded-md object-contain bg-white p-1"
+                />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold">
+                  {(settings?.site_short_name || 'MSC').slice(0, 3)}
+                </div>
+              )}
+              <span className="font-bold">{settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}</span>
             </div>
             <p className="mb-4 text-sm text-muted-foreground">
-              Motorsport mit Leidenschaft seit der Gründung. Erlebe Motorradtouristik, Motocross, Trial und den legendären Demolauf im Dreiländereck.
+              {settings?.description || 'Motorsport mit Leidenschaft seit der Gründung.'}
             </p>
             <div className="flex gap-3">
               <a
-                href="https://www.facebook.com/"
+                href={settings?.facebook_url || 'https://www.facebook.com/'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -34,7 +44,7 @@ export function Footer() {
                 <Facebook className="h-5 w-5" />
               </a>
               <a
-                href="https://www.instagram.com/"
+                href={settings?.instagram_url || 'https://www.instagram.com/'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -106,18 +116,24 @@ export function Footer() {
               <li className="flex items-start gap-2 text-muted-foreground">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>
-                  MSC Oberlausitzer Dreiländereck e.V.
+                  {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}
                   <br />
-                  02797 Oybin
+                  {settings?.address || '02797 Oybin'}
                 </span>
               </li>
+              {settings?.contact_phone && (
+                <li className="flex items-center gap-2 text-muted-foreground">
+                  <Phone className="h-4 w-4" />
+                  <span>{settings.contact_phone}</span>
+                </li>
+              )}
               <li>
                 <a
-                  href="mailto:info@msc-oberlausitzer-dreilaendereck.de"
+                  href={`mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.eu'}`}
                   className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <Mail className="h-4 w-4" />
-                  info@msc-oberlausitzer-dreilaendereck.de
+                  {settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.eu'}
                 </a>
               </li>
             </ul>
@@ -128,7 +144,7 @@ export function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-border bg-muted">
         <div className="container flex flex-col items-center justify-between gap-4 py-4 text-sm text-muted-foreground sm:flex-row">
-          <p>© {currentYear} MSC Oberlausitzer Dreiländereck e.V. {t.footer.rights}</p>
+          <p>© {currentYear} {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'} {t.footer.rights}</p>
           <div className="flex gap-4">
             <Link to="/imprint" className="transition-colors hover:text-foreground">
               {t.nav.imprint}

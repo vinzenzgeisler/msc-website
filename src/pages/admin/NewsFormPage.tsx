@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,27 +14,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ArrowLeft, Loader2, Pin } from 'lucide-react';
-import { usePost, useCreatePost, useUpdatePost } from '@/hooks/usePosts';
+import { usePost, usePosts, useCreatePost, useUpdatePost } from '@/hooks/usePosts';
+import { useCmsTranslation } from '@/hooks/useCmsTranslation';
+import { LocaleTranslationBox, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
+import { buildSlug } from '@/integrations/pocketbase/client';
 import { toast } from 'sonner';
+import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 
 const categories = [
-  { value: 'allgemein', label: 'Allgemein' },
+  { value: 'event', label: 'Veranstaltung' },
   { value: 'motocross', label: 'Motocross' },
   { value: 'trial', label: 'Trial' },
-  { value: 'touring', label: 'Tourenfahrt' },
+  { value: 'touring', label: 'Touring' },
   { value: 'verein', label: 'Verein' },
 ];
-
-function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/ä/g, 'ae')
-    .replace(/ö/g, 'oe')
-    .replace(/ü/g, 'ue')
-    .replace(/ß/g, 'ss')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
 
 export default function NewsFormPage() {
   const { id } = useParams();
@@ -42,8 +35,10 @@ export default function NewsFormPage() {
   const isEditing = id && id !== 'new';
 
   const { data: existingPost, isLoading: isLoadingPost } = usePost(isEditing ? id : '');
+  const { data: allPosts } = usePosts(false);
   const createPost = useCreatePost();
   const updatePost = useUpdatePost();
+  const translate = useCmsTranslation();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -51,70 +46,167 @@ export default function NewsFormPage() {
     excerpt: '',
     content: '',
     category: '',
-    image_url: '',
-    locale: 'de',
     is_pinned: false,
     status: 'draft' as 'draft' | 'published',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const deSlug = useMemo(
+    () => buildSlug(formData.slug || formData.title || existingPost?.slug || ''),
+    [formData.slug, formData.title, existingPost?.slug],
+  );
+
+  const translationStatus = useMemo(() => {
+    const status = { en: false, cz: false };
+    if (!allPosts || !deSlug) return status;
+
+    status.en = Boolean(allPosts.find((post) => post.locale === 'en' && post.slug === deSlug));
+    status.cz = Boolean(allPosts.find((post) => post.locale === 'cz' && post.slug === deSlug));
+    return status;
+  }, [allPosts, deSlug]);
+
+  const hasGermanBaseRecord = useMemo(
+    () => Boolean(allPosts?.find((post) => post.locale === 'de' && post.slug === deSlug)),
+    [allPosts, deSlug],
+  );
 
   useEffect(() => {
-    if (existingPost) {
-      setFormData({
-        title: existingPost.title || '',
-        slug: existingPost.slug || '',
-        excerpt: existingPost.excerpt || '',
-        content: existingPost.content || '',
-        category: existingPost.category || '',
-        image_url: existingPost.image_url || '',
-        locale: existingPost.locale || 'de',
-        is_pinned: existingPost.is_pinned || false,
-        status: existingPost.status || 'draft',
-      });
-    }
-  }, [existingPost]);
+    if (!existingPost) return;
 
-  const handleTitleChange = (title: string) => {
+    if (existingPost.locale !== 'de' && allPosts) {
+      const germanVariant = allPosts.find(
+        (post) => post.locale === 'de' && post.slug === existingPost.slug,
+      );
+      if (germanVariant && germanVariant.id !== existingPost.id) {
+        navigate(`/admin/news/${germanVariant.id}`);
+        return;
+      }
+    }
+
     setFormData({
-      ...formData,
-      title,
-      slug: isEditing ? formData.slug : generateSlug(title),
+      title: existingPost.title || '',
+      slug: existingPost.slug || '',
+      excerpt: existingPost.excerpt || '',
+      content: existingPost.content || '',
+      category: existingPost.category || '',
+      is_pinned: existingPost.is_pinned || false,
+      status: existingPost.status || 'draft',
     });
-  };
+  }, [existingPost, allPosts, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title) {
+    if (!formData.title.trim()) {
       toast.error('Bitte geben Sie einen Titel ein');
+      return;
+    }
+
+    if (!deSlug) {
+      toast.error('Slug konnte nicht erzeugt werden');
+      return;
+    }
+
+    const duplicateSlug = allPosts?.find(
+      (post) => post.id !== id && post.locale === 'de' && post.slug === deSlug,
+    );
+    if (duplicateSlug) {
+      toast.error('Für diesen Titel existiert bereits ein deutscher Artikel.');
       return;
     }
 
     try {
       const postData = {
-        title: formData.title,
-        slug: formData.slug || generateSlug(formData.title),
-        excerpt: formData.excerpt || null,
-        content: formData.content || null,
+        title: formData.title.trim(),
+        slug: deSlug,
+        excerpt: formData.excerpt.trim() || null,
+        content: formData.content.trim() || null,
         category: formData.category || null,
-        image_url: formData.image_url || null,
-        locale: formData.locale,
+        locale: 'de' as const,
+        is_pinned: formData.is_pinned,
+        status: formData.status,
+        author_id: null,
+        published_at: formData.status === 'published' ? new Date().toISOString() : null,
+        imageFile,
+      };
+
+      if (isEditing) {
+        await updatePost.mutateAsync({ id, ...postData });
+        toast.success('Deutscher Artikel aktualisiert');
+      } else {
+        await createPost.mutateAsync(postData);
+        toast.success('Deutscher Artikel erstellt');
+      }
+      navigate('/admin/news');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Speichern'));
+      console.error(error);
+    }
+  };
+
+  const handleTranslateTo = async (targetLocale: TranslationTarget) => {
+    if (!formData.title.trim()) {
+      toast.error('Bitte zuerst den deutschen Titel ausfüllen.');
+      return;
+    }
+
+    if (!deSlug) {
+      toast.error('Bitte zuerst den deutschen Artikel speichern.');
+      return;
+    }
+
+    if (!hasGermanBaseRecord) {
+      toast.error('Bitte zuerst den deutschen Artikel speichern.');
+      return;
+    }
+
+    try {
+      const translated = await translate.mutateAsync({
+        sourceLocale: 'de',
+        targetLocale,
+        context: 'News-Artikel für die Vereinswebsite',
+        fields: {
+          title: formData.title,
+          excerpt: formData.excerpt,
+          content: formData.content,
+        },
+      });
+
+      const translatedTitle = String(translated.title || '').trim();
+      const translatedExcerpt = String(translated.excerpt || '').trim();
+      const translatedContent = String(translated.content || '').trim();
+
+      if (!translatedTitle && !translatedExcerpt && !translatedContent) {
+        toast.error('DeepL hat keine verwertbaren Texte geliefert.');
+        return;
+      }
+
+      const payload = {
+        title: translatedTitle || formData.title.trim(),
+        slug: deSlug,
+        excerpt: translatedExcerpt || formData.excerpt.trim() || null,
+        content: translatedContent || formData.content.trim() || null,
+        category: formData.category || null,
+        locale: targetLocale,
         is_pinned: formData.is_pinned,
         status: formData.status,
         author_id: null,
         published_at: formData.status === 'published' ? new Date().toISOString() : null,
       };
 
-      if (isEditing) {
-        await updatePost.mutateAsync({ id, ...postData });
-        toast.success('Artikel aktualisiert');
+      const existingTranslation = allPosts?.find(
+        (post) => post.locale === targetLocale && post.slug === deSlug,
+      );
+
+      if (existingTranslation) {
+        await updatePost.mutateAsync({ id: existingTranslation.id, ...payload });
       } else {
-        await createPost.mutateAsync(postData);
-        toast.success('Artikel erstellt');
+        await createPost.mutateAsync(payload);
       }
-      navigate('/admin/news');
+
+      toast.success(`Übersetzung ${targetLocale.toUpperCase()} gespeichert`);
     } catch (error) {
-      toast.error('Fehler beim Speichern');
-      console.error(error);
+      toast.error(getPocketBaseErrorMessage(error, 'Übersetzung fehlgeschlagen'));
     }
   };
 
@@ -129,8 +221,7 @@ export default function NewsFormPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      {/* Header */}
+    <div className="max-w-3xl space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
           <Link to="/admin/news">
@@ -138,20 +229,15 @@ export default function NewsFormPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">
-            {isEditing ? 'Artikel bearbeiten' : 'Neuer Artikel'}
-          </h1>
-          <p className="text-muted-foreground">
-            {isEditing ? 'Bearbeiten Sie den Artikel' : 'Erstellen Sie einen neuen News-Artikel'}
-          </p>
+          <h1 className="text-3xl font-bold">{isEditing ? 'Artikel bearbeiten' : 'Neuer Artikel'}</h1>
+          <p className="text-muted-foreground">Bearbeitung erfolgt immer in Deutsch (DE)</p>
         </div>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Inhalt</CardTitle>
+            <CardTitle>Deutscher Hauptinhalt</CardTitle>
             <CardDescription>Titel und Inhalt des Artikels</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -160,7 +246,7 @@ export default function NewsFormPage() {
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => handleTitleChange(e.target.value)}
+                onChange={(e) => setFormData((current) => ({ ...current, title: e.target.value }))}
                 placeholder="Artikelüberschrift"
                 required
               />
@@ -171,12 +257,10 @@ export default function NewsFormPage() {
               <Input
                 id="slug"
                 value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                onChange={(e) => setFormData((current) => ({ ...current, slug: e.target.value }))}
                 placeholder="artikel-url"
               />
-              <p className="text-xs text-muted-foreground">
-                Wird automatisch aus dem Titel generiert
-              </p>
+              <p className="text-xs text-muted-foreground">Standardmäßig aus dem Titel erzeugt</p>
             </div>
 
             <div className="space-y-2">
@@ -184,8 +268,8 @@ export default function NewsFormPage() {
               <Textarea
                 id="excerpt"
                 value={formData.excerpt}
-                onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                placeholder="Kurze Zusammenfassung für die Vorschau..."
+                onChange={(e) => setFormData((current) => ({ ...current, excerpt: e.target.value }))}
+                placeholder="Kurze Zusammenfassung..."
                 rows={2}
               />
             </div>
@@ -195,8 +279,8 @@ export default function NewsFormPage() {
               <Textarea
                 id="content"
                 value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder="Der vollständige Artikeltext..."
+                onChange={(e) => setFormData((current) => ({ ...current, content: e.target.value }))}
+                placeholder="Vollständiger Artikeltext..."
                 rows={10}
               />
             </div>
@@ -214,15 +298,15 @@ export default function NewsFormPage() {
                 <Label htmlFor="category">Kategorie</Label>
                 <Select
                   value={formData.category}
-                  onValueChange={(value) => setFormData({ ...formData, category: value })}
+                  onValueChange={(value) => setFormData((current) => ({ ...current, category: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Kategorie auswählen" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
+                    {categories.map((category) => (
+                      <SelectItem key={category.value} value={category.value}>
+                        {category.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -230,31 +314,42 @@ export default function NewsFormPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image_url">Bild-URL</Label>
+                <Label htmlFor="image_file">Bild</Label>
                 <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://..."
+                  id="image_file"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                 />
+                {(imageFile || existingPost?.image_url) && (
+                  <p className="text-xs text-muted-foreground">
+                    {imageFile ? `Ausgewählt: ${imageFile.name}` : 'Bereits vorhandenes Bild bleibt erhalten'}
+                  </p>
+                )}
               </div>
             </div>
 
+            <LocaleTranslationBox
+              description="DE bleibt führend. EN/CZ werden separat gespeichert (zuerst DE speichern)."
+              status={translationStatus}
+              onTranslate={handleTranslateTo}
+              isTranslating={translate.isPending}
+              disabled={!deSlug || !hasGermanBaseRecord}
+            />
+
             <div className="flex items-center justify-between rounded-lg border border-accent/50 bg-accent/5 p-4">
               <div className="flex items-start gap-3">
-                <Pin className="h-5 w-5 text-accent mt-0.5" />
+                <Pin className="mt-0.5 h-5 w-5 text-accent" />
                 <div className="space-y-0.5">
                   <Label htmlFor="is_pinned">Angeheftet</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Artikel oben in der Liste anzeigen
-                  </p>
+                  <p className="text-sm text-muted-foreground">Artikel oben in der Liste anzeigen</p>
                 </div>
               </div>
               <Switch
                 id="is_pinned"
                 checked={formData.is_pinned}
                 onCheckedChange={(checked) =>
-                  setFormData({ ...formData, is_pinned: checked })
+                  setFormData((current) => ({ ...current, is_pinned: checked }))
                 }
               />
             </div>
@@ -262,15 +357,13 @@ export default function NewsFormPage() {
             <div className="flex items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
                 <Label htmlFor="published">Veröffentlichen</Label>
-                <p className="text-sm text-muted-foreground">
-                  Artikel sofort auf der Website anzeigen
-                </p>
+                <p className="text-sm text-muted-foreground">Artikel sofort auf der Website anzeigen</p>
               </div>
               <Switch
                 id="published"
                 checked={formData.status === 'published'}
                 onCheckedChange={(checked) =>
-                  setFormData({ ...formData, status: checked ? 'published' : 'draft' })
+                  setFormData((current) => ({ ...current, status: checked ? 'published' : 'draft' }))
                 }
               />
             </div>

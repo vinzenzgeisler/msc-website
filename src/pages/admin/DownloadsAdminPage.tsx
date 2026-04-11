@@ -32,6 +32,7 @@ import {
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, Download, FileText, FileImage, File } from 'lucide-react';
 import { useDownloads, useDeleteDownload } from '@/hooks/useDownloads';
 import { toast } from 'sonner';
+import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 
 const getFileTypeConfig = (fileType: string | null) => {
   if (fileType?.includes('pdf')) return { label: 'PDF', icon: FileText, color: 'text-red-500' };
@@ -63,8 +64,8 @@ export default function DownloadsAdminPage() {
     try {
       await deleteDownload.mutateAsync(deleteId);
       toast.success('Datei gelöscht');
-    } catch (err) {
-      toast.error('Fehler beim Löschen');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Löschen'));
     }
     setDeleteId(null);
   };

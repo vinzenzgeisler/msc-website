@@ -13,7 +13,7 @@ export const translations = {
       board: 'Vorstand',
       history: 'Geschichte',
       membership: 'Mitglied werden',
-      sections: 'Sparten',
+      sections: 'Sektionen',
       touring: 'Motorradtouristik',
       motocross: 'Motocross',
       trial: 'Trial',
@@ -43,6 +43,9 @@ export const translations = {
       subtitle: 'Motorsport mit Leidenschaft',
       description: 'Seit unserer Gründung leben wir die Begeisterung für den Motorsport im Herzen des Dreiländerecks. Von Motorradtouren bis zum legendären Demolauf – bei uns erlebst du Motorsport hautnah.',
       cta: 'Mehr erfahren',
+      statOneLabel: 'Mitglieder',
+      statTwoLabel: 'Jahre Tradition',
+      statThreeLabel: 'Sektionen',
     },
     // Event
     event: {
@@ -170,6 +173,9 @@ export const translations = {
       subtitle: 'Motorsport s vášní',
       description: 'Od našeho založení žijeme nadšením pro motorsport v srdci trojmezí. Od mototuristiky po legendární demo jízdu – zažijte motorsport zblízka.',
       cta: 'Více informací',
+      statOneLabel: 'Členové',
+      statTwoLabel: 'Let tradice',
+      statThreeLabel: 'Sekce',
     },
     // Event
     event: {
@@ -297,6 +303,9 @@ export const translations = {
       subtitle: 'Motorsport with Passion',
       description: 'Since our founding, we have been living our passion for motorsport in the heart of the three-country region. From motorcycle tours to the legendary demo run – experience motorsport up close.',
       cta: 'Learn More',
+      statOneLabel: 'Members',
+      statTwoLabel: 'Years of Tradition',
+      statThreeLabel: 'Sections',
     },
     // Event
     event: {
@@ -424,6 +433,9 @@ export type Translations = {
     subtitle: string;
     description: string;
     cta: string;
+    statOneLabel: string;
+    statTwoLabel: string;
+    statThreeLabel: string;
   };
   event: {
     title: string;

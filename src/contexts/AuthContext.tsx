@@ -1,6 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Session } from '@supabase/supabase-js';
-import { supabase, UserRole, Profile } from '@/integrations/supabase/client';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { pb, UserRole, mapProfileRecord } from '@/integrations/pocketbase/client';
 
 export type { UserRole };
 
@@ -13,7 +12,7 @@ export interface AuthUser {
 
 interface AuthContextType {
   user: AuthUser | null;
-  session: Session | null;
+  session: { token: string } | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
@@ -25,106 +24,73 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<{ token: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUserProfile = async (userId: string): Promise<AuthUser | null> => {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+  const syncFromStore = () => {
+    const record = pb.authStore.record;
+    const token = pb.authStore.token;
 
-    if (error || !profile) {
-      console.error('Error fetching profile:', error);
-      return null;
+    setSession(token ? { token } : null);
+
+    if (record) {
+      const profile = mapProfileRecord(record);
+      setUser({
+        id: profile.user_id,
+        email: profile.email,
+        name: profile.full_name || profile.email,
+        role: profile.role,
+      });
+    } else {
+      setUser(null);
     }
 
-    const typedProfile = profile as Profile;
-    return {
-      id: typedProfile.user_id,
-      email: typedProfile.email,
-      name: typedProfile.full_name || typedProfile.email,
-      role: typedProfile.role,
-    };
+    setIsLoading(false);
   };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
-        setSession(newSession);
-        
-        if (newSession?.user) {
-          // Defer Supabase call with setTimeout to prevent deadlock
-          setTimeout(() => {
-            fetchUserProfile(newSession.user.id).then((profile) => {
-              setUser(profile);
-              setIsLoading(false);
-            });
-          }, 0);
-        } else {
-          setUser(null);
-          setIsLoading(false);
-        }
-      }
-    );
+    const unsubscribe = pb.authStore.onChange(() => {
+      syncFromStore();
+    }, true);
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
-      setSession(existingSession);
-      
-      if (existingSession?.user) {
-        fetchUserProfile(existingSession.user.id).then((profile) => {
-          setUser(profile);
-          setIsLoading(false);
-        });
-      } else {
-        setIsLoading(false);
-      }
-    });
+    syncFromStore();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const authData = await pb.collection('cms_users').authWithPassword(email, password);
+      const profile = mapProfileRecord(authData.record);
 
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    if (data.user) {
-      const profile = await fetchUserProfile(data.user.id);
-      if (!profile) {
-        await supabase.auth.signOut();
-        return { success: false, error: 'Benutzerprofil nicht gefunden' };
-      }
-      
-      // Check if user has admin or editor role
-      if (profile.role !== 'admin' && profile.role !== 'editor') {
-        await supabase.auth.signOut();
+      if (profile.role !== 'super_admin' && profile.role !== 'admin' && profile.role !== 'editor') {
+        pb.authStore.clear();
         return { success: false, error: 'Keine Berechtigung für den Admin-Bereich' };
       }
-      
-      setUser(profile);
-    }
 
-    return { success: true };
+      if (!profile.is_active) {
+        pb.authStore.clear();
+        return { success: false, error: 'Benutzer ist deaktiviert' };
+      }
+
+      syncFromStore();
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: (error as Error).message };
+    }
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    pb.authStore.clear();
     setUser(null);
     setSession(null);
   };
 
   const hasPermission = (requiredRole: UserRole): boolean => {
     if (!user) return false;
-    if (user.role === 'admin') return true;
+    if (user.role === 'super_admin' || user.role === 'admin') return true;
     return user.role === requiredRole;
   };
 

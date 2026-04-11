@@ -2,26 +2,22 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Users, Calendar, Award, Mail } from 'lucide-react';
+import { Mail, CheckCircle2, ArrowRight } from 'lucide-react';
+import { useContentWithFallback } from '@/hooks/usePageContent';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useSettings } from '@/hooks/useSettings';
+import { useMembershipBenefits, useMembershipSteps } from '@/hooks/useStructuredContent';
 
 export default function MembershipPage() {
   const t = useTranslation();
-
-  const benefits = [
-    'Teilnahme an allen Vereinsveranstaltungen',
-    'Vergünstigter Eintritt zum Oberlausitzer Dreieck',
-    'Zugang zu Trainingsgeländen',
-    'Gemeinsame Motorradtouren',
-    'Stimmrecht bei Mitgliederversammlungen',
-    'Vereinszeitung und Newsletter',
-  ];
-
-  const fees = [
-    { type: 'Erwachsene', amount: '60 €/Jahr' },
-    { type: 'Familien', amount: '90 €/Jahr' },
-    { type: 'Jugendliche (bis 18)', amount: '30 €/Jahr' },
-    { type: 'Kinder (bis 14)', amount: '15 €/Jahr' },
-  ];
+  const { data: settings } = useSettings();
+  const intro = useContentWithFallback('membership', 'intro', {
+    title: t.nav.membership,
+    subtitle: 'Mitglied werden',
+    content: '',
+  });
+  const { data: benefits, isLoading: benefitsLoading } = useMembershipBenefits();
+  const { data: steps, isLoading: stepsLoading } = useMembershipSteps();
 
   return (
     <MainLayout>
@@ -32,42 +28,82 @@ export default function MembershipPage() {
             {t.nav.membership}
           </h1>
           <p className="text-lg text-primary-foreground/80">
-            Werde Teil unserer Motorsport-Familie!
+            {intro.subtitle || 'Mitglied werden'}
           </p>
         </div>
       </section>
 
-      {/* Benefits */}
+      {intro.content ? (
+        <section className="py-10">
+          <div className="container">
+            <div
+              className="mx-auto max-w-3xl prose prose-lg dark:prose-invert text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }}
+            />
+          </div>
+        </section>
+      ) : null}
+
       <section className="py-16">
         <div className="container">
           <div className="grid gap-12 lg:grid-cols-2">
-            {/* Benefits List */}
             <div>
               <h2 className="mb-6">Vorteile einer Mitgliedschaft</h2>
-              <ul className="space-y-4">
-                {benefits.map((benefit) => (
-                  <li key={benefit} className="flex items-start gap-3">
-                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                    <span>{benefit}</span>
-                  </li>
-                ))}
-              </ul>
+              {benefitsLoading ? (
+                <div className="grid gap-4">
+                  <Skeleton className="h-24 w-full" />
+                  <Skeleton className="h-24 w-full" />
+                </div>
+              ) : benefits && benefits.length > 0 ? (
+                <div className="grid gap-4">
+                  {benefits.map((benefit) => (
+                    <Card key={benefit.id}>
+                      <CardContent className="flex gap-4 p-5">
+                        <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-primary" />
+                        <div>
+                          <h3 className="font-semibold">{benefit.title}</h3>
+                          {benefit.description ? <p className="mt-1 text-sm text-muted-foreground">{benefit.description}</p> : null}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground">Noch keine Informationen zu den Vorteilen hinterlegt.</p>
+              )}
             </div>
 
-            {/* Fees Card */}
             <Card>
               <CardHeader>
-                <CardTitle>Mitgliedsbeiträge</CardTitle>
+                <CardTitle>So werden Sie Mitglied</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ul className="space-y-4">
-                  {fees.map((fee) => (
-                    <li key={fee.type} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
-                      <span>{fee.type}</span>
-                      <span className="font-semibold text-primary">{fee.amount}</span>
-                    </li>
-                  ))}
-                </ul>
+              <CardContent className="space-y-4">
+                {stepsLoading ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-3/4" />
+                  </div>
+                ) : steps && steps.length > 0 ? (
+                  steps.map((step, index) => (
+                    <div key={step.id} className="flex gap-4">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{step.title}</h3>
+                        {step.description ? (
+                          <div
+                            className="mt-1 prose prose-sm dark:prose-invert max-w-none text-muted-foreground"
+                            dangerouslySetInnerHTML={{ __html: step.description.replace(/\n/g, '<br />') }}
+                          />
+                        ) : null}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground">Noch keine Informationen zur Mitgliedschaft hinterlegt.</p>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -79,17 +115,17 @@ export default function MembershipPage() {
         <div className="container text-center">
           <h2 className="mb-4 text-3xl font-bold">Interesse geweckt?</h2>
           <p className="mx-auto mb-8 max-w-2xl text-primary-foreground/80">
-            Schreiben Sie uns eine E-Mail oder kommen Sie zu einer unserer 
-            Veranstaltungen. Wir freuen uns auf Sie!
+            Schreiben Sie uns eine E-Mail. Wir freuen uns auf Sie!
           </p>
           <Button
             size="lg"
             className="bg-accent text-accent-foreground hover:bg-accent/90"
             asChild
           >
-            <a href="mailto:info@msc-oberlausitzer-dreilaendereck.de">
+            <a href={`mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`}>
               <Mail className="mr-2 h-5 w-5" />
               Kontakt aufnehmen
+              <ArrowRight className="ml-2 h-4 w-4" />
             </a>
           </Button>
         </div>

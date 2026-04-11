@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Menu, X, ChevronDown, ChevronRight, Sun, Moon } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useTheme } from '@/hooks/useTheme';
+import { useSettings } from '@/hooks/useSettings';
 import { Button } from '@/components/ui/button';
 import {
   Collapsible,
@@ -28,6 +29,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { locale, setLocale, t } = useLanguage();
   const { toggleTheme, isDark } = useTheme();
+  const { data: settings } = useSettings();
   const location = useLocation();
 
   const currentLang = languages.find((l) => l.code === locale) || languages[0];
@@ -71,11 +73,19 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-lg">
-            MSC
-          </div>
+          {settings?.logo_url ? (
+            <img
+              src={settings.logo_url}
+              alt={settings.logo_alt || settings.site_short_name || settings.site_name || 'Logo'}
+              className="h-10 w-10 rounded-md object-contain bg-white p-1"
+            />
+          ) : (
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-lg">
+              {(settings?.site_short_name || 'MSC').slice(0, 3)}
+            </div>
+          )}
           <span className="hidden font-bold text-foreground sm:inline-block">
-            MSC Oberlausitzer Dreiländereck
+            {settings?.site_name || 'MSC Oberlausitzer Dreiländereck'}
           </span>
         </Link>
 

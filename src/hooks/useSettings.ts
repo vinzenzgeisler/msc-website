@@ -1,25 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { pb, SiteSettings } from '@/integrations/pocketbase/client';
+import { ClientResponseError } from 'pocketbase';
 
-export interface SiteSettings {
-  id: string;
-  key: string;
-  value: string;
-  updated_at: string;
-}
-
-// Default settings structure
-export interface SettingsData {
-  site_name: string;
-  site_short_name: string;
-  description: string;
-  contact_email: string;
-  contact_phone: string;
-  address: string;
-  facebook_url: string;
-  instagram_url: string;
-  meta_title: string;
-  meta_description: string;
+export interface SettingsData extends SiteSettings {
   meta_keywords: string;
   notifications_contact: boolean;
   notifications_registration: boolean;
@@ -35,8 +18,21 @@ const DEFAULT_SETTINGS: SettingsData = {
   address: '',
   facebook_url: '',
   instagram_url: '',
+  contact_map_embed_url: '',
+  contact_map_link: '',
+  contact_map_label: '',
+  sponsoring_email: '',
   meta_title: '',
   meta_description: '',
+  logo_url: null,
+  logo_alt: '',
+  default_og_image_url: null,
+  founding_year: 1984,
+  member_count: '150+',
+  section_count: '3',
+  member_count_label: 'Mitglieder',
+  tradition_years_label: 'Jahre Tradition',
+  section_count_label: 'Sektionen',
   meta_keywords: '',
   notifications_contact: true,
   notifications_registration: true,
@@ -47,56 +43,99 @@ export function useSettings() {
   return useQuery({
     queryKey: ['settings'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('site_settings')
-        .select('*');
-      
-      if (error) {
-        // If table doesn't exist, return defaults
-        if (error.code === '42P01') {
+      try {
+        const data = await pb.collection('siteSettings').getList(1, 1);
+        const item = data.items[0];
+
+        if (!item) {
           return DEFAULT_SETTINGS;
         }
-        throw error;
+
+        return {
+          id: item.id,
+          site_name: item.siteName || '',
+          site_short_name: item.siteShortName || '',
+          description: item.description || '',
+          contact_email: item.contactEmail || '',
+          contact_phone: item.contactPhone || '',
+          address: item.address || '',
+          facebook_url: item.facebookUrl || '',
+          instagram_url: item.instagramUrl || '',
+          contact_map_embed_url: item.contactMapEmbedUrl || '',
+          contact_map_link: item.contactMapLink || '',
+          contact_map_label: item.contactMapLabel || '',
+          sponsoring_email: item.sponsoringEmail || '',
+          meta_title: item.metaTitle || '',
+          meta_description: item.metaDescription || '',
+          logo_url: item.logo ? pb.files.getURL(item, item.logo) : null,
+          logo_alt: item.logoAlt || '',
+          default_og_image_url: item.defaultOgImage ? pb.files.getURL(item, item.defaultOgImage) : null,
+          founding_year: typeof item.foundingYear === 'number' ? item.foundingYear : item.foundingYear ? Number(item.foundingYear) : 1984,
+          member_count: item.memberCount || '150+',
+          section_count: item.sectionCount || '3',
+          member_count_label: item.memberCountLabel || 'Mitglieder',
+          tradition_years_label: item.traditionYearsLabel || 'Jahre Tradition',
+          section_count_label: item.sectionCountLabel || 'Sektionen',
+          meta_keywords: '',
+          notifications_contact: true,
+          notifications_registration: true,
+          notifications_weekly: false,
+        } as SettingsData;
+      } catch {
+        return DEFAULT_SETTINGS;
       }
-      
-      // Convert array of key-value pairs to object
-      const settings = { ...DEFAULT_SETTINGS } as Record<string, string | boolean>;
-      (data as SiteSettings[]).forEach((item) => {
-        if (item.key in DEFAULT_SETTINGS) {
-          if (item.value === 'true') settings[item.key] = true;
-          else if (item.value === 'false') settings[item.key] = false;
-          else settings[item.key] = item.value;
-        }
-      });
-      
-      return settings as unknown as SettingsData;
     },
   });
 }
 
 export function useUpdateSettings() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async (settings: Partial<SettingsData>) => {
-      const entries = Object.entries(settings).map(([key, value]) => ({
-        key,
-        value: String(value),
-        updated_at: new Date().toISOString(),
-      }));
-      
-      // Upsert all settings
-      for (const entry of entries) {
-        const { error } = await supabase
-          .from('site_settings')
-          .upsert(
-            { ...entry, id: entry.key },
-            { onConflict: 'key' }
-          );
-        
-        if (error) throw error;
+    mutationFn: async (settings: Partial<SettingsData> & { logo_file?: File | null; default_og_image_file?: File | null }) => {
+      const data = await pb.collection('siteSettings').getList(1, 1);
+      const existing = data.items[0];
+      const payload: Record<string, unknown> = {
+        siteName: settings.site_name || '',
+        siteShortName: settings.site_short_name || '',
+        description: settings.description || '',
+        contactEmail: settings.contact_email || '',
+        contactPhone: settings.contact_phone || '',
+        address: settings.address || '',
+        facebookUrl: settings.facebook_url || '',
+        instagramUrl: settings.instagram_url || '',
+        contactMapEmbedUrl: settings.contact_map_embed_url || '',
+        contactMapLink: settings.contact_map_link || '',
+        contactMapLabel: settings.contact_map_label || '',
+        sponsoringEmail: settings.sponsoring_email || '',
+        metaTitle: settings.meta_title || '',
+        metaDescription: settings.meta_description || '',
+        logoAlt: settings.logo_alt || '',
+        foundingYear: settings.founding_year || null,
+        memberCount: settings.member_count || '',
+        sectionCount: settings.section_count || '',
+        memberCountLabel: settings.member_count_label || '',
+        traditionYearsLabel: settings.tradition_years_label || '',
+        sectionCountLabel: settings.section_count_label || '',
+      };
+
+      if (settings.logo_file) payload.logo = settings.logo_file;
+      if (settings.default_og_image_file) payload.defaultOgImage = settings.default_og_image_file;
+
+      if (existing) {
+        try {
+          await pb.collection('siteSettings').update(existing.id, payload);
+        } catch (error) {
+          if (error instanceof ClientResponseError && error.status === 404) {
+            await pb.collection('siteSettings').create(payload);
+          } else {
+            throw error;
+          }
+        }
+      } else {
+        await pb.collection('siteSettings').create(payload);
       }
-      
+
       return settings;
     },
     onSuccess: () => {

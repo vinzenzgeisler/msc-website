@@ -15,6 +15,7 @@ import {
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useSponsor, useCreateSponsor, useUpdateSponsor } from '@/hooks/useSponsors';
 import { toast } from 'sonner';
+import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 
 const tiers = [
   { value: 'main', label: 'Hauptsponsor' },
@@ -33,18 +34,17 @@ export default function SponsorFormPage() {
 
   const [formData, setFormData] = useState({
     name: '',
-    logo_url: '',
     website: '',
     tier: 'supporter' as 'main' | 'partner' | 'supporter',
     active: true,
     sort_order: 0,
   });
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (existingSponsor) {
       setFormData({
         name: existingSponsor.name || '',
-        logo_url: existingSponsor.logo_url || '',
         website: existingSponsor.website || '',
         tier: existingSponsor.tier || 'supporter',
         active: existingSponsor.active ?? true,
@@ -64,11 +64,11 @@ export default function SponsorFormPage() {
     try {
       const sponsorData = {
         name: formData.name,
-        logo_url: formData.logo_url || null,
         website: formData.website || null,
         tier: formData.tier,
         active: formData.active,
         sort_order: formData.sort_order,
+        logoFile,
       };
 
       if (isEditing) {
@@ -80,7 +80,7 @@ export default function SponsorFormPage() {
       }
       navigate('/admin/sponsors');
     } catch (error) {
-      toast.error('Fehler beim Speichern');
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Speichern'));
       console.error(error);
     }
   };
@@ -155,23 +155,24 @@ export default function SponsorFormPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="logo_url">Logo-URL</Label>
+              <Label htmlFor="logo_file">Logo</Label>
               <Input
-                id="logo_url"
-                value={formData.logo_url}
-                onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-                placeholder="https://..."
+                id="logo_file"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
               />
-              {formData.logo_url && (
+              {(logoFile || existingSponsor?.logo_url) && (
                 <div className="mt-2 p-4 border rounded-lg bg-muted/50">
-                  <img
-                    src={formData.logo_url}
-                    alt="Logo Vorschau"
-                    className="max-h-20 object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
+                  {logoFile ? (
+                    <p className="text-sm text-muted-foreground">{logoFile.name}</p>
+                  ) : (
+                    <img
+                      src={existingSponsor?.logo_url || ''}
+                      alt="Logo Vorschau"
+                      className="max-h-20 object-contain"
+                    />
+                  )}
                 </div>
               )}
             </div>

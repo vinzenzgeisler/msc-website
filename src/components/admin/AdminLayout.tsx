@@ -20,9 +20,11 @@ import {
   X,
   Loader2,
   FileText,
+  FolderTree,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { AdminHealthBanner } from '@/components/admin/AdminHealthBanner';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -33,7 +35,8 @@ const navItems = [
   { href: '/admin/events', label: 'Veranstaltungen', icon: Trophy },
   { href: '/admin/news', label: 'News', icon: Newspaper },
   { href: '/admin/calendar', label: 'Terminkalender', icon: CalendarDays },
-  { href: '/admin/content', label: 'Inhalte', icon: FileText },
+  { href: '/admin/content', label: 'Seiten & Texte', icon: FileText },
+  { href: '/admin/structured', label: 'Strukturierte Inhalte', icon: FolderTree },
   { href: '/admin/sponsors', label: 'Sponsoren', icon: Users },
   { href: '/admin/downloads', label: 'Downloads', icon: Download },
   { href: '/admin/media', label: 'Medien', icon: Image },
@@ -43,6 +46,12 @@ const settingsItems = [
   { href: '/admin/users', label: 'Benutzer', icon: Users },
   { href: '/admin/settings', label: 'Einstellungen', icon: Settings },
 ];
+
+const roleLabels: Record<string, string> = {
+  super_admin: 'Admin',
+  admin: 'Admin',
+  editor: 'Bearbeiter',
+};
 
 export function AdminLayout({ children }: AdminLayoutProps) {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -111,7 +120,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           ))}
         </div>
 
-        {user?.role === 'admin' && (
+        {(user?.role === 'super_admin' || user?.role === 'admin') && (
           <div className="mt-6 space-y-1">
             <Separator className="mb-4" />
             <p className="text-xs font-medium text-muted-foreground px-3 mb-2">VERWALTUNG</p>
@@ -130,7 +139,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium truncate">{user?.name}</div>
-            <div className="text-xs text-muted-foreground capitalize">{user?.role}</div>
+            <div className="text-xs text-muted-foreground">
+              {user?.role ? roleLabels[user.role] || user.role : ''}
+            </div>
           </div>
         </div>
         <div className="flex gap-2">
@@ -188,7 +199,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Main content */}
       <main className="lg:pl-64 pt-14 lg:pt-0">
-        <div className="p-6">{children}</div>
+        <div className="p-6">
+          <AdminHealthBanner />
+          {children}
+        </div>
       </main>
     </div>
   );

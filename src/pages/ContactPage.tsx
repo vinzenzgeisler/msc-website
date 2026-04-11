@@ -7,12 +7,31 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { MapPin, Mail, Facebook, Loader2, CheckCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { pb } from '@/integrations/pocketbase/client';
 import { toast } from 'sonner';
+import { useSettings } from '@/hooks/useSettings';
+import { useContentWithFallback } from '@/hooks/usePageContent';
 
 export default function ContactPage() {
   const t = useTranslation();
   const { locale } = useLanguage();
+  const { data: settings } = useSettings();
+  const intro = useContentWithFallback('contact', 'intro', {
+    title: t.nav.contact,
+    subtitle:
+      locale === 'de'
+        ? 'Wir freuen uns auf Ihre Nachricht'
+        : locale === 'cz'
+          ? 'Těšíme se na vaši zprávu'
+          : 'We look forward to your message',
+  });
+  const infoContent = useContentWithFallback('contact', 'info', {
+    content: '',
+  });
+  const mapContent = useContentWithFallback('contact', 'map', {
+    title: settings?.contact_map_label || '',
+    content: '',
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [formData, setFormData] = useState({
@@ -44,16 +63,15 @@ export default function ContactPage() {
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+      await pb.send('/api/cms/contact', {
+        method: 'POST',
         body: formData,
       });
-
-      if (error) throw error;
 
       setIsSuccess(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
       toast.success(t.contact.success);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Contact form error:', error);
       toast.error(locale === 'de' ? 'Fehler beim Senden. Bitte versuchen Sie es später erneut.' : 
                   locale === 'cz' ? 'Chyba při odesílání. Zkuste to prosím později.' : 
@@ -69,12 +87,10 @@ export default function ContactPage() {
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container">
           <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-            {t.nav.contact}
+            {intro.title}
           </h1>
           <p className="text-lg text-primary-foreground/80">
-            {locale === 'de' && 'Wir freuen uns auf Ihre Nachricht'}
-            {locale === 'cz' && 'Těšíme se na vaši zprávu'}
-            {locale === 'en' && 'We look forward to your message'}
+            {intro.subtitle}
           </p>
         </div>
       </section>
@@ -187,6 +203,13 @@ export default function ContactPage() {
                  locale === 'cz' ? 'Kontaktní údaje' : 
                  'Contact Information'}
               </h2>
+
+              {infoContent.content ? (
+                <div
+                  className="mb-6 prose prose-slate dark:prose-invert max-w-none text-muted-foreground"
+                  dangerouslySetInnerHTML={{ __html: infoContent.content.replace(/\n/g, '<br />') }}
+                />
+              ) : null}
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
@@ -198,8 +221,8 @@ export default function ContactPage() {
                       {locale === 'de' ? 'Adresse' : locale === 'cz' ? 'Adresa' : 'Address'}
                     </h3>
                     <p className="text-muted-foreground">
-                      MSC Oberlausitzer Dreiländereck e.V.<br />
-                      02797 Oybin<br />
+                      {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}<br />
+                      {settings?.address || '02797 Oybin'}<br />
                       Sachsen, {locale === 'de' ? 'Deutschland' : locale === 'cz' ? 'Německo' : 'Germany'}
                     </p>
                   </div>
@@ -212,10 +235,10 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold">E-Mail</h3>
                     <a 
-                      href="mailto:info@msc-oberlausitzer-dreilaendereck.eu"
+                      href={`mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.eu'}`}
                       className="text-muted-foreground hover:text-primary"
                     >
-                      info@msc-oberlausitzer-dreilaendereck.eu
+                      {settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.eu'}
                     </a>
                   </div>
                 </div>
@@ -227,34 +250,54 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold">Social Media</h3>
                     <div className="flex gap-4">
-                      <a 
-                        href="https://facebook.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-primary"
-                      >
-                        Facebook
-                      </a>
-                      <a 
-                        href="https://instagram.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-primary"
-                      >
-                        Instagram
-                      </a>
+                      {settings?.facebook_url ? (
+                        <a
+                          href={settings.facebook_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-primary"
+                        >
+                          Facebook
+                        </a>
+                      ) : null}
+                      {settings?.instagram_url ? (
+                        <a
+                          href={settings.instagram_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-primary"
+                        >
+                          Instagram
+                        </a>
+                      ) : null}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Map Placeholder */}
-              <div className="mt-8 flex h-64 items-center justify-center rounded-lg border border-border bg-muted">
-                <span className="text-muted-foreground">
-                  {locale === 'de' ? 'Karte (Platzhalter)' : 
-                   locale === 'cz' ? 'Mapa (zástupný symbol)' : 
-                   'Map (placeholder)'}
-                </span>
+              <div className="mt-8 overflow-hidden rounded-lg border border-border bg-muted">
+                {settings?.contact_map_embed_url ? (
+                  <iframe
+                    title={settings.contact_map_label || mapContent.title || 'Karte'}
+                    src={settings.contact_map_embed_url}
+                    className="h-64 w-full border-0"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                ) : settings?.contact_map_link ? (
+                  <a
+                    href={settings.contact_map_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-64 items-center justify-center p-6 text-center text-muted-foreground hover:text-primary"
+                  >
+                    {settings.contact_map_label || mapContent.title || 'Karte öffnen'}
+                  </a>
+                ) : (
+                  <div className="flex h-64 items-center justify-center p-6 text-center text-muted-foreground">
+                    {mapContent.content || (locale === 'de' ? 'Keine Karte hinterlegt.' : locale === 'cz' ? 'Mapa není nastavena.' : 'No map configured.')}
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -23,8 +23,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useMediaAlbums, useMediaFiles, useUploadMediaFile, useDeleteMediaFile, useDeleteMediaAlbum } from '@/hooks/useMedia';
-import type { MediaFile } from '@/integrations/supabase/client';
+import type { MediaFile } from '@/integrations/pocketbase/client';
 import { toast } from 'sonner';
+import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 
 export default function MediaAdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,10 +48,9 @@ export default function MediaAdminPage() {
       try {
         await uploadFile.mutateAsync({ file });
         toast.success(`${file.name} hochgeladen`);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler';
-        toast.error(errorMessage);
-        console.error('Upload error:', err);
+      } catch (error) {
+        toast.error(getPocketBaseErrorMessage(error, 'Upload fehlgeschlagen'));
+        console.error('Upload error:', error);
       }
     }
     
@@ -65,8 +65,8 @@ export default function MediaAdminPage() {
     try {
       await deleteMediaFile.mutateAsync(deleteFile);
       toast.success('Datei gelöscht');
-    } catch (err) {
-      toast.error('Fehler beim Löschen');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Löschen'));
     }
     setDeleteFile(null);
   };
@@ -77,8 +77,8 @@ export default function MediaAdminPage() {
     try {
       await deleteAlbum.mutateAsync(deleteAlbumId);
       toast.success('Album gelöscht');
-    } catch (err) {
-      toast.error('Fehler beim Löschen');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Löschen'));
     }
     setDeleteAlbumId(null);
   };

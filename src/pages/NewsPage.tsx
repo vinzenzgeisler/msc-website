@@ -8,13 +8,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, Filter, Newspaper, Pin } from 'lucide-react';
 import { usePosts } from '@/hooks/usePosts';
+import { useContentWithFallback } from '@/hooks/usePageContent';
 import { format } from 'date-fns';
 import { de, cs, enUS } from 'date-fns/locale';
 
 // Map database categories to display categories
 const dbCategoryMap: Record<string, string> = {
-  'allgemein': 'allgemein',
   'verein': 'club',
+  'event': 'allgemein',
   'motocross': 'motocross',
   'trial': 'trial',
   'touring': 'touring',
@@ -27,6 +28,15 @@ export default function NewsPage() {
   const { locale } = useLanguage();
   const [activeFilter, setActiveFilter] = useState<NewsCategory>('all');
   const { data: posts, isLoading } = usePosts();
+  const intro = useContentWithFallback('news', 'intro', {
+    title: t.news.title,
+    subtitle:
+      locale === 'de'
+        ? 'Neuigkeiten aus dem Verein und rund um die Veranstaltung'
+        : locale === 'cz'
+          ? 'Novinky z klubu a kolem akce'
+          : 'News from the club and around the event',
+  });
 
   const categoryConfig: Record<NewsCategory, { label: string; color: string }> = {
     all: { label: locale === 'de' ? 'Alle' : locale === 'cz' ? 'Vše' : 'All', color: 'bg-muted text-foreground' },
@@ -47,7 +57,9 @@ export default function NewsPage() {
       if (a.is_pinned && !b.is_pinned) return -1;
       if (!a.is_pinned && b.is_pinned) return 1;
       // Then by date
-      return new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime();
+      const timeA = new Date(a.published_at || a.created_at || 0).getTime();
+      const timeB = new Date(b.published_at || b.created_at || 0).getTime();
+      return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
     });
 
   const filteredArticles = activeFilter === 'all'
@@ -60,9 +72,13 @@ export default function NewsPage() {
   const featuredArticle = filteredArticles[0];
   const regularArticles = filteredArticles.slice(1);
 
-  const formatDate = (dateStr: string, short = false) => {
+  const formatDate = (dateStr?: string | null, short = false) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+
     const formatStr = short ? 'd. MMM yyyy' : 'd. MMMM yyyy';
-    return format(new Date(dateStr), formatStr, { locale: dateLocale });
+    return format(date, formatStr, { locale: dateLocale });
   };
 
   const getCategoryColor = (category: string | null) => {
@@ -80,12 +96,8 @@ export default function NewsPage() {
       {/* Header */}
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container">
-          <h1 className="mb-2">{t.news.title}</h1>
-          <p className="text-lg text-primary-foreground/80">
-            {locale === 'de' && 'Neuigkeiten aus dem Verein und rund um die Veranstaltung'}
-            {locale === 'cz' && 'Novinky z klubu a kolem akce'}
-            {locale === 'en' && 'News from the club and around the event'}
-          </p>
+          <h1 className="mb-2">{intro.title}</h1>
+          <p className="text-lg text-primary-foreground/80">{intro.subtitle}</p>
         </div>
       </section>
 

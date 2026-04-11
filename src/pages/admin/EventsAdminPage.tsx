@@ -31,10 +31,11 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, Eye, Calendar, Star } from 'lucide-react';
 import { useCalendarEvents, useDeleteCalendarEvent, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
-import type { CalendarEvent } from '@/integrations/supabase/client';
-import { format } from 'date-fns';
+import type { CalendarEvent } from '@/integrations/pocketbase/client';
 import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+import { formatDateSafe, getSafeTimestamp } from '@/lib/date';
 
 export default function EventsAdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,15 +45,23 @@ export default function EventsAdminPage() {
   const { data: events, isLoading } = useCalendarEvents(false);
   const deleteEventMutation = useDeleteCalendarEvent();
   const updateEventMutation = useUpdateCalendarEvent();
+  const germanEvents = (events || []).filter((event) => event.locale === 'de');
 
   const handleDelete = async () => {
     if (!deleteEvent) return;
     
     try {
-      await deleteEventMutation.mutateAsync(deleteEvent.id);
+      const variantIds = (events || [])
+        .filter((event) => event.slug === deleteEvent.slug)
+        .map((event) => event.id);
+
+      for (const recordId of variantIds) {
+        await deleteEventMutation.mutateAsync(recordId);
+      }
+
       toast.success('Veranstaltung gelöscht');
-    } catch (err) {
-      toast.error('Fehler beim Löschen');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Löschen'));
     }
     setDeleteEvent(null);
   };
@@ -64,23 +73,23 @@ export default function EventsAdminPage() {
         is_main_event: !event.is_main_event,
       });
       toast.success(event.is_main_event ? 'Hauptevent entfernt' : 'Als Hauptevent markiert');
-    } catch (err) {
-      toast.error('Fehler beim Aktualisieren');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Aktualisieren'));
     }
   };
 
-  const filteredEvents = (events || []).filter((event) =>
-    event.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredEvents = germanEvents.filter((event) =>
+    event.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // Sort by main event first, then by date
   const sortedEvents = [...filteredEvents].sort((a, b) => {
     if (a.is_main_event && !b.is_main_event) return -1;
     if (!a.is_main_event && b.is_main_event) return 1;
-    return new Date(b.start_dt).getTime() - new Date(a.start_dt).getTime();
+    return getSafeTimestamp(b.start_dt) - getSafeTimestamp(a.start_dt);
   });
 
-  const mainEvent = events?.find(e => e.is_main_event);
+  const mainEvent = germanEvents.find((event) => event.is_main_event);
 
   return (
     <div className="space-y-6">
@@ -112,8 +121,8 @@ export default function EventsAdminPage() {
               <div>
                 <h3 className="text-xl font-bold">{mainEvent.title}</h3>
                 <p className="text-muted-foreground">
-                  {format(new Date(mainEvent.start_dt), 'dd. MMMM yyyy', { locale: de })}
-                  {mainEvent.end_dt && ` – ${format(new Date(mainEvent.end_dt), 'dd. MMMM yyyy', { locale: de })}`}
+                  {formatDateSafe(mainEvent.start_dt, 'dd. MMMM yyyy', de)}
+                  {mainEvent.end_dt && ` – ${formatDateSafe(mainEvent.end_dt, 'dd. MMMM yyyy', de)}`}
                 </p>
                 {mainEvent.location && (
                   <p className="text-sm text-muted-foreground">{mainEvent.location}</p>
@@ -167,9 +176,9 @@ export default function EventsAdminPage() {
                 {isLoading ? (
                   <Skeleton className="h-8 w-12" />
                 ) : (
-                  <p className="text-2xl font-bold">{events?.length || 0}</p>
+                  <p className="text-2xl font-bold">{germanEvents.length}</p>
                 )}
-                <p className="text-sm text-muted-foreground">Veranstaltungen</p>
+                <p className="text-sm text-muted-foreground">Veranstaltungen (DE)</p>
               </div>
             </div>
           </CardContent>
@@ -185,7 +194,7 @@ export default function EventsAdminPage() {
                   <Skeleton className="h-8 w-12" />
                 ) : (
                   <p className="text-2xl font-bold">
-                    {events?.filter(e => e.published).length || 0}
+                    {germanEvents.filter((event) => event.published).length}
                   </p>
                 )}
                 <p className="text-sm text-muted-foreground">Veröffentlicht</p>
@@ -204,7 +213,7 @@ export default function EventsAdminPage() {
                   <Skeleton className="h-8 w-12" />
                 ) : (
                   <p className="text-2xl font-bold">
-                    {events?.filter(e => e.is_main_event).length || 0}
+                    {germanEvents.filter((event) => event.is_main_event).length}
                   </p>
                 )}
                 <p className="text-sm text-muted-foreground">Hauptevent</p>
@@ -232,7 +241,6 @@ export default function EventsAdminPage() {
                 <TableRow>
                   <TableHead>Veranstaltung</TableHead>
                   <TableHead>Datum</TableHead>
-                  <TableHead>Sprache</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Aktionen</TableHead>
                 </TableRow>
@@ -249,12 +257,7 @@ export default function EventsAdminPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {format(new Date(event.start_dt), 'dd.MM.yyyy', { locale: de })}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {event.locale.toUpperCase()}
-                      </Badge>
+                      {formatDateSafe(event.start_dt, 'dd.MM.yyyy', de)}
                     </TableCell>
                     <TableCell>
                       <Badge variant={event.published ? 'default' : 'secondary'}>

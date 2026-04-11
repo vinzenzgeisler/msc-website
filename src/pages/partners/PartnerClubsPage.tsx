@@ -1,18 +1,18 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
-import { ExternalLink } from 'lucide-react';
-
-// Mock partner clubs
-const partnerClubs = [
-  { id: 1, name: 'MC Oybin', location: 'Oybin', website: '#' },
-  { id: 2, name: 'ADAC Sachsen', location: 'Dresden', website: '#' },
-  { id: 3, name: 'MSC Zittau', location: 'Zittau', website: '#' },
-  { id: 4, name: 'Motorsportclub Görlitz', location: 'Görlitz', website: '#' },
-];
+import { Users } from 'lucide-react';
+import { useContentWithFallback } from '@/hooks/usePageContent';
+import { usePartnerClubs } from '@/hooks/useStructuredContent';
 
 export default function PartnerClubsPage() {
   const t = useTranslation();
+  const { data: clubs } = usePartnerClubs();
+  const intro = useContentWithFallback('partner_clubs', 'intro', {
+    title: t.nav.partnerClubs,
+    subtitle: 'Gemeinsam für den Motorsport in der Region',
+    content: '',
+  });
 
   return (
     <MainLayout>
@@ -20,10 +20,10 @@ export default function PartnerClubsPage() {
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container">
           <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-            {t.nav.partnerClubs}
+            {intro.title}
           </h1>
           <p className="text-lg text-primary-foreground/80">
-            Gemeinsam für den Motorsport in der Region
+            {intro.subtitle}
           </p>
         </div>
       </section>
@@ -31,37 +31,51 @@ export default function PartnerClubsPage() {
       {/* Partner Clubs */}
       <section className="py-16">
         <div className="container">
-          <div className="grid gap-6 md:grid-cols-2">
-            {partnerClubs.map((club) => (
-              <a
-                key={club.id}
-                href={club.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group"
-              >
-                <Card className="transition-shadow hover:shadow-lg">
-                  <CardContent className="flex items-center gap-6 p-6">
-                    {/* Logo Placeholder */}
-                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <span className="text-2xl font-bold text-muted-foreground">
-                        {club.name.split(' ').map(w => w[0]).join('')}
-                      </span>
+          {intro.content ? (
+            <div className="mb-8">
+              <Card>
+                <CardContent
+                  className="prose prose-slate dark:prose-invert max-w-none p-8 text-muted-foreground"
+                  dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }}
+                />
+              </Card>
+            </div>
+          ) : null}
+
+          {clubs && clubs.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {clubs.map((club) => (
+                <Card key={club.id}>
+                  <CardContent className="space-y-4 p-6">
+                    {club.logo_url ? (
+                      <img src={club.logo_url} alt={club.name} className="h-20 w-full object-contain" />
+                    ) : (
+                      <div className="flex h-20 items-center justify-center rounded bg-muted">
+                        <Users className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div>
+                      <h2 className="text-xl font-semibold">{club.name}</h2>
+                      {club.location ? <p className="text-sm text-muted-foreground">{club.location}</p> : null}
                     </div>
-                    
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold group-hover:text-primary">
-                        {club.name}
-                      </h3>
-                      <p className="text-muted-foreground">{club.location}</p>
-                    </div>
-                    
-                    <ExternalLink className="h-5 w-5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                    {club.description ? <p className="text-sm text-muted-foreground">{club.description}</p> : null}
+                    {club.website ? (
+                      <a href={club.website} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline">
+                        Website ansehen
+                      </a>
+                    ) : null}
                   </CardContent>
                 </Card>
-              </a>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <Card className="border-dashed">
+              <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center text-muted-foreground">
+                <Users className="h-10 w-10" />
+                <p>Noch keine Partnervereine hinterlegt.</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </section>
     </MainLayout>

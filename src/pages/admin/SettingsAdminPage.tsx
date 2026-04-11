@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSettings, useUpdateSettings, SettingsData } from '@/hooks/useSettings';
 import { Shield, Globe, Bell, Database, Save, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 
 export default function SettingsAdminPage() {
   const { hasPermission } = useAuth();
@@ -17,6 +18,8 @@ export default function SettingsAdminPage() {
   const updateSettings = useUpdateSettings();
   
   const [formData, setFormData] = useState<Partial<SettingsData>>({});
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [defaultOgImageFile, setDefaultOgImageFile] = useState<File | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
@@ -32,11 +35,17 @@ export default function SettingsAdminPage() {
 
   const handleSave = async () => {
     try {
-      await updateSettings.mutateAsync(formData);
+      await updateSettings.mutateAsync({
+        ...formData,
+        logo_file: logoFile,
+        default_og_image_file: defaultOgImageFile,
+      });
       toast.success('Einstellungen gespeichert');
+      setLogoFile(null);
+      setDefaultOgImageFile(null);
       setHasChanges(false);
     } catch (err) {
-      toast.error('Fehler beim Speichern: ' + (err as Error).message);
+      toast.error(getPocketBaseErrorMessage(err, 'Fehler beim Speichern der Einstellungen'));
     }
   };
 
@@ -75,7 +84,7 @@ export default function SettingsAdminPage() {
               Die Einstellungs-Tabelle muss noch erstellt werden.
             </p>
             <p className="text-sm text-muted-foreground">
-              Bitte führen Sie den SQL-Befehl im Supabase Dashboard aus.
+              Bitte prüfen Sie die PocketBase-Migrationen und die Backend-Verbindung.
             </p>
           </CardContent>
         </Card>
@@ -91,13 +100,6 @@ export default function SettingsAdminPage() {
           <h1 className="text-3xl font-bold">Einstellungen</h1>
           <p className="text-muted-foreground">Konfigurieren Sie die Website-Einstellungen</p>
         </div>
-        {hasChanges && (
-          <Button onClick={handleSave} disabled={updateSettings.isPending}>
-            {updateSettings.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            <Save className="mr-2 h-4 w-4" />
-            Änderungen speichern
-          </Button>
-        )}
       </div>
 
       <Tabs defaultValue="general" className="space-y-4">
@@ -147,6 +149,92 @@ export default function SettingsAdminPage() {
                     value={formData.description || ''}
                     onChange={(e) => handleChange('description', e.target.value)}
                   />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="foundingYear">Gründungsjahr</Label>
+                    <Input
+                      id="foundingYear"
+                      type="number"
+                      value={formData.founding_year || ''}
+                      onChange={(e) => handleChange('founding_year', Number(e.target.value) || 0)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="memberCount">Mitgliederzahl</Label>
+                    <Input
+                      id="memberCount"
+                      value={formData.member_count || ''}
+                      onChange={(e) => handleChange('member_count', e.target.value)}
+                      placeholder="z. B. 150+"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sectionCount">Sektionszahl</Label>
+                    <Input
+                      id="sectionCount"
+                      value={formData.section_count || ''}
+                      onChange={(e) => handleChange('section_count', e.target.value)}
+                      placeholder="z. B. 3"
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="memberCountLabel">Label Mitglieder-Box</Label>
+                    <Input
+                      id="memberCountLabel"
+                      value={formData.member_count_label || ''}
+                      onChange={(e) => handleChange('member_count_label', e.target.value)}
+                      placeholder="Mitglieder"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="traditionYearsLabel">Label Traditions-Box</Label>
+                    <Input
+                      id="traditionYearsLabel"
+                      value={formData.tradition_years_label || ''}
+                      onChange={(e) => handleChange('tradition_years_label', e.target.value)}
+                      placeholder="Jahre Tradition"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sectionCountLabel">Label Sektions-Box</Label>
+                    <Input
+                      id="sectionCountLabel"
+                      value={formData.section_count_label || ''}
+                      onChange={(e) => handleChange('section_count_label', e.target.value)}
+                      placeholder="Sektionen"
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="logo">Logo</Label>
+                    <Input
+                      id="logo"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        setLogoFile(e.target.files?.[0] || null);
+                        setHasChanges(true);
+                      }}
+                    />
+                    {(logoFile || formData.logo_url) && (
+                      <div className="space-y-2">
+                        {logoFile ? (
+                          <p className="text-sm text-muted-foreground">{logoFile.name}</p>
+                        ) : formData.logo_url ? (
+                          <img src={formData.logo_url} alt={formData.logo_alt || 'Logo'} className="h-16 rounded border object-contain bg-white p-2" />
+                        ) : null}
+                        <Input
+                          value={formData.logo_alt || ''}
+                          onChange={(e) => handleChange('logo_alt', e.target.value)}
+                          placeholder="Alternativtext für das Logo"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
@@ -208,13 +296,56 @@ export default function SettingsAdminPage() {
               </CardContent>
             </Card>
 
-            <div className="flex justify-end">
-              <Button onClick={handleSave} disabled={updateSettings.isPending || !hasChanges}>
-                {updateSettings.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                <Save className="mr-2 h-4 w-4" />
-                Speichern
-              </Button>
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Kontakt & Karte</CardTitle>
+                <CardDescription>Angaben für Kontaktseite und Sponsoren-CTA</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="contactMapEmbedUrl">Karten-Embed-URL</Label>
+                    <Input
+                      id="contactMapEmbedUrl"
+                      placeholder="https://www.google.com/maps/embed?..."
+                      value={formData.contact_map_embed_url || ''}
+                      onChange={(e) => handleChange('contact_map_embed_url', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contactMapLink">Karten-Link</Label>
+                    <Input
+                      id="contactMapLink"
+                      placeholder="https://maps.google.com/?q=..."
+                      value={formData.contact_map_link || ''}
+                      onChange={(e) => handleChange('contact_map_link', e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="contactMapLabel">Karten-Beschriftung</Label>
+                    <Input
+                      id="contactMapLabel"
+                      placeholder="z. B. Vereinsgelände in Oybin"
+                      value={formData.contact_map_label || ''}
+                      onChange={(e) => handleChange('contact_map_label', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sponsoringEmail">Sponsoring-E-Mail</Label>
+                    <Input
+                      id="sponsoringEmail"
+                      type="email"
+                      placeholder="sponsoring@..."
+                      value={formData.sponsoring_email || ''}
+                      onChange={(e) => handleChange('sponsoring_email', e.target.value)}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
           </div>
         </TabsContent>
 
@@ -245,19 +376,29 @@ export default function SettingsAdminPage() {
                 <p className="text-xs text-muted-foreground">Max. 160 Zeichen empfohlen</p>
               </div>
               <div className="space-y-2">
+                <Label htmlFor="defaultOgImage">Standard-OG-Bild</Label>
+                <Input
+                  id="defaultOgImage"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    setDefaultOgImageFile(e.target.files?.[0] || null);
+                    setHasChanges(true);
+                  }}
+                />
+                {defaultOgImageFile ? (
+                  <p className="text-sm text-muted-foreground">{defaultOgImageFile.name}</p>
+                ) : formData.default_og_image_url ? (
+                  <img src={formData.default_og_image_url} alt="OG Preview" className="h-24 rounded border object-cover" />
+                ) : null}
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="keywords">Keywords</Label>
                 <Input
                   id="keywords"
                   value={formData.meta_keywords || ''}
                   onChange={(e) => handleChange('meta_keywords', e.target.value)}
                 />
-              </div>
-              <div className="flex justify-end">
-                <Button onClick={handleSave} disabled={updateSettings.isPending || !hasChanges}>
-                  {updateSettings.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  <Save className="mr-2 h-4 w-4" />
-                  Speichern
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -363,7 +504,7 @@ export default function SettingsAdminPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Das CMS ist mit Supabase verbunden. Alle Änderungen werden dauerhaft gespeichert.
+                  Das CMS ist mit PocketBase verbunden. Alle Änderungen werden dauerhaft gespeichert.
                 </p>
                 <ul className="text-sm space-y-1">
                   <li className="flex items-center gap-2">
@@ -384,6 +525,14 @@ export default function SettingsAdminPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <div className="flex justify-end">
+        <Button onClick={handleSave} disabled={updateSettings.isPending || !hasChanges}>
+          {updateSettings.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Save className="mr-2 h-4 w-4" />
+          Speichern
+        </Button>
+      </div>
     </div>
   );
 }
