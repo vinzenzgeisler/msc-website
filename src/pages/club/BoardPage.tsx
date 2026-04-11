@@ -5,7 +5,6 @@ import { Mail, Phone, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useBoardMembers } from '@/hooks/useBoardMembers';
 import { useContentWithFallback } from '@/hooks/usePageContent';
-import heroAbout from '@/assets/hero-about.jpg';
 
 export default function BoardPage() {
   const t = useTranslation();
@@ -14,49 +13,39 @@ export default function BoardPage() {
     title: t.nav.board,
     subtitle: 'Unser Vorstandsteam',
   });
-  const heroImage = intro.image_url || heroAbout;
 
   return (
     <MainLayout>
-      {/* Hero with image */}
-      <section className="relative min-h-[300px] flex items-end overflow-hidden">
-        <div className="absolute inset-0">
-          <img src={heroImage} alt={intro.image_alt || intro.title} className="h-full w-full object-cover" width={1920} height={640} />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
-        </div>
-        <div className="container relative z-10 pb-10 pt-24">
-          <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-            {intro.title}
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            {intro.subtitle || 'Unser Vorstandsteam'}
-          </p>
+      {/* Header — classic primary, image only if CMS provides one */}
+      <section className="relative bg-primary py-16 text-primary-foreground">
+        {intro.image_url && (
+          <div className="absolute inset-0">
+            <img src={intro.image_url} alt={intro.image_alt || intro.title} className="h-full w-full object-cover opacity-20" />
+          </div>
+        )}
+        <div className="container relative">
+          <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">{intro.title}</h1>
+          <p className="text-lg text-primary-foreground/80">{intro.subtitle || 'Unser Vorstandsteam'}</p>
         </div>
       </section>
 
       {intro.content && (
         <section className="py-10">
           <div className="container">
-            <div
-              className="mx-auto max-w-3xl prose prose-lg dark:prose-invert text-muted-foreground"
-              dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }}
-            />
+            <div className="mx-auto max-w-3xl prose prose-lg dark:prose-invert text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }} />
           </div>
         </section>
       )}
 
-      {/* Board Members */}
-      <section className="border-t border-border py-16">
+      <section className="py-16">
         <div className="container">
           {isLoading ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3].map((item) => (
                 <Card key={item} className="overflow-hidden">
                   <Skeleton className="aspect-[4/3] w-full" />
-                  <CardContent className="space-y-3 p-6">
-                    <Skeleton className="h-6 w-2/3" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </CardContent>
+                  <CardContent className="space-y-3 p-6"><Skeleton className="h-6 w-2/3" /><Skeleton className="h-4 w-1/2" /></CardContent>
                 </Card>
               ))}
             </div>
@@ -66,12 +55,8 @@ export default function BoardPage() {
                 <Card key={member.id} className="overflow-hidden transition-shadow hover:shadow-lg">
                   <div className="aspect-[4/3] overflow-hidden bg-muted">
                     {member.photo_url ? (
-                      <img
-                        src={member.photo_url}
-                        alt={member.name}
-                        className="h-full w-full object-cover object-top transition-transform duration-300 hover:scale-105"
-                        loading="lazy"
-                      />
+                      <img src={member.photo_url} alt={member.name}
+                        className="h-full w-full object-cover object-top transition-transform duration-300 hover:scale-105" loading="lazy" />
                     ) : (
                       <div className="flex h-full items-center justify-center">
                         <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary text-3xl font-bold text-primary-foreground">
@@ -80,25 +65,20 @@ export default function BoardPage() {
                       </div>
                     )}
                   </div>
-                  
                   <CardContent className="space-y-3 p-6 text-center">
                     <div>
                       <h3 className="text-xl font-semibold">{member.name}</h3>
                       <p className="text-sm font-medium text-primary">{member.role}</p>
                     </div>
                     {member.email && (
-                      <a
-                        href={`mailto:${member.email}`}
-                        className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        <Mail className="h-4 w-4" />
-                        {member.email}
+                      <a href={`mailto:${member.email}`}
+                        className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        <Mail className="h-4 w-4" />{member.email}
                       </a>
                     )}
                     {member.phone && (
                       <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                        <Phone className="h-4 w-4" />
-                        {member.phone}
+                        <Phone className="h-4 w-4" />{member.phone}
                       </div>
                     )}
                   </CardContent>
