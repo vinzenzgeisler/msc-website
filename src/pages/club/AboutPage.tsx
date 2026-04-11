@@ -26,9 +26,18 @@ export default function AboutPage() {
 
   return (
     <MainLayout>
-      {/* Header */}
-      <section className="bg-primary py-16 text-primary-foreground">
-        <div className="container">
+      {/* Header with optional hero image */}
+      <section className="relative bg-primary py-16 text-primary-foreground">
+        {intro.image_url && (
+          <div className="absolute inset-0">
+            <img
+              src={intro.image_url}
+              alt={intro.image_alt || intro.title}
+              className="h-full w-full object-cover opacity-20"
+            />
+          </div>
+        )}
+        <div className="container relative">
           {intro.isLoading ? (
             <>
               <Skeleton className="h-12 w-64 mb-2 bg-primary-foreground/10" />
@@ -39,9 +48,9 @@ export default function AboutPage() {
               <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
                 {intro.title}
               </h1>
-              <p className="text-lg text-primary-foreground/80">
-                {intro.subtitle}
-              </p>
+              {intro.subtitle && (
+                <p className="text-lg text-primary-foreground/80">{intro.subtitle}</p>
+              )}
             </>
           )}
         </div>
@@ -51,51 +60,59 @@ export default function AboutPage() {
       <section className="py-16">
         <div className="container">
           <div className="mx-auto max-w-3xl">
-            {!intro.isLoading && intro.image_url && (
-              <img
-                src={intro.image_url}
-                alt={intro.image_alt || intro.title}
-                className="mb-8 h-72 w-full rounded-lg object-cover"
-              />
-            )}
             {intro.isLoading ? (
               <div className="space-y-4">
                 <Skeleton className="h-6 w-full" />
                 <Skeleton className="h-6 w-full" />
                 <Skeleton className="h-6 w-3/4" />
               </div>
-            ) : (
+            ) : intro.content ? (
               <div 
                 className="prose prose-lg dark:prose-invert max-w-none text-muted-foreground"
                 dangerouslySetInnerHTML={{ 
-                  __html: (intro.content || '').replace(/\n/g, '<br />') 
+                  __html: intro.content.replace(/\n/g, '<br />') 
                 }}
               />
-            )}
+            ) : null}
           </div>
         </div>
       </section>
 
+      {/* Mission & Values as Rich HTML */}
       <section className="bg-muted/30 py-16">
         <div className="container">
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardContent className="p-8">
                 <h2 className="mb-4 text-2xl font-bold">{mission.title || 'Unsere Mission'}</h2>
-                <p className="text-muted-foreground">{mission.content || 'Noch keine Inhalte hinterlegt.'}</p>
+                {mission.content ? (
+                  <div
+                    className="prose dark:prose-invert max-w-none text-muted-foreground"
+                    dangerouslySetInnerHTML={{ __html: mission.content.replace(/\n/g, '<br />') }}
+                  />
+                ) : (
+                  <p className="text-muted-foreground">Noch keine Inhalte hinterlegt.</p>
+                )}
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-8">
                 <h2 className="mb-4 text-2xl font-bold">{values.title || 'Unsere Werte'}</h2>
-                <p className="text-muted-foreground">{values.content || 'Noch keine Inhalte hinterlegt.'}</p>
+                {values.content ? (
+                  <div
+                    className="prose dark:prose-invert max-w-none text-muted-foreground"
+                    dangerouslySetInnerHTML={{ __html: values.content.replace(/\n/g, '<br />') }}
+                  />
+                ) : (
+                  <p className="text-muted-foreground">Noch keine Inhalte hinterlegt.</p>
+                )}
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
 
-      {/* Quick Links */}
+      {/* Quick Links - using CMS button labels */}
       <section className="bg-muted/50 py-16">
         <div className="container">
           <div className="grid gap-6 md:grid-cols-3">
@@ -104,7 +121,7 @@ export default function AboutPage() {
                 <Users className="mb-4 h-12 w-12 text-primary" />
                 <h3 className="mb-2 text-xl font-semibold">{t.nav.board}</h3>
                 <p className="mb-4 text-muted-foreground">
-                  Lernen Sie unser Vorstandsteam kennen
+                  {intro.primary_button_label || 'Lernen Sie unser Vorstandsteam kennen'}
                 </p>
                 <Button variant="outline" asChild>
                   <Link to="/club/board">
@@ -120,7 +137,7 @@ export default function AboutPage() {
                 <History className="mb-4 h-12 w-12 text-primary" />
                 <h3 className="mb-2 text-xl font-semibold">{t.nav.history}</h3>
                 <p className="mb-4 text-muted-foreground">
-                  Die Geschichte unseres Vereins
+                  {intro.secondary_button_label || 'Die Geschichte unseres Vereins'}
                 </p>
                 <Button variant="outline" asChild>
                   <Link to="/club/history">
@@ -136,7 +153,7 @@ export default function AboutPage() {
                 <Award className="mb-4 h-12 w-12 text-primary" />
                 <h3 className="mb-2 text-xl font-semibold">{t.nav.membership}</h3>
                 <p className="mb-4 text-muted-foreground">
-                  Werden Sie Teil unserer Gemeinschaft
+                  {intro.stat_one_label || 'Werden Sie Teil unserer Gemeinschaft'}
                 </p>
                 <Button variant="outline" asChild>
                   <Link to="/club/membership">
