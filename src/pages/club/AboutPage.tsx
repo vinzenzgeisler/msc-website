@@ -6,7 +6,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { Users, History, Award, ChevronRight, Bike, Target, MapPin } from 'lucide-react';
 import { useContentWithFallback } from '@/hooks/usePageContent';
-import heroAbout from '@/assets/event-start-1.jpg';
 
 export default function AboutPage() {
   const t = useTranslation();
@@ -25,7 +24,7 @@ export default function AboutPage() {
     content: '',
   });
 
-  const heroImage = intro.image_url || heroAbout;
+  const heroImage = intro.image_url || null;
 
   const quickLinks = [
     { icon: Users, title: t.nav.board, description: intro.primary_button_label || 'Lernen Sie unser Vorstandsteam kennen', path: '/club/board' },
@@ -41,22 +40,23 @@ export default function AboutPage() {
 
   return (
     <MainLayout>
-      {/* Hero with image */}
-      <section className="relative min-h-[340px] flex items-end overflow-hidden">
-        <div className="absolute inset-0">
-          <img src={heroImage} alt={intro.image_alt || intro.title} className="h-full w-full object-cover" width={1920} height={640} />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
-        </div>
-        <div className="container relative z-10 pb-10 pt-24">
+      {/* Header — solid primary, image only if CMS provides one */}
+      <section className="relative bg-primary py-16 text-primary-foreground">
+        {heroImage && (
+          <div className="absolute inset-0">
+            <img src={heroImage} alt={intro.image_alt || intro.title} className="h-full w-full object-cover opacity-20" />
+          </div>
+        )}
+        <div className="container relative">
           {intro.isLoading ? (
             <>
-              <Skeleton className="h-12 w-64 mb-2 bg-foreground/10" />
-              <Skeleton className="h-6 w-96 bg-foreground/10" />
+              <Skeleton className="h-12 w-64 mb-2 bg-primary-foreground/10" />
+              <Skeleton className="h-6 w-96 bg-primary-foreground/10" />
             </>
           ) : (
             <>
               <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">{intro.title}</h1>
-              {intro.subtitle && <p className="text-lg text-muted-foreground">{intro.subtitle}</p>}
+              {intro.subtitle && <p className="text-lg text-primary-foreground/80">{intro.subtitle}</p>}
             </>
           )}
         </div>
