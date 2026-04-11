@@ -154,18 +154,14 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="mt-8 overflow-hidden border border-border bg-muted">
-                {settings?.contact_map_embed_url ? (
-                  <iframe title={settings.contact_map_label || mapContent.title || 'Karte'} src={settings.contact_map_embed_url} className="h-64 w-full border-0" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-                ) : settings?.contact_map_link ? (
-                  <a href={settings.contact_map_link} target="_blank" rel="noopener noreferrer" className="flex h-64 items-center justify-center p-6 text-center text-muted-foreground hover:text-primary">
-                    {settings.contact_map_label || mapContent.title || 'Karte öffnen'}
-                  </a>
-                ) : (
-                  <div className="flex h-64 items-center justify-center p-6 text-center text-muted-foreground">
-                    {mapContent.content || (locale === 'de' ? 'Keine Karte hinterlegt.' : locale === 'cz' ? 'Mapa není nastavena.' : 'No map configured.')}
-                  </div>
-                )}
+              <div className="mt-8 overflow-hidden border border-border">
+                <iframe
+                  title={settings?.contact_map_label || mapContent.title || 'Karte'}
+                  src={settings?.contact_map_embed_url || 'https://www.openstreetmap.org/export/embed.html?bbox=14.72%2C50.84%2C14.78%2C50.88&layer=mapnik&marker=50.86%2C14.75'}
+                  className="h-72 w-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </div>
             </div>
           </div>

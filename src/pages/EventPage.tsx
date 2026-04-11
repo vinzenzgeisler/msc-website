@@ -217,26 +217,14 @@ export default function EventPage() {
                 alt={trackMapContent.image_alt || trackMapContent.title}
                 className="h-64 w-full border border-border object-cover"
               />
-            ) : mapEmbedUrl ? (
+            ) : (
               <iframe
                 title={locale === 'de' ? 'Streckenkarte' : 'Track Map'}
-                src={mapEmbedUrl}
+                src={mapEmbedUrl || 'https://www.openstreetmap.org/export/embed.html?bbox=14.72%2C50.84%2C14.78%2C50.88&layer=mapnik&marker=50.86%2C14.75'}
                 className="h-64 w-full border border-border"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               />
-            ) : googleMapsLink ? (
-              <a href={googleMapsLink} target="_blank" rel="noopener noreferrer"
-                className="flex h-64 items-center justify-center border border-border bg-muted text-muted-foreground hover:text-primary transition-colors">
-                <div className="text-center">
-                  <MapPin className="mx-auto mb-2 h-8 w-8" />
-                  <span>{locale === 'de' ? 'Karte öffnen' : locale === 'cz' ? 'Otevřít mapu' : 'Open Map'}</span>
-                </div>
-              </a>
-            ) : (
-              <div className="flex h-64 items-center justify-center border border-border bg-muted">
-                <span className="text-muted-foreground">{trackMapContent.title}</span>
-              </div>
             )}
           </div>
         </div>
