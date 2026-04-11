@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,14 @@ import { useContentWithFallback } from '@/hooks/usePageContent';
 import { format } from 'date-fns';
 import { cs, de, enUS } from 'date-fns/locale';
 import { useLanguage } from '@/i18n/LanguageContext';
+
+import heroImg1 from '@/assets/event-racing.jpg';
+import heroImg2 from '@/assets/event-start-1.jpg';
+import heroImg3 from '@/assets/event-melkus.jpg';
+import heroImg4 from '@/assets/event-start-2.jpg';
+
+const HERO_IMAGES = [heroImg1, heroImg2, heroImg3, heroImg4];
+const CYCLE_INTERVAL = 8000;
 
 function isExternalUrl(url: string) {
   return /^(https?:\/\/|mailto:|tel:)/i.test(url);
@@ -86,6 +94,21 @@ function useCountdown(targetDate: Date | null) {
   return timeLeft;
 }
 
+/** Cycles through hero images with crossfade */
+function useImageCycle(images: string[], interval: number, enabled: boolean) {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    if (!enabled || images.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % images.length);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [images.length, interval, enabled]);
+
+  return activeIndex;
+}
+
 export function HeroSection() {
   const t = useTranslation();
   const { locale } = useLanguage();
@@ -113,8 +136,10 @@ export function HeroSection() {
 
   const countdown = useCountdown(eventDate);
 
-  // Only show image if CMS has one set — otherwise classic blue
-  const heroImage = heroContent.image_url || null;
+  // CMS image takes priority; otherwise cycle through real photos
+  const cmsImage = heroContent.image_url || null;
+  const showCycle = !cmsImage;
+  const activeIndex = useImageCycle(HERO_IMAGES, CYCLE_INTERVAL, showCycle);
 
   const formatEventDate = () => {
     if (!eventDate) return '';
@@ -131,17 +156,28 @@ export function HeroSection() {
 
   return (
     <section className="relative overflow-hidden min-h-[520px] flex items-center md:min-h-[600px]">
-      {/* Background: image from CMS or classic blue */}
-      {heroImage ? (
+      {/* Background: CMS image, cycling photos, or classic blue */}
+      {cmsImage ? (
         <div className="absolute inset-0">
-          <img src={heroImage} alt="" className="h-full w-full object-cover" width={1920} height={640} />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/85 to-primary/60" />
+          <img src={cmsImage} alt="" className="h-full w-full object-cover" width={1920} height={640} />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/80 to-primary/50" />
         </div>
       ) : (
-        <div className="absolute inset-0 bg-primary">
-          <div className="absolute inset-0 opacity-10">
-            <div className="racing-stripe h-full w-full" />
-          </div>
+        <div className="absolute inset-0">
+          {/* Cycling images with crossfade */}
+          {HERO_IMAGES.map((src, i) => (
+            <img
+              key={src}
+              src={src}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-[2000ms] ease-in-out"
+              style={{ opacity: i === activeIndex ? 0.25 : 0 }}
+              width={1920}
+              height={640}
+            />
+          ))}
+          {/* Primary overlay */}
+          <div className="absolute inset-0 bg-primary/85" />
         </div>
       )}
 
