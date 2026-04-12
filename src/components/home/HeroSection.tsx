@@ -151,43 +151,43 @@ export function HeroSection() {
       <div className="absolute -right-20 top-0 hidden h-full w-40 skew-x-[-15deg] bg-accent md:block" />
       <div className="absolute -right-32 top-0 hidden h-full w-16 skew-x-[-15deg] bg-accent/40 md:block" />
 
-      <div className="container relative z-10 py-16">
+      <div className="container relative z-10 py-8 md:py-16">
         <div className="mx-auto max-w-4xl text-center text-white">
           {isLoading ? (
-            <div className="mb-6 inline-flex items-center gap-2 bg-accent px-5 py-2 text-sm font-bold uppercase tracking-wider text-accent-foreground">
-              <Calendar className="h-4 w-4" />
+            <div className="mb-4 inline-flex items-center gap-2 bg-accent px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-foreground md:mb-6 md:px-5 md:py-2 md:text-sm">
+              <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4" />
               <Skeleton className="h-4 w-32 bg-accent-foreground/20" />
             </div>
           ) : hasMainEvent ? (
-            <div className="mb-6 inline-flex items-center gap-2 bg-accent px-5 py-2 text-sm font-bold uppercase tracking-wider text-accent-foreground">
-              <Calendar className="h-4 w-4" />
+            <div className="mb-4 inline-flex items-center gap-2 bg-accent px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-foreground md:mb-6 md:px-5 md:py-2 md:text-sm">
+              <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4" />
               {formatEventDate()}
             </div>
           ) : null}
 
           {isLoading ? (
-            <Skeleton className="h-16 w-3/4 mx-auto mb-6 bg-white/10" />
+            <Skeleton className="h-16 w-3/4 mx-auto mb-4 bg-white/10 md:mb-6" />
           ) : (
-            <h1 className="mb-6 font-display text-5xl font-black uppercase tracking-tight md:text-7xl">
+            <h1 className="mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl">
               {heroTitle}
             </h1>
           )}
 
-          <p className="mb-10 text-lg text-white/80 md:text-xl">{heroSubtitle}</p>
+          <p className="mb-6 text-base text-white/80 md:mb-10 md:text-xl">{heroSubtitle}</p>
 
           {hasMainEvent && countdown ? (
-            <div className="mb-12 inline-grid grid-cols-2 gap-3 sm:grid-cols-4 md:gap-5">
+            <div className="mb-8 inline-grid grid-cols-4 gap-2 md:mb-12 md:gap-5">
               {[
                 { value: countdown.days, label: t.hero.days },
                 { value: countdown.hours, label: t.hero.hours },
                 { value: countdown.minutes, label: t.hero.minutes },
                 { value: countdown.seconds, label: t.hero.seconds },
               ].map((item) => (
-                <div key={item.label} className="rounded-lg border border-white/20 bg-white/10 px-6 py-4 md:px-8 md:py-5">
-                  <div className="font-display text-4xl font-black md:text-5xl">
+                <div key={item.label} className="rounded-lg border border-white/20 bg-white/10 px-3 py-2.5 md:px-8 md:py-5">
+                  <div className="font-display text-2xl font-black md:text-5xl">
                     {String(item.value).padStart(2, '0')}
                   </div>
-                  <div className="mt-1 text-xs font-semibold uppercase tracking-widest text-white/60">
+                  <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-widest text-white/60 md:mt-1 md:text-xs">
                     {item.label}
                   </div>
                 </div>
@@ -195,7 +195,7 @@ export function HeroSection() {
             </div>
           ) : null}
 
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
+          <div className="flex flex-col justify-center gap-3 sm:flex-row md:gap-4">
             <HeroPrimaryButton url={primaryButtonUrl} label={primaryButtonLabel} />
             <HeroSecondaryButton url={secondaryButtonUrl} label={secondaryButtonLabel} />
           </div>
