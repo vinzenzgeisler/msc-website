@@ -62,8 +62,8 @@ export default function NewsDetailPage() {
 
   const categoryLabel = article.category === 'event' ? 'Veranstaltung' : 'Verein';
   const categoryColor = article.category === 'event' 
-    ? 'bg-accent text-accent-foreground' 
-    : 'bg-primary text-primary-foreground';
+    ? 'border-l-4 border-accent bg-accent/15 text-accent' 
+    : 'border-l-4 border-primary bg-primary/15 text-primary';
 
   const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return '';
