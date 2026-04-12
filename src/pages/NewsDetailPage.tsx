@@ -128,18 +128,18 @@ export default function NewsDetailPage() {
               )}
             </div>
 
-            {/* Excerpt */}
-            {article.excerpt && (
-              <p className="text-xl text-muted-foreground mb-8 font-medium">
-                {article.excerpt}
-              </p>
-            )}
-
             {/* Article Content */}
             {article.content && (
               <article 
-                className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:text-muted-foreground prose-li:text-muted-foreground"
-                dangerouslySetInnerHTML={{ __html: article.content }}
+                className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:text-muted-foreground prose-li:text-muted-foreground prose-img:rounded-lg prose-img:my-6"
+                dangerouslySetInnerHTML={{
+                  __html: article.content.includes('<')
+                    ? article.content
+                    : article.content
+                        .split(/\n\n+/)
+                        .map((p) => `<p>${p.replace(/\n/g, '<br />')}</p>`)
+                        .join(''),
+                }}
               />
             )}
 
