@@ -67,6 +67,52 @@ export default function EventPage() {
         ? 'Vereinsmitglieder des MSC Oberlausitzer Dreiländereck e.V. zahlen kein Nenngeld. Nachwuchsfahrer unter 18 Jahren benötigen eine schriftliche Einverständniserklärung eines Erziehungsberechtigten. Ab 70 Jahren ist ein ärztliches Attest erforderlich.'
         : '',
   });
+  const admissionContent = useContentWithFallback('event', 'visitors_admission', {
+    title: locale === 'de' ? 'Eintrittspreise' : locale === 'cz' ? 'Vstupné' : 'Admission',
+    content: locale === 'de'
+      ? 'Tagesticket: 10 € | Wochenendticket: 15 € — Kinder und Jugendliche unter 14 Jahren haben freien Eintritt.'
+      : locale === 'cz' ? 'Denní vstupenka: 10 € | Víkendová vstupenka: 15 € — Děti do 14 let mají vstup zdarma.' : 'Day ticket: €10 | Weekend ticket: €15 — Children under 14 get free admission.',
+  });
+  const scheduleOverviewContent = useContentWithFallback('event', 'visitors_schedule', {
+    title: locale === 'de' ? 'Ablauf' : locale === 'cz' ? 'Průběh' : 'Schedule Overview',
+    content: locale === 'de'
+      ? 'Samstag: 8:00–ca. 18:00 Uhr Trainingsläufe, 20:00 Uhr Abendveranstaltung mit Livemusik. Sonntag: 8:00–ca. 18:00 Uhr Demoläufe.'
+      : '',
+  });
+  const parkingContent = useContentWithFallback('event', 'visitors_parking', {
+    title: locale === 'de' ? 'Parkplätze & Shuttle' : locale === 'cz' ? 'Parkování a shuttle' : 'Parking & Shuttle',
+    content: locale === 'de'
+      ? 'Parkplätze sind ausgeschildert und kostenlos. An der Strecke gibt es kostenlose Shuttlebusse, welche die Besucher zu den Zuschauerbereichen fahren.'
+      : '',
+  });
+  const paddockContent = useContentWithFallback('event', 'visitors_paddock', {
+    title: locale === 'de' ? 'Fahrerlager' : locale === 'cz' ? 'Depo' : 'Paddock',
+    content: locale === 'de'
+      ? 'Die beiden Fahrerlager sind auch für die Zuschauer zugänglich.'
+      : '',
+  });
+  const photographerContent = useContentWithFallback('event', 'visitors_photographers', {
+    title: locale === 'de' ? 'Fotografen' : locale === 'cz' ? 'Fotografové' : 'Photographers',
+    content: locale === 'de'
+      ? 'Die Fotografenbereiche sind farblich gekennzeichnet und dürfen nur von akkreditierten Fotografen betreten werden. Die Absperrungen dürfen nicht überschritten werden!'
+      : '',
+  });
+  const privacyNoticeContent = useContentWithFallback('event', 'visitors_privacy', {
+    title: locale === 'de' ? 'Datenschutzhinweis' : locale === 'cz' ? 'Ochrana osobních údajů' : 'Privacy Notice',
+    content: locale === 'de'
+      ? 'Im Rahmen unserer Veranstaltungen behalten wir uns vor, Bild- und Tonaufnahmen von Beteiligten und Gästen zu Zwecken der PR- und Öffentlichkeitsarbeit zu erstellen, zu verarbeiten und zu verbreiten, soweit diese nicht im Einzelfall widersprechen. Mit der Anmeldung/Nennung erklären sich die Teilnehmer damit einverstanden, dass Aufnahmen während der Veranstaltung gemacht werden, die ohne Vergütungsanspruch für diese Zwecke verwendet werden dürfen.'
+      : '',
+  });
+  const transportContent = useContentWithFallback('event', 'visitors_transport', {
+    title: locale === 'de' ? 'Öffentliche Verkehrsmittel' : locale === 'cz' ? 'Veřejná doprava' : 'Public Transport',
+    content: locale === 'de'
+      ? 'Änderungen der Fahrpläne der öffentlichen Verkehrsmittel werden rechtzeitig aktualisiert.'
+      : '',
+  });
+  const siteMapContent = useContentWithFallback('event', 'visitors_site_map', {
+    title: locale === 'de' ? 'Lageplan' : locale === 'cz' ? 'Plán areálu' : 'Site Map',
+    content: '',
+  });
   const galleryContent = useContentWithFallback('event', 'gallery', {
     content:
       locale === 'de'
