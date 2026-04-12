@@ -82,7 +82,8 @@ export default function MotocrossPage() {
     content: '',
   });
 
-  const heroImage = intro.image_url || heroMotocross;
+  const trackImage = intro.image_url || trackImageFallback;
+  const directionsImage = directions.image_url || anfahrtImageFallback;
 
   const upcomingEvents = (calendarEvents || [])
     .filter((e) => e.category === 'motocross' && e.published && new Date(e.start_dt) >= new Date())
@@ -90,36 +91,7 @@ export default function MotocrossPage() {
 
   return (
     <MainLayout>
-      {/* Hero */}
-      <section className="relative min-h-[380px] flex items-end overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src={heroImage}
-            alt={intro.image_alt || intro.title || 'Motocross'}
-            className="h-full w-full object-cover"
-            width={1920}
-            height={640}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/30" />
-        </div>
-        <div className="container relative z-10 pb-10 pt-24">
-          {highlightsLoading ? (
-            <>
-              <Skeleton className="h-12 w-48 mb-2 bg-foreground/10" />
-              <Skeleton className="h-6 w-72 bg-foreground/10" />
-            </>
-          ) : (
-            <>
-              <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">
-                {intro.title || 'Motocross'}
-              </h1>
-              {intro.subtitle && (
-                <p className="text-lg text-muted-foreground">{intro.subtitle}</p>
-              )}
-            </>
-          )}
-        </div>
-      </section>
+      <PageHeader title={intro.title || 'Motocross'} subtitle={intro.subtitle} />
 
       {/* Intro + Track Image */}
       <section className="py-12">
