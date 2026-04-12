@@ -117,18 +117,18 @@ export default function TrialPage() {
                   )}
                 </div>
                 <div className="flex flex-col gap-3">
-                  {contact.primary_button_url && (
+                  {(contact.primary_button_url || true) && (
                     <Button asChild>
-                      <a href={contact.primary_button_url}>
+                      <a href={contact.primary_button_url || 'mailto:funke@ostdeutsche-trialmeisterschaft.de'}>
                         <Mail className="mr-2 h-4 w-4" />
                         {contact.primary_button_label || 'E-Mail senden'}
                       </a>
                     </Button>
                   )}
-                  {contact.secondary_button_url && (
+                  {(contact.secondary_button_url || true) && (
                     <Button variant="outline" asChild>
                       <a
-                        href={contact.secondary_button_url}
+                        href={contact.secondary_button_url || 'https://ostdeutsche-trialmeisterschaft.de/'}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
