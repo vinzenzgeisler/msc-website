@@ -230,10 +230,11 @@ export default function EventPage() {
               ) : (
                 <iframe
                   title={locale === 'de' ? 'Streckenkarte' : 'Track Map'}
-                  src={mapEmbedUrl || 'https://www.openstreetmap.org/export/embed.html?bbox=14.7050%2C50.8450%2C14.7650%2C50.8720&layer=mapnik&marker=50.8585%2C14.7350'}
+                  src={mapEmbedUrl || '//umap.openstreetmap.de/de/map/unbenannte-karte_132460?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true'}
                   className="h-80 w-full border border-border"
                   loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                  allow="geolocation"
                 />
               )}
             </div>
