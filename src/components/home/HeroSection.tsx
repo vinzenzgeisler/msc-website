@@ -168,11 +168,14 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Accent right edge — straight fill to eliminate blue corners */}
-      <div className="absolute right-0 top-0 hidden h-full w-16 bg-accent/40 md:block" />
-      {/* Accent stripes — skewed, layered on top */}
-      <div className={`absolute -right-4 -top-40 -bottom-40 hidden w-36 skew-x-[-5deg] bg-accent/40 md:block ${a('hero-animate-stripe')}`} style={shouldAnimate ? { animationDelay: '0.5s' } : undefined} />
-      <div className={`absolute right-2 -top-40 -bottom-40 hidden w-20 skew-x-[-5deg] bg-accent md:block ${a('hero-animate-stripe')}`} />
+      {/* Accent stripes — polygon approach for clean edges */}
+      <div
+        className={`absolute right-0 top-0 hidden h-full md:block ${a('hero-animate-stripe')}`}
+        style={{ width: '140px', clipPath: 'polygon(30% 0%, 100% 0%, 100% 100%, 0% 100%)' }}
+      >
+        <div className="absolute inset-0 bg-accent/40" />
+        <div className="absolute top-0 bottom-0 bg-accent" style={{ left: '20px', width: '60px', transform: 'skewX(-5deg)' }} />
+      </div>
 
       <div className="container relative z-10 py-8 md:py-16">
         <div className="mx-auto max-w-4xl text-center text-white">
