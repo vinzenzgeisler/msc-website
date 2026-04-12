@@ -169,8 +169,8 @@ export function HeroSection() {
       </div>
 
       {/* Accent stripe — hidden on mobile */}
-      <div className={`absolute -right-20 top-0 hidden h-full w-40 skew-x-[15deg] bg-accent md:block ${a('hero-animate-stripe')}`} />
-      <div className={`absolute -right-32 top-0 hidden h-full w-16 skew-x-[15deg] bg-accent/40 md:block ${a('hero-animate-stripe')}`} style={shouldAnimate ? { animationDelay: '0.5s' } : undefined} />
+      <div className={`absolute -right-10 -top-20 -bottom-20 hidden w-52 skew-x-[-15deg] bg-accent md:block ${a('hero-animate-stripe')}`} />
+      <div className={`absolute -right-28 -top-20 -bottom-20 hidden w-16 skew-x-[-15deg] bg-accent/40 md:block ${a('hero-animate-stripe')}`} style={shouldAnimate ? { animationDelay: '0.5s' } : undefined} />
 
       <div className="container relative z-10 py-8 md:py-16">
         <div className="mx-auto max-w-4xl text-center text-white">
