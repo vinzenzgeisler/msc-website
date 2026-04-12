@@ -145,21 +145,37 @@ export function HeroSection() {
         <div className="absolute inset-0">
           <div className="racing-stripe h-full w-full" />
         </div>
+        {/* Animated checkered flag pattern overlay */}
+        <div className="absolute inset-0 hero-checkered" />
+        {/* Pulsing radial glow */}
+        <div className="absolute inset-0 hero-pulse-glow bg-[radial-gradient(ellipse_at_center,hsl(var(--accent)/0.25)_0%,transparent_70%)]" />
       </div>
 
-      {/* Accent stripe — hidden on mobile to keep text readable */}
-      <div className="absolute -right-20 top-0 hidden h-full w-40 skew-x-[-15deg] bg-accent md:block" />
-      <div className="absolute -right-32 top-0 hidden h-full w-16 skew-x-[-15deg] bg-accent/40 md:block" />
+      {/* Animated speed lines */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="hero-speed-line absolute top-[20%] left-0 h-[2px] w-[60%] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        <div className="hero-speed-line-2 absolute top-[50%] left-0 h-[2px] w-[40%] bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+        <div className="hero-speed-line-3 absolute top-[75%] left-0 h-[2px] w-[50%] bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+      </div>
+
+      {/* Accent stripe — animated slide-in, hidden on mobile */}
+      <div className="absolute -right-20 top-0 hidden h-full w-40 skew-x-[-15deg] bg-accent md:block hero-stripe-slide" />
+      <div className="absolute -right-32 top-0 hidden h-full w-16 skew-x-[-15deg] bg-accent/40 md:block hero-stripe-slide" style={{ animationDelay: '0.4s' }} />
 
       <div className="container relative z-10 py-8 md:py-16">
         <div className="mx-auto max-w-4xl text-center text-white">
+          {/* Rev-counter bar accent */}
+          <div className="mx-auto mb-6 hidden h-1 max-w-xs overflow-hidden md:block md:mb-8">
+            <div className="hero-rev-bar h-full bg-gradient-to-r from-accent via-accent to-destructive" />
+          </div>
+
           {isLoading ? (
-            <div className="mb-4 inline-flex items-center gap-2 bg-accent px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-foreground md:mb-6 md:px-5 md:py-2 md:text-sm">
+            <div className="hero-animate-in mb-4 inline-flex items-center gap-2 bg-accent px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-foreground md:mb-6 md:px-5 md:py-2 md:text-sm">
               <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4" />
               <Skeleton className="h-4 w-32 bg-accent-foreground/20" />
             </div>
           ) : hasMainEvent ? (
-            <div className="mb-4 inline-flex items-center gap-2 bg-accent px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-foreground md:mb-6 md:px-5 md:py-2 md:text-sm">
+            <div className="hero-animate-in mb-4 inline-flex items-center gap-2 bg-accent px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-foreground md:mb-6 md:px-5 md:py-2 md:text-sm">
               <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4" />
               {formatEventDate()}
             </div>
@@ -168,22 +184,22 @@ export function HeroSection() {
           {isLoading ? (
             <Skeleton className="h-16 w-3/4 mx-auto mb-4 bg-white/10 md:mb-6" />
           ) : (
-            <h1 className="mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl">
+            <h1 className="hero-animate-in-delay-1 mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl">
               {heroTitle}
             </h1>
           )}
 
-          <p className="mb-6 text-base text-white/80 md:mb-10 md:text-xl">{heroSubtitle}</p>
+          <p className="hero-animate-in-delay-2 mb-6 text-base text-white/80 md:mb-10 md:text-xl">{heroSubtitle}</p>
 
           {hasMainEvent && countdown ? (
-            <div className="mb-8 inline-grid grid-cols-4 gap-2 md:mb-12 md:gap-5">
+            <div className="hero-animate-in-delay-3 mb-8 inline-grid grid-cols-4 gap-2 md:mb-12 md:gap-5">
               {[
                 { value: countdown.days, label: t.hero.days },
                 { value: countdown.hours, label: t.hero.hours },
                 { value: countdown.minutes, label: t.hero.minutes },
                 { value: countdown.seconds, label: t.hero.seconds },
               ].map((item) => (
-                <div key={item.label} className="rounded-lg border border-white/20 bg-white/10 px-3 py-2.5 md:px-8 md:py-5">
+                <div key={item.label} className="border border-white/20 bg-white/10 px-3 py-2.5 md:px-8 md:py-5 transition-colors duration-300 hover:bg-white/20 hover:border-accent/50">
                   <div className="font-display text-2xl font-black md:text-5xl">
                     {String(item.value).padStart(2, '0')}
                   </div>
@@ -195,7 +211,7 @@ export function HeroSection() {
             </div>
           ) : null}
 
-          <div className="flex flex-col justify-center gap-3 sm:flex-row md:gap-4">
+          <div className="hero-animate-in-delay-4 flex flex-col justify-center gap-3 sm:flex-row md:gap-4">
             <HeroPrimaryButton url={primaryButtonUrl} label={primaryButtonLabel} />
             <HeroSecondaryButton url={secondaryButtonUrl} label={secondaryButtonLabel} />
           </div>
