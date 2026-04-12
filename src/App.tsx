@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import EventPage from "./pages/EventPage";
+import AccommodationPage from "./pages/event/AccommodationPage";
 import CalendarPage from "./pages/CalendarPage";
 import NewsPage from "./pages/NewsPage";
 import NewsDetailPage from "./pages/NewsDetailPage";
