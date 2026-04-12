@@ -230,7 +230,7 @@ export default function MotocrossPage() {
             <MapPin className="h-6 w-6 text-primary" />
             {directions.title}
           </h2>
-          <div className="grid gap-8 lg:grid-cols-2 items-center">
+          <div className="grid gap-8 lg:grid-cols-2 items-start">
             <div>
               {directions.subtitle && (
                 <Badge className="mb-4 bg-primary">{directions.subtitle}</Badge>
@@ -243,10 +243,10 @@ export default function MotocrossPage() {
                   }}
                 />
               )}
-              {directions.primary_button_url && (
-                <Button className="mt-4" asChild>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Button asChild>
                   <a
-                    href={directions.primary_button_url}
+                    href={directions.primary_button_url || 'https://maps.app.goo.gl/LCvqmstWcBnnypcg7'}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -255,27 +255,27 @@ export default function MotocrossPage() {
                     <ExternalLink className="ml-1 h-3.5 w-3.5" />
                   </a>
                 </Button>
-              )}
-              {settings?.facebook_url && (
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Weitere Infos auf{' '}
-                  <a
-                    href={settings.facebook_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    Facebook
-                  </a>
-                </p>
-              )}
+                {settings?.facebook_url && (
+                  <Button variant="outline" asChild>
+                    <a
+                      href={settings.facebook_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Facebook
+                      <ExternalLink className="ml-1 h-3.5 w-3.5" />
+                    </a>
+                  </Button>
+                )}
+              </div>
             </div>
-            <div>
-              <img
-                src={directionsImage}
-                alt={directions.image_alt || 'Anfahrt zur Motocross-Strecke'}
-                className="w-full border border-border object-cover"
+            <div className="overflow-hidden border border-border">
+              <iframe
+                style={{ width: '100%', height: '350px', border: 0 }}
+                allowFullScreen
                 loading="lazy"
+                src={directions.secondary_button_url || 'https://umap.openstreetmap.de/de/map/motocross-strecke-msc-oberlausitzer-dreilandereck-_132467?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=false&searchControl=false&tilelayersControl=false&embedControl=false&datalayersControl=false&onLoadPanel=none&captionBar=false&captionMenus=false&homeControl=false&fullscreenControl=false&captionControl=false'}
+                title="Standort MX-Strecke"
               />
             </div>
           </div>
