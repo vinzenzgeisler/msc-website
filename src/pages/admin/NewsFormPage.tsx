@@ -1,10 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -14,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Pin } from 'lucide-react';
+import { ArrowLeft, Loader2, Pin, CalendarIcon } from 'lucide-react';
 import { usePost, usePosts, useCreatePost, useUpdatePost } from '@/hooks/usePosts';
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 import { LocaleTranslationBox, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
@@ -49,6 +54,7 @@ export default function NewsFormPage() {
     category: '',
     is_pinned: false,
     status: 'draft' as 'draft' | 'published',
+    published_at: null as string | null,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -92,6 +98,7 @@ export default function NewsFormPage() {
       category: existingPost.category || '',
       is_pinned: existingPost.is_pinned || false,
       status: existingPost.status || 'draft',
+      published_at: existingPost.published_at || null,
     });
   }, [existingPost, allPosts, navigate]);
 
@@ -128,7 +135,7 @@ export default function NewsFormPage() {
         is_pinned: formData.is_pinned,
         status: formData.status,
         author_id: null,
-        published_at: formData.status === 'published' ? new Date().toISOString() : null,
+        published_at: formData.published_at || (formData.status === 'published' ? new Date().toISOString() : null),
         imageFile,
       };
 
