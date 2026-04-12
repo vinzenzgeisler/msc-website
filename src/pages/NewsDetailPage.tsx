@@ -80,7 +80,7 @@ export default function NewsDetailPage() {
           <Button 
             variant="ghost" 
             size="sm" 
-            className="mb-6 text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+            className="mb-6 text-primary-foreground/80 hover:text-primary-foreground hover:bg-accent hover:text-accent-foreground"
             asChild
           >
             <Link to="/news">
