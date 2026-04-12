@@ -29,8 +29,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Search, MoreHorizontal, Pencil, Trash2, Calendar, Trophy, Bike, MapPin } from 'lucide-react';
-import { useCalendarEvents, useDeleteCalendarEvent } from '@/hooks/useCalendarEvents';
+import { Plus, Search, MoreHorizontal, Pencil, Trash2, Calendar, Trophy, Bike, MapPin, Star } from 'lucide-react';
+import { useCalendarEvents, useDeleteCalendarEvent, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
 import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
