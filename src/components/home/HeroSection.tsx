@@ -150,7 +150,7 @@ export function HeroSection() {
   const a = (cls: string) => shouldAnimate ? cls : '';
 
   return (
-    <section className="relative overflow-hidden flex items-center" style={{ minHeight: 'calc(100svh - 4rem)' }}>
+    <section className="relative overflow-hidden flex items-center min-h-[calc(100svh-4rem)] md:min-h-[70vh]">
       {/* Background: CMS image or classic blue with parallax */}
       <div
         className="absolute inset-0 bg-primary"
