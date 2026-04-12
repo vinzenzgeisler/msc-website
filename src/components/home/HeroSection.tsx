@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -91,6 +91,13 @@ function useCountdown(targetDate: Date | null) {
 export function HeroSection() {
   const t = useTranslation();
   const { locale } = useLanguage();
+  const animateRef = useRef(() => {
+    const key = 'hero-animated';
+    if (sessionStorage.getItem(key)) return false;
+    sessionStorage.setItem(key, '1');
+    return true;
+  });
+  const [shouldAnimate] = useState(() => animateRef.current());
   const { data: mainEvent, isLoading } = useMainEvent();
   const { data: settings } = useSettings();
   const heroContent = useContentWithFallback('home', 'hero', {
@@ -131,13 +138,12 @@ export function HeroSection() {
     return format(eventDate, singleFormat, { locale: dateLocale });
   };
 
+  const a = (cls: string) => shouldAnimate ? cls : '';
+
   return (
     <section className="relative overflow-hidden flex items-center" style={{ minHeight: 'calc(100svh - 4rem)' }}>
-      {/* Checkered flag overlay */}
-      <div className="absolute inset-0 z-[5] hero-animate-checkered" />
-
       {/* Background: CMS image or classic blue */}
-      <div className="absolute inset-0 bg-primary hero-animate-bg">
+      <div className="absolute inset-0 bg-primary">
         {cmsImage && (
           <>
             <img src={cmsImage} alt="" className="h-full w-full object-cover" width={1920} height={640} />
@@ -151,18 +157,18 @@ export function HeroSection() {
       </div>
 
       {/* Accent stripe — hidden on mobile */}
-      <div className="absolute -right-20 top-0 hidden h-full w-40 bg-accent md:block hero-animate-stripe" />
-      <div className="absolute -right-32 top-0 hidden h-full w-16 bg-accent/40 md:block hero-animate-stripe" style={{ animationDelay: '0.5s' }} />
+      <div className={`absolute -right-20 top-0 hidden h-full w-40 skew-x-[-15deg] bg-accent md:block ${a('hero-animate-stripe')}`} />
+      <div className={`absolute -right-32 top-0 hidden h-full w-16 skew-x-[-15deg] bg-accent/40 md:block ${a('hero-animate-stripe')}`} style={shouldAnimate ? { animationDelay: '0.5s' } : undefined} />
 
       <div className="container relative z-10 py-8 md:py-16">
         <div className="mx-auto max-w-4xl text-center text-white">
           {isLoading ? (
-            <div className="mb-4 inline-flex items-center gap-2 bg-accent px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-foreground md:mb-6 md:px-5 md:py-2 md:text-sm hero-animate-badge">
+            <div className={`mb-4 inline-flex items-center gap-2 bg-accent px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-foreground md:mb-6 md:px-5 md:py-2 md:text-sm ${a('hero-animate-badge')}`}>
               <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4" />
               <Skeleton className="h-4 w-32 bg-accent-foreground/20" />
             </div>
           ) : hasMainEvent ? (
-            <div className="mb-4 inline-flex items-center gap-2 bg-accent px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-foreground md:mb-6 md:px-5 md:py-2 md:text-sm hero-animate-badge">
+            <div className={`mb-4 inline-flex items-center gap-2 bg-accent px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-foreground md:mb-6 md:px-5 md:py-2 md:text-sm ${a('hero-animate-badge')}`}>
               <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4" />
               {formatEventDate()}
             </div>
@@ -171,15 +177,15 @@ export function HeroSection() {
           {isLoading ? (
             <Skeleton className="h-16 w-3/4 mx-auto mb-4 bg-white/10 md:mb-6" />
           ) : (
-            <h1 className="mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl hero-animate-title">
+            <h1 className={`mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl ${a('hero-animate-title')}`}>
               {heroTitle}
             </h1>
           )}
 
-          <p className="mb-6 text-base text-white/80 md:mb-10 md:text-xl hero-animate-subtitle">{heroSubtitle}</p>
+          <p className={`mb-6 text-base text-white/80 md:mb-10 md:text-xl ${a('hero-animate-subtitle')}`}>{heroSubtitle}</p>
 
           {hasMainEvent && countdown ? (
-            <div className="mb-8 inline-grid grid-cols-4 gap-2 md:mb-12 md:gap-5 hero-animate-countdown">
+            <div className={`mb-8 inline-grid grid-cols-4 gap-2 md:mb-12 md:gap-5 ${a('hero-animate-countdown')}`}>
               {[
                 { value: countdown.days, label: t.hero.days },
                 { value: countdown.hours, label: t.hero.hours },
@@ -198,7 +204,7 @@ export function HeroSection() {
             </div>
           ) : null}
 
-          <div className="flex flex-col justify-center gap-3 sm:flex-row md:gap-4 hero-animate-cta">
+          <div className={`flex flex-col justify-center gap-3 sm:flex-row md:gap-4 ${a('hero-animate-cta')}`}>
             <HeroPrimaryButton url={primaryButtonUrl} label={primaryButtonLabel} />
             <HeroSecondaryButton url={secondaryButtonUrl} label={secondaryButtonLabel} />
           </div>
