@@ -4,6 +4,7 @@ import { Menu, X, ChevronDown, ChevronRight, Sun, Moon } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useTheme } from '@/hooks/useTheme';
 import { useSettings } from '@/hooks/useSettings';
+import { useMainEvent } from '@/hooks/useMainEvent';
 import { Button } from '@/components/ui/button';
 import {
   Collapsible,
