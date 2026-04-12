@@ -106,7 +106,12 @@ Prinzip: `DE ist führend`, EN/CZ als Übersetzungen pro Datensatz (`locale`).
 ## Sektionen
 | Frontend-Element | CMS-Feld | Collection | Pflicht |
 |---|---|---|---|
-| Motocross Intro/Training/Events | `title`,`subtitle`,`content`,`image`,`imageAlt` je SectionKey | `pageContents` | optional |
+| Motocross Intro | `title`,`subtitle`,`content`,`image`,`imageAlt` (`motocross/intro`) | `pageContents` | optional |
+| Motocross Öffnungszeiten | `title`,`subtitle` (Winterpause),`content` (HTML-Tabelle) (`motocross/training`) | `pageContents` | optional |
+| Motocross Gebühren | `title`,`subtitle` (10-Tageskarte+Mitglieder),`content` (HTML-Tabelle) (`motocross/fees`) | `pageContents` | optional |
+| Motocross Sicherheit | `title`,`content`,`primaryButtonLabel`,`primaryButtonUrl` (`motocross/safety`) | `pageContents` | optional |
+| Motocross Anfahrt | `title`,`subtitle`,`content`,`image`,`primaryButtonLabel`,`primaryButtonUrl` (`motocross/directions`) | `pageContents` | optional |
+| Motocross Termine | `title`,`content` (`motocross/events`) | `pageContents` | optional |
 | Trial Intro/Training/Events | `title`,`subtitle`,`content`,`image`,`imageAlt` je SectionKey | `pageContents` | optional |
 | Touring Intro/Tours/Community | `title`,`subtitle`,`content`,`image`,`imageAlt` je SectionKey | `pageContents` | optional |
 
