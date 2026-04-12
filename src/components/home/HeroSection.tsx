@@ -168,14 +168,11 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Accent stripes — polygon approach for clean edges */}
-      <div
-        className={`absolute right-0 top-0 hidden h-full md:block ${a('hero-animate-stripe')}`}
-        style={{ width: '140px', clipPath: 'polygon(30% 0%, 100% 0%, 100% 100%, 0% 100%)' }}
-      >
-        <div className="absolute inset-0 bg-accent/40" />
-        <div className="absolute top-0 bottom-0 bg-accent" style={{ left: '20px', width: '60px', transform: 'skewX(-5deg)' }} />
-      </div>
+      {/* Accent stripes — SVG polygons for pixel-perfect edge coverage */}
+      <svg className={`absolute right-0 top-0 hidden h-full md:block ${a('hero-animate-stripe')}`} width="120" viewBox="0 0 120 100" preserveAspectRatio="none" style={{ height: '100%' }}>
+        <polygon points="40,0 120,0 120,100 20,100" fill="hsl(48,100%,50%,0.4)" />
+        <polygon points="55,0 105,0 105,100 35,100" fill="hsl(48,100%,50%)" />
+      </svg>
 
       <div className="container relative z-10 py-8 md:py-16">
         <div className="mx-auto max-w-4xl text-center text-white">
