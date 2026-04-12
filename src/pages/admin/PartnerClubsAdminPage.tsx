@@ -12,6 +12,8 @@ import { usePartnerClubsAdmin, usePartnerClubMutations } from '@/hooks/useStruct
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 import type { PartnerClub } from '@/integrations/pocketbase/client';
+import { LocaleTranslationBox, type TranslationTarget, type TranslationStatus } from '@/components/admin/LocaleTranslationBox';
+import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 
 type Locale = 'de' | 'en' | 'cz';
 const localeOptions: Locale[] = ['de', 'en', 'cz'];
