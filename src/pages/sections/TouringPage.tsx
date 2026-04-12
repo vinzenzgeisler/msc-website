@@ -114,7 +114,7 @@ Tour ins Adlergebirge nach Jánské Lázně<br/>
       {/* Upcoming Events (filtered to touring) */}
       <section className="border-t border-border bg-muted/50 py-16">
         <div className="container">
-          <div className="mx-auto max-w-3xl">
+          <div className="max-w-3xl">
             <h2 className="mb-6 text-2xl font-bold flex items-center gap-2">
               <Route className="h-6 w-6 text-primary" />
               {eventsContent.title || 'Kommende Touren'}
