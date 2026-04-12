@@ -60,6 +60,13 @@ export default function NewsDetailPage() {
     );
   }
 
+  const formatDate = (dateStr?: string | null) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+    return format(date, 'd. MMMM yyyy', { locale: de });
+  };
+
   const categoryLabel = article.category === 'event' ? 'Veranstaltung' 
     : article.category === 'motocross' ? 'Motocross'
     : article.category === 'trial' ? 'Trial'
@@ -67,13 +74,6 @@ export default function NewsDetailPage() {
     : 'Verein';
 
   const displayDate = formatDate(article.published_at || article.created_at);
-
-  const formatDate = (dateStr?: string | null) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return '';
-    return format(date, 'd. MMMM yyyy', { locale: de });
-  };
 
   return (
     <MainLayout>
