@@ -187,7 +187,7 @@ export default function EventPage() {
         </div>
       </section>
 
-      {/* Track */}
+      {/* Track & Region */}
       <section id="track" className="py-16">
         <div className="container">
           <h2 className="mb-8">{t.event.track}</h2>
@@ -203,29 +203,40 @@ export default function EventPage() {
                       : 'The legendary 5.9 km track between Saalendorf, Jonsdorf and Waltersdorf offers motorsport fans an unforgettable experience in the heart of the Zittau Mountains.')}
               </p>
               {mainEvent?.location && (
-                <ul className="space-y-2">
+                <ul className="mb-6 space-y-2">
                   <li className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
                     <span>{mainEvent.location}</span>
                   </li>
                 </ul>
               )}
+              <a
+                href="https://www.google.com/maps/dir/Saalendorf,+Oybin/Jonsdorf/Waltersdorf,+Großschönau/@50.8585,14.735,14z"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                {locale === 'de' ? 'In Google Maps öffnen' : locale === 'cz' ? 'Otevřít v Google Maps' : 'Open in Google Maps'}
+              </a>
             </div>
-            {trackMapContent.image_url ? (
-              <img
-                src={trackMapContent.image_url}
-                alt={trackMapContent.image_alt || trackMapContent.title}
-                className="h-64 w-full border border-border object-cover"
-              />
-            ) : (
-              <iframe
-                title={locale === 'de' ? 'Streckenkarte' : 'Track Map'}
-                src={mapEmbedUrl || 'https://www.openstreetmap.org/export/embed.html?bbox=14.7050%2C50.8450%2C14.7650%2C50.8720&layer=mapnik&marker=50.8585%2C14.7350'}
-                className="h-64 w-full border border-border"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            )}
+            <div className="relative">
+              {trackMapContent.image_url ? (
+                <img
+                  src={trackMapContent.image_url}
+                  alt={trackMapContent.image_alt || trackMapContent.title}
+                  className="h-80 w-full border border-border object-cover"
+                />
+              ) : (
+                <iframe
+                  title={locale === 'de' ? 'Streckenkarte' : 'Track Map'}
+                  src={mapEmbedUrl || 'https://www.openstreetmap.org/export/embed.html?bbox=14.7050%2C50.8450%2C14.7650%2C50.8720&layer=mapnik&marker=50.8585%2C14.7350'}
+                  className="h-80 w-full border border-border"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              )}
+            </div>
           </div>
         </div>
       </section>

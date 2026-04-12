@@ -57,6 +57,7 @@ export default function CalendarFormPage() {
     end_dt: '',
     location: '',
     contact_email: '',
+    registration_url: '',
     is_main_event: false,
     published: true,
   });
@@ -104,6 +105,7 @@ export default function CalendarFormPage() {
         end_dt: toDateTimeInputValue(existingEvent.end_dt),
         location: existingEvent.location || '',
         contact_email: existingEvent.contact_email || '',
+        registration_url: existingEvent.registration_url || '',
         is_main_event: existingEvent.is_main_event || false,
         published: existingEvent.published !== false,
       });
@@ -136,7 +138,7 @@ export default function CalendarFormPage() {
         end_dt: formData.end_dt ? new Date(formData.end_dt).toISOString() : null,
         location: formData.location.trim() || null,
         contact_email: formData.contact_email.trim() || null,
-        registration_url: (formData as any).registration_url?.trim() || null,
+        registration_url: formData.registration_url.trim() || null,
         is_main_event: formData.is_main_event,
         published: formData.published,
         locale: 'de',
@@ -204,7 +206,7 @@ export default function CalendarFormPage() {
         end_dt: formData.end_dt ? new Date(formData.end_dt).toISOString() : null,
         location: formData.location.trim() || null,
         contact_email: formData.contact_email.trim() || null,
-        registration_url: (formData as any).registration_url?.trim() || null,
+        registration_url: formData.registration_url.trim() || null,
         is_main_event: formData.is_main_event,
         published: formData.published,
         locale: targetLocale,
@@ -323,6 +325,18 @@ export default function CalendarFormPage() {
                 onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                 placeholder="info@msc-dreilaendereck.de"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="registration_url">Anmelde-URL</Label>
+              <Input
+                id="registration_url"
+                type="url"
+                value={formData.registration_url}
+                onChange={(e) => setFormData({ ...formData, registration_url: e.target.value })}
+                placeholder="https://anmeldung.example.de"
+              />
+              <p className="text-xs text-muted-foreground">Link zum externen Anmeldeportal (wird als „Zur Anmeldung"-Button angezeigt)</p>
             </div>
 
             <div className="space-y-2">
