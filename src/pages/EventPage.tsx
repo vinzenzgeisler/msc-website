@@ -63,13 +63,13 @@ export default function EventPage() {
     content: '', // embed URL
   });
   const registrationContent = useContentWithFallback('event', 'registration_info', {
-    title: locale === 'de' ? 'Teilnehmer-Anmeldung' : locale === 'cz' ? 'Registrace účastníků' : 'Participant Registration',
+    title: locale === 'de' ? 'Sei dabei!' : locale === 'cz' ? 'Buď u toho!' : 'Join Us!',
     content:
       locale === 'de'
-        ? 'Melde dich jetzt für das Oberlausitzer Dreieck an! Die Nennung ist für Vereinsmitglieder des MSC Oberlausitzer Dreiländereck e.V. kostenfrei. Nachwuchsfahrer unter 18 Jahren benötigen eine schriftliche Einverständniserklärung eines Erziehungsberechtigten. Ab 70 Jahren ist ein ärztliches Attest erforderlich. Bitte wähle bei der Anmeldung deine Klasse und dein Fahrzeug aus.'
+        ? 'Du willst nicht nur zuschauen, sondern selbst Gas geben? Dann melde dich jetzt an und werde Teil des Oberlausitzer Dreiecks! Wir freuen uns auf dich und deine Maschine – egal ob Veteran oder Rennbolide.'
         : locale === 'cz'
-          ? 'Přihlaste se nyní na Horní Lužický trojúhelník! Přihláška je pro členy MSC Oberlausitzer Dreiländereck e.V. zdarma. Mladí jezdci do 18 let potřebují písemný souhlas zákonného zástupce. Od 70 let je nutné lékařské potvrzení.'
-          : 'Register now for the Oberlausitz Triangle! Entry is free for members of MSC Oberlausitzer Dreiländereck e.V. Young riders under 18 require written consent from a legal guardian. A medical certificate is required from the age of 70.',
+          ? 'Nechceš jen přihlížet, ale sám přidat plyn? Přihlas se a staň se součástí Horního Lužického trojúhelníku! Těšíme se na tebe a tvůj stroj.'
+          : 'Don\'t just watch – get behind the handlebars! Register now and become part of the Oberlausitz Triangle. We look forward to seeing you and your machine on the track!',
   });
   const admissionContent = useContentWithFallback('event', 'visitors_admission', {
     title: locale === 'de' ? 'Eintrittspreise' : locale === 'cz' ? 'Vstupné' : 'Admission',
