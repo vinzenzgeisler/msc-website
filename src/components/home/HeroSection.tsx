@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,9 @@ import { format } from 'date-fns';
 import { cs, de, enUS } from 'date-fns/locale';
 import { useLanguage } from '@/i18n/LanguageContext';
 const CYCLE_INTERVAL = 8000;
+
+// Module-level flag: true on fresh page load, false after first HeroSection mount
+let heroAnimatedThisSession = false;
 
 function isExternalUrl(url: string) {
   return /^(https?:\/\/|mailto:|tel:)/i.test(url);
@@ -91,13 +94,11 @@ function useCountdown(targetDate: Date | null) {
 export function HeroSection() {
   const t = useTranslation();
   const { locale } = useLanguage();
-  const animateRef = useRef(() => {
-    const key = 'hero-animated';
-    if (sessionStorage.getItem(key)) return false;
-    sessionStorage.setItem(key, '1');
+  const [shouldAnimate] = useState(() => {
+    if (heroAnimatedThisSession) return false;
+    heroAnimatedThisSession = true;
     return true;
   });
-  const [shouldAnimate] = useState(() => animateRef.current());
   const [scrollY, setScrollY] = useState(0);
   const { data: mainEvent, isLoading } = useMainEvent();
 
