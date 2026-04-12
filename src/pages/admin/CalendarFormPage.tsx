@@ -105,6 +105,7 @@ export default function CalendarFormPage() {
         end_dt: toDateTimeInputValue(existingEvent.end_dt),
         location: existingEvent.location || '',
         contact_email: existingEvent.contact_email || '',
+        registration_url: existingEvent.registration_url || '',
         is_main_event: existingEvent.is_main_event || false,
         published: existingEvent.published !== false,
       });
