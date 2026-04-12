@@ -98,7 +98,15 @@ export function HeroSection() {
     return true;
   });
   const [shouldAnimate] = useState(() => animateRef.current());
+  const [scrollY, setScrollY] = useState(0);
   const { data: mainEvent, isLoading } = useMainEvent();
+
+  // Parallax scroll
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   const { data: settings } = useSettings();
   const heroContent = useContentWithFallback('home', 'hero', {
     title: settings?.site_name || t.clubTeaser.title,
