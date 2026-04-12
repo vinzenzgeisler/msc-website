@@ -230,11 +230,10 @@ export default function EventPage() {
               ) : (
                 <iframe
                   title={locale === 'de' ? 'Streckenkarte' : 'Track Map'}
-                  src={mapEmbedUrl || '//umap.openstreetmap.de/de/map/oberlausitzer-dreieck_132460?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=false'}
+                  src={mapEmbedUrl || 'https://umap.openstreetmap.de/de/map/oberlausitzer-dreieck_132460?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=false&editMode=disabled&moreControl=false&searchControl=false&tilelayersControl=false&embedControl=false&datalayersControl=false&onLoadPanel=none&captionBar=false&captionMenus=false&homeControl=false&fullscreenControl=false&captionControl=false'}
                   className="h-80 w-full border border-border rounded-md"
                   loading="lazy"
                   allowFullScreen
-                  allow="geolocation"
                 />
               )}
             </div>
