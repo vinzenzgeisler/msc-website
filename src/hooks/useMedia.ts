@@ -18,11 +18,38 @@ export function useMediaFiles(albumId?: string) {
   return useQuery({
     queryKey: ['media_files', albumId],
     queryFn: async () => {
-      const records = albumId
+      // Files from mediaAlbums
+      const albumRecords = albumId
         ? [await pb.collection('mediaAlbums').getOne(albumId)]
         : await listAllRecords('mediaAlbums');
+      const albumFiles = albumRecords.flatMap((record) => flattenMediaFiles(record)) as MediaFile[];
 
-      return records.flatMap((record) => flattenMediaFiles(record)) as MediaFile[];
+      // Also fetch standalone files from the "media" collection (rich-text uploads)
+      if (!albumId) {
+        try {
+          const mediaRecords = await listAllRecords('media');
+          const standaloneFiles: MediaFile[] = mediaRecords.map((record: any) => ({
+            id: record.id,
+            album_id: null,
+            file_url: pb.files.getURL(record, record.file),
+            file_name: record.file || '',
+            file_type: typeof record.file === 'string' && record.file.includes('.')
+              ? record.file.split('.').pop() || null
+              : null,
+            file_size: null,
+            alt_text: record.alt || null,
+            created_at: record.created,
+          }));
+          return [...albumFiles, ...standaloneFiles].sort(
+            (a, b) => getSafeTimestamp(b.created_at) - getSafeTimestamp(a.created_at),
+          );
+        } catch (e) {
+          // media collection might not exist yet
+          console.warn('Could not fetch media collection:', e);
+        }
+      }
+
+      return albumFiles;
     },
   });
 }
@@ -62,17 +89,22 @@ export function useUploadMediaFile() {
         return files[files.length - 1] as MediaFile;
       }
 
-      const title = altText || file.name.replace(/\.[^.]+$/, '');
-      const created = await pb.collection('mediaAlbums').create({
-        title,
-        slug: `${buildSlug(title)}-${Date.now()}`,
-        description: '',
-        locale: 'de',
-        coverImage: file,
-        images: [file],
-      });
+      // Upload to the standalone "media" collection
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('alt', altText || file.name.replace(/\.[^.]+$/, ''));
 
-      return flattenMediaFiles(created)[0] as MediaFile;
+      const record = await pb.collection('media').create(formData);
+      return {
+        id: record.id,
+        album_id: null,
+        file_url: pb.files.getURL(record, record.file),
+        file_name: record.file || '',
+        file_type: typeof record.file === 'string' && record.file.includes('.') ? record.file.split('.').pop() || null : null,
+        file_size: null,
+        alt_text: (record as any).alt || null,
+        created_at: record.created,
+      } as MediaFile;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['media_files'] });
@@ -86,7 +118,11 @@ export function useDeleteMediaFile() {
 
   return useMutation({
     mutationFn: async (file: MediaFile) => {
-      if (!file.album_id) return;
+      if (!file.album_id) {
+        // Standalone media file – delete from "media" collection
+        await pb.collection('media').delete(file.id);
+        return;
+      }
 
       const album = await pb.collection('mediaAlbums').getOne(file.album_id);
       const payload: Record<string, unknown> = { 'images-': [file.file_name] };

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,6 +11,7 @@ import { Link } from 'react-router-dom';
 import { useAllPageContent, useUpsertPageContent, type PageContent } from '@/hooks/usePageContent';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 
 const LOCALES = ['de', 'en', 'cz'] as const;
 const LOCALE_LABELS: Record<string, string> = { de: 'Deutsch', en: 'English', cz: 'Čeština' };
@@ -141,14 +141,12 @@ function SectionEditor({
           </div>
           <div>
             <Label htmlFor={`${sectionKey}-content`}>Inhalt</Label>
-            <Textarea
-              id={`${sectionKey}-content`}
-              value={form.content}
-              onChange={(e) => {
-                setForm((prev) => ({ ...prev, content: e.target.value }));
+            <RichTextEditor
+              content={form.content}
+              onChange={(html) => {
+                setForm((prev) => ({ ...prev, content: html }));
                 setDirty(true);
               }}
-              rows={6}
               placeholder={
                 sectionKey === 'gallery'
                   ? 'Beschreiben Sie die Galerie oder fügen Sie Links zu Fotoalben ein...'
@@ -156,7 +154,7 @@ function SectionEditor({
               }
             />
             <p className="text-xs text-muted-foreground mt-1">
-              HTML wird unterstützt. Nutzen Sie &lt;a href="..."&gt; für Links und &lt;br&gt; für Zeilenumbrüche.
+              Nutzen Sie die Toolbar um Bilder einzufügen und Text zu formatieren.
             </p>
           </div>
         </div>
