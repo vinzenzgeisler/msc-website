@@ -3,7 +3,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Calendar, Share2, Facebook, Twitter, Newspaper } from 'lucide-react';
+import { ArrowLeft, Share2, Facebook, Twitter, Newspaper } from 'lucide-react';
 import { usePostBySlug } from '@/hooks/usePosts';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
