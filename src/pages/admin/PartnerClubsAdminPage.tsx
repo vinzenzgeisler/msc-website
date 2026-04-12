@@ -212,6 +212,29 @@ export default function PartnerClubsAdminPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Translation section */}
+      {deEntries.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Übersetzungen</CardTitle>
+            <CardDescription>Deutsche Einträge automatisch nach EN / CZ übersetzen.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {deEntries.map((club) => (
+              <div key={club.id} className="space-y-2 rounded-lg border p-4">
+                <p className="font-medium">{club.name}</p>
+                <LocaleTranslationBox
+                  description={`Beschreibung von „${club.name}" übersetzen`}
+                  status={getTranslationStatus(club.name)}
+                  onTranslate={(target) => handleTranslate(club, target)}
+                  isTranslating={isTranslating}
+                />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
