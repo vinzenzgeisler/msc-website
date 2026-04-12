@@ -26,7 +26,7 @@ export function PageHeader({ title, subtitle, imageUrl, imageAlt, children }: Pa
         </div>
       )}
 
-      <div className="container relative z-10 text-center">
+      <div className="container relative z-10">
         <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">{title}</h1>
         {subtitle && <p className="text-lg text-primary-foreground/80">{subtitle}</p>}
         {children}

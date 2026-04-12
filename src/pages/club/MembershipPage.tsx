@@ -139,7 +139,7 @@ export default function MembershipPage() {
       {intro.content && (
         <section className="py-12">
           <div className="container">
-            <div className="mx-auto max-w-3xl prose prose-lg dark:prose-invert text-muted-foreground"
+            <div className="max-w-3xl prose prose-lg dark:prose-invert text-muted-foreground"
               dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }} />
           </div>
         </section>
@@ -148,8 +148,8 @@ export default function MembershipPage() {
       {/* Fee Table */}
       <section className="border-t border-border py-16">
         <div className="container">
-          <h2 className="mb-8 text-center text-3xl font-bold">{fees.title}</h2>
-          <div className="mx-auto max-w-2xl">
+          <h2 className="mb-8 text-3xl font-bold">{fees.title}</h2>
+          <div className="max-w-2xl">
             <Card>
               <CardContent className="p-0">
                 <div className="divide-y">
@@ -171,8 +171,8 @@ export default function MembershipPage() {
       {/* How to Join */}
       <section className="border-t border-border bg-muted/30 py-16">
         <div className="container">
-          <div className="mx-auto max-w-2xl">
-            <h2 className="mb-10 text-center text-3xl font-bold">{join.title}</h2>
+          <div className="max-w-2xl">
+            <h2 className="mb-10 text-3xl font-bold">{join.title}</h2>
             <div className="relative space-y-8 pl-12 before:absolute before:left-[19px] before:top-0 before:bottom-0 before:w-0.5 before:bg-primary/20">
               {join.steps.map((step, index) => (
                 <div key={index} className="relative">
@@ -187,42 +187,32 @@ export default function MembershipPage() {
               ))}
             </div>
 
-            {/* Download buttons */}
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
-              {declarationDoc.primary_button_url ? (
-                <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90" asChild>
-                  <a href={declarationDoc.primary_button_url} target="_blank" rel="noopener noreferrer">
-                    <Download className="mr-2 h-5 w-5" />
-                    {declarationDoc.title || (lang === 'de' ? 'Beitrittserklärung herunterladen' : lang === 'cz' ? 'Stáhnout přihlášku' : 'Download application form')}
-                  </a>
-                </Button>
-              ) : declarationDoc.image_url ? (
-                <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90" asChild>
-                  <a href={declarationDoc.image_url} target="_blank" rel="noopener noreferrer">
-                    <Download className="mr-2 h-5 w-5" />
-                    {declarationDoc.title || (lang === 'de' ? 'Beitrittserklärung herunterladen' : lang === 'cz' ? 'Stáhnout přihlášku' : 'Download application form')}
-                  </a>
-                </Button>
-              ) : null}
+            {/* Download buttons – always visible with fallback labels */}
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+              <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90" asChild>
+                <a
+                  href={declarationDoc.primary_button_url || declarationDoc.image_url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Download className="mr-2 h-5 w-5" />
+                  {declarationDoc.title || (lang === 'de' ? 'Beitrittserklärung herunterladen' : lang === 'cz' ? 'Stáhnout přihlášku' : 'Download application form')}
+                </a>
+              </Button>
 
-              {statuteDoc.primary_button_url ? (
-                <Button size="lg" variant="outline" asChild>
-                  <a href={statuteDoc.primary_button_url} target="_blank" rel="noopener noreferrer">
-                    <FileText className="mr-2 h-5 w-5" />
-                    {statuteDoc.title || (lang === 'de' ? 'Vereinssatzung' : lang === 'cz' ? 'Stanovy spolku' : 'Club statutes')}
-                  </a>
-                </Button>
-              ) : statuteDoc.image_url ? (
-                <Button size="lg" variant="outline" asChild>
-                  <a href={statuteDoc.image_url} target="_blank" rel="noopener noreferrer">
-                    <FileText className="mr-2 h-5 w-5" />
-                    {statuteDoc.title || (lang === 'de' ? 'Vereinssatzung' : lang === 'cz' ? 'Stanovy spolku' : 'Club statutes')}
-                  </a>
-                </Button>
-              ) : null}
+              <Button size="lg" variant="outline" asChild>
+                <a
+                  href={statuteDoc.primary_button_url || statuteDoc.image_url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FileText className="mr-2 h-5 w-5" />
+                  {statuteDoc.title || (lang === 'de' ? 'Vereinssatzung' : lang === 'cz' ? 'Stanovy spolku' : 'Club statutes')}
+                </a>
+              </Button>
             </div>
 
-            <p className="mt-6 text-center text-sm text-muted-foreground italic">{join.cancelNote}</p>
+            <p className="mt-6 text-sm text-muted-foreground italic">{join.cancelNote}</p>
           </div>
         </div>
       </section>
