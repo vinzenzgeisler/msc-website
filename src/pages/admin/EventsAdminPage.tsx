@@ -7,8 +7,22 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, Star, Image, Calendar, AlertTriangle, Loader2, AlertCircle } from 'lucide-react';
+import {
+  Eye,
+  Star,
+  Image,
+  Calendar,
+  AlertTriangle,
+  Loader2,
+  Save,
+  ExternalLink,
+  MapPin,
+  Mail,
+  Globe,
+  FileText,
+  Images,
+  Archive,
+} from 'lucide-react';
 import { useCalendarEvents, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 import { LocaleTranslationBox, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
@@ -37,67 +51,59 @@ export default function EventsAdminPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Oberlausitzer Dreieck</h1>
-          <p className="text-muted-foreground">
-            Verwalten Sie die Hauptveranstaltung des Vereins
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link to="/admin/events/gallery-archive">
-              <Image className="mr-2 h-4 w-4" />
-              Galerie &amp; Archiv
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/event" target="_blank">
-              <Eye className="mr-2 h-4 w-4" />
-              Vorschau
-            </Link>
-          </Button>
-        </div>
-      </div>
-
       {isLoading ? (
         <Skeleton className="h-48 w-full" />
       ) : mainEvent ? (
         <MainEventForm event={mainEvent} allEvents={events || []} updateMutation={updateEvent} translate={translate} />
       ) : (
-        <Card className="border-dashed">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center gap-4 py-8 text-center">
-              <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
-                <AlertTriangle className="h-7 w-7 text-muted-foreground" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Kein Hauptevent ausgewählt</h3>
-                <p className="text-muted-foreground mt-1 max-w-md">
-                  Markieren Sie einen Termin im{' '}
-                  <Link to="/admin/calendar" className="text-primary underline">
-                    Terminkalender
-                  </Link>{' '}
-                  als Hauptevent, damit er hier bearbeitet werden kann.
-                </p>
-              </div>
-              <Button variant="outline" asChild>
-                <Link to="/admin/calendar">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Zum Terminkalender
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <EmptyState />
       )}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/*  Inline Edit Form for Main Event                                    */
+/*  Empty State                                                        */
+/* ------------------------------------------------------------------ */
+
+function EmptyState() {
+  return (
+    <>
+      <div>
+        <h1 className="text-3xl font-bold">Oberlausitzer Dreieck</h1>
+        <p className="text-muted-foreground">Verwalten Sie die Hauptveranstaltung des Vereins</p>
+      </div>
+      <Card className="border-dashed">
+        <CardContent className="pt-6">
+          <div className="flex flex-col items-center gap-4 py-12 text-center">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+              <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold">Kein Hauptevent ausgewählt</h3>
+              <p className="text-muted-foreground mt-1 max-w-md">
+                Markieren Sie einen Termin im{' '}
+                <Link to="/admin/calendar" className="text-primary underline font-medium">
+                  Terminkalender
+                </Link>{' '}
+                als Hauptevent, damit er hier bearbeitet werden kann.
+              </p>
+            </div>
+            <Button asChild>
+              <Link to="/admin/calendar">
+                <Calendar className="mr-2 h-4 w-4" />
+                Zum Terminkalender
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Inline Edit Form                                                   */
 /* ------------------------------------------------------------------ */
 
 function MainEventForm({
@@ -175,7 +181,7 @@ function MainEventForm({
         registration_url: formData.registration_url.trim() || null,
         published: formData.published,
       });
-      toast.success('Hauptveranstaltung gespeichert');
+      toast.success('Änderungen gespeichert');
       setIsDirty(false);
     } catch (error) {
       toast.error(getPocketBaseErrorMessage(error));
@@ -223,8 +229,6 @@ function MainEventForm({
       if (existingTranslation) {
         await updateMutation.mutateAsync({ id: existingTranslation.id, ...payload });
       } else {
-        // For creating we'd need the create mutation, but since the main event
-        // should already exist, we use update. If not found, show error.
         toast.error(`Bitte legen Sie die ${targetLocale.toUpperCase()}-Version erst im Terminkalender an.`);
         return;
       }
@@ -237,153 +241,278 @@ function MainEventForm({
   const isSubmitting = updateMutation.isPending;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-      {/* Info banner */}
-      <Card className="border-accent border-2">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-3">
-            <Star className="h-5 w-5 text-accent fill-accent flex-shrink-0" />
-            <div>
-              <p className="font-medium">{event.title}</p>
-              <p className="text-sm text-muted-foreground">
-                {formatDateSafe(event.start_dt, 'dd. MMMM yyyy', de)}
-                {event.end_dt && ` – ${formatDateSafe(event.end_dt, 'dd. MMMM yyyy', de)}`}
-                {event.location && ` · ${event.location}`}
-              </p>
-            </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* ── Hero header with title, status, and quick actions ── */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center flex-shrink-0">
+            <Star className="h-6 w-6 text-accent fill-accent" />
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Main form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Veranstaltungsdetails</CardTitle>
-          <CardDescription>Alle Änderungen werden beim Speichern übernommen</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="title">Titel *</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => updateField('title', e.target.value)}
-              placeholder="z.B. 12. Oberlausitzer Dreieck"
-              required
-            />
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="start_dt">Startdatum *</Label>
-              <Input
-                id="start_dt"
-                type="datetime-local"
-                value={formData.start_dt}
-                onChange={(e) => updateField('start_dt', e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="end_dt">Enddatum</Label>
-              <Input
-                id="end_dt"
-                type="datetime-local"
-                value={formData.end_dt}
-                onChange={(e) => updateField('end_dt', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="location">Ort</Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => updateField('location', e.target.value)}
-              placeholder="z.B. Saalendorf - Jonsdorf - Waltersdorf"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="registration_url">Anmeldeportal-URL</Label>
-            <Input
-              id="registration_url"
-              type="url"
-              value={formData.registration_url}
-              onChange={(e) => updateField('registration_url', e.target.value)}
-              placeholder="https://anmeldung.example.de"
-            />
-            <p className="text-xs text-muted-foreground">
-              Link zum externen Anmeldeportal (wird als „Zur Anmeldung"-Button angezeigt)
+          <div>
+            <h1 className="text-2xl font-bold">{event.title}</h1>
+            <p className="text-muted-foreground text-sm mt-0.5">
+              {formatDateSafe(event.start_dt, 'dd. MMMM yyyy', de)}
+              {event.end_dt && ` – ${formatDateSafe(event.end_dt, 'dd. MMMM yyyy', de)}`}
+              {event.location && ` · ${event.location}`}
             </p>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="contact_email">Kontakt-E-Mail</Label>
-            <Input
-              id="contact_email"
-              type="email"
-              value={formData.contact_email}
-              onChange={(e) => updateField('contact_email', e.target.value)}
-              placeholder="info@msc-dreilaendereck.de"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Beschreibung</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => updateField('description', e.target.value)}
-              placeholder="Weitere Informationen zur Veranstaltung..."
-              rows={4}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Translation */}
-      <Card>
-        <CardContent className="pt-6">
-          <LocaleTranslationBox
-            description="DE bleibt führend. EN/CZ werden separat aktualisiert."
-            status={translationStatus}
-            onTranslate={handleTranslateTo}
-            isTranslating={translate.isPending}
-            disabled={!deSlug}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Published toggle */}
-      <div className="flex items-center justify-between p-4 border rounded-lg">
-        <div>
-          <Label htmlFor="published" className="font-medium">Veröffentlicht</Label>
-          <p className="text-sm text-muted-foreground">Veranstaltung auf der Website anzeigen</p>
         </div>
-        <Switch
-          id="published"
-          checked={formData.published}
-          onCheckedChange={(checked) => updateField('published', checked)}
-        />
+
+        {/* Quick action buttons – prominent and always visible */}
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/event" target="_blank">
+              <Eye className="mr-2 h-4 w-4" />
+              Vorschau
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/admin/events/gallery-archive">
+              <Images className="mr-2 h-4 w-4" />
+              Galerie
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/admin/events/gallery-archive">
+              <Archive className="mr-2 h-4 w-4" />
+              Archiv
+            </Link>
+          </Button>
+        </div>
       </div>
 
-      {/* Submit */}
-      <div className="flex gap-4 items-center">
-        <Button type="submit" disabled={isSubmitting || !isDirty}>
-          {isSubmitting ? (
-            <>
+      {/* ── Sticky save bar ── */}
+      {isDirty && (
+        <div className="sticky top-0 z-30 bg-accent/10 border border-accent/30 rounded-lg px-4 py-3 flex items-center justify-between gap-4">
+          <p className="text-sm font-medium text-accent-foreground">Ungespeicherte Änderungen</p>
+          <Button type="submit" size="sm" disabled={isSubmitting}>
+            {isSubmitting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Speichern...
-            </>
-          ) : (
-            'Speichern'
-          )}
-        </Button>
-        {isDirty && (
-          <p className="text-sm text-muted-foreground">Ungespeicherte Änderungen</p>
-        )}
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            Speichern
+          </Button>
+        </div>
+      )}
+
+      {/* ── Two-column layout on larger screens ── */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        {/* Left column: main form */}
+        <div className="space-y-6">
+          {/* Title & Description */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                Grunddaten
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Titel *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => updateField('title', e.target.value)}
+                  placeholder="z.B. 12. Oberlausitzer Dreieck"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Beschreibung</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => updateField('description', e.target.value)}
+                  placeholder="Weitere Informationen zur Veranstaltung..."
+                  rows={4}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Date & Location */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                Datum &amp; Ort
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="start_dt">Startdatum *</Label>
+                  <Input
+                    id="start_dt"
+                    type="datetime-local"
+                    value={formData.start_dt}
+                    onChange={(e) => updateField('start_dt', e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="end_dt">Enddatum</Label>
+                  <Input
+                    id="end_dt"
+                    type="datetime-local"
+                    value={formData.end_dt}
+                    onChange={(e) => updateField('end_dt', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="location" className="flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5" />
+                  Ort
+                </Label>
+                <Input
+                  id="location"
+                  value={formData.location}
+                  onChange={(e) => updateField('location', e.target.value)}
+                  placeholder="z.B. Saalendorf - Jonsdorf - Waltersdorf"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Registration & Contact */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                Anmeldung &amp; Kontakt
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="registration_url">Anmeldeportal-URL</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="registration_url"
+                    type="url"
+                    value={formData.registration_url}
+                    onChange={(e) => updateField('registration_url', e.target.value)}
+                    placeholder="https://anmeldung.example.de"
+                    className="flex-1"
+                  />
+                  {formData.registration_url && (
+                    <Button variant="outline" size="icon" asChild className="flex-shrink-0">
+                      <a href={formData.registration_url} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Wird als „Zur Anmeldung"-Button auf der Eventseite angezeigt
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contact_email" className="flex items-center gap-1.5">
+                  <Mail className="h-3.5 w-3.5" />
+                  Kontakt-E-Mail
+                </Label>
+                <Input
+                  id="contact_email"
+                  type="email"
+                  value={formData.contact_email}
+                  onChange={(e) => updateField('contact_email', e.target.value)}
+                  placeholder="info@msc-dreilaendereck.de"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right column: sidebar with status, translations, save */}
+        <div className="space-y-6">
+          {/* Publish status */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">Status</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="published" className="font-medium">Veröffentlicht</Label>
+                  <p className="text-xs text-muted-foreground">Auf der Website sichtbar</p>
+                </div>
+                <Switch
+                  id="published"
+                  checked={formData.published}
+                  onCheckedChange={(checked) => updateField('published', checked)}
+                />
+              </div>
+
+              <div className="pt-2">
+                <Button type="submit" className="w-full" disabled={isSubmitting || !isDirty}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Speichern...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Änderungen speichern
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Translations */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Globe className="h-4 w-4 text-muted-foreground" />
+                Übersetzungen
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LocaleTranslationBox
+                description="DE führend. EN/CZ separat."
+                status={translationStatus}
+                onTranslate={handleTranslateTo}
+                isTranslating={translate.isPending}
+                disabled={!deSlug}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Quick links */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">Schnellzugriff</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
+                <Link to="/admin/events/gallery-archive">
+                  <Images className="mr-2 h-4 w-4" />
+                  Fotogalerie verwalten
+                </Link>
+              </Button>
+              <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
+                <Link to="/admin/events/gallery-archive">
+                  <Archive className="mr-2 h-4 w-4" />
+                  Vergangene Events (Archiv)
+                </Link>
+              </Button>
+              <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
+                <Link to="/event" target="_blank">
+                  <Eye className="mr-2 h-4 w-4" />
+                  Eventseite ansehen
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </form>
   );
