@@ -16,10 +16,14 @@ import { toast } from 'sonner';
 
 interface MediaAssetPickerProps {
   onSelect: (file: File, altText?: string) => void;
+  /** When provided, called with the raw URL instead of downloading as File */
+  onSelectUrl?: (url: string, altText?: string) => void;
   buttonLabel?: string;
+  /** Render a custom trigger instead of the default button */
+  trigger?: React.ReactNode;
 }
 
-export function MediaAssetPicker({ onSelect, buttonLabel = 'Aus Medien wählen' }: MediaAssetPickerProps) {
+export function MediaAssetPicker({ onSelect, onSelectUrl, buttonLabel = 'Aus Medien wählen', trigger }: MediaAssetPickerProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [selectingId, setSelectingId] = useState<string | null>(null);
