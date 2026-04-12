@@ -60,6 +60,7 @@ const App = () => (
               {/* Main Pages */}
               <Route path="/" element={<Index />} />
               <Route path="/event" element={<EventPage />} />
+              <Route path="/event/accommodation" element={<AccommodationPage />} />
               <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/news" element={<NewsPage />} />
               <Route path="/news/:slug" element={<NewsDetailPage />} />
