@@ -29,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Search, MoreHorizontal, Pencil, Trash2, Eye, Calendar, Star } from 'lucide-react';
+import { Plus, Search, MoreHorizontal, Pencil, Trash2, Eye, Calendar, Star, Image } from 'lucide-react';
 import { useCalendarEvents, useDeleteCalendarEvent, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
 import type { CalendarEvent } from '@/integrations/pocketbase/client';
 import { de } from 'date-fns/locale';
@@ -99,12 +99,20 @@ export default function EventsAdminPage() {
           <h1 className="text-3xl font-bold">Veranstaltungen</h1>
           <p className="text-muted-foreground">Verwalten Sie die Hauptveranstaltung und Termine</p>
         </div>
-        <Button asChild>
-          <Link to="/admin/calendar/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Neue Veranstaltung
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link to="/admin/events/gallery-archive">
+              <Image className="mr-2 h-4 w-4" />
+              Galerie & Archiv
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link to="/admin/calendar/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Neue Veranstaltung
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Main Event Card */}
