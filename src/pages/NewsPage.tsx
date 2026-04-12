@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Filter, Newspaper, Pin } from 'lucide-react';
+import { ArrowRight, Filter, Newspaper, Pin } from 'lucide-react';
 import { usePosts } from '@/hooks/usePosts';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { format } from 'date-fns';
