@@ -89,6 +89,7 @@ export const translations = {
       eventCountPlural: 'Termine',
       filter: {
         all: 'Allgemein',
+        allgemein: 'Allgemein',
         club: 'Verein',
         verein: 'Verein',
         event: 'Veranstaltung',
@@ -96,6 +97,9 @@ export const translations = {
         training: 'Training',
         orgTeam: 'Org-Team',
         orga: 'Org-Team',
+        motocross: 'Motocross',
+        trial: 'Trial',
+        touring: 'Motorradtouristik',
       },
       mainEvent: 'Hauptevent',
     },
