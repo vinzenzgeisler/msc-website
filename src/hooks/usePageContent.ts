@@ -30,7 +30,7 @@ export const PAGE_SECTIONS = {
   about: ['intro', 'mission', 'values'],
   board: ['intro'],
   history: ['intro', 'founding', 'track'],
-  membership: ['intro', 'benefits', 'how_to_join', 'cta'],
+  membership: ['intro', 'benefits', 'how_to_join', 'cta', 'declaration_document', 'statute_document'],
   motocross: ['intro', 'training', 'fees', 'safety', 'directions', 'events'],
   trial: ['intro', 'contact', 'events'],
   touring: ['intro', 'tours_current', 'tours_archive', 'events'],

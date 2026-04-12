@@ -41,6 +41,8 @@ import DownloadsAdminPage from "./pages/admin/DownloadsAdminPage";
 import MediaAdminPage from "./pages/admin/MediaAdminPage";
 import ContentAdminPage from "./pages/admin/ContentAdminPage";
 import StructuredContentAdminPage from "./pages/admin/StructuredContentAdminPage";
+import BoardAdminPage from "./pages/admin/BoardAdminPage";
+import PartnerClubsAdminPage from "./pages/admin/PartnerClubsAdminPage";
 import UsersAdminPage from "./pages/admin/UsersAdminPage";
 import SettingsAdminPage from "./pages/admin/SettingsAdminPage";
 import EventGalleryArchivePage from "./pages/admin/EventGalleryArchivePage";
@@ -104,6 +106,8 @@ const App = () => (
               <Route path="/admin/downloads" element={<AdminLayout><DownloadsAdminPage /></AdminLayout>} />
               <Route path="/admin/media" element={<AdminLayout><MediaAdminPage /></AdminLayout>} />
               <Route path="/admin/content" element={<AdminLayout><ContentAdminPage /></AdminLayout>} />
+              <Route path="/admin/board" element={<AdminLayout><BoardAdminPage /></AdminLayout>} />
+              <Route path="/admin/partner-clubs" element={<AdminLayout><PartnerClubsAdminPage /></AdminLayout>} />
               <Route path="/admin/structured" element={<AdminLayout><StructuredContentAdminPage /></AdminLayout>} />
               <Route path="/admin/users" element={<AdminLayout><UsersAdminPage /></AdminLayout>} />
               <Route path="/admin/settings" element={<AdminLayout><SettingsAdminPage /></AdminLayout>} />

@@ -1,5 +1,6 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,29 +8,33 @@ import { History, Clock, Users, Trophy, MapPin } from 'lucide-react';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useHistoryTimelineEntries } from '@/hooks/useStructuredContent';
 
+const fallbacks = {
+  de: {
+    intro: { title: 'Vereinsgeschichte', subtitle: 'Seit 2013 im Motorsport aktiv', content: 'Am 31.05.2013 wurde der Motorsportclub „MSC Oberlausitzer-Dreiländereck" e.V. in Jonsdorf im Hotel Gondelfahrt gegründet. Der MSC Oberlausitzer-Dreiländereck ist Mitglied im „Deutschen Motorsport Verband" (DMV).' },
+    founding: { title: 'Gründung des MSC Oberlausitzer Dreiländereck', subtitle: '31. Mai 2013 · Jonsdorf', content: '<p>Zur Eröffnungsveranstaltung waren 30 Mitglieder erschienen. Zur 1. Hauptversammlung am 13.06.2013 waren bereits 75 Mitglieder eingeschrieben.</p><p>Dr. Herrmann Funke verlas die umfangreiche Satzung und gab fachkundig Auskunft zu gestellten Fragen. Schwerpunkte sind u.a. die Förderung der Jugendarbeit, Sicherheit für den Straßenverkehr, Pflege des Motorsports, Ausbau motorsportlicher Verbindungen nach CZ und PL und die Organisation von Veranstaltungen.</p><p>Der gemeinnützige Verein legt besonderen Wert auf den Ausbau der Attraktivität und die Erhöhung des Bekanntheitsgrades unserer Region sowie die grenzüberschreitende Zusammenarbeit mit anderen Motorsportvereinen.</p>' },
+    track: { title: 'Das Oberlausitzer Dreieck', content: 'Die Strecke verläuft als „Oberlausitzer Dreieck" mit einer Länge von 5,9 Kilometern zwischen Saalendorf, Jonsdorf und Waltersdorf. Fahrerlager, Parkplätze, Gastronomie, Quartiere – alles passt gut zusammen.' },
+  },
+  cz: {
+    intro: { title: 'Historie klubu', subtitle: 'V motorsportu aktivní od roku 2013', content: 'Dne 31.05.2013 byl v Jonsdorfu v hotelu Gondelfahrt založen motorsportový klub „MSC Oberlausitzer-Dreiländereck" e.V. MSC je členem „Německého motorsportového svazu" (DMV).' },
+    founding: { title: 'Založení MSC Oberlausitzer Dreiländereck', subtitle: '31. května 2013 · Jonsdorf', content: '<p>Na zahajovací akci se zúčastnilo 30 členů. Na první valné hromadě dne 13.06.2013 bylo již zapsáno 75 členů.</p><p>Neziskový spolek klade zvláštní důraz na rozvoj atraktivity a zvýšení povědomí o našem regionu a přeshraniční spolupráci s dalšími motorsportovými kluby.</p>' },
+    track: { title: 'Horní Lužický trojúhelník', content: 'Trať „Oberlausitzer Dreieck" měří 5,9 kilometrů a vede mezi Saalendorfem, Jonsdorfem a Waltersdorfem.' },
+  },
+  en: {
+    intro: { title: 'Club History', subtitle: 'Active in motorsport since 2013', content: 'On May 31, 2013, the motorsport club "MSC Oberlausitzer-Dreiländereck" e.V. was founded in Jonsdorf at Hotel Gondelfahrt. The MSC is a member of the "German Motorsport Association" (DMV).' },
+    founding: { title: 'Founding of MSC Oberlausitzer Dreiländereck', subtitle: 'May 31, 2013 · Jonsdorf', content: '<p>30 members attended the inaugural event. By the first general assembly on June 13, 2013, 75 members had already registered.</p><p>The non-profit association places particular emphasis on enhancing the attractiveness and raising awareness of our region as well as cross-border cooperation with other motorsport clubs.</p>' },
+    track: { title: 'The Upper Lusatian Triangle', content: 'The track runs as the "Oberlausitzer Dreieck" with a length of 5.9 kilometers between Saalendorf, Jonsdorf, and Waltersdorf.' },
+  },
+};
+
 export default function HistoryPage() {
   const t = useTranslation();
+  const { locale } = useLanguage();
+  const lang = (locale === 'cz' || locale === 'en') ? locale : 'de';
+  const fb = fallbacks[lang];
 
-  const intro = useContentWithFallback('history', 'intro', {
-    title: 'Vereinsgeschichte',
-    subtitle: 'Seit 2013 im Motorsport aktiv',
-    content:
-      'Am 31.05.2013 wurde der Motorsportclub „MSC Oberlausitzer-Dreiländereck" e.V. in Jonsdorf im Hotel Gondelfahrt gegründet. Der MSC Oberlausitzer-Dreiländereck ist Mitglied im „Deutschen Motorsport Verband" (DMV).',
-  });
-
-  const founding = useContentWithFallback('history', 'founding', {
-    title: 'Gründung des MSC Oberlausitzer Dreiländereck',
-    content: `<p>Zur Eröffnungsveranstaltung waren 30 Mitglieder erschienen. Zur 1. Hauptversammlung am 13.06.2013 waren bereits 75 Mitglieder eingeschrieben. Unter den Mitgliedern finden sich Freunde des Motorsports, aktive und ehemalige Motorsportler wieder.</p>
-<p>Dr. Herrmann Funke verlas die umfangreiche Satzung und gab fachkundig Auskunft zu gestellten Fragen. Schwerpunkte sind u.a. die Förderung der Jugendarbeit, Sicherheit für den Straßenverkehr, Pflege des Motorsports, Ausbau motorsportlicher Verbindungen nach CZ und PL und die Organisation von Veranstaltungen. Eine mit erfahrenen Fachleuten besetzte Clubleitung wurde einstimmig gewählt.</p>
-<p>Der gemeinnützige Verein legt besonderen Wert auf den Ausbau der Attraktivität und die Erhöhung des Bekanntheitsgrades unserer Region sowie die grenzüberschreitende Zusammenarbeit mit anderen Motorsportvereinen. Außerdem bemühen wir uns um unsere Motorsportjugend.</p>`,
-    subtitle: '31. Mai 2013 · Jonsdorf',
-  });
-
-  const track = useContentWithFallback('history', 'track', {
-    title: 'Das Oberlausitzer Dreieck',
-    content:
-      'Die Strecke verläuft als „Oberlausitzer Dreieck" mit einer Länge von 5,9 Kilometern zwischen Saalendorf, Jonsdorf und Waltersdorf. Fahrerlager, Parkplätze, Gastronomie, Quartiere – alles passt gut zusammen.',
-  });
+  const intro = useContentWithFallback('history', 'intro', fb.intro);
+  const founding = useContentWithFallback('history', 'founding', fb.founding);
+  const track = useContentWithFallback('history', 'track', fb.track);
 
   const { data: timelineEntries, isLoading } = useHistoryTimelineEntries();
 
