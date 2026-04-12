@@ -272,7 +272,7 @@ export default function MotocrossPage() {
             </div>
             <div>
               <img
-                src={directions.image_url || anfahrtImage}
+                src={directionsImage}
                 alt={directions.image_alt || 'Anfahrt zur Motocross-Strecke'}
                 className="w-full border border-border object-cover"
                 loading="lazy"
