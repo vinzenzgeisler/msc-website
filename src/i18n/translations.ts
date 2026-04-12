@@ -61,7 +61,7 @@ export const translations = {
       gallery: 'Galerie',
       archive: 'Archiv',
       classes: {
-        title: 'Teilnehmerklassen',
+        title: 'Klassen',
         motorcycles: 'Rennmotorräder',
         sidecars: 'Seitenwagen',
         karts: 'Karts',
@@ -195,7 +195,7 @@ export const translations = {
       gallery: 'Galerie',
       archive: 'Archiv',
       classes: {
-        title: 'Třídy účastníků',
+        title: 'Třídy',
         motorcycles: 'Závodní motocykly',
         sidecars: 'Sajdkáry',
         karts: 'Motokáry',
@@ -329,7 +329,7 @@ export const translations = {
       gallery: 'Gallery',
       archive: 'Archive',
       classes: {
-        title: 'Participant Classes',
+        title: 'Classes',
         motorcycles: 'Racing Motorcycles',
         sidecars: 'Sidecars',
         karts: 'Karts',
