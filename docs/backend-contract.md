@@ -100,21 +100,27 @@ Fallback-Kette: `locale` → `de` → hardcoded Fallback
 | `home` | `sponsors` | Sponsoren-Sektion | `title`, `subtitle` |
 | `about` | `intro` | Über uns | `title`, `subtitle`, `content`, `image` |
 | `about` | `mission` | Über uns – Mission | `title`, `content` |
-| `about` | `values` | Über uns – Werte | `title`, `content` |
+| `about` | `values` | Über uns – Werte | `title`, `content` (HTML-Liste) |
 | `board` | `intro` | Vorstand | `title`, `subtitle`, `content`, `image` |
-| `history` | `intro` | Geschichte | `title`, `subtitle`, `content`, `image` |
+| `history` | `intro` | Geschichte – Intro | `title`, `subtitle`, `content`, `image`, `statOneLabel`–`statThreeLabel` |
+| `history` | `founding` | Gründungsgeschichte | `title`, `subtitle` (Datum/Ort), `content` (HTML) |
+| `history` | `track` | Oberlausitzer Dreieck | `title`, `content` |
 | `membership` | `intro` | Mitgliedschaft | `title`, `subtitle`, `content`, `image` |
 | `membership` | `benefits` | Vorteile-Überschrift | `title` |
 | `membership` | `how_to_join` | Beitritt-Überschrift | `title` |
 | `membership` | `cta` | Mitglied-CTA | `title`, `content`, `primaryButtonLabel`, `primaryButtonUrl` |
-| `motocross` | `intro` | Motocross | `title`, `subtitle`, `content`, `image` |
-| `motocross` | `training` | Motocross Training | `title`, `content` |
+| `motocross` | `intro` | Motocross Intro | `title`, `subtitle`, `content`, `image`, `statOneLabel`–`statThreeLabel` |
+| `motocross` | `training` | Öffnungszeiten | `title`, `subtitle` (Winterpause-Hinweis), `content` (HTML-Tabelle) |
+| `motocross` | `fees` | Gebühren | `title`, `subtitle` (Bonusinfo), `content` (HTML-Tabelle) |
+| `motocross` | `safety` | Sicherheitshinweise | `title`, `subtitle`, `content` (HTML-Liste) |
+| `motocross` | `directions` | Anfahrt | `title`, `subtitle`, `content`, `image`, `primaryButtonLabel/Url` (Google Maps), `secondaryButtonUrl` (Karten-Embed) |
 | `motocross` | `events` | Motocross Termine | `title`, `content` |
-| `trial` | `intro` | Trial | `title`, `subtitle`, `content`, `image` |
-| `trial` | `training` | Trial Training | `title`, `content` |
+| `trial` | `intro` | Trial Intro | `title`, `subtitle`, `content`, `image`, `statOneLabel`–`statThreeLabel` |
+| `trial` | `contact` | Ansprechpartner | `title`, `content` (HTML), `subtitle` (Telefon), `primaryButtonLabel/Url`, `secondaryButtonLabel/Url` |
 | `trial` | `events` | Trial Termine | `title`, `content` |
-| `touring` | `intro` | Touring | `title`, `subtitle`, `content`, `image` |
-| `touring` | `training` | Touring Training | `title`, `content` |
+| `touring` | `intro` | Motorradtouristik Intro | `title`, `subtitle`, `content`, `image`, `statOneLabel`–`statThreeLabel` |
+| `touring` | `tours_current` | Aktuelle Touren | `title`, `content` (HTML mit Tour-Einträgen) |
+| `touring` | `tours_archive` | Tourenarchiv | `title`, `subtitle`, `content` (HTML mit Tour-Einträgen) |
 | `touring` | `events` | Touring Termine | `title`, `content` |
 | `calendar` | `intro` | Kalender | `title`, `subtitle` |
 | `news` | `intro` | News-Listing | `title`, `subtitle` |
@@ -125,7 +131,7 @@ Fallback-Kette: `locale` → `de` → hardcoded Fallback
 | `event` | `gallery` | Galerie-Fallback | `content` |
 | `event` | `archive` | Archiv-Fallback | `content` |
 | `contact` | `intro` | Kontaktseite | `title`, `subtitle` |
-| `contact` | `info` | Kontaktdaten-Text | `content` |
+| `contact` | `info` | Kontaktdaten-Text | `content` (HTML) |
 | `contact` | `map` | Karten-Label | `title`, `content` |
 | `sponsors` | `intro` | Sponsorenseite | `title`, `subtitle` |
 | `sponsors` | `cta` | Sponsor-CTA | `title`, `content` |
