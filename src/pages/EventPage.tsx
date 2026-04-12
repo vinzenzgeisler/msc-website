@@ -24,6 +24,7 @@ import {
   Shield,
   Map,
   BedDouble,
+  ChevronDown,
 } from 'lucide-react';
 import { useMainEvent } from '@/hooks/useMainEvent';
 import { useEventContent } from '@/hooks/useEventContent';
