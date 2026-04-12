@@ -79,37 +79,49 @@ export default function EventPage() {
     title: locale === 'de' ? 'Ablauf' : locale === 'cz' ? 'Průběh' : 'Schedule Overview',
     content: locale === 'de'
       ? 'Samstag: 8:00–ca. 18:00 Uhr Trainingsläufe, 20:00 Uhr Abendveranstaltung mit Livemusik. Sonntag: 8:00–ca. 18:00 Uhr Demoläufe.'
-      : '',
+      : locale === 'cz'
+        ? 'Sobota: 8:00–cca 18:00 tréninky, 20:00 večerní akce s živou hudbou. Neděle: 8:00–cca 18:00 ukázkové jízdy.'
+        : 'Saturday: 8:00 AM–approx. 6:00 PM practice runs, 8:00 PM evening event with live music. Sunday: 8:00 AM–approx. 6:00 PM demo runs.',
   });
   const parkingContent = useContentWithFallback('event', 'visitors_parking', {
     title: locale === 'de' ? 'Parkplätze & Shuttle' : locale === 'cz' ? 'Parkování a shuttle' : 'Parking & Shuttle',
     content: locale === 'de'
       ? 'Parkplätze sind ausgeschildert und kostenlos. An der Strecke gibt es kostenlose Shuttlebusse, welche die Besucher zu den Zuschauerbereichen fahren.'
-      : '',
+      : locale === 'cz'
+        ? 'Parkoviště jsou označena a zdarma. Na trati jsou k dispozici bezplatné autobusy, které návštěvníky zavezou k diváckým zónám.'
+        : 'Parking areas are signposted and free of charge. Free shuttle buses run along the track to take spectators to viewing areas.',
   });
   const paddockContent = useContentWithFallback('event', 'visitors_paddock', {
     title: locale === 'de' ? 'Fahrerlager' : locale === 'cz' ? 'Depo' : 'Paddock',
     content: locale === 'de'
       ? 'Die beiden Fahrerlager sind auch für die Zuschauer zugänglich.'
-      : '',
+      : locale === 'cz'
+        ? 'Obě depa jsou přístupná i pro diváky.'
+        : 'Both paddock areas are open to spectators.',
   });
   const photographerContent = useContentWithFallback('event', 'visitors_photographers', {
     title: locale === 'de' ? 'Fotografen' : locale === 'cz' ? 'Fotografové' : 'Photographers',
     content: locale === 'de'
       ? 'Die Fotografenbereiche sind farblich gekennzeichnet und dürfen nur von akkreditierten Fotografen betreten werden. Die Absperrungen dürfen nicht überschritten werden!'
-      : '',
+      : locale === 'cz'
+        ? 'Fotografické zóny jsou barevně označeny a přístupné pouze akreditovaným fotografům. Zábrany se nesmí překračovat!'
+        : 'Photographer zones are color-coded and may only be entered by accredited photographers. Barriers must not be crossed!',
   });
   const privacyNoticeContent = useContentWithFallback('event', 'visitors_privacy', {
     title: locale === 'de' ? 'Datenschutzhinweis' : locale === 'cz' ? 'Ochrana osobních údajů' : 'Privacy Notice',
     content: locale === 'de'
       ? 'Im Rahmen unserer Veranstaltungen behalten wir uns vor, Bild- und Tonaufnahmen von Beteiligten und Gästen zu Zwecken der PR- und Öffentlichkeitsarbeit zu erstellen, zu verarbeiten und zu verbreiten, soweit diese nicht im Einzelfall widersprechen. Mit der Anmeldung/Nennung erklären sich die Teilnehmer damit einverstanden, dass Aufnahmen während der Veranstaltung gemacht werden, die ohne Vergütungsanspruch für diese Zwecke verwendet werden dürfen.'
-      : '',
+      : locale === 'cz'
+        ? 'V rámci našich akcí si vyhrazujeme právo pořizovat obrazové a zvukové záznamy účastníků a hostů pro účely PR a veřejné komunikace.'
+        : 'During our events, we reserve the right to create, process, and distribute photo and audio recordings of participants and guests for PR and public relations purposes, unless individually objected to.',
   });
   const transportContent = useContentWithFallback('event', 'visitors_transport', {
     title: locale === 'de' ? 'Öffentliche Verkehrsmittel' : locale === 'cz' ? 'Veřejná doprava' : 'Public Transport',
     content: locale === 'de'
       ? 'Änderungen der Fahrpläne der öffentlichen Verkehrsmittel werden rechtzeitig aktualisiert.'
-      : '',
+      : locale === 'cz'
+        ? 'Změny jízdních řádů veřejné dopravy budou včas aktualizovány.'
+        : 'Public transport schedule changes will be updated in a timely manner.',
   });
   const siteMapContent = useContentWithFallback('event', 'visitors_site_map', {
     title: locale === 'de' ? 'Lageplan' : locale === 'cz' ? 'Plán areálu' : 'Site Map',
