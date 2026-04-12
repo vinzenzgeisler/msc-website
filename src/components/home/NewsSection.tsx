@@ -130,12 +130,13 @@ export function NewsSection() {
               }`}
             >
               {/* Image placeholder */}
-              <div className={`relative bg-muted ${index === 0 ? 'h-48 lg:h-64' : 'h-32'}`}>
+              <div className={`relative bg-muted ${index === 0 ? 'aspect-[16/9]' : 'aspect-[16/9]'}`}>
                 {news.image_url ? (
                   <img 
                     src={news.image_url} 
                     alt={news.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-center"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
