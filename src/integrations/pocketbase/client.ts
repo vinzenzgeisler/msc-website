@@ -160,6 +160,30 @@ export interface ParticipantClass {
   locale: string;
 }
 
+export interface EventArchive {
+  id: string;
+  title: string;
+  year: number;
+  description: string | null;
+  album_id: string | null;
+  sort_order: number;
+  locale: string;
+  created_at: string;
+}
+
+export function mapEventArchiveRecord(record: RecordModel): EventArchive {
+  return {
+    id: record.id,
+    title: record.title,
+    year: Number(record.year || 0),
+    description: record.description || null,
+    album_id: record.albumId || null,
+    sort_order: Number(record.sortOrder || 0),
+    locale: record.locale || 'de',
+    created_at: record.created,
+  };
+}
+
 export interface HistoryTimelineEntry {
   id: string;
   year_label: string;
