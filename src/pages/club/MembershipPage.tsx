@@ -229,11 +229,11 @@ export default function MembershipPage() {
             <p className="mx-auto mb-8 max-w-lg text-primary-foreground/80">{cta.content}</p>
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold" asChild>
-                <a href={`mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`}>
+                <Link to="/contact">
                   <Mail className="mr-2 h-5 w-5" />
                   {cta.contactLabel}
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </a>
+                </Link>
               </Button>
               <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
                 <Link to="/calendar">
