@@ -66,8 +66,10 @@ export default function EventPage() {
     title: locale === 'de' ? 'Teilnehmer-Anmeldung' : locale === 'cz' ? 'Registrace účastníků' : 'Participant Registration',
     content:
       locale === 'de'
-        ? 'Vereinsmitglieder des MSC Oberlausitzer Dreiländereck e.V. zahlen kein Nenngeld. Nachwuchsfahrer unter 18 Jahren benötigen eine schriftliche Einverständniserklärung eines Erziehungsberechtigten. Ab 70 Jahren ist ein ärztliches Attest erforderlich.'
-        : '',
+        ? 'Melde dich jetzt für das Oberlausitzer Dreieck an! Die Nennung ist für Vereinsmitglieder des MSC Oberlausitzer Dreiländereck e.V. kostenfrei. Nachwuchsfahrer unter 18 Jahren benötigen eine schriftliche Einverständniserklärung eines Erziehungsberechtigten. Ab 70 Jahren ist ein ärztliches Attest erforderlich. Bitte wähle bei der Anmeldung deine Klasse und dein Fahrzeug aus.'
+        : locale === 'cz'
+          ? 'Přihlaste se nyní na Horní Lužický trojúhelník! Přihláška je pro členy MSC Oberlausitzer Dreiländereck e.V. zdarma. Mladí jezdci do 18 let potřebují písemný souhlas zákonného zástupce. Od 70 let je nutné lékařské potvrzení.'
+          : 'Register now for the Oberlausitz Triangle! Entry is free for members of MSC Oberlausitzer Dreiländereck e.V. Young riders under 18 require written consent from a legal guardian. A medical certificate is required from the age of 70.',
   });
   const admissionContent = useContentWithFallback('event', 'visitors_admission', {
     title: locale === 'de' ? 'Eintrittspreise' : locale === 'cz' ? 'Vstupné' : 'Admission',
@@ -331,26 +333,35 @@ export default function EventPage() {
       <section id="classes" className="bg-muted/50 py-16">
         <div className="container">
           <h2 className="mb-8">{t.event.classes.title}</h2>
+          <p className="mb-6 text-muted-foreground">
+            {locale === 'de'
+              ? 'Folgende Klassen werden beim Oberlausitzer Dreieck ausgeschrieben. Die Einteilung erfolgt nach Fahrzeugtyp und Baujahr.'
+              : locale === 'cz'
+                ? 'Na Horním Lužickém trojúhelníku jsou vypsány následující třídy. Rozdělení probíhá podle typu vozidla a roku výroby.'
+                : 'The following classes are offered at the Oberlausitz Triangle. Classification is based on vehicle type and year of manufacture.'}
+          </p>
           {participantClasses.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {participantClasses.map((cls) => (
-                <Card key={cls.name} className="text-center">
-                  <CardContent className="p-6">
-                    <cls.icon className="mx-auto mb-3 h-10 w-10 text-primary" />
-                    <h3 className="mb-1 text-lg font-semibold">{cls.name}</h3>
-                    <p className="text-sm text-muted-foreground">{cls.description}</p>
-                  </CardContent>
-                </Card>
+                <div key={cls.name} className="accent-stripe flex items-center gap-3 border border-border bg-card p-4 pl-5">
+                  <cls.icon className="h-5 w-5 shrink-0 text-primary" />
+                  <div className="min-w-0">
+                    <span className="font-semibold">{cls.name}</span>
+                    {cls.description && (
+                      <p className="text-sm text-muted-foreground">{cls.description}</p>
+                    )}
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
             <Card>
               <CardContent className="p-6 text-muted-foreground">
                 {locale === 'de'
-                  ? 'Noch keine Teilnehmerklassen hinterlegt.'
+                  ? 'Die Klassen werden rechtzeitig vor der Veranstaltung veröffentlicht.'
                   : locale === 'cz'
-                    ? 'Zatím nejsou nastaveny žádné třídy účastníků.'
-                    : 'No participant classes have been added yet.'}
+                    ? 'Třídy budou zveřejněny včas před akcí.'
+                    : 'Classes will be published in time before the event.'}
               </CardContent>
             </Card>
           )}
