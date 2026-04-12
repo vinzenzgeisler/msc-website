@@ -16,6 +16,13 @@ import {
   Info,
   ExternalLink,
   ClipboardList,
+  Ticket,
+  ParkingCircle,
+  Bus,
+  Camera,
+  Shield,
+  Map,
+  BedDouble,
 } from 'lucide-react';
 import { useMainEvent } from '@/hooks/useMainEvent';
 import { useEventContent } from '@/hooks/useEventContent';
