@@ -60,17 +60,20 @@ export default function NewsDetailPage() {
     );
   }
 
-  const categoryLabel = article.category === 'event' ? 'Veranstaltung' : 'Verein';
-  const categoryColor = article.category === 'event' 
-    ? 'border-l-4 border-accent bg-accent/15 text-accent dark:text-accent' 
-    : 'border-l-4 border-primary bg-primary/15 text-primary dark:text-primary-foreground dark:bg-primary/30';
-
   const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return '';
     return format(date, 'd. MMMM yyyy', { locale: de });
   };
+
+  const categoryLabel = article.category === 'event' ? 'Veranstaltung' 
+    : article.category === 'motocross' ? 'Motocross'
+    : article.category === 'trial' ? 'Trial'
+    : article.category === 'touring' ? 'Touring'
+    : 'Verein';
+
+  const displayDate = formatDate(article.published_at || article.created_at);
 
   return (
     <MainLayout>
@@ -92,13 +95,15 @@ export default function NewsDetailPage() {
           <div className="mx-auto max-w-3xl">
             <div className="flex items-center gap-3 mb-4">
               {article.category && (
-                <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider ${categoryColor}`}>
+                <span className="inline-flex items-center gap-1.5 bg-accent px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent-foreground">
                   {categoryLabel}
                 </span>
               )}
-              <span className="text-sm text-primary-foreground/80">
-                {formatDate(article.created_at)}
-              </span>
+              {displayDate && (
+                <span className="text-sm text-primary-foreground/80">
+                  {displayDate}
+                </span>
+              )}
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl">{article.title}</h1>
