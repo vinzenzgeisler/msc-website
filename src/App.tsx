@@ -42,6 +42,7 @@ import ContentAdminPage from "./pages/admin/ContentAdminPage";
 import StructuredContentAdminPage from "./pages/admin/StructuredContentAdminPage";
 import UsersAdminPage from "./pages/admin/UsersAdminPage";
 import SettingsAdminPage from "./pages/admin/SettingsAdminPage";
+import EventGalleryArchivePage from "./pages/admin/EventGalleryArchivePage";
 import { AdminLayout } from "./components/admin/AdminLayout";
 
 const queryClient = new QueryClient();
@@ -91,6 +92,7 @@ const App = () => (
               <Route path="/admin/news/new" element={<AdminLayout><NewsFormPage /></AdminLayout>} />
               <Route path="/admin/news/:id" element={<AdminLayout><NewsFormPage /></AdminLayout>} />
               <Route path="/admin/events" element={<AdminLayout><EventsAdminPage /></AdminLayout>} />
+              <Route path="/admin/events/gallery-archive" element={<AdminLayout><EventGalleryArchivePage /></AdminLayout>} />
               <Route path="/admin/calendar" element={<AdminLayout><CalendarAdminPage /></AdminLayout>} />
               <Route path="/admin/calendar/new" element={<AdminLayout><CalendarFormPage /></AdminLayout>} />
               <Route path="/admin/calendar/:id" element={<AdminLayout><CalendarFormPage /></AdminLayout>} />

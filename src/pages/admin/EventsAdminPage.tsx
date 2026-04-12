@@ -29,7 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Search, MoreHorizontal, Pencil, Trash2, Eye, Calendar, Star } from 'lucide-react';
+import { Plus, Search, MoreHorizontal, Pencil, Trash2, Eye, Calendar, Star, Image } from 'lucide-react';
 import { useCalendarEvents, useDeleteCalendarEvent, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
 import type { CalendarEvent } from '@/integrations/pocketbase/client';
 import { de } from 'date-fns/locale';
