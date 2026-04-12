@@ -96,8 +96,10 @@ Prinzip: `DE ist führend`, EN/CZ als Übersetzungen pro Datensatz (`locale`).
 | Vorstand Intro | `subtitle`,`content` (`board/intro`) | `pageContents` | optional |
 | Vorstand Zusatztext | `content` (`board/members`) | `pageContents` | optional |
 | Vorstandsliste | `name`,`role`,`photo`,`email`,`phone`,`sortOrder` | `boardMembers` | required (`name`,`role`) |
-| Historie Intro | `subtitle` (`history/intro`) | `pageContents` | optional |
-| Historie Timeline | `content` (`history/timeline`) | `pageContents` | required |
+| Historie Intro | `title`,`subtitle`,`content`,`image`,`imageAlt`,`statOneLabel`,`statTwoLabel`,`statThreeLabel` (`history/intro`) | `pageContents` | required |
+| Historie Gründung | `title`,`subtitle`,`content` (`history/founding`) | `pageContents` | required |
+| Historie Strecke | `title`,`content` (`history/track`) | `pageContents` | optional |
+| Historie Meilensteine | `yearLabel`,`title`,`description`,`image` | `historyTimeline` | optional |
 | Mitgliedschaft Intro | `subtitle`,`content` (`membership/intro`) | `pageContents` | optional |
 | Mitgliedschaft Vorteile Überschrift | `title` (`membership/benefits`) | `pageContents` | optional |
 | Mitgliedschaft Beitritt Überschrift | `title` (`membership/how_to_join`) | `pageContents` | optional |
