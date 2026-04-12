@@ -147,7 +147,7 @@ export default function DashboardPage() {
                       <p className="font-medium truncate">{article.title}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-muted-foreground">
-                          {formatDateSafe(article.created_at, 'dd.MM.yyyy', de)}
+                          {formatDateSafe(article.display_date, 'dd.MM.yyyy', de)}
                         </span>
                         <Badge
                           variant={article.status === 'published' ? 'default' : 'secondary'}

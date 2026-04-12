@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -18,7 +18,6 @@ import {
   Loader2,
 } from 'lucide-react';
 import { pb } from '@/integrations/pocketbase/client';
-import { useState } from 'react';
 import { toast } from 'sonner';
 
 interface RichTextEditorProps {
@@ -56,6 +55,19 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
       },
     },
   });
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const normalizedIncoming = content || '';
+    const normalizedCurrent = editor.getHTML();
+
+    if (normalizedCurrent === normalizedIncoming) {
+      return;
+    }
+
+    editor.commands.setContent(normalizedIncoming, { emitUpdate: false });
+  }, [editor, content]);
 
   const handleImageUpload = useCallback(async (file: File) => {
     if (!editor) return;

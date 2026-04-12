@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Languages } from 'lucide-react';
+import { formatDateSafe } from '@/lib/date';
 
 const TARGETS = [
   { value: 'en', label: 'EN' },
@@ -14,9 +15,16 @@ export interface TranslationStatus {
   cz: boolean;
 }
 
+export interface TranslationMeta {
+  exists: boolean;
+  date?: string | null;
+  status?: 'draft' | 'published';
+}
+
 interface LocaleTranslationBoxProps {
   description: string;
   status: TranslationStatus;
+  meta?: Partial<Record<TranslationTarget, TranslationMeta>>;
   onTranslate: (target: TranslationTarget) => Promise<void> | void;
   isTranslating?: boolean;
   disabled?: boolean;
@@ -25,6 +33,7 @@ interface LocaleTranslationBoxProps {
 export function LocaleTranslationBox({
   description,
   status,
+  meta,
   onTranslate,
   isTranslating = false,
   disabled = false,
@@ -55,8 +64,27 @@ export function LocaleTranslationBox({
           ))}
         </div>
 
-        <div className="text-xs text-muted-foreground">
-          EN: {status.en ? 'vorhanden' : 'fehlt'} | CZ: {status.cz ? 'vorhanden' : 'fehlt'}
+        <div className="space-y-1 text-xs text-muted-foreground">
+          {TARGETS.map((target) => {
+            const targetMeta = meta?.[target.value];
+            const exists = targetMeta?.exists ?? status[target.value];
+            const formattedDate = targetMeta?.date
+              ? formatDateSafe(targetMeta.date, 'dd.MM.yyyy', undefined, '')
+              : '';
+            const statusLabel =
+              targetMeta?.status === 'published'
+                ? 'veröffentlicht'
+                : targetMeta?.status === 'draft'
+                  ? 'Entwurf'
+                  : 'vorhanden';
+
+            return (
+              <div key={target.value}>
+                {target.label}: {exists ? statusLabel : 'fehlt'}
+                {formattedDate ? ` • ${formattedDate}` : ''}
+              </div>
+            );
+          })}
         </div>
       </CardContent>
     </Card>

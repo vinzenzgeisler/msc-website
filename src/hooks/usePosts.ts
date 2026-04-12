@@ -17,10 +17,10 @@ export function usePosts(filterByLocale = true) {
         .sort((a, b) => {
           if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
 
-          const updatedDiff = getSafeTimestamp(b.updated_at) - getSafeTimestamp(a.updated_at);
-          if (updatedDiff !== 0) return updatedDiff;
+          const displayDiff = getSafeTimestamp(b.display_date) - getSafeTimestamp(a.display_date);
+          if (displayDiff !== 0) return displayDiff;
 
-          return getSafeTimestamp(b.created_at) - getSafeTimestamp(a.created_at);
+          return getSafeTimestamp(b.updated_at) - getSafeTimestamp(a.updated_at);
         });
     },
   });
@@ -72,6 +72,10 @@ export function useCreatePost() {
         published: post.status === 'published',
       };
 
+      if (post.published_at !== undefined) {
+        payload.publishedAt = post.published_at;
+      }
+
       if (post.imageFile) {
         payload.image = post.imageFile;
       }
@@ -100,6 +104,7 @@ export function useUpdatePost() {
       if (updates.locale !== undefined) payload.locale = updates.locale;
       if (updates.is_pinned !== undefined) payload.isPinned = updates.is_pinned;
       if (updates.status !== undefined) payload.published = updates.status === 'published';
+      if (updates.published_at !== undefined) payload.publishedAt = updates.published_at;
       if (imageFile) payload.image = imageFile;
 
       const data = await pb.collection('posts').update(id, payload);

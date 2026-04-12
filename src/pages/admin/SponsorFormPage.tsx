@@ -16,6 +16,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useSponsor, useCreateSponsor, useUpdateSponsor } from '@/hooks/useSponsors';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 
 const tiers = [
   { value: 'main', label: 'Hauptsponsor' },
@@ -163,6 +164,7 @@ export default function SponsorFormPage() {
                 accept="image/*"
                 onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
               />
+              <MediaAssetPicker onSelect={(file) => setLogoFile(file)} />
               {(logoFile || existingSponsor?.logo_url) && (
                 <div className="mt-2 p-4 border rounded-lg bg-muted/50">
                   {logoFile ? (

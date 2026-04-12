@@ -1,16 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation, useLanguage } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Filter, Newspaper, Pin } from 'lucide-react';
 import { usePosts } from '@/hooks/usePosts';
 import { useContentWithFallback } from '@/hooks/usePageContent';
-import { format } from 'date-fns';
 import { de, cs, enUS } from 'date-fns/locale';
+import { formatDateSafe, getSafeTimestamp } from '@/lib/date';
 
 // Map database categories to display categories
 const dbCategoryMap: Record<string, string> = {
@@ -27,6 +27,7 @@ export default function NewsPage() {
   const t = useTranslation();
   const { locale } = useLanguage();
   const [activeFilter, setActiveFilter] = useState<NewsCategory>('all');
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: posts, isLoading } = usePosts();
   const intro = useContentWithFallback('news', 'intro', {
     title: t.news.title,
@@ -57,9 +58,9 @@ export default function NewsPage() {
       if (a.is_pinned && !b.is_pinned) return -1;
       if (!a.is_pinned && b.is_pinned) return 1;
       // Then by date
-      const timeA = new Date(a.published_at || a.created_at || 0).getTime();
-      const timeB = new Date(b.published_at || b.created_at || 0).getTime();
-      return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+      const timeA = getSafeTimestamp(a.display_date);
+      const timeB = getSafeTimestamp(b.display_date);
+      return timeB - timeA;
     });
 
   const filteredArticles = activeFilter === 'all'
@@ -71,14 +72,43 @@ export default function NewsPage() {
 
   const featuredArticle = filteredArticles[0];
   const regularArticles = filteredArticles.slice(1);
+  const currentPageParam = Number(searchParams.get('page') || '1');
+  const currentPage = Number.isFinite(currentPageParam) && currentPageParam > 0 ? Math.floor(currentPageParam) : 1;
+  const totalPages = regularArticles.length <= 5
+    ? 1
+    : 1 + Math.ceil((regularArticles.length - 5) / 6);
+  const paginatedArticles = useMemo(() => {
+    if (currentPage === 1) {
+      return regularArticles.slice(0, 5);
+    }
+
+    const startIndex = 5 + (currentPage - 2) * 6;
+    return regularArticles.slice(startIndex, startIndex + 6);
+  }, [currentPage, regularArticles]);
+
+  const setPage = (page: number) => {
+    const next = new URLSearchParams(searchParams);
+    if (page <= 1) {
+      next.delete('page');
+    } else {
+      next.set('page', String(page));
+    }
+    setSearchParams(next, { replace: true });
+  };
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeFilter, locale]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const formatDate = (dateStr?: string | null, short = false) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return '';
-
     const formatStr = short ? 'd. MMM yyyy' : 'd. MMMM yyyy';
-    return format(date, formatStr, { locale: dateLocale });
+    return formatDateSafe(dateStr, formatStr, dateLocale, '');
   };
 
   const getCategoryColor = (category: string | null) => {
@@ -156,7 +186,7 @@ export default function NewsPage() {
           ) : (
             <>
               {/* Featured Article */}
-              {featuredArticle && (
+              {featuredArticle && currentPage === 1 && (
                 <Link to={`/news/${featuredArticle.slug}`} className="group mb-8 block overflow-hidden rounded-lg border-2 border-accent bg-card transition-shadow hover:shadow-xl">
                   <div className="grid md:grid-cols-2">
                     {/* Image */}
@@ -186,7 +216,7 @@ export default function NewsPage() {
                           {getCategoryLabel(featuredArticle.category)}
                         </span>
                         <span className="text-sm text-muted-foreground">
-                          {formatDate(featuredArticle.published_at || featuredArticle.created_at)}
+                          {formatDate(featuredArticle.display_date)}
                         </span>
                       </div>
                       
@@ -211,7 +241,7 @@ export default function NewsPage() {
 
               {/* News Grid */}
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {regularArticles.map((article) => (
+                {paginatedArticles.map((article) => (
                   <Link key={article.id} to={`/news/${article.slug}`} className="group block overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-lg">
                     {/* Image */}
                     <div className="aspect-[16/9] bg-muted relative overflow-hidden">
@@ -238,7 +268,7 @@ export default function NewsPage() {
                           {getCategoryLabel(article.category)}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          {formatDate(article.published_at || article.created_at, true)}
+                          {formatDate(article.display_date, true)}
                         </span>
                       </div>
                       
@@ -260,6 +290,36 @@ export default function NewsPage() {
                   </Link>
                 ))}
               </div>
+
+              {totalPages > 1 && (
+                <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    {locale === 'de' ? 'Zurück' : locale === 'cz' ? 'Zpět' : 'Previous'}
+                  </Button>
+
+                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                    <Button
+                      key={page}
+                      variant={page === currentPage ? 'default' : 'outline'}
+                      onClick={() => setPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  ))}
+
+                  <Button
+                    variant="outline"
+                    onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    {locale === 'de' ? 'Weiter' : locale === 'cz' ? 'Další' : 'Next'}
+                  </Button>
+                </div>
+              )}
 
               {filteredArticles.length === 0 && (
                 <div className="rounded-lg border-2 border-dashed border-border py-12 text-center text-muted-foreground">

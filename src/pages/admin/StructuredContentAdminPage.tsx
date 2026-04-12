@@ -30,6 +30,7 @@ import {
 import { DisciplineHighlight, HistoryTimelineEntry, MembershipBenefit, MembershipStep, PartnerClub } from '@/integrations/pocketbase/client';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 
 type Locale = 'de' | 'en' | 'cz';
 
@@ -208,6 +209,7 @@ function BoardEditor() {
             <div className="space-y-2">
               <Label>Foto</Label>
               <Input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] || null)} />
+              <MediaAssetPicker onSelect={(file) => setPhotoFile(file)} />
             </div>
           </div>
           <div className="flex gap-3">
@@ -346,6 +348,7 @@ function HistoryEditor() {
             <div className="space-y-2">
               <Label>Bild</Label>
               <Input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
+              <MediaAssetPicker onSelect={(file) => setImageFile(file)} />
             </div>
           </div>
           <div className="flex gap-3">
@@ -771,7 +774,11 @@ function PartnerClubsEditor() {
                 <SelectContent>{localeOptions.map((option) => <SelectItem key={option} value={option}>{option.toUpperCase()}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div className="space-y-2"><Label>Logo</Label><Input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files?.[0] || null)} /></div>
+            <div className="space-y-2">
+              <Label>Logo</Label>
+              <Input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files?.[0] || null)} />
+              <MediaAssetPicker onSelect={(file) => setLogoFile(file)} />
+            </div>
           </div>
           <div className="flex items-center justify-between rounded-lg border p-3">
             <div>

@@ -6,8 +6,22 @@ export const pb = new PocketBase(pocketbaseUrl);
 pb.autoCancellation(false);
 
 export async function listAllRecords<T = RecordModel>(collectionName: string): Promise<T[]> {
-  const result = await pb.collection(collectionName).getList<T>(1, 500);
-  return result.items;
+  const perPage = 200;
+  let page = 1;
+  let items: T[] = [];
+
+  while (true) {
+    const result = await pb.collection(collectionName).getList<T>(page, perPage);
+    items = items.concat(result.items);
+
+    if (page >= result.totalPages || result.items.length === 0) {
+      break;
+    }
+
+    page += 1;
+  }
+
+  return items;
 }
 
 export type UserRole = 'super_admin' | 'admin' | 'editor';
@@ -33,6 +47,7 @@ export interface Post {
   status: 'draft' | 'published';
   author_id: string | null;
   published_at: string | null;
+  display_date: string | null;
   locale: string;
   is_pinned: boolean;
   created_at: string;
@@ -278,6 +293,11 @@ export function mapProfileRecord(record: RecordModel): Profile {
 }
 
 export function mapPostRecord(record: RecordModel): Post {
+  const createdAt = record.created || record.createdAt || record.created_at || null;
+  const updatedAt = record.updated || record.updatedAt || record.updated_at || null;
+  const publishedAt = record.publishedAt || record.published_at || null;
+  const displayDate = publishedAt || createdAt || updatedAt || null;
+
   return {
     id: record.id,
     title: record.title,
@@ -288,11 +308,12 @@ export function mapPostRecord(record: RecordModel): Post {
     image_url: getFileUrl(record, 'image'),
     status: record.published ? 'published' : 'draft',
     author_id: null,
-    published_at: record.published ? record.updated : null,
+    published_at: publishedAt,
+    display_date: displayDate,
     locale: record.locale,
     is_pinned: Boolean(record.isPinned),
-    created_at: record.created,
-    updated_at: record.updated,
+    created_at: createdAt,
+    updated_at: updatedAt,
   };
 }
 

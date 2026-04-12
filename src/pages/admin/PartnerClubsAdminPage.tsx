@@ -14,6 +14,7 @@ import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 import type { PartnerClub } from '@/integrations/pocketbase/client';
 import { LocaleTranslationBox, type TranslationTarget, type TranslationStatus } from '@/components/admin/LocaleTranslationBox';
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
+import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 
 type Locale = 'de' | 'en' | 'cz';
 const localeOptions: Locale[] = ['de', 'en', 'cz'];
@@ -196,7 +197,11 @@ export default function PartnerClubsAdminPage() {
                   <SelectContent>{localeOptions.map((o) => <SelectItem key={o} value={o}>{o.toUpperCase()}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2"><Label>Logo</Label><Input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files?.[0] || null)} /></div>
+              <div className="space-y-2">
+                <Label>Logo</Label>
+                <Input type="file" accept="image/*" onChange={(e) => setLogoFile(e.target.files?.[0] || null)} />
+                <MediaAssetPicker onSelect={(file) => setLogoFile(file)} />
+              </div>
             </div>
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div>

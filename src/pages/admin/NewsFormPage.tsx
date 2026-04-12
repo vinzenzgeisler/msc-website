@@ -1,15 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
+import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -19,13 +15,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Pin, CalendarIcon } from 'lucide-react';
+import { ArrowLeft, Loader2, Pin } from 'lucide-react';
 import { usePost, usePosts, useCreatePost, useUpdatePost } from '@/hooks/usePosts';
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
-import { LocaleTranslationBox, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
+import { LocaleTranslationBox, TranslationMeta, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
 import { buildSlug } from '@/integrations/pocketbase/client';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+import { formatDateSafe } from '@/lib/date';
 
 const categories = [
   { value: 'event', label: 'Veranstaltung' },
@@ -54,7 +51,6 @@ export default function NewsFormPage() {
     category: '',
     is_pinned: false,
     status: 'draft' as 'draft' | 'published',
-    published_at: null as string | null,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -70,6 +66,29 @@ export default function NewsFormPage() {
     status.en = Boolean(allPosts.find((post) => post.locale === 'en' && post.slug === deSlug));
     status.cz = Boolean(allPosts.find((post) => post.locale === 'cz' && post.slug === deSlug));
     return status;
+  }, [allPosts, deSlug]);
+
+  const translationMeta = useMemo<Record<TranslationTarget, TranslationMeta>>(() => {
+    const fallback = { en: { exists: false }, cz: { exists: false } } as Record<TranslationTarget, TranslationMeta>;
+    if (!allPosts || !deSlug) return fallback;
+
+    const buildMeta = (targetLocale: TranslationTarget): TranslationMeta => {
+      const translation = allPosts.find((post) => post.locale === targetLocale && post.slug === deSlug);
+      if (!translation) {
+        return { exists: false };
+      }
+
+      return {
+        exists: true,
+        status: translation.status,
+        date: translation.display_date,
+      };
+    };
+
+    return {
+      en: buildMeta('en'),
+      cz: buildMeta('cz'),
+    };
   }, [allPosts, deSlug]);
 
   const hasGermanBaseRecord = useMemo(
@@ -98,7 +117,6 @@ export default function NewsFormPage() {
       category: existingPost.category || '',
       is_pinned: existingPost.is_pinned || false,
       status: existingPost.status || 'draft',
-      published_at: existingPost.published_at || null,
     });
   }, [existingPost, allPosts, navigate]);
 
@@ -124,6 +142,11 @@ export default function NewsFormPage() {
     }
 
     try {
+      const germanPublishedAt =
+        formData.status === 'published'
+          ? existingPost?.published_at || new Date().toISOString()
+          : null;
+
       const postData = {
         title: formData.title.trim(),
         slug: deSlug,
@@ -135,7 +158,7 @@ export default function NewsFormPage() {
         is_pinned: formData.is_pinned,
         status: formData.status,
         author_id: null,
-        published_at: formData.published_at || (formData.status === 'published' ? new Date().toISOString() : null),
+        published_at: germanPublishedAt,
         imageFile,
       };
 
@@ -170,6 +193,14 @@ export default function NewsFormPage() {
     }
 
     try {
+      const germanSource = allPosts?.find(
+        (post) => post.locale === 'de' && post.slug === deSlug,
+      );
+      const translationPublishedAt =
+        formData.status === 'published'
+          ? germanSource?.published_at || existingPost?.published_at || new Date().toISOString()
+          : null;
+
       const translated = await translate.mutateAsync({
         sourceLocale: 'de',
         targetLocale,
@@ -201,7 +232,7 @@ export default function NewsFormPage() {
         is_pinned: formData.is_pinned,
         status: formData.status,
         author_id: null,
-        published_at: formData.status === 'published' ? new Date().toISOString() : null,
+        published_at: translationPublishedAt,
       };
 
       const existingTranslation = allPosts?.find(
@@ -221,6 +252,7 @@ export default function NewsFormPage() {
   };
 
   const isSubmitting = createPost.isPending || updatePost.isPending;
+  const displayDate = existingPost?.display_date || null;
 
   if (isEditing && isLoadingPost) {
     return (
@@ -332,6 +364,7 @@ export default function NewsFormPage() {
                   accept="image/*"
                   onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                 />
+                <MediaAssetPicker onSelect={(file) => setImageFile(file)} />
                 {(imageFile || existingPost?.image_url) && (
                   <p className="text-xs text-muted-foreground">
                     {imageFile ? `Ausgewählt: ${imageFile.name}` : 'Bereits vorhandenes Bild bleibt erhalten'}
@@ -340,47 +373,10 @@ export default function NewsFormPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Veröffentlichungsdatum</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className={cn(
-                      'w-full justify-start text-left font-normal',
-                      !formData.published_at && 'text-muted-foreground',
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.published_at
-                      ? format(new Date(formData.published_at), 'd. MMMM yyyy', { locale: de })
-                      : 'Datum wählen (optional)'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={formData.published_at ? new Date(formData.published_at) : undefined}
-                    onSelect={(date) =>
-                      setFormData((current) => ({
-                        ...current,
-                        published_at: date ? date.toISOString() : null,
-                      }))
-                    }
-                    initialFocus
-                    className={cn('p-3 pointer-events-auto')}
-                  />
-                </PopoverContent>
-              </Popover>
-              <p className="text-xs text-muted-foreground">
-                Wird als Datum im Artikel angezeigt. Ohne Angabe wird das Erstellungsdatum verwendet.
-              </p>
-            </div>
-
             <LocaleTranslationBox
               description="DE bleibt führend. EN/CZ werden separat gespeichert (zuerst DE speichern)."
               status={translationStatus}
+              meta={translationMeta}
               onTranslate={handleTranslateTo}
               isTranslating={translate.isPending}
               disabled={!deSlug || !hasGermanBaseRecord}
@@ -406,7 +402,12 @@ export default function NewsFormPage() {
             <div className="flex items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
                 <Label htmlFor="published">Veröffentlichen</Label>
-                <p className="text-sm text-muted-foreground">Artikel sofort auf der Website anzeigen</p>
+                <p className="text-sm text-muted-foreground">Beim ersten Veröffentlichen wird das Veröffentlichungsdatum automatisch gesetzt</p>
+                {displayDate && (
+                  <p className="text-sm text-muted-foreground">
+                    Veröffentlichungsdatum: {formatDateSafe(displayDate, 'dd.MM.yyyy')}
+                  </p>
+                )}
               </div>
               <Switch
                 id="published"

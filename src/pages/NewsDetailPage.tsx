@@ -5,12 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Share2, Facebook, Twitter, Newspaper } from 'lucide-react';
 import { usePostBySlug } from '@/hooks/usePosts';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, cs, enUS } from 'date-fns/locale';
+import { useLanguage } from '@/i18n/LanguageContext';
+import { formatDateSafe } from '@/lib/date';
 
 export default function NewsDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const t = useTranslation();
+  const { locale } = useLanguage();
   const { data: article, isLoading, error } = usePostBySlug(slug || '');
 
   if (isLoading) {
@@ -60,12 +62,7 @@ export default function NewsDetailPage() {
     );
   }
 
-  const formatDate = (dateStr?: string | null) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return '';
-    return format(date, 'd. MMMM yyyy', { locale: de });
-  };
+  const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
 
   const categoryLabel = article.category === 'event' ? 'Veranstaltung' 
     : article.category === 'motocross' ? 'Motocross'
@@ -73,7 +70,12 @@ export default function NewsDetailPage() {
     : article.category === 'touring' ? 'Touring'
     : 'Verein';
 
-  const displayDate = formatDate(article.published_at || article.created_at);
+  const displayDate = formatDateSafe(
+    article.display_date,
+    'd. MMMM yyyy',
+    dateLocale,
+    '',
+  );
 
   return (
     <MainLayout>
@@ -93,20 +95,20 @@ export default function NewsDetailPage() {
           </Button>
           
           <div className="mx-auto max-w-3xl">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="mb-4 flex items-center gap-3">
               {article.category && (
                 <span className="inline-flex items-center gap-1.5 bg-accent px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent-foreground">
                   {categoryLabel}
                 </span>
               )}
-              {displayDate && (
-                <span className="text-sm text-primary-foreground/80">
-                  {displayDate}
-                </span>
-              )}
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl">{article.title}</h1>
+            {displayDate && (
+              <p className="mt-4 text-sm text-primary-foreground/70">
+                {displayDate}
+              </p>
+            )}
           </div>
         </div>
       </section>

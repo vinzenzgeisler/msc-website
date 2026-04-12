@@ -17,6 +17,7 @@ import { FileText, Save, Loader2, Globe } from 'lucide-react';
 import { useAllPageContent, useUpsertPageContent, PAGE_SECTIONS, PageKey } from '@/hooks/usePageContent';
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 import { LocaleTranslationBox, TranslationStatus, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
+import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 
@@ -331,6 +332,16 @@ function ContentEditor({
             accept="image/*"
             onChange={(e) => {
               setImageFile(e.target.files?.[0] || null);
+              setIsDirty(true);
+              setSaveSuccess(false);
+            }}
+          />
+          <MediaAssetPicker
+            onSelect={(file, altText) => {
+              setImageFile(file);
+              if (!imageAlt && altText) {
+                setImageAlt(altText);
+              }
               setIsDirty(true);
               setSaveSuccess(false);
             }}

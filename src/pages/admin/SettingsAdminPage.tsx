@@ -11,6 +11,7 @@ import { useSettings, useUpdateSettings, SettingsData } from '@/hooks/useSetting
 import { Shield, Globe, Bell, Database, Save, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 
 export default function SettingsAdminPage() {
   const { hasPermission } = useAuth();
@@ -220,6 +221,15 @@ export default function SettingsAdminPage() {
                         setHasChanges(true);
                       }}
                     />
+                    <MediaAssetPicker
+                      onSelect={(file, altText) => {
+                        setLogoFile(file);
+                        if (!(formData.logo_alt || '').trim() && altText) {
+                          setFormData((prev) => ({ ...prev, logo_alt: altText }));
+                        }
+                        setHasChanges(true);
+                      }}
+                    />
                     {(logoFile || formData.logo_url) && (
                       <div className="space-y-2">
                         {logoFile ? (
@@ -383,6 +393,12 @@ export default function SettingsAdminPage() {
                   accept="image/*"
                   onChange={(e) => {
                     setDefaultOgImageFile(e.target.files?.[0] || null);
+                    setHasChanges(true);
+                  }}
+                />
+                <MediaAssetPicker
+                  onSelect={(file) => {
+                    setDefaultOgImageFile(file);
                     setHasChanges(true);
                   }}
                 />

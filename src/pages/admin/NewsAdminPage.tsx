@@ -31,7 +31,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react';
 import { usePosts, useDeletePost } from '@/hooks/usePosts';
-import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
@@ -43,7 +42,8 @@ export default function NewsAdminPage() {
   
   const { data: posts, isLoading, error } = usePosts(false);
   const deletePost = useDeletePost();
-  const germanPosts = (posts || []).filter((post) => post.locale === 'de');
+  const allPosts = posts || [];
+  const germanPosts = allPosts.filter((post) => post.locale === 'de');
 
   const filteredNews = germanPosts.filter((article) =>
     article.title.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -53,9 +53,9 @@ export default function NewsAdminPage() {
     if (!deleteId) return;
     
     try {
-      const source = germanPosts.find((post) => post.id === deleteId);
+      const source = allPosts.find((post) => post.id === deleteId);
       const variantIds = source
-        ? (posts || []).filter((post) => post.slug === source.slug).map((post) => post.id)
+        ? allPosts.filter((post) => post.slug === source.slug).map((post) => post.id)
         : [deleteId];
 
       for (const recordId of variantIds) {
@@ -140,6 +140,7 @@ export default function NewsAdminPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Titel</TableHead>
+                  <TableHead>Übersetzungen</TableHead>
                   <TableHead>Kategorie</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Datum</TableHead>
@@ -153,6 +154,22 @@ export default function NewsAdminPage() {
                       {article.title}
                     </TableCell>
                     <TableCell>
+                      <div className="flex gap-2">
+                        <Badge
+                          variant={allPosts.some((post) => post.slug === article.slug && post.locale === 'en') ? 'default' : 'outline'}
+                          className="uppercase"
+                        >
+                          EN
+                        </Badge>
+                        <Badge
+                          variant={allPosts.some((post) => post.slug === article.slug && post.locale === 'cz') ? 'default' : 'outline'}
+                          className="uppercase"
+                        >
+                          CZ
+                        </Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell>
                       <Badge variant="outline">{article.category || 'Allgemein'}</Badge>
                     </TableCell>
                     <TableCell>
@@ -163,7 +180,7 @@ export default function NewsAdminPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {formatDateSafe(article.created_at, 'dd.MM.yyyy', de)}
+                      {formatDateSafe(article.display_date, 'dd.MM.yyyy', de)}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>

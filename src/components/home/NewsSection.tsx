@@ -7,8 +7,8 @@ import { ChevronRight, ArrowUpRight, Newspaper } from 'lucide-react';
 import { usePosts } from '@/hooks/usePosts';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, cs, enUS } from 'date-fns/locale';
+import { formatDateSafe, getSafeTimestamp } from '@/lib/date';
 
 export function NewsSection() {
   const t = useTranslation();
@@ -23,22 +23,20 @@ export function NewsSection() {
           ? 'Aktuálně ze života klubu'
           : 'Latest updates from club life',
   });
+  const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
   
   // Get only published posts, sorted by date, limit to 3
   const newsItems = (posts || [])
     .filter(post => post.status === 'published')
     .sort((a, b) => {
-      const timeA = new Date(a.published_at || a.created_at || 0).getTime();
-      const timeB = new Date(b.published_at || b.created_at || 0).getTime();
-      return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+      const timeA = getSafeTimestamp(a.display_date);
+      const timeB = getSafeTimestamp(b.display_date);
+      return timeB - timeA;
     })
     .slice(0, 3);
 
   const formatDate = (dateStr?: string | null) => {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return '';
-    return format(date, 'd. MMMM yyyy', { locale: de });
+    return formatDateSafe(dateStr, 'd. MMMM yyyy', dateLocale, '');
   };
 
   if (isLoading) {
@@ -152,7 +150,7 @@ export function NewsSection() {
 
               <div className="p-6">
                 <p className="mb-2 text-sm text-muted-foreground">
-                  {formatDate(news.published_at || news.created_at)}
+                  {formatDate(news.display_date)}
                 </p>
                 
                 <h3 className={`font-bold transition-colors group-hover:text-primary ${

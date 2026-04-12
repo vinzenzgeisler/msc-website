@@ -12,6 +12,7 @@ import {
 } from '@/hooks/useBoardMembers';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 
 export default function BoardAdminPage() {
   const { data, isLoading } = useBoardMembers();
@@ -150,6 +151,7 @@ export default function BoardAdminPage() {
               <div className="space-y-2">
                 <Label>Foto</Label>
                 <Input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] || null)} />
+                <MediaAssetPicker onSelect={(file) => setPhotoFile(file)} />
               </div>
             </div>
             <div className="flex gap-3">
