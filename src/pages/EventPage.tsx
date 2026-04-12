@@ -224,7 +224,6 @@ export default function EventPage() {
                     <ExternalLink className="ml-1 h-3.5 w-3.5" />
                   </a>
                 </Button>
-                </a>
               )}
             </div>
             <div className="relative">
