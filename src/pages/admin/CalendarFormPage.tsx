@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Select,
   SelectContent,
@@ -13,12 +14,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Calendar, MapPin, Bike, Trophy, Star, AlertCircle } from 'lucide-react';
+import {
+  ArrowLeft,
+  Loader2,
+  Calendar,
+  MapPin,
+  Bike,
+  Trophy,
+  Star,
+  AlertCircle,
+  Save,
+  FileText,
+  ExternalLink,
+  Globe,
+  Settings,
+} from 'lucide-react';
 import { useCalendarEvent, useCalendarEvents, useCreateCalendarEvent, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { buildSlug } from '@/integrations/pocketbase/client';
 import { LocaleTranslationBox, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
@@ -61,6 +75,12 @@ export default function CalendarFormPage() {
     is_main_event: false,
     published: true,
   });
+  const [isDirty, setIsDirty] = useState(false);
+
+  const updateField = <K extends keyof typeof formData>(key: K, value: (typeof formData)[K]) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+    setIsDirty(true);
+  };
 
   const deSlug = useMemo(
     () => buildSlug(formData.title || existingEvent?.title || ''),
@@ -70,7 +90,6 @@ export default function CalendarFormPage() {
   const translationStatus = useMemo(() => {
     const map: Record<TranslationTarget, boolean> = { en: false, cz: false };
     if (!allEvents || !deSlug) return map;
-
     map.en = Boolean(allEvents.find((event) => event.locale === 'en' && event.slug === deSlug));
     map.cz = Boolean(allEvents.find((event) => event.locale === 'cz' && event.slug === deSlug));
     return map;
@@ -109,6 +128,7 @@ export default function CalendarFormPage() {
         is_main_event: existingEvent.is_main_event || false,
         published: existingEvent.published !== false,
       });
+      setIsDirty(false);
     }
   }, [existingEvent, allEvents, navigate]);
 
@@ -146,10 +166,10 @@ export default function CalendarFormPage() {
 
       if (isEditing) {
         await updateEvent.mutateAsync({ id, ...eventData });
-        toast.success('Deutscher Termin aktualisiert');
+        toast.success('Termin aktualisiert');
       } else {
         await createEvent.mutateAsync(eventData);
-        toast.success('Deutscher Termin erstellt');
+        toast.success('Termin erstellt');
       }
       navigate('/admin/calendar');
     } catch (error) {
@@ -162,7 +182,6 @@ export default function CalendarFormPage() {
       toast.error('Bitte erst deutschen Termin speichern (Titel + Startdatum).');
       return;
     }
-
     if (!hasGermanBaseRecord) {
       toast.error('Bitte zuerst den deutschen Termin speichern.');
       return;
@@ -180,10 +199,7 @@ export default function CalendarFormPage() {
         sourceLocale: 'de',
         targetLocale,
         context: 'Kalendertermin oder Veranstaltung für die Vereinswebsite',
-        fields: {
-          title: sourceTitle,
-          description: sourceDescription,
-        },
+        fields: { title: sourceTitle, description: sourceDescription },
       });
 
       const translatedTitle = String(translated.title || '').trim();
@@ -234,7 +250,8 @@ export default function CalendarFormPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
           <Link to="/admin/calendar">
@@ -242,182 +259,247 @@ export default function CalendarFormPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">{isEditing ? 'Termin bearbeiten' : 'Neuer Termin'}</h1>
-          <p className="text-muted-foreground">Bearbeitung erfolgt immer in Deutsch (DE)</p>
+          <h1 className="text-2xl font-bold">{isEditing ? 'Termin bearbeiten' : 'Neuer Termin'}</h1>
+          <p className="text-sm text-muted-foreground">Bearbeitung in Deutsch (DE)</p>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Deutscher Hauptinhalt</CardTitle>
-          <CardDescription>Füllen Sie die Pflichtfelder (*) aus</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Titel *</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="z.B. 12. Oberlausitzer Dreieck"
-                required
-              />
-            </div>
+      {/* Sticky save bar */}
+      {isDirty && (
+        <div className="sticky top-0 z-30 bg-accent/10 border border-accent/30 rounded-lg px-4 py-3 flex items-center justify-between gap-4">
+          <p className="text-sm font-medium text-accent-foreground">Ungespeicherte Änderungen</p>
+          <Button type="submit" size="sm" disabled={isSubmitting}>
+            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Speichern
+          </Button>
+        </div>
+      )}
 
-            <div className="space-y-2">
-              <Label htmlFor="category">Kategorie</Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Kategorie auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      <div className="flex items-center gap-2">
-                        <cat.icon className="h-4 w-4" />
-                        {cat.label}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
+      {/* Two-column layout */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        {/* Left column */}
+        <div className="space-y-6">
+          {/* Basic info */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                Grunddaten
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="start_dt">Startdatum *</Label>
+                <Label htmlFor="title">Titel *</Label>
                 <Input
-                  id="start_dt"
-                  type="datetime-local"
-                  value={formData.start_dt}
-                  onChange={(e) => setFormData({ ...formData, start_dt: e.target.value })}
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => updateField('title', e.target.value)}
+                  placeholder="z.B. Vereinsversammlung"
                   required
                 />
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="end_dt">Enddatum</Label>
-                <Input
-                  id="end_dt"
-                  type="datetime-local"
-                  value={formData.end_dt}
-                  onChange={(e) => setFormData({ ...formData, end_dt: e.target.value })}
+                <Label htmlFor="description">Beschreibung</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => updateField('description', e.target.value)}
+                  placeholder="Weitere Informationen zum Termin..."
+                  rows={4}
                 />
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            <div className="space-y-2">
-              <Label htmlFor="location">Ort</Label>
-              <Input
-                id="location"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                placeholder="z.B. Saalendorf - Jonsdorf - Waltersdorf"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="contact_email">Kontakt-E-Mail</Label>
-              <Input
-                id="contact_email"
-                type="email"
-                value={formData.contact_email}
-                onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
-                placeholder="info@msc-dreilaendereck.de"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="registration_url">Anmelde-URL</Label>
-              <Input
-                id="registration_url"
-                type="url"
-                value={formData.registration_url}
-                onChange={(e) => setFormData({ ...formData, registration_url: e.target.value })}
-                placeholder="https://anmeldung.example.de"
-              />
-              <p className="text-xs text-muted-foreground">Link zum externen Anmeldeportal (wird als „Zur Anmeldung"-Button angezeigt)</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Beschreibung</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Weitere Informationen zum Termin..."
-                rows={4}
-              />
-            </div>
-
-            <LocaleTranslationBox
-              description="DE bleibt führend. EN/CZ werden separat erzeugt (zuerst DE speichern)."
-              status={translationStatus}
-              onTranslate={handleTranslateTo}
-              isTranslating={translate.isPending}
-              disabled={!deSlug || !hasGermanBaseRecord}
-            />
-
-            <Card className="border-accent/50 bg-accent/5">
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    <Star className="h-5 w-5 text-accent mt-0.5" />
-                    <div>
-                      <Label htmlFor="is_main_event" className="text-base font-medium">Hauptevent</Label>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Zeigt dieses deutsche Event auf der Startseite mit Countdown an
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    id="is_main_event"
-                    checked={formData.is_main_event}
-                    onCheckedChange={(checked) => setFormData({ ...formData, is_main_event: checked })}
-                    disabled={!!existingMainEvent && !formData.is_main_event}
+          {/* Date & Location */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                Datum &amp; Ort
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="start_dt">Startdatum *</Label>
+                  <Input
+                    id="start_dt"
+                    type="datetime-local"
+                    value={formData.start_dt}
+                    onChange={(e) => updateField('start_dt', e.target.value)}
+                    required
                   />
                 </div>
-                {existingMainEvent && !formData.is_main_event ? (
-                  <Alert className="mt-4">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>„{existingMainEvent.title}"</strong> ist bereits als deutsches Hauptevent gesetzt.
-                    </AlertDescription>
-                  </Alert>
-                ) : null}
-              </CardContent>
-            </Card>
-
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <Label htmlFor="published" className="font-medium">Veröffentlicht</Label>
-                <p className="text-sm text-muted-foreground">Termin im Kalender anzeigen</p>
+                <div className="space-y-2">
+                  <Label htmlFor="end_dt">Enddatum</Label>
+                  <Input
+                    id="end_dt"
+                    type="datetime-local"
+                    value={formData.end_dt}
+                    onChange={(e) => updateField('end_dt', e.target.value)}
+                  />
+                </div>
               </div>
-              <Switch
-                id="published"
-                checked={formData.published}
-                onCheckedChange={(checked) => setFormData({ ...formData, published: checked })}
-              />
-            </div>
 
-            <div className="flex gap-4 pt-4">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Speichern...
-                  </>
-                ) : (
-                  'Speichern'
-                )}
-              </Button>
-              <Button type="button" variant="outline" onClick={() => navigate('/admin/calendar')}>
-                Abbrechen
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+              <div className="space-y-2">
+                <Label htmlFor="location" className="flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5" />
+                  Ort
+                </Label>
+                <Input
+                  id="location"
+                  value={formData.location}
+                  onChange={(e) => updateField('location', e.target.value)}
+                  placeholder="z.B. Saalendorf - Jonsdorf - Waltersdorf"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Registration & Contact */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                Anmeldung &amp; Kontakt
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="registration_url">Anmelde-URL</Label>
+                <Input
+                  id="registration_url"
+                  type="url"
+                  value={formData.registration_url}
+                  onChange={(e) => updateField('registration_url', e.target.value)}
+                  placeholder="https://anmeldung.example.de"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contact_email">Kontakt-E-Mail</Label>
+                <Input
+                  id="contact_email"
+                  type="email"
+                  value={formData.contact_email}
+                  onChange={(e) => updateField('contact_email', e.target.value)}
+                  placeholder="info@msc-dreilaendereck.de"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right column: sidebar */}
+        <div className="space-y-6">
+          {/* Status */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Settings className="h-4 w-4 text-muted-foreground" />
+                Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="category">Kategorie</Label>
+                <Select value={formData.category} onValueChange={(value) => updateField('category', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        <div className="flex items-center gap-2">
+                          <cat.icon className="h-4 w-4" />
+                          {cat.label}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="published" className="font-medium">Veröffentlicht</Label>
+                  <p className="text-xs text-muted-foreground">Im Kalender sichtbar</p>
+                </div>
+                <Switch
+                  id="published"
+                  checked={formData.published}
+                  onCheckedChange={(checked) => updateField('published', checked)}
+                />
+              </div>
+
+              <div className="pt-2">
+                <Button type="submit" className="w-full" disabled={isSubmitting || !isDirty}>
+                  {isSubmitting ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Speichern...</>
+                  ) : (
+                    <><Save className="mr-2 h-4 w-4" />Speichern</>
+                  )}
+                </Button>
+                <Button type="button" variant="outline" className="w-full mt-2" onClick={() => navigate('/admin/calendar')}>
+                  Abbrechen
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Main event toggle */}
+          <Card className="border-accent/50 bg-accent/5">
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <Star className="h-5 w-5 text-accent mt-0.5" />
+                  <div>
+                    <Label htmlFor="is_main_event" className="font-medium">Hauptevent</Label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Auf der Startseite mit Countdown
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  id="is_main_event"
+                  checked={formData.is_main_event}
+                  onCheckedChange={(checked) => updateField('is_main_event', checked)}
+                  disabled={!!existingMainEvent && !formData.is_main_event}
+                />
+              </div>
+              {existingMainEvent && !formData.is_main_event ? (
+                <Alert className="mt-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    <strong>„{existingMainEvent.title}"</strong> ist bereits Hauptevent.
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          {/* Translations */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Globe className="h-4 w-4 text-muted-foreground" />
+                Übersetzungen
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LocaleTranslationBox
+                description="DE führend. EN/CZ separat."
+                status={translationStatus}
+                onTranslate={handleTranslateTo}
+                isTranslating={translate.isPending}
+                disabled={!deSlug || !hasGermanBaseRecord}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </form>
   );
 }
