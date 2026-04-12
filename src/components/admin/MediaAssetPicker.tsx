@@ -40,6 +40,17 @@ export function MediaAssetPicker({ onSelect, onSelectUrl, buttonLabel = 'Aus Med
   }, [mediaFiles, search]);
 
   const handleSelect = async (fileUrl: string, fileName: string, altText?: string | null, id?: string) => {
+    // If caller only needs the URL (e.g. RichTextEditor), skip download
+    if (onSelectUrl) {
+      setSelectingId(id || fileName);
+      onSelectUrl(fileUrl, altText || fileName.replace(/\.[^.]+$/, ''));
+      setOpen(false);
+      setSearch('');
+      setSelectingId(null);
+      toast.success('Bild aus Medien übernommen');
+      return;
+    }
+
     try {
       setSelectingId(id || fileName);
       const response = await fetch(fileUrl);
