@@ -13,9 +13,9 @@ export function Footer() {
     <footer className="border-t border-border bg-muted/50">
       {/* Main Footer Content */}
       <div className="container py-12">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
           {/* Club Info */}
-          <div>
+          <div className="col-span-2 lg:col-span-1">
             <div className="mb-4 flex items-center gap-2">
               {settings?.logo_url ? (
                 <img
@@ -110,7 +110,7 @@ export function Footer() {
           </div>
 
           {/* Contact */}
-          <div>
+          <div className="col-span-2 lg:col-span-1">
             <h3 className="mb-4 font-semibold">{t.nav.contact}</h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2 text-muted-foreground">
