@@ -335,10 +335,10 @@ export default function EventPage() {
           <h2 className="mb-8">{t.event.classes.title}</h2>
           <p className="mb-6 text-muted-foreground">
             {locale === 'de'
-              ? 'Folgende Klassen werden beim Oberlausitzer Dreieck ausgeschrieben. Die Einteilung erfolgt nach Fahrzeugtyp und Baujahr.'
+              ? 'In diesen Klassen wird beim Oberlausitzer Dreieck gestartet:'
               : locale === 'cz'
-                ? 'Na Horním Lužickém trojúhelníku jsou vypsány následující třídy. Rozdělení probíhá podle typu vozidla a roku výroby.'
-                : 'The following classes are offered at the Oberlausitz Triangle. Classification is based on vehicle type and year of manufacture.'}
+                ? 'V těchto třídách se na Horním Lužickém trojúhelníku závodí:'
+                : 'These are the classes competing at the Oberlausitz Triangle:'}
           </p>
           {participantClasses.length > 0 ? (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
