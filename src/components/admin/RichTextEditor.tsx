@@ -13,6 +13,7 @@ import {
   List,
   ListOrdered,
   ImagePlus,
+  FolderOpen,
   Undo,
   Redo,
   Minus,
