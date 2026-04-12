@@ -67,8 +67,19 @@ export default function MotocrossPage() {
 
   const safety = useContentWithFallback('motocross', 'safety', {
     title: 'Sicherheitshinweise',
-    content:
-      'Bitte beachtet die Sicherheitshinweise auf dem Streckengelände. Schutzausrüstung ist Pflicht! Weitere Informationen findet ihr in unseren Sicherheitshinweisen.',
+    content: `<ol>
+<li>Niemals auf der Bahn laufen.</li>
+<li>Zu- und Abfahrt nur über die offiziellen Ein- und Ausfahrten. Es darf nicht abgekürzt werden.</li>
+<li>Es darf nur in der vorgeschriebenen Fahrtrichtung gefahren werden.</li>
+<li>Beim Stürzen oder Ausfall der Technik gilt:<br/>– Auf kürzestem Wege seitlich die MX-Strecke <u>sofort</u> verlassen.<br/>– Niemals den Sprunghügel gegen die Fahrtrichtung auf der MX-Strecke hochlaufen, sondern den vorhandenen Grünstreifen neben der Strecke dafür nutzen, z.B. am großen Sprunghügel in Fahrtrichtung links am Zaun.<br/>– Dafür sorgen, dass die nachfolgenden Fahrer gewarnt werden. Erst dann wird das Motorrad/Fahrzeug geborgen.</li>
+<li>Das Betreten der MX-Strecke durch eine Begleitperson, außer bei notwendigen Hilfeleistungen, ist untersagt. Vor Betreten der Strecke durch Hilfskräfte muss das Training abgebrochen sein.</li>
+<li>Kinder müssen von ihren Eltern bzw. Begleitpersonen mit diesen Regeln vertraut gemacht werden.</li>
+<li>Schnellere Fahrer nehmen <strong>Rücksicht</strong> auf langsamere Fahrer. <strong>Training ist kein Rennen</strong>, sondern eine Erprobungs- und Übungsfahrt.</li>
+<li>Langsame Fahrer halten ihre Spur, lassen den schnelleren überholen und wechseln nicht plötzlich die Spur.</li>
+<li>Die erste Runde bei jeder Trainingseinheit ist grundsätzlich eine Besichtigungsrunde und dient dazu sich mit der Bahn vertraut zu machen.</li>
+<li>Erkennt eure Grenzen und handelt eurer Gesundheit zu Liebe eigenverantwortlich und vernünftig. Wer noch nie gesprungen ist, muss auch nicht sofort jeden Table schaffen. Wer bereits Fahrerfahrung hat bezieht auch andere Faktoren wie Wind und Bodenunebenheiten in seine Überlegungen ein. Verbessert euch immer von einem stabilen Level aus weiter. Als Fahranfänger beschäftigt euch mit der Fahrtechnik.</li>
+</ol>`,
+    subtitle: 'Gefährdet mit eurem Verhalten nicht die Gesundheit von euch oder die der anderen Teilnehmer.',
   });
 
   const directions = useContentWithFallback('motocross', 'directions', {
