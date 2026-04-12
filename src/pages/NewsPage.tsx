@@ -39,12 +39,12 @@ export default function NewsPage() {
   });
 
   const categoryConfig: Record<NewsCategory, { label: string; color: string }> = {
-    all: { label: locale === 'de' ? 'Alle' : locale === 'cz' ? 'Vše' : 'All', color: 'bg-muted text-foreground' },
-    club: { label: t.news.categories.club, color: 'bg-primary text-primary-foreground' },
-    allgemein: { label: locale === 'de' ? 'Allgemein' : locale === 'cz' ? 'Obecné' : 'General', color: 'bg-secondary text-secondary-foreground' },
-    motocross: { label: 'Motocross', color: 'bg-accent text-accent-foreground' },
-    trial: { label: 'Trial', color: 'bg-accent text-accent-foreground' },
-    touring: { label: t.nav.touring, color: 'bg-accent text-accent-foreground' },
+    all: { label: locale === 'de' ? 'Alle' : locale === 'cz' ? 'Vše' : 'All', color: 'bg-muted/50 text-foreground border-l-4 border-muted-foreground' },
+    club: { label: t.news.categories.club, color: 'border-l-4 border-primary bg-primary/15 text-primary' },
+    allgemein: { label: locale === 'de' ? 'Allgemein' : locale === 'cz' ? 'Obecné' : 'General', color: 'border-l-4 border-secondary bg-secondary/15 text-secondary-foreground' },
+    motocross: { label: 'Motocross', color: 'border-l-4 border-accent bg-accent/15 text-accent' },
+    trial: { label: 'Trial', color: 'border-l-4 border-accent bg-accent/15 text-accent' },
+    touring: { label: t.nav.touring, color: 'border-l-4 border-accent bg-accent/15 text-accent' },
   };
 
   const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
@@ -182,7 +182,7 @@ export default function NewsPage() {
                     {/* Content */}
                     <div className="flex flex-col justify-center p-8">
                       <div className="mb-4 flex items-center gap-3">
-                        <span className={`rounded px-3 py-1 text-xs font-bold uppercase ${getCategoryColor(featuredArticle.category)}`}>
+                        <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider ${getCategoryColor(featuredArticle.category)}`}>
                           {getCategoryLabel(featuredArticle.category)}
                         </span>
                         <span className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -235,7 +235,7 @@ export default function NewsPage() {
                     
                     <div className="p-5">
                       <div className="mb-3 flex items-center gap-3">
-                        <span className={`rounded px-2 py-0.5 text-xs font-semibold ${getCategoryColor(article.category)}`}>
+                        <span className={`px-2 py-0.5 text-xs font-bold uppercase tracking-wider ${getCategoryColor(article.category)}`}>
                           {getCategoryLabel(article.category)}
                         </span>
                         <span className="text-xs text-muted-foreground">
