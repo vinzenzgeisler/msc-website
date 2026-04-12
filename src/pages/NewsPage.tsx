@@ -185,8 +185,7 @@ export default function NewsPage() {
                         <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider ${getCategoryColor(featuredArticle.category)}`}>
                           {getCategoryLabel(featuredArticle.category)}
                         </span>
-                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Calendar className="h-3 w-3" />
+                        <span className="text-sm text-muted-foreground">
                           {formatDate(featuredArticle.published_at || featuredArticle.created_at)}
                         </span>
                       </div>
