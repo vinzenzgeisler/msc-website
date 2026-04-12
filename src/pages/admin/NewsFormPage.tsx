@@ -159,6 +159,7 @@ export default function NewsFormPage() {
         status: formData.status,
         author_id: null,
         published_at: germanPublishedAt,
+        display_date: germanPublishedAt,
         imageFile,
       };
 
@@ -233,6 +234,7 @@ export default function NewsFormPage() {
         status: formData.status,
         author_id: null,
         published_at: translationPublishedAt,
+        display_date: translationPublishedAt,
       };
 
       const existingTranslation = allPosts?.find(
