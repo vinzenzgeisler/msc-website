@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import {
   Select,
@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Pin } from 'lucide-react';
+import { ArrowLeft, Loader2, Pin, Save, FileText, Settings2 } from 'lucide-react';
 import { usePost, usePosts, useCreatePost, useUpdatePost } from '@/hooks/usePosts';
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 import { LocaleTranslationBox, TranslationMeta, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
@@ -53,6 +53,12 @@ export default function NewsFormPage() {
     status: 'draft' as 'draft' | 'published',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+
+  const updateField = <K extends keyof typeof formData>(key: K, value: (typeof formData)[K]) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+    setIsDirty(true);
+  };
 
   const deSlug = useMemo(
     () => buildSlug(formData.slug || formData.title || existingPost?.slug || ''),
@@ -62,7 +68,6 @@ export default function NewsFormPage() {
   const translationStatus = useMemo(() => {
     const status = { en: false, cz: false };
     if (!allPosts || !deSlug) return status;
-
     status.en = Boolean(allPosts.find((post) => post.locale === 'en' && post.slug === deSlug));
     status.cz = Boolean(allPosts.find((post) => post.locale === 'cz' && post.slug === deSlug));
     return status;
@@ -74,21 +79,11 @@ export default function NewsFormPage() {
 
     const buildMeta = (targetLocale: TranslationTarget): TranslationMeta => {
       const translation = allPosts.find((post) => post.locale === targetLocale && post.slug === deSlug);
-      if (!translation) {
-        return { exists: false };
-      }
-
-      return {
-        exists: true,
-        status: translation.status,
-        date: translation.display_date,
-      };
+      if (!translation) return { exists: false };
+      return { exists: true, status: translation.status, date: translation.display_date };
     };
 
-    return {
-      en: buildMeta('en'),
-      cz: buildMeta('cz'),
-    };
+    return { en: buildMeta('en'), cz: buildMeta('cz') };
   }, [allPosts, deSlug]);
 
   const hasGermanBaseRecord = useMemo(
@@ -118,6 +113,7 @@ export default function NewsFormPage() {
       is_pinned: existingPost.is_pinned || false,
       status: existingPost.status || 'draft',
     });
+    setIsDirty(false);
   }, [existingPost, allPosts, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -170,6 +166,7 @@ export default function NewsFormPage() {
         await createPost.mutateAsync(postData);
         toast.success('Deutscher Artikel erstellt');
       }
+      setIsDirty(false);
       navigate('/admin/news');
     } catch (error) {
       toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Speichern'));
@@ -265,7 +262,8 @@ export default function NewsFormPage() {
   }
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
           <Link to="/admin/news">
@@ -273,171 +271,210 @@ export default function NewsFormPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">{isEditing ? 'Artikel bearbeiten' : 'Neuer Artikel'}</h1>
-          <p className="text-muted-foreground">Bearbeitung erfolgt immer in Deutsch (DE)</p>
+          <h1 className="text-2xl font-bold">{isEditing ? 'Artikel bearbeiten' : 'Neuer Artikel'}</h1>
+          <p className="text-muted-foreground text-sm">Bearbeitung erfolgt immer in Deutsch (DE)</p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Deutscher Hauptinhalt</CardTitle>
-            <CardDescription>Titel und Inhalt des Artikels</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Titel *</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData((current) => ({ ...current, title: e.target.value }))}
-                placeholder="Artikelüberschrift"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="slug">URL-Slug</Label>
-              <Input
-                id="slug"
-                value={formData.slug}
-                onChange={(e) => setFormData((current) => ({ ...current, slug: e.target.value }))}
-                placeholder="artikel-url"
-              />
-              <p className="text-xs text-muted-foreground">Standardmäßig aus dem Titel erzeugt</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="excerpt">Kurzbeschreibung</Label>
-              <Textarea
-                id="excerpt"
-                value={formData.excerpt}
-                onChange={(e) => setFormData((current) => ({ ...current, excerpt: e.target.value }))}
-                placeholder="Kurze Zusammenfassung..."
-                rows={2}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Inhalt</Label>
-              <RichTextEditor
-                content={formData.content}
-                onChange={(html) => setFormData((current) => ({ ...current, content: html }))}
-                placeholder="Vollständiger Artikeltext..."
-              />
-              <p className="text-xs text-muted-foreground">
-                Nutze die Toolbar, um Text zu formatieren und Bilder einzufügen.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Einstellungen</CardTitle>
-            <CardDescription>Kategorie, Bild und Veröffentlichung</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="category">Kategorie</Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) => setFormData((current) => ({ ...current, category: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Kategorie auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
-                        {category.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="image_file">Bild</Label>
-                <Input
-                  id="image_file"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                />
-                <MediaAssetPicker onSelect={(file) => setImageFile(file)} />
-                {(imageFile || existingPost?.image_url) && (
-                  <p className="text-xs text-muted-foreground">
-                    {imageFile ? `Ausgewählt: ${imageFile.name}` : 'Bereits vorhandenes Bild bleibt erhalten'}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <LocaleTranslationBox
-              description="DE bleibt führend. EN/CZ werden separat gespeichert (zuerst DE speichern)."
-              status={translationStatus}
-              meta={translationMeta}
-              onTranslate={handleTranslateTo}
-              isTranslating={translate.isPending}
-              disabled={!deSlug || !hasGermanBaseRecord}
-            />
-
-            <div className="flex items-center justify-between rounded-lg border border-accent/50 bg-accent/5 p-4">
-              <div className="flex items-start gap-3">
-                <Pin className="mt-0.5 h-5 w-5 text-accent" />
-                <div className="space-y-0.5">
-                  <Label htmlFor="is_pinned">Angeheftet</Label>
-                  <p className="text-sm text-muted-foreground">Artikel oben in der Liste anzeigen</p>
-                </div>
-              </div>
-              <Switch
-                id="is_pinned"
-                checked={formData.is_pinned}
-                onCheckedChange={(checked) =>
-                  setFormData((current) => ({ ...current, is_pinned: checked }))
-                }
-              />
-            </div>
-
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <Label htmlFor="published">Veröffentlichen</Label>
-                <p className="text-sm text-muted-foreground">Beim ersten Veröffentlichen wird das Veröffentlichungsdatum automatisch gesetzt</p>
-                {displayDate && (
-                  <p className="text-sm text-muted-foreground">
-                    Veröffentlichungsdatum: {formatDateSafe(displayDate, 'dd.MM.yyyy')}
-                  </p>
-                )}
-              </div>
-              <Switch
-                id="published"
-                checked={formData.status === 'published'}
-                onCheckedChange={(checked) =>
-                  setFormData((current) => ({ ...current, status: checked ? 'published' : 'draft' }))
-                }
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex gap-4">
-          <Button type="submit" disabled={isSubmitting}>
+      {/* Sticky save bar */}
+      {isDirty && (
+        <div className="sticky top-0 z-30 bg-accent/10 border border-accent/30 rounded-lg px-4 py-3 flex items-center justify-between gap-4">
+          <p className="text-sm font-medium text-accent-foreground">Ungespeicherte Änderungen</p>
+          <Button type="submit" size="sm" disabled={isSubmitting}>
             {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Speichern...
-              </>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              'Speichern'
+              <Save className="mr-2 h-4 w-4" />
             )}
-          </Button>
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/news')}>
-            Abbrechen
+            Speichern
           </Button>
         </div>
-      </form>
-    </div>
+      )}
+
+      {/* Two-column layout */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        {/* Left column: main content */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                Inhalt
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Titel *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => updateField('title', e.target.value)}
+                  placeholder="Artikelüberschrift"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="slug">URL-Slug</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => updateField('slug', e.target.value)}
+                  placeholder="artikel-url"
+                />
+                <p className="text-xs text-muted-foreground">Standardmäßig aus dem Titel erzeugt</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="excerpt">Kurzbeschreibung</Label>
+                <Textarea
+                  id="excerpt"
+                  value={formData.excerpt}
+                  onChange={(e) => updateField('excerpt', e.target.value)}
+                  placeholder="Kurze Zusammenfassung..."
+                  rows={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Inhalt</Label>
+                <RichTextEditor
+                  content={formData.content}
+                  onChange={(html) => updateField('content', html)}
+                  placeholder="Vollständiger Artikeltext..."
+                />
+                <p className="text-xs text-muted-foreground">
+                  Nutze die Toolbar, um Text zu formatieren und Bilder einzufügen.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Image */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">Bild</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                id="image_file"
+                type="file"
+                accept="image/*"
+                onChange={(e) => { setImageFile(e.target.files?.[0] || null); setIsDirty(true); }}
+              />
+              <MediaAssetPicker onSelect={(file) => { setImageFile(file); setIsDirty(true); }} />
+              {(imageFile || existingPost?.image_url) && (
+                <p className="text-xs text-muted-foreground">
+                  {imageFile ? `Ausgewählt: ${imageFile.name}` : 'Bereits vorhandenes Bild bleibt erhalten'}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right column: sidebar */}
+        <div className="space-y-6">
+          {/* Status */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">Status</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="published" className="font-medium">Veröffentlicht</Label>
+                  <p className="text-xs text-muted-foreground">Auf der Website sichtbar</p>
+                  {displayDate && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Datum: {formatDateSafe(displayDate, 'dd.MM.yyyy')}
+                    </p>
+                  )}
+                </div>
+                <Switch
+                  id="published"
+                  checked={formData.status === 'published'}
+                  onCheckedChange={(checked) => updateField('status', checked ? 'published' : 'draft')}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-start gap-2">
+                  <Pin className="mt-0.5 h-4 w-4 text-accent" />
+                  <div>
+                    <Label htmlFor="is_pinned" className="font-medium">Angeheftet</Label>
+                    <p className="text-xs text-muted-foreground">Oben in der Liste</p>
+                  </div>
+                </div>
+                <Switch
+                  id="is_pinned"
+                  checked={formData.is_pinned}
+                  onCheckedChange={(checked) => updateField('is_pinned', checked)}
+                />
+              </div>
+
+              <div className="pt-2">
+                <Button type="submit" className="w-full" disabled={isSubmitting || !isDirty}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Speichern...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Änderungen speichern
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Category */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Settings2 className="h-4 w-4 text-muted-foreground" />
+                Kategorie
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Select
+                value={formData.category}
+                onValueChange={(value) => updateField('category', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Kategorie auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.value} value={category.value}>
+                      {category.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+
+          {/* Translations */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base">Übersetzungen</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LocaleTranslationBox
+                description="DE bleibt führend. EN/CZ werden separat gespeichert."
+                status={translationStatus}
+                meta={translationMeta}
+                onTranslate={handleTranslateTo}
+                isTranslating={translate.isPending}
+                disabled={!deSlug || !hasGermanBaseRecord}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </form>
   );
 }
