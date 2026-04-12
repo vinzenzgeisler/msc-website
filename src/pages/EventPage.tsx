@@ -157,13 +157,31 @@ export default function EventPage() {
     return format(start, 'd. MMMM yyyy', { locale: dateLocale });
   };
 
+  const defaultClasses = [
+    { name: 'Klasse 1 Motorräder bis Bj. 1949', icon: Bike, description: '' },
+    { name: 'Klasse 2 Rennmotorräder 50–80 cm³ bis Bj. 1995', icon: Bike, description: '' },
+    { name: 'Klasse 3 Rennmotorräder 125–175 cm³ bis Bj. 1995', icon: Bike, description: '' },
+    { name: 'Klasse 4 Rennmotorräder 250 cm³ bis Bj. 1995', icon: Bike, description: '' },
+    { name: 'Klasse 5 Rennmotorräder 350–400 cm³ bis Bj. 1995', icon: Bike, description: '' },
+    { name: 'Klasse 6 Rennmotorräder 500–1000 cm³ bis Bj. 1995', icon: Bike, description: '' },
+    { name: 'Klasse 7 Seitenwagen offen', icon: Car, description: '' },
+    { name: 'Klasse 8 Rennmotorräder offen für Aktive und Ehemalige', icon: Bike, description: '' },
+    { name: 'Klasse 9 Formelwagen bis Baujahr 1995', icon: Car, description: '' },
+    { name: 'Klasse 10 Tourenwagen geschlossen bis Bj. 1995', icon: Car, description: '' },
+    { name: 'Klasse 11 Kart', icon: Car, description: '' },
+    { name: 'Nachwuchs', icon: Users, description: '' },
+    { name: 'Sonderlauf', icon: Users, description: '' },
+  ];
+
   const schedules = eventContent?.schedules || [];
   const participantClasses =
-    eventContent?.classes?.map((item) => ({
-      icon: iconMap[item.icon],
-      name: item.name,
-      description: item.description || '',
-    })) || [];
+    eventContent?.classes?.length
+      ? eventContent.classes.map((item) => ({
+          icon: iconMap[item.icon],
+          name: item.name,
+          description: item.description || '',
+        }))
+      : defaultClasses;
   const trackInfo = eventContent?.infos?.find((item) => item.section === 'track');
   const arrivalInfo = eventContent?.infos?.find((item) => item.section === 'visitors_arrival');
   const admissionInfo = eventContent?.infos?.find((item) => item.section === 'visitors_admission');
