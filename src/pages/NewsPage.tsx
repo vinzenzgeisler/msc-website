@@ -40,11 +40,11 @@ export default function NewsPage() {
 
   const categoryConfig: Record<NewsCategory, { label: string; color: string }> = {
     all: { label: locale === 'de' ? 'Alle' : locale === 'cz' ? 'Vše' : 'All', color: 'bg-muted/50 text-foreground border-l-4 border-muted-foreground' },
-    club: { label: t.news.categories.club, color: 'border-l-4 border-primary bg-primary/15 text-primary' },
+    club: { label: t.news.categories.club, color: 'border-l-4 border-primary bg-primary/15 text-primary dark:text-primary-foreground dark:bg-primary/30' },
     allgemein: { label: locale === 'de' ? 'Allgemein' : locale === 'cz' ? 'Obecné' : 'General', color: 'border-l-4 border-secondary bg-secondary/15 text-secondary-foreground' },
-    motocross: { label: 'Motocross', color: 'border-l-4 border-accent bg-accent/15 text-accent' },
-    trial: { label: 'Trial', color: 'border-l-4 border-accent bg-accent/15 text-accent' },
-    touring: { label: t.nav.touring, color: 'border-l-4 border-accent bg-accent/15 text-accent' },
+    motocross: { label: 'Motocross', color: 'border-l-4 border-accent bg-accent/15 text-accent dark:text-accent' },
+    trial: { label: 'Trial', color: 'border-l-4 border-accent bg-accent/15 text-accent dark:text-accent' },
+    touring: { label: t.nav.touring, color: 'border-l-4 border-accent bg-accent/15 text-accent dark:text-accent' },
   };
 
   const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
