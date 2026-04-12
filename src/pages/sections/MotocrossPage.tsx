@@ -107,39 +107,59 @@ export default function MotocrossPage() {
       <PageHeader title={intro.title || 'Motocross'} subtitle={intro.subtitle} />
 
       {/* Intro + Track Image */}
-      <section className="py-12">
+      <section className="py-16">
         <div className="container">
-          <div className="grid gap-8 lg:grid-cols-2 items-start">
-            <div>
+          <div className="grid gap-0 lg:grid-cols-2">
+            {/* Text side */}
+            <div className="relative bg-primary p-8 md:p-12 flex flex-col justify-center">
+              {/* Racing stripe accent */}
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-accent" />
+              <div className="absolute -right-3 top-8 w-6 h-16 bg-accent/30 skew-y-[-15deg] hidden lg:block" />
+
               {intro.content && (
                 <div
-                  className="text-lg text-muted-foreground prose dark:prose-invert max-w-none"
+                  className="text-lg text-primary-foreground/90 prose prose-invert max-w-none [&_strong]:text-accent"
                   dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }}
                 />
               )}
 
+              {/* Stats row from CMS */}
+              {(intro.stat_one_label || intro.stat_two_label || intro.stat_three_label) && (
+                <div className="mt-8 flex gap-6 border-t border-primary-foreground/20 pt-6">
+                  {[intro.stat_one_label, intro.stat_two_label, intro.stat_three_label]
+                    .filter(Boolean)
+                    .map((stat, i) => (
+                      <div key={i} className="text-sm font-semibold text-accent uppercase tracking-wide">
+                        {stat}
+                      </div>
+                    ))}
+                </div>
+              )}
+
               {/* Highlight Cards */}
               {highlights && highlights.length > 0 && (
-                <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                <div className="mt-8 grid gap-3 sm:grid-cols-3">
                   {highlights.map((item) => (
-                    <Card key={item.id} className="text-center">
-                      <CardContent className="p-4">
-                        <Bike className="mx-auto mb-2 h-6 w-6 text-primary" />
-                        <h3 className="text-sm font-semibold">{item.title}</h3>
-                        <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
-                      </CardContent>
-                    </Card>
+                    <div key={item.id} className="border border-primary-foreground/20 p-3 text-center">
+                      <Bike className="mx-auto mb-1.5 h-5 w-5 text-accent" />
+                      <h3 className="text-xs font-bold text-primary-foreground uppercase tracking-wide">{item.title}</h3>
+                      <p className="mt-1 text-xs text-primary-foreground/60">{item.description}</p>
+                    </div>
                   ))}
                 </div>
               )}
             </div>
-            <div>
+
+            {/* Image side */}
+            <div className="relative min-h-[300px] lg:min-h-[400px]">
               <img
                 src={trackImage}
-                alt="Motocross-Strecke Luftbild"
-                className="w-full border border-border object-cover"
+                alt={intro.image_alt || 'Motocross-Strecke Luftbild'}
+                className="absolute inset-0 h-full w-full object-cover"
                 loading="lazy"
               />
+              {/* Diagonal overlay */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-accent" />
             </div>
           </div>
         </div>
