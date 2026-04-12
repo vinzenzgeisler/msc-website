@@ -168,7 +168,9 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Accent stripes — hidden on mobile */}
+      {/* Accent right edge — fills corner, hidden on mobile */}
+      <div className="absolute right-0 top-0 hidden h-full w-12 bg-accent/40 md:block" />
+      {/* Accent stripes — skewed over the edge fill */}
       <div className={`absolute -right-6 -top-40 -bottom-40 hidden w-32 skew-x-[-5deg] bg-accent/40 md:block ${a('hero-animate-stripe')}`} style={shouldAnimate ? { animationDelay: '0.5s' } : undefined} />
       <div className={`absolute -right-6 -top-40 -bottom-40 hidden w-24 skew-x-[-5deg] bg-accent md:block ${a('hero-animate-stripe')}`} />
 
