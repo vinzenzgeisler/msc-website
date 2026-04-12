@@ -412,121 +412,80 @@ export default function EventPage() {
       {/* Visitors */}
       <section id="visitors" className="py-16">
         <div className="container">
-          <h2 className="mb-8">{t.event.visitors}</h2>
+          <h2 className="mb-10">{t.event.visitors}</h2>
 
-          {/* Admission & Schedule Overview */}
-          <div className="grid gap-6 md:grid-cols-2 mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Ticket className="h-5 w-5 text-primary" />
-                  {admissionContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{admissionContent.content}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-primary" />
-                  {scheduleOverviewContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{scheduleOverviewContent.content}</p>
-              </CardContent>
-            </Card>
+          {/* Key facts — compact highlight bar */}
+          <div className="mb-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+            {[
+              { icon: Ticket, title: locale === 'de' ? 'Tagesticket' : 'Day Ticket', value: '10 €' },
+              { icon: Ticket, title: locale === 'de' ? 'Wochenende' : 'Weekend', value: '15 €' },
+              { icon: Users, title: locale === 'de' ? 'Kinder < 14' : 'Kids < 14', value: locale === 'de' ? 'Frei' : 'Free' },
+              { icon: ParkingCircle, title: locale === 'de' ? 'Parkplätze' : 'Parking', value: locale === 'de' ? 'Kostenlos' : 'Free' },
+            ].map((fact) => (
+              <div key={fact.title} className="flex flex-col items-center border border-border bg-card p-4 text-center">
+                <fact.icon className="mb-2 h-6 w-6 text-primary" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{fact.title}</span>
+                <span className="mt-1 font-display text-2xl font-bold text-foreground">{fact.value}</span>
+              </div>
+            ))}
           </div>
 
-          {/* Parking, Paddock, Transport */}
-          <div className="grid gap-6 md:grid-cols-3 mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ParkingCircle className="h-5 w-5 text-primary" />
-                  {parkingContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{parkingContent.content}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Car className="h-5 w-5 text-primary" />
-                  {paddockContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{paddockContent.content}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bus className="h-5 w-5 text-primary" />
-                  {transportContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{transportContent.content}</p>
-              </CardContent>
-            </Card>
+          {/* Info items — clean list with accent stripe */}
+          <div className="space-y-4 mb-10">
+            {[
+              { icon: Clock, title: scheduleOverviewContent.title, content: scheduleOverviewContent.content },
+              { icon: ParkingCircle, title: parkingContent.title, content: parkingContent.content },
+              { icon: Car, title: paddockContent.title, content: paddockContent.content },
+              { icon: Bus, title: transportContent.title, content: transportContent.content },
+              { icon: Camera, title: photographerContent.title, content: photographerContent.content, image: photographerContent.image_url, imageAlt: photographerContent.image_alt },
+            ].filter((item) => item.content).map((item) => (
+              <div key={item.title} className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6">
+                <item.icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <div className="min-w-0">
+                  <h3 className="mb-1 text-base font-bold">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground">{item.content}</p>
+                  {'image' in item && item.image && (
+                    <img src={item.image} alt={item.imageAlt || item.title} className="mt-3 max-h-64 w-auto border border-border" />
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* Photographers & Site Map */}
-          <div className="grid gap-6 md:grid-cols-2 mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Camera className="h-5 w-5 text-primary" />
-                  {photographerContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{photographerContent.content}</p>
-                {photographerContent.image_url && (
-                  <img src={photographerContent.image_url} alt={photographerContent.image_alt || photographerContent.title} className="mt-4 w-full border border-border" />
-                )}
-              </CardContent>
-            </Card>
-            <Card>
+          {/* Site Map & Photographers images (if available from CMS) */}
+          {(siteMapContent.image_url || siteMapContent.content) && (
+            <Card className="mb-10">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Map className="h-5 w-5 text-primary" />
                   {siteMapContent.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-muted-foreground">
-                {siteMapContent.content && <p>{siteMapContent.content}</p>}
-                {siteMapContent.image_url && (
-                  <img src={siteMapContent.image_url} alt={siteMapContent.image_alt || siteMapContent.title} className="mt-4 w-full border border-border" />
-                )}
-                {!siteMapContent.content && !siteMapContent.image_url && (
-                  <p>{locale === 'de' ? 'Lageplan wird noch aktualisiert.' : locale === 'cz' ? 'Plán areálu bude aktualizován.' : 'Site map will be updated.'}</p>
+              <CardContent>
+                {siteMapContent.content && <p className="mb-4 text-muted-foreground">{siteMapContent.content}</p>}
+                {siteMapContent.image_url ? (
+                  <img src={siteMapContent.image_url} alt={siteMapContent.image_alt || siteMapContent.title} className="w-full border border-border" />
+                ) : (
+                  <p className="text-sm text-muted-foreground">{locale === 'de' ? 'Lageplan wird noch aktualisiert.' : locale === 'cz' ? 'Plán areálu bude aktualizován.' : 'Site map will be updated.'}</p>
                 )}
               </CardContent>
             </Card>
-          </div>
+          )}
 
-          {/* Privacy Notice */}
-          <Card className="border-l-4 border-l-accent">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-accent" />
-                {privacyNoticeContent.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
+          {/* Privacy Notice — collapsible, subtle */}
+          <details className="group mb-10 border border-border bg-card">
+            <summary className="flex cursor-pointer items-center gap-3 p-5 font-semibold">
+              <Shield className="h-5 w-5 text-muted-foreground" />
+              {privacyNoticeContent.title}
+              <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="border-t border-border px-5 pb-5 pt-3 text-sm text-muted-foreground">
               <p>{privacyNoticeContent.content}</p>
-            </CardContent>
-          </Card>
+            </div>
+          </details>
 
           {/* Link to Accommodation */}
-          <div className="mt-8 text-center">
+          <div className="text-center">
             <Button asChild size="lg">
               <Link to="/event/accommodation">
                 <BedDouble className="mr-2 h-5 w-5" />
