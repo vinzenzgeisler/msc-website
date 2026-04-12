@@ -36,7 +36,7 @@ export const PAGE_SECTIONS = {
   touring: ['intro', 'tours_current', 'tours_archive', 'events'],
   calendar: ['intro'],
   news: ['intro'],
-  event: ['intro', 'track_map', 'location_map', 'registration_info', 'gallery', 'archive'],
+  event: ['intro', 'track_map', 'location_map', 'registration_info', 'visitors_admission', 'visitors_schedule', 'visitors_parking', 'visitors_paddock', 'visitors_photographers', 'visitors_privacy', 'visitors_transport', 'visitors_site_map', 'gallery', 'archive', 'accommodation_intro', 'accommodation_list'],
   contact: ['intro', 'info', 'map'],
   sponsors: ['intro', 'cta'],
   partner_clubs: ['intro'],
