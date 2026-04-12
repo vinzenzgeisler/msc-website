@@ -84,7 +84,7 @@ export function Header() {
               {(settings?.site_short_name || 'MSC').slice(0, 3)}
             </div>
           )}
-          <span className="hidden font-heading font-bold text-foreground uppercase tracking-wider sm:inline-block">
+          <span className="hidden font-heading font-bold text-foreground uppercase tracking-wider md:inline-block truncate max-w-[200px] lg:max-w-none">
             {settings?.site_name || 'MSC Oberlausitzer Dreiländereck'}
           </span>
         </Link>
