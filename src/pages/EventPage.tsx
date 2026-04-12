@@ -230,14 +230,17 @@ export default function EventPage() {
               { href: '#visitors', label: t.event.visitors, icon: Info },
               { href: '#downloads', label: t.event.downloads, icon: Download },
               { href: '/event/accommodation', label: locale === 'de' ? 'Übernachtung' : locale === 'cz' ? 'Ubytování' : 'Accommodation', icon: BedDouble, isLink: true },
-            ].map((item) => (
-              <Button key={item.href} variant="outline" size="sm" asChild>
-                <a href={item.href}>
-                  <item.icon className="mr-1 h-4 w-4" />
-                  {item.label}
-                </a>
-              </Button>
-            ))}
+            ].map((item) => {
+              const Tag = 'isLink' in item && item.isLink ? Link : 'a';
+              return (
+                <Button key={item.href} variant="outline" size="sm" asChild>
+                  <Tag {...('isLink' in item && item.isLink ? { to: item.href } : { href: item.href })} >
+                    <item.icon className="mr-1 h-4 w-4" />
+                    {item.label}
+                  </Tag>
+                </Button>
+              );
+            })}
           </div>
         </div>
       </section>
