@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Save, FileText, Globe, Image } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, FileText, Globe, Image, Upload } from 'lucide-react';
 import { useSponsor, useCreateSponsor, useUpdateSponsor } from '@/hooks/useSponsors';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
