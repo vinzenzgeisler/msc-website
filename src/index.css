@@ -154,8 +154,9 @@
 @layer utilities {
   /* Hero entrance animations */
   @keyframes hero-typing {
-    from { max-width: 0; }
-    to { max-width: 100%; }
+    from { max-width: 0; border-right-width: 4px; }
+    99.9% { max-width: 100%; border-right-width: 4px; }
+    100% { max-width: 100%; border-right-width: 0; }
   }
   @keyframes hero-blink-caret {
     0%, 100% { border-color: transparent; }
