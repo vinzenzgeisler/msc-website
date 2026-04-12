@@ -229,6 +229,7 @@ export default function EventPage() {
               { href: '#registration', label: locale === 'de' ? 'Anmeldung' : locale === 'cz' ? 'Přihláška' : 'Registration', icon: ClipboardList },
               { href: '#visitors', label: t.event.visitors, icon: Info },
               { href: '#downloads', label: t.event.downloads, icon: Download },
+              { href: '/event/accommodation', label: locale === 'de' ? 'Übernachtung' : locale === 'cz' ? 'Ubytování' : 'Accommodation', icon: BedDouble, isLink: true },
             ].map((item) => (
               <Button key={item.href} variant="outline" size="sm" asChild>
                 <a href={item.href}>
