@@ -122,7 +122,7 @@ export default function MotocrossPage() {
             </div>
             <div>
               <img
-                src={intro.image_url ? intro.image_url : trackImage}
+                src={trackImage}
                 alt="Motocross-Strecke Luftbild"
                 className="w-full border border-border object-cover"
                 loading="lazy"
