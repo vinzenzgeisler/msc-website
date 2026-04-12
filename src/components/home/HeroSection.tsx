@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -91,6 +91,13 @@ function useCountdown(targetDate: Date | null) {
 export function HeroSection() {
   const t = useTranslation();
   const { locale } = useLanguage();
+  const animateRef = useRef(() => {
+    const key = 'hero-animated';
+    if (sessionStorage.getItem(key)) return false;
+    sessionStorage.setItem(key, '1');
+    return true;
+  });
+  const [shouldAnimate] = useState(() => animateRef.current());
   const { data: mainEvent, isLoading } = useMainEvent();
   const { data: settings } = useSettings();
   const heroContent = useContentWithFallback('home', 'hero', {
