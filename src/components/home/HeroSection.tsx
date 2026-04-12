@@ -168,14 +168,9 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Accent diagonal — large wedge like reference design */}
-      <svg className={`absolute right-0 top-0 hidden h-full md:block ${a('hero-animate-stripe')}`} preserveAspectRatio="none" viewBox="0 0 200 100" style={{ height: '100%', width: '35vw', maxWidth: '500px' }}>
-        {/* Outer dark accent stripe */}
-        <polygon points="80,0 200,0 200,100 30,100" fill="hsl(48,100%,35%,0.7)" />
-        {/* Main yellow accent wedge */}
-        <polygon points="100,0 200,0 200,100 50,100" fill="hsl(48,100%,50%)" />
-        {/* Inner highlight stripe */}
-        <polygon points="105,0 120,0 200,85 200,100 70,100" fill="hsl(48,100%,60%,0.5)" />
+      {/* Accent diagonal wedge */}
+      <svg className={`absolute right-0 top-0 hidden h-full md:block ${a('hero-animate-stripe')}`} preserveAspectRatio="none" viewBox="0 0 100 100" style={{ height: '100%', width: '12vw', maxWidth: '200px' }}>
+        <polygon points="100,0 100,100 0,100" fill="hsl(48,100%,50%)" />
       </svg>
 
       <div className="container relative z-10 py-8 md:py-16">
