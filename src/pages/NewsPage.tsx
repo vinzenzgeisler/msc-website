@@ -157,7 +157,7 @@ export default function NewsPage() {
             <>
               {/* Featured Article */}
               {featuredArticle && (
-                <Card className="group mb-8 overflow-hidden border-2 border-accent transition-shadow hover:shadow-xl">
+                <Link to={`/news/${featuredArticle.slug}`} className="group mb-8 block overflow-hidden rounded-lg border-2 border-accent bg-card transition-shadow hover:shadow-xl">
                   <div className="grid md:grid-cols-2">
                     {/* Image */}
                     <div className="flex h-64 items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 md:h-auto relative">
@@ -179,7 +179,7 @@ export default function NewsPage() {
                     </div>
                     
                     {/* Content */}
-                    <CardContent className="flex flex-col justify-center p-8">
+                    <div className="flex flex-col justify-center p-8">
                       <div className="mb-4 flex items-center gap-3">
                         <span className={`rounded px-3 py-1 text-xs font-bold uppercase ${getCategoryColor(featuredArticle.category)}`}>
                           {getCategoryLabel(featuredArticle.category)}
@@ -200,21 +200,19 @@ export default function NewsPage() {
                         </p>
                       )}
                       
-                      <Button className="w-fit gap-2" asChild>
-                        <Link to={`/news/${featuredArticle.slug}`}>
-                          {t.news.readMore}
-                          <ArrowRight className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </CardContent>
+                      <span className="inline-flex w-fit items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+                        {t.news.readMore}
+                        <ArrowRight className="h-4 w-4" />
+                      </span>
+                    </div>
                   </div>
-                </Card>
+                </Link>
               )}
 
               {/* News Grid */}
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {regularArticles.map((article) => (
-                  <Card key={article.id} className="group overflow-hidden transition-shadow hover:shadow-lg">
+                  <Link key={article.id} to={`/news/${article.slug}`} className="group block overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-lg">
                     {/* Image */}
                     <div className="flex h-40 items-center justify-center bg-muted relative">
                       {article.image_url ? (
@@ -233,7 +231,7 @@ export default function NewsPage() {
                       )}
                     </div>
                     
-                    <CardContent className="p-5">
+                    <div className="p-5">
                       <div className="mb-3 flex items-center gap-3">
                         <span className={`rounded px-2 py-0.5 text-xs font-semibold ${getCategoryColor(article.category)}`}>
                           {getCategoryLabel(article.category)}
@@ -253,15 +251,12 @@ export default function NewsPage() {
                         </p>
                       )}
                       
-                      <Link 
-                        to={`/news/${article.slug}`}
-                        className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
-                      >
+                      <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
                         {t.news.readMore}
                         <ArrowRight className="h-3 w-3" />
-                      </Link>
-                    </CardContent>
-                  </Card>
+                      </span>
+                    </div>
+                  </Link>
                 ))}
               </div>
 

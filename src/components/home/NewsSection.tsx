@@ -122,9 +122,10 @@ export function NewsSection() {
 
         <div className="grid gap-6 lg:grid-cols-3">
           {newsItems.map((news, index) => (
-            <Card 
+            <Link
               key={news.id}
-              className={`group relative overflow-hidden rounded-none border-2 border-border transition-all hover:border-primary hover:shadow-xl ${
+              to={`/news/${news.slug}`}
+              className={`group relative block overflow-hidden rounded-none border-2 border-border bg-card transition-all hover:border-primary hover:shadow-xl ${
                 index === 0 ? 'lg:col-span-2 lg:row-span-2' : ''
               }`}
             >
@@ -141,7 +142,6 @@ export function NewsSection() {
                     <Newspaper className="h-8 w-8 text-muted-foreground" />
                   </div>
                 )}
-                {/* Category badge */}
                 {news.category && (
                   <div className="absolute left-4 top-4 rounded-none bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground">
                     {news.category === 'event' ? t.news.categories.event : t.news.categories.club}
@@ -149,7 +149,7 @@ export function NewsSection() {
                 )}
               </div>
 
-              <CardContent className="p-6">
+              <div className="p-6">
                 <p className="mb-2 text-sm text-muted-foreground">
                   {formatDate(news.published_at || news.created_at)}
                 </p>
@@ -166,18 +166,15 @@ export function NewsSection() {
                   </p>
                 )}
 
-                <Link 
-                  to={`/news/${news.slug}`}
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary transition-colors hover:text-primary/80"
-                >
+                <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
                   Weiterlesen
                   <ArrowUpRight className="h-4 w-4" />
-                </Link>
-              </CardContent>
+                </span>
+              </div>
 
               {/* Bottom accent */}
               <div className="absolute bottom-0 left-0 h-1 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
-            </Card>
+            </Link>
           ))}
         </div>
       </div>
