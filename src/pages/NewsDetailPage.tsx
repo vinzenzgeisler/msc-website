@@ -62,8 +62,8 @@ export default function NewsDetailPage() {
 
   const categoryLabel = article.category === 'event' ? 'Veranstaltung' : 'Verein';
   const categoryColor = article.category === 'event' 
-    ? 'bg-accent text-accent-foreground' 
-    : 'bg-primary text-primary-foreground';
+    ? 'border-l-4 border-accent bg-accent/15 text-accent' 
+    : 'border-l-4 border-primary bg-primary/15 text-primary';
 
   const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return '';
@@ -92,7 +92,7 @@ export default function NewsDetailPage() {
           <div className="mx-auto max-w-3xl">
             <div className="flex items-center gap-3 mb-4">
               {article.category && (
-                <span className={`rounded px-3 py-1 text-xs font-bold uppercase ${categoryColor}`}>
+                <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider ${categoryColor}`}>
                   {categoryLabel}
                 </span>
               )}

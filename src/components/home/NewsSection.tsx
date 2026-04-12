@@ -144,7 +144,7 @@ export function NewsSection() {
                   </div>
                 )}
                 {news.category && (
-                  <div className="absolute left-4 top-4 rounded-none bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground">
+                  <div className="absolute left-4 top-4 border-l-4 border-accent bg-accent/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent backdrop-blur-sm">
                     {news.category === 'event' ? t.news.categories.event : t.news.categories.club}
                   </div>
                 )}
