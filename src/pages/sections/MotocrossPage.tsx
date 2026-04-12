@@ -94,6 +94,7 @@ export default function MotocrossPage() {
     content: '',
   });
 
+  const [safetyOpen, setSafetyOpen] = useState(false);
   const trackImage = intro.image_url || trackImageFallback;
   const directionsImage = directions.image_url || anfahrtImageFallback;
 
