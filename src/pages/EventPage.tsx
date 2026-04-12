@@ -413,19 +413,126 @@ export default function EventPage() {
       <section id="visitors" className="py-16">
         <div className="container">
           <h2 className="mb-8">{t.event.visitors}</h2>
-          <div className="grid gap-6 md:grid-cols-3">
+
+          {/* Admission & Schedule Overview */}
+          <div className="grid gap-6 md:grid-cols-2 mb-8">
             <Card>
-              <CardHeader><CardTitle>{locale === 'de' ? 'Anreise' : locale === 'cz' ? 'Příjezd' : 'Getting There'}</CardTitle></CardHeader>
-              <CardContent className="text-muted-foreground"><p>{arrivalInfo?.content || mainEvent?.location || '-'}</p></CardContent>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Ticket className="h-5 w-5 text-primary" />
+                  {admissionContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                <p>{admissionContent.content}</p>
+              </CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle>{locale === 'de' ? 'Eintritt' : locale === 'cz' ? 'Vstupné' : 'Admission'}</CardTitle></CardHeader>
-              <CardContent className="text-muted-foreground"><p>{admissionInfo?.content || '-'}</p></CardContent>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-primary" />
+                  {scheduleOverviewContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                <p>{scheduleOverviewContent.content}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Parking, Paddock, Transport */}
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ParkingCircle className="h-5 w-5 text-primary" />
+                  {parkingContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                <p>{parkingContent.content}</p>
+              </CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle>{locale === 'de' ? 'Fahrerlager' : locale === 'cz' ? 'Depo' : 'Paddock'}</CardTitle></CardHeader>
-              <CardContent className="text-muted-foreground"><p>{paddockInfo?.content || '-'}</p></CardContent>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Car className="h-5 w-5 text-primary" />
+                  {paddockContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                <p>{paddockContent.content}</p>
+              </CardContent>
             </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bus className="h-5 w-5 text-primary" />
+                  {transportContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                <p>{transportContent.content}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Photographers & Site Map */}
+          <div className="grid gap-6 md:grid-cols-2 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Camera className="h-5 w-5 text-primary" />
+                  {photographerContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                <p>{photographerContent.content}</p>
+                {photographerContent.image_url && (
+                  <img src={photographerContent.image_url} alt={photographerContent.image_alt || photographerContent.title} className="mt-4 w-full border border-border" />
+                )}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Map className="h-5 w-5 text-primary" />
+                  {siteMapContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                {siteMapContent.content && <p>{siteMapContent.content}</p>}
+                {siteMapContent.image_url && (
+                  <img src={siteMapContent.image_url} alt={siteMapContent.image_alt || siteMapContent.title} className="mt-4 w-full border border-border" />
+                )}
+                {!siteMapContent.content && !siteMapContent.image_url && (
+                  <p>{locale === 'de' ? 'Lageplan wird noch aktualisiert.' : locale === 'cz' ? 'Plán areálu bude aktualizován.' : 'Site map will be updated.'}</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Privacy Notice */}
+          <Card className="border-l-4 border-l-accent">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-accent" />
+                {privacyNoticeContent.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              <p>{privacyNoticeContent.content}</p>
+            </CardContent>
+          </Card>
+
+          {/* Link to Accommodation */}
+          <div className="mt-8 text-center">
+            <Button asChild size="lg">
+              <Link to="/event/accommodation">
+                <BedDouble className="mr-2 h-5 w-5" />
+                {locale === 'de' ? 'Übernachtungsmöglichkeiten' : locale === 'cz' ? 'Ubytování' : 'Accommodation'}
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
