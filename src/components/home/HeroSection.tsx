@@ -98,7 +98,15 @@ export function HeroSection() {
     return true;
   });
   const [shouldAnimate] = useState(() => animateRef.current());
+  const [scrollY, setScrollY] = useState(0);
   const { data: mainEvent, isLoading } = useMainEvent();
+
+  // Parallax scroll
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   const { data: settings } = useSettings();
   const heroContent = useContentWithFallback('home', 'hero', {
     title: settings?.site_name || t.clubTeaser.title,
@@ -142,8 +150,11 @@ export function HeroSection() {
 
   return (
     <section className="relative overflow-hidden flex items-center" style={{ minHeight: 'calc(100svh - 4rem)' }}>
-      {/* Background: CMS image or classic blue */}
-      <div className="absolute inset-0 bg-primary">
+      {/* Background: CMS image or classic blue with parallax */}
+      <div
+        className="absolute inset-0 bg-primary"
+        style={{ transform: `translateY(${scrollY * 0.3}px)` }}
+      >
         {cmsImage && (
           <>
             <img src={cmsImage} alt="" className="h-full w-full object-cover" width={1920} height={640} />
@@ -176,8 +187,16 @@ export function HeroSection() {
 
           {isLoading ? (
             <Skeleton className="h-16 w-3/4 mx-auto mb-4 bg-white/10 md:mb-6" />
+          ) : shouldAnimate ? (
+            <h1 className="mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl hero-animate-title">
+              <span className="inline-block overflow-hidden whitespace-nowrap border-r-4 border-accent" style={{
+                animation: 'hero-typing 1.5s steps(30, end) 0.5s both, hero-blink-caret 0.75s step-end 0.5s 4',
+              }}>
+                {heroTitle}
+              </span>
+            </h1>
           ) : (
-            <h1 className={`mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl ${a('hero-animate-title')}`}>
+            <h1 className="mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl">
               {heroTitle}
             </h1>
           )}
