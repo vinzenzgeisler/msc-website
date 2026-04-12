@@ -33,7 +33,7 @@ export const PAGE_SECTIONS = {
   membership: ['intro', 'benefits', 'how_to_join', 'cta'],
   motocross: ['intro', 'training', 'fees', 'safety', 'directions', 'events'],
   trial: ['intro', 'training', 'events'],
-  touring: ['intro', 'training', 'events'],
+  touring: ['intro', 'tours_current', 'tours_archive', 'events'],
   calendar: ['intro'],
   news: ['intro'],
   event: ['intro', 'track_map', 'location_map', 'registration_info', 'gallery', 'archive'],
