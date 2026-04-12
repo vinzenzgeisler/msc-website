@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
+import { DisciplineEventCard } from '@/components/sections/DisciplineEventCard';
 import {
   Calendar,
   MapPin,
@@ -19,6 +20,7 @@ import {
   ExternalLink,
   AlertTriangle,
   Ticket,
+  CalendarX,
 } from 'lucide-react';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useDisciplineHighlights } from '@/hooks/useStructuredContent';

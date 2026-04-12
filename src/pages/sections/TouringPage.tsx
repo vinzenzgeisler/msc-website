@@ -11,6 +11,7 @@ import {
   Mail,
   ArrowRight,
   Route,
+  CalendarX,
 } from 'lucide-react';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
@@ -18,6 +19,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { DisciplineEventCard } from '@/components/sections/DisciplineEventCard';
 
 import heroTouring from '@/assets/event-melkus.jpg';
 
@@ -111,48 +113,33 @@ Tour ins Adlergebirge nach Jánské Lázně<br/>
         </div>
       </section>
 
-      {/* Upcoming Events (filtered to touring) */}
+      {/* Upcoming Events */}
       <section className="border-t border-border bg-muted/50 py-16">
         <div className="container">
-          <div className="max-w-3xl">
-            <h2 className="mb-6 text-2xl font-bold flex items-center gap-2">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-2">
               <Route className="h-6 w-6 text-primary" />
               {eventsContent.title || 'Kommende Touren'}
             </h2>
-            {upcomingEvents.length > 0 ? (
-              <div className="space-y-4">
-                {upcomingEvents.map((event) => (
-                  <Card key={event.id}>
-                    <CardContent className="flex items-center gap-4 p-5">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                        <Calendar className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-muted-foreground mb-0.5">
-                          {format(new Date(event.start_dt), 'dd. MMMM yyyy', { locale: de })}
-                          {event.location && ` · ${event.location}`}
-                        </p>
-                        <h3 className="font-semibold">{event.title}</h3>
-                        {event.description && (
-                          <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{event.description}</p>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground">Derzeit keine anstehenden Touren geplant.</p>
-            )}
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Button asChild>
-                <Link to="/calendar">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Alle Termine ansehen
-                </Link>
-              </Button>
-            </div>
+            <Button variant="outline" className="rounded-none font-semibold uppercase tracking-wider" asChild>
+              <Link to="/calendar">
+                <Calendar className="mr-2 h-4 w-4" />
+                Alle Termine
+              </Link>
+            </Button>
           </div>
+          {upcomingEvents.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-3">
+              {upcomingEvents.map((event) => (
+                <DisciplineEventCard key={event.id} event={event} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-none border-2 border-dashed border-border bg-card p-12 text-center">
+              <CalendarX className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <p className="text-muted-foreground">Derzeit keine anstehenden Touren geplant.</p>
+            </div>
+          )}
         </div>
       </section>
 
