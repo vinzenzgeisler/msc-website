@@ -171,8 +171,8 @@
     to { opacity: 1; transform: translateX(0); }
   }
   @keyframes hero-stripe-sweep {
-    from { transform: scaleY(0); }
-    to { transform: scaleY(1); }
+    from { transform: translateX(100%) rotateY(90deg); opacity: 0; }
+    to { transform: translateX(0) rotateY(0deg); opacity: 1; }
   }
 
   .hero-animate-badge {
