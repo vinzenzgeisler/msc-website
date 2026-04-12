@@ -142,7 +142,7 @@ export function HeroSection() {
           </>
         )}
         {/* Racing stripe pattern */}
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0">
           <div className="racing-stripe h-full w-full" />
         </div>
       </div>
