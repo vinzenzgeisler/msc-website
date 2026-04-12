@@ -132,7 +132,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden min-h-[520px] flex items-center md:min-h-[600px]">
+    <section className="relative overflow-hidden flex items-center" style={{ minHeight: 'calc(100svh - 4rem)' }}>
       {/* Background: CMS image or classic blue */}
       <div className="absolute inset-0 bg-primary">
         {cmsImage && (
