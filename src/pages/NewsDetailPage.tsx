@@ -95,13 +95,15 @@ export default function NewsDetailPage() {
           <div className="mx-auto max-w-3xl">
             <div className="flex items-center gap-3 mb-4">
               {article.category && (
-                <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider ${categoryColor}`}>
+                <span className="inline-flex items-center gap-1.5 bg-accent px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent-foreground">
                   {categoryLabel}
                 </span>
               )}
-              <span className="text-sm text-primary-foreground/80">
-                {formatDate(article.created_at)}
-              </span>
+              {displayDate && (
+                <span className="text-sm text-primary-foreground/80">
+                  {displayDate}
+                </span>
+              )}
             </div>
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl">{article.title}</h1>
