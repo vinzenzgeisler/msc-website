@@ -133,8 +133,8 @@ export function HeroSection() {
 
   return (
     <section className="relative overflow-hidden flex items-center" style={{ minHeight: 'calc(100svh - 4rem)' }}>
-      {/* Background: CMS image or classic blue */}
-      <div className="absolute inset-0 bg-primary">
+      {/* Background: CMS image or classic blue with zoom-in on load */}
+      <div className="absolute inset-0 bg-primary hero-bg-zoom">
         {cmsImage && (
           <>
             <img src={cmsImage} alt="" className="h-full w-full object-cover" width={1920} height={640} />
@@ -145,17 +145,6 @@ export function HeroSection() {
         <div className="absolute inset-0">
           <div className="racing-stripe h-full w-full" />
         </div>
-        {/* Animated checkered flag pattern overlay */}
-        <div className="absolute inset-0 hero-checkered" />
-        {/* Pulsing radial glow */}
-        <div className="absolute inset-0 hero-pulse-glow bg-[radial-gradient(ellipse_at_center,hsl(var(--accent)/0.25)_0%,transparent_70%)]" />
-      </div>
-
-      {/* Animated speed lines */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="hero-speed-line absolute top-[20%] left-0 h-[2px] w-[60%] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-        <div className="hero-speed-line-2 absolute top-[50%] left-0 h-[2px] w-[40%] bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
-        <div className="hero-speed-line-3 absolute top-[75%] left-0 h-[2px] w-[50%] bg-gradient-to-r from-transparent via-white/15 to-transparent" />
       </div>
 
       {/* Accent stripe — animated slide-in, hidden on mobile */}
@@ -164,7 +153,7 @@ export function HeroSection() {
 
       <div className="container relative z-10 py-8 md:py-16">
         <div className="mx-auto max-w-4xl text-center text-white">
-          {/* Rev-counter bar accent */}
+          {/* Accent bar */}
           <div className="mx-auto mb-6 hidden h-1 max-w-xs overflow-hidden md:block md:mb-8">
             <div className="hero-rev-bar h-full bg-gradient-to-r from-accent via-accent to-destructive" />
           </div>
