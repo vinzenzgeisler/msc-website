@@ -391,7 +391,7 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
   const upsertContent = useUpsertPageContent();
   const translate = useCmsTranslation();
   const sections = PAGE_SECTIONS[pageKey];
-  const imageSections = new Set(['home:hero', 'about:intro', 'event:track_map']);
+  const imageSections = new Set(['home:hero', 'about:intro', 'event:track_map', 'history:intro', 'partner_clubs:intro']);
 
   const getContentForSection = (sectionKey: string, locale: string) =>
     content?.find((item) => item.section_key === sectionKey && item.locale === locale) || null;
