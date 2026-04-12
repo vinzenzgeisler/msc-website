@@ -65,8 +65,11 @@ export default function NewsDetailPage() {
     ? 'bg-accent text-accent-foreground' 
     : 'bg-primary text-primary-foreground';
 
-  const formatDate = (dateStr: string) => {
-    return format(new Date(dateStr), 'd. MMMM yyyy', { locale: de });
+  const formatDate = (dateStr?: string | null) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+    return format(date, 'd. MMMM yyyy', { locale: de });
   };
 
   return (
