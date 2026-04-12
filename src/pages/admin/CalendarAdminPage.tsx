@@ -51,7 +51,20 @@ export default function CalendarAdminPage() {
 
   const { data: events, isLoading, error } = useCalendarEvents(false);
   const deleteEvent = useDeleteCalendarEvent();
+  const updateEvent = useUpdateCalendarEvent();
   const germanEvents = (events || []).filter((event) => event.locale === 'de');
+
+  const handleToggleMainEvent = async (event: { id: string; is_main_event?: boolean; title: string }) => {
+    try {
+      await updateEvent.mutateAsync({
+        id: event.id,
+        is_main_event: !event.is_main_event,
+      });
+      toast.success(event.is_main_event ? 'Hauptevent entfernt' : 'Als Hauptevent markiert');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Aktualisieren'));
+    }
+  };
 
   const filteredEvents = germanEvents.filter((event) => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
