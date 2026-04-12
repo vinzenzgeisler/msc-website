@@ -498,14 +498,14 @@ export default function EventPage() {
           </details>
 
           {/* Link to Accommodation */}
-          <div className="text-center">
-            <Button asChild size="lg">
-              <Link to="/event/accommodation">
-                <BedDouble className="mr-2 h-5 w-5" />
-                {locale === 'de' ? 'Übernachtungsmöglichkeiten' : locale === 'cz' ? 'Ubytování' : 'Accommodation'}
-              </Link>
-            </Button>
-          </div>
+          <Link to="/event/accommodation" className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6 transition-colors hover:border-primary">
+            <BedDouble className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+            <div className="min-w-0">
+              <h3 className="mb-1 text-base font-bold">{locale === 'de' ? 'Übernachtungsmöglichkeiten' : locale === 'cz' ? 'Ubytování' : 'Accommodation'}</h3>
+              <p className="text-sm text-muted-foreground">{locale === 'de' ? 'Hotels, Pensionen und Ferienwohnungen in der Nähe der Rennstrecke.' : locale === 'cz' ? 'Hotely, penziony a apartmány v blízkosti závodní dráhy.' : 'Hotels, guesthouses and holiday apartments near the track.'}</p>
+            </div>
+            <ExternalLink className="mt-0.5 ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
+          </Link>
         </div>
       </section>
 
