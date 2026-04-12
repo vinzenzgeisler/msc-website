@@ -100,7 +100,7 @@ export default function NewsDetailPage() {
             </span>
           </div>
           
-          <h1 className="text-3xl md:text-4xl lg:text-5xl text-center">{article.title}</h1>
+          <h1 className="mx-auto max-w-3xl text-3xl md:text-4xl lg:text-5xl">{article.title}</h1>
         </div>
       </section>
 
