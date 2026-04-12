@@ -21,8 +21,10 @@ const localeOptions: Locale[] = ['de', 'en', 'cz'];
 export default function PartnerClubsAdminPage() {
   const { data, isLoading } = usePartnerClubsAdmin();
   const { create, update, remove } = usePartnerClubMutations();
+  const translateMutation = useCmsTranslation();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
   const [form, setForm] = useState({
     name: '',
     description: '',
