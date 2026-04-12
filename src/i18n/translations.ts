@@ -223,6 +223,7 @@ export const translations = {
       eventCountPlural: 'termínů',
       filter: {
         all: 'Obecné',
+        allgemein: 'Obecné',
         club: 'Klub',
         verein: 'Klub',
         event: 'Akce',
@@ -230,6 +231,9 @@ export const translations = {
         training: 'Trénink',
         orgTeam: 'Org-tým',
         orga: 'Org-tým',
+        motocross: 'Motokros',
+        trial: 'Trial',
+        touring: 'Mototuristika',
       },
       mainEvent: 'Hlavní akce',
     },
@@ -353,6 +357,7 @@ export const translations = {
       eventCountPlural: 'events',
       filter: {
         all: 'General',
+        allgemein: 'General',
         club: 'Club',
         verein: 'Club',
         event: 'Event',
@@ -360,6 +365,9 @@ export const translations = {
         training: 'Training',
         orgTeam: 'Org Team',
         orga: 'Org Team',
+        motocross: 'Motocross',
+        trial: 'Trial',
+        touring: 'Motorcycle Touring',
       },
       mainEvent: 'Main Event',
     },
@@ -481,6 +489,7 @@ export type Translations = {
     eventCountPlural: string;
     filter: {
       all: string;
+      allgemein: string;
       club: string;
       verein: string;
       event: string;
@@ -488,6 +497,9 @@ export type Translations = {
       training: string;
       orgTeam: string;
       orga: string;
+      motocross: string;
+      trial: string;
+      touring: string;
     };
     mainEvent: string;
   };
