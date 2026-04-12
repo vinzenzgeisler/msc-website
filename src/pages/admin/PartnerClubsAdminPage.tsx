@@ -70,6 +70,48 @@ export default function PartnerClubsAdminPage() {
     }
   };
 
+  // Group DE entries for translation
+  const deEntries = (data || []).filter((c) => c.locale === 'de');
+
+  const getTranslationStatus = (name: string): TranslationStatus => ({
+    en: (data || []).some((c) => c.locale === 'en' && c.name === name),
+    cz: (data || []).some((c) => c.locale === 'cz' && c.name === name),
+  });
+
+  const handleTranslate = async (source: PartnerClub, target: TranslationTarget) => {
+    setIsTranslating(true);
+    try {
+      const translated = await translateMutation.mutateAsync({
+        targetLocale: target,
+        context: 'Partnerverein eines Motorsportvereins',
+        fields: { description: source.description || '' },
+      });
+
+      // Check if translation already exists
+      const existing = (data || []).find((c) => c.locale === target && c.name === source.name);
+      const payload: Record<string, unknown> = {
+        name: source.name,
+        description: translated.description || source.description || '',
+        location: source.location,
+        website: source.website,
+        active: source.active,
+        sortOrder: source.sort_order,
+        locale: target,
+      };
+
+      if (existing) {
+        await update.mutateAsync({ id: existing.id, payload });
+      } else {
+        await create.mutateAsync(payload);
+      }
+      toast.success(`Übersetzung nach ${target.toUpperCase()} gespeichert`);
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Übersetzung fehlgeschlagen'));
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
