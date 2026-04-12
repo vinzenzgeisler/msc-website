@@ -28,6 +28,20 @@ Fallback-Kette: `locale` → `de` → hardcoded Fallback
 | 15 | `membershipBenefits` | Structured | ✓ | Vorteile einer Mitgliedschaft |
 | 16 | `membershipSteps` | Structured | ✓ | Schritte zum Beitritt |
 | 17 | `disciplineHighlights` | Structured | ✓ | Highlights je Sparte (Motocross/Trial/Touring) |
+| 18 | `media` | Asset | ✗ | Inline-Bilder für Rich-Text-Inhalte (News etc.) |
+
+---
+
+### 2.18 `media` (Asset-Speicher für Inline-Bilder)
+
+Wird vom Rich-Text-Editor im Admin genutzt, um Bilder innerhalb von News-Artikeln hochzuladen und inline einzubetten.
+
+| PB-Feld | Typ | Pflicht | Beschreibung |
+|---|---|---|---|
+| `file` | file | ✓ | Die hochgeladene Bilddatei (jpg, png, webp etc.) |
+| `alt` | text | ✗ | Alt-Text für Barrierefreiheit und SEO |
+
+**Hinweis:** Diese Collection muss in PocketBase manuell angelegt werden, falls sie noch nicht existiert. API-Regeln sollten authentifizierten Admins das Erstellen erlauben und öffentliches Lesen ermöglichen.
 
 ---
 
