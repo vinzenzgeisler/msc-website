@@ -359,16 +359,11 @@ export default function EventPage() {
                 : 'These are the classes competing at the Oberlausitz Triangle:'}
           </p>
           {participantClasses.length > 0 ? (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {participantClasses.map((cls) => (
-                <div key={cls.name} className="accent-stripe flex items-center gap-3 border border-border bg-card p-4 pl-5">
-                  <cls.icon className="h-5 w-5 shrink-0 text-primary" />
-                  <div className="min-w-0">
-                    <span className="font-semibold">{cls.name}</span>
-                    {cls.description && (
-                      <p className="text-sm text-muted-foreground">{cls.description}</p>
-                    )}
-                  </div>
+                <div key={cls.name} className="flex items-center gap-2 border border-border bg-card px-3 py-2.5">
+                  <cls.icon className="h-4 w-4 shrink-0 text-primary" />
+                  <span className="text-sm font-medium">{cls.name}</span>
                 </div>
               ))}
             </div>
