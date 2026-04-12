@@ -95,13 +95,12 @@ export default function NewsDetailPage() {
                 {categoryLabel}
               </span>
             )}
-            <span className="flex items-center gap-1 text-sm text-primary-foreground/80">
-              <Calendar className="h-4 w-4" />
+            <span className="text-sm text-primary-foreground/80">
               {formatDate(article.published_at || article.created_at)}
             </span>
           </div>
           
-          <h1 className="text-3xl md:text-4xl lg:text-5xl">{article.title}</h1>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl text-center">{article.title}</h1>
         </div>
       </section>
 
