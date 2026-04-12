@@ -76,6 +76,8 @@ Prinzip: `DE ist führend`, EN/CZ als Übersetzungen pro Datensatz (`locale`).
 | Streckenkarte Bild | `image`,`imageAlt` (`event/track_map`) | `pageContents` | optional |
 | Streckenkarte Label/Text | `title`,`content` (`event/track_map`) | `pageContents` | optional |
 | **Karten-Embed URL** | `content` (`event/location_map`) | `pageContents` | optional |
+| **Google Maps Link** | `primaryButtonUrl` (`event/location_map`) | `pageContents` | optional |
+| **Google Maps Link-Label** | `primaryButtonLabel` (`event/location_map`) | `pageContents` | optional |
 | **Anmelde-Hinweise Titel** | `title` (`event/registration_info`) | `pageContents` | optional |
 | **Anmelde-Hinweise Text** | `content` (`event/registration_info`) | `pageContents` | optional |
 | Galerie-Fallbacktext | `content` (`event/gallery`) | `pageContents` | optional |
