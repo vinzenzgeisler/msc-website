@@ -112,7 +112,9 @@ Prinzip: `DE ist führend`, EN/CZ als Übersetzungen pro Datensatz (`locale`).
 | Motocross Sicherheit | `title`,`content`,`primaryButtonLabel`,`primaryButtonUrl` (`motocross/safety`) | `pageContents` | optional |
 | Motocross Anfahrt | `title`,`subtitle`,`content`,`image`,`primaryButtonLabel`,`primaryButtonUrl` (`motocross/directions`) | `pageContents` | optional |
 | Motocross Termine | `title`,`content` (`motocross/events`) | `pageContents` | optional |
-| Trial Intro/Training/Events | `title`,`subtitle`,`content`,`image`,`imageAlt` je SectionKey | `pageContents` | optional |
+| Trial Intro | `title`,`subtitle`,`content`,`image`,`imageAlt`,`statOneLabel`,`statTwoLabel`,`statThreeLabel` (`trial/intro`) | `pageContents` | required |
+| Trial Ansprechpartner | `title`,`subtitle`,`content`,`primaryButtonLabel`,`primaryButtonUrl`,`secondaryButtonLabel`,`secondaryButtonUrl` (`trial/contact`) | `pageContents` | optional |
+| Trial Termine | `title`,`content` (`trial/events`) | `pageContents` | optional |
 | Touring Intro | `title`,`subtitle`,`content`,`image`,`imageAlt`,`statOneLabel`,`statTwoLabel`,`statThreeLabel` (`touring/intro`) | `pageContents` | required |
 | Touring aktuelle Touren | `title`,`content`,`primaryButtonLabel`,`primaryButtonUrl` (`touring/tours_current`) | `pageContents` | required |
 | Touring Archiv | `title`,`subtitle`,`content` (`touring/tours_archive`) | `pageContents` | optional |
