@@ -32,7 +32,7 @@ interface AdminLayoutProps {
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/events', label: 'Veranstaltungen', icon: Trophy },
+  { href: '/admin/events', label: 'Hauptevent', icon: Trophy },
   { href: '/admin/news', label: 'News', icon: Newspaper },
   { href: '/admin/calendar', label: 'Terminkalender', icon: CalendarDays },
   { href: '/admin/content', label: 'Seiten & Texte', icon: FileText },

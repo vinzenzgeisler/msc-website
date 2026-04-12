@@ -184,7 +184,10 @@ export default function CalendarAdminPage() {
                     <TableRow key={event.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${category?.color || 'bg-gray-400'}`} />
+                          {event.is_main_event && (
+                            <Star className="h-4 w-4 text-accent fill-accent flex-shrink-0" />
+                          )}
+                          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${category?.color || 'bg-gray-400'}`} />
                           <div>{event.title}</div>
                         </div>
                       </TableCell>
@@ -212,6 +215,10 @@ export default function CalendarAdminPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleToggleMainEvent(event)}>
+                              <Star className="mr-2 h-4 w-4" />
+                              {event.is_main_event ? 'Hauptevent entfernen' : 'Als Hauptevent markieren'}
+                            </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link to={`/admin/calendar/${event.id}`}>
                                 <Pencil className="mr-2 h-4 w-4" />
