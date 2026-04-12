@@ -176,18 +176,18 @@ export function HeroSection() {
           <p className="mb-10 text-lg text-white/80 md:text-xl">{heroSubtitle}</p>
 
           {hasMainEvent && countdown ? (
-            <div className="mb-12 inline-grid grid-cols-4 gap-3 md:gap-5">
+            <div className="mb-12 inline-grid grid-cols-2 gap-3 sm:grid-cols-4 md:gap-5">
               {[
                 { value: countdown.days, label: t.hero.days },
                 { value: countdown.hours, label: t.hero.hours },
                 { value: countdown.minutes, label: t.hero.minutes },
                 { value: countdown.seconds, label: t.hero.seconds },
               ].map((item) => (
-                <div key={item.label} className="rounded-lg border border-white/20 bg-white/10 px-5 py-4 md:px-8 md:py-5">
-                  <div className="font-display text-3xl font-black md:text-5xl">
+                <div key={item.label} className="rounded-lg border border-white/20 bg-white/10 px-6 py-4 md:px-8 md:py-5">
+                  <div className="font-display text-4xl font-black md:text-5xl">
                     {String(item.value).padStart(2, '0')}
                   </div>
-                  <div className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-white/60 md:text-xs">
+                  <div className="mt-1 text-xs font-semibold uppercase tracking-widest text-white/60">
                     {item.label}
                   </div>
                 </div>
