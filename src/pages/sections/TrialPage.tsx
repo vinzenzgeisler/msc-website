@@ -36,10 +36,6 @@ export default function TrialPage() {
     title: 'Ansprechpartner Trial',
     content: `<strong>Stefan Funke</strong><br/>Kirchstr. 8<br/>02791 Oderwitz`,
     subtitle: 'Tel.: 0172 7346799',
-    primary_button_label: 'E-Mail senden',
-    primary_button_url: 'mailto:funke@ostdeutsche-trialmeisterschaft.de',
-    secondary_button_label: 'Ostdeutsche Trialmeisterschaft',
-    secondary_button_url: 'https://ostdeutsche-trialmeisterschaft.de/',
   });
 
   const eventsContent = useContentWithFallback('trial', 'events', {
