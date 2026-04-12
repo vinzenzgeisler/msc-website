@@ -354,7 +354,7 @@ export default function MotocrossPage() {
             ) : (
               <p className="text-muted-foreground">Derzeit keine anstehenden Termine.</p>
             )}
-            <div className="mt-8 flex flex-wrap gap-4 justify-center">
+            <div className="mt-8 flex flex-wrap gap-4">
               <Button asChild>
                 <Link to="/calendar">
                   <Calendar className="mr-2 h-4 w-4" />
