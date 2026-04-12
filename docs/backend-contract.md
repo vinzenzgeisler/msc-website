@@ -128,6 +128,16 @@ Fallback-Kette: `locale` → `de` → hardcoded Fallback
 | `event` | `track_map` | Streckenkarte | `title`, `content`, `image`, `imageAlt` |
 | `event` | `location_map` | Karten-Embed | `title`, `content` (Embed-URL), `primaryButtonUrl` (Google Maps), `primaryButtonLabel` |
 | `event` | `registration_info` | Anmeldung | `title`, `content` |
+| `event` | `visitors_admission` | Eintrittspreise | `title`, `content` |
+| `event` | `visitors_schedule` | Ablauf-Übersicht | `title`, `content` |
+| `event` | `visitors_parking` | Parkplätze & Shuttle | `title`, `content` |
+| `event` | `visitors_paddock` | Fahrerlager | `title`, `content` |
+| `event` | `visitors_photographers` | Fotografenbereiche | `title`, `content`, `image`, `imageAlt` |
+| `event` | `visitors_privacy` | Datenschutzhinweis VA | `title`, `content` |
+| `event` | `visitors_transport` | ÖPNV | `title`, `content` |
+| `event` | `visitors_site_map` | Lageplan | `title`, `content`, `image`, `imageAlt` |
+| `event` | `accommodation_intro` | Übernachtungen-Intro | `title`, `content` |
+| `event` | `accommodation_list` | Übernachtungen-Liste | `content` (JSON-Array mit name, description, address, phone, email, website) |
 | `event` | `gallery` | Galerie-Fallback | `content` |
 | `event` | `archive` | Archiv-Fallback | `content` |
 | `contact` | `intro` | Kontaktseite | `title`, `subtitle` |

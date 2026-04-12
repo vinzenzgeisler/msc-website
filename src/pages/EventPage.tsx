@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation, useLanguage } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,13 @@ import {
   Info,
   ExternalLink,
   ClipboardList,
+  Ticket,
+  ParkingCircle,
+  Bus,
+  Camera,
+  Shield,
+  Map,
+  BedDouble,
 } from 'lucide-react';
 import { useMainEvent } from '@/hooks/useMainEvent';
 import { useEventContent } from '@/hooks/useEventContent';
@@ -59,6 +67,52 @@ export default function EventPage() {
       locale === 'de'
         ? 'Vereinsmitglieder des MSC Oberlausitzer Dreiländereck e.V. zahlen kein Nenngeld. Nachwuchsfahrer unter 18 Jahren benötigen eine schriftliche Einverständniserklärung eines Erziehungsberechtigten. Ab 70 Jahren ist ein ärztliches Attest erforderlich.'
         : '',
+  });
+  const admissionContent = useContentWithFallback('event', 'visitors_admission', {
+    title: locale === 'de' ? 'Eintrittspreise' : locale === 'cz' ? 'Vstupné' : 'Admission',
+    content: locale === 'de'
+      ? 'Tagesticket: 10 € | Wochenendticket: 15 € — Kinder und Jugendliche unter 14 Jahren haben freien Eintritt.'
+      : locale === 'cz' ? 'Denní vstupenka: 10 € | Víkendová vstupenka: 15 € — Děti do 14 let mají vstup zdarma.' : 'Day ticket: €10 | Weekend ticket: €15 — Children under 14 get free admission.',
+  });
+  const scheduleOverviewContent = useContentWithFallback('event', 'visitors_schedule', {
+    title: locale === 'de' ? 'Ablauf' : locale === 'cz' ? 'Průběh' : 'Schedule Overview',
+    content: locale === 'de'
+      ? 'Samstag: 8:00–ca. 18:00 Uhr Trainingsläufe, 20:00 Uhr Abendveranstaltung mit Livemusik. Sonntag: 8:00–ca. 18:00 Uhr Demoläufe.'
+      : '',
+  });
+  const parkingContent = useContentWithFallback('event', 'visitors_parking', {
+    title: locale === 'de' ? 'Parkplätze & Shuttle' : locale === 'cz' ? 'Parkování a shuttle' : 'Parking & Shuttle',
+    content: locale === 'de'
+      ? 'Parkplätze sind ausgeschildert und kostenlos. An der Strecke gibt es kostenlose Shuttlebusse, welche die Besucher zu den Zuschauerbereichen fahren.'
+      : '',
+  });
+  const paddockContent = useContentWithFallback('event', 'visitors_paddock', {
+    title: locale === 'de' ? 'Fahrerlager' : locale === 'cz' ? 'Depo' : 'Paddock',
+    content: locale === 'de'
+      ? 'Die beiden Fahrerlager sind auch für die Zuschauer zugänglich.'
+      : '',
+  });
+  const photographerContent = useContentWithFallback('event', 'visitors_photographers', {
+    title: locale === 'de' ? 'Fotografen' : locale === 'cz' ? 'Fotografové' : 'Photographers',
+    content: locale === 'de'
+      ? 'Die Fotografenbereiche sind farblich gekennzeichnet und dürfen nur von akkreditierten Fotografen betreten werden. Die Absperrungen dürfen nicht überschritten werden!'
+      : '',
+  });
+  const privacyNoticeContent = useContentWithFallback('event', 'visitors_privacy', {
+    title: locale === 'de' ? 'Datenschutzhinweis' : locale === 'cz' ? 'Ochrana osobních údajů' : 'Privacy Notice',
+    content: locale === 'de'
+      ? 'Im Rahmen unserer Veranstaltungen behalten wir uns vor, Bild- und Tonaufnahmen von Beteiligten und Gästen zu Zwecken der PR- und Öffentlichkeitsarbeit zu erstellen, zu verarbeiten und zu verbreiten, soweit diese nicht im Einzelfall widersprechen. Mit der Anmeldung/Nennung erklären sich die Teilnehmer damit einverstanden, dass Aufnahmen während der Veranstaltung gemacht werden, die ohne Vergütungsanspruch für diese Zwecke verwendet werden dürfen.'
+      : '',
+  });
+  const transportContent = useContentWithFallback('event', 'visitors_transport', {
+    title: locale === 'de' ? 'Öffentliche Verkehrsmittel' : locale === 'cz' ? 'Veřejná doprava' : 'Public Transport',
+    content: locale === 'de'
+      ? 'Änderungen der Fahrpläne der öffentlichen Verkehrsmittel werden rechtzeitig aktualisiert.'
+      : '',
+  });
+  const siteMapContent = useContentWithFallback('event', 'visitors_site_map', {
+    title: locale === 'de' ? 'Lageplan' : locale === 'cz' ? 'Plán areálu' : 'Site Map',
+    content: '',
   });
   const galleryContent = useContentWithFallback('event', 'gallery', {
     content:
@@ -176,14 +230,27 @@ export default function EventPage() {
               { href: '#registration', label: locale === 'de' ? 'Anmeldung' : locale === 'cz' ? 'Přihláška' : 'Registration', icon: ClipboardList },
               { href: '#visitors', label: t.event.visitors, icon: Info },
               { href: '#downloads', label: t.event.downloads, icon: Download },
-            ].map((item) => (
-              <Button key={item.href} variant="outline" size="sm" asChild>
-                <a href={item.href}>
-                  <item.icon className="mr-1 h-4 w-4" />
-                  {item.label}
-                </a>
-              </Button>
-            ))}
+              { href: '/event/accommodation', label: locale === 'de' ? 'Übernachtung' : locale === 'cz' ? 'Ubytování' : 'Accommodation', icon: BedDouble, isLink: true },
+            ].map((item) => {
+              if ('isLink' in item && item.isLink) {
+                return (
+                  <Button key={item.href} variant="outline" size="sm" asChild>
+                    <Link to={item.href}>
+                      <item.icon className="mr-1 h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  </Button>
+                );
+              }
+              return (
+                <Button key={item.href} variant="outline" size="sm" asChild>
+                  <a href={item.href}>
+                    <item.icon className="mr-1 h-4 w-4" />
+                    {item.label}
+                  </a>
+                </Button>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -346,19 +413,126 @@ export default function EventPage() {
       <section id="visitors" className="py-16">
         <div className="container">
           <h2 className="mb-8">{t.event.visitors}</h2>
-          <div className="grid gap-6 md:grid-cols-3">
+
+          {/* Admission & Schedule Overview */}
+          <div className="grid gap-6 md:grid-cols-2 mb-8">
             <Card>
-              <CardHeader><CardTitle>{locale === 'de' ? 'Anreise' : locale === 'cz' ? 'Příjezd' : 'Getting There'}</CardTitle></CardHeader>
-              <CardContent className="text-muted-foreground"><p>{arrivalInfo?.content || mainEvent?.location || '-'}</p></CardContent>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Ticket className="h-5 w-5 text-primary" />
+                  {admissionContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                <p>{admissionContent.content}</p>
+              </CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle>{locale === 'de' ? 'Eintritt' : locale === 'cz' ? 'Vstupné' : 'Admission'}</CardTitle></CardHeader>
-              <CardContent className="text-muted-foreground"><p>{admissionInfo?.content || '-'}</p></CardContent>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-primary" />
+                  {scheduleOverviewContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                <p>{scheduleOverviewContent.content}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Parking, Paddock, Transport */}
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ParkingCircle className="h-5 w-5 text-primary" />
+                  {parkingContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                <p>{parkingContent.content}</p>
+              </CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle>{locale === 'de' ? 'Fahrerlager' : locale === 'cz' ? 'Depo' : 'Paddock'}</CardTitle></CardHeader>
-              <CardContent className="text-muted-foreground"><p>{paddockInfo?.content || '-'}</p></CardContent>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Car className="h-5 w-5 text-primary" />
+                  {paddockContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                <p>{paddockContent.content}</p>
+              </CardContent>
             </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bus className="h-5 w-5 text-primary" />
+                  {transportContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                <p>{transportContent.content}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Photographers & Site Map */}
+          <div className="grid gap-6 md:grid-cols-2 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Camera className="h-5 w-5 text-primary" />
+                  {photographerContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                <p>{photographerContent.content}</p>
+                {photographerContent.image_url && (
+                  <img src={photographerContent.image_url} alt={photographerContent.image_alt || photographerContent.title} className="mt-4 w-full border border-border" />
+                )}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Map className="h-5 w-5 text-primary" />
+                  {siteMapContent.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-muted-foreground">
+                {siteMapContent.content && <p>{siteMapContent.content}</p>}
+                {siteMapContent.image_url && (
+                  <img src={siteMapContent.image_url} alt={siteMapContent.image_alt || siteMapContent.title} className="mt-4 w-full border border-border" />
+                )}
+                {!siteMapContent.content && !siteMapContent.image_url && (
+                  <p>{locale === 'de' ? 'Lageplan wird noch aktualisiert.' : locale === 'cz' ? 'Plán areálu bude aktualizován.' : 'Site map will be updated.'}</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Privacy Notice */}
+          <Card className="border-l-4 border-l-accent">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-accent" />
+                {privacyNoticeContent.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              <p>{privacyNoticeContent.content}</p>
+            </CardContent>
+          </Card>
+
+          {/* Link to Accommodation */}
+          <div className="mt-8 text-center">
+            <Button asChild size="lg">
+              <Link to="/event/accommodation">
+                <BedDouble className="mr-2 h-5 w-5" />
+                {locale === 'de' ? 'Übernachtungsmöglichkeiten' : locale === 'cz' ? 'Ubytování' : 'Accommodation'}
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

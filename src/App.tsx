@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import EventPage from "./pages/EventPage";
+import AccommodationPage from "./pages/event/AccommodationPage";
 import CalendarPage from "./pages/CalendarPage";
 import NewsPage from "./pages/NewsPage";
 import NewsDetailPage from "./pages/NewsDetailPage";
@@ -59,6 +60,7 @@ const App = () => (
               {/* Main Pages */}
               <Route path="/" element={<Index />} />
               <Route path="/event" element={<EventPage />} />
+              <Route path="/event/accommodation" element={<AccommodationPage />} />
               <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/news" element={<NewsPage />} />
               <Route path="/news/:slug" element={<NewsDetailPage />} />
