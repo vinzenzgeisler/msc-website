@@ -188,26 +188,67 @@ export default function SponsorFormPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Input
-                id="logo_file"
-                type="file"
-                accept="image/*"
-                onChange={(e) => { setLogoFile(e.target.files?.[0] || null); setIsDirty(true); }}
-              />
-              <MediaAssetPicker onSelect={(file) => { setLogoFile(file); setIsDirty(true); }} />
+              {/* Preview */}
               {(logoFile || existingSponsor?.logo_url) && (
-                <div className="mt-2 p-4 border rounded-lg bg-muted/50">
+                <div className="flex items-center gap-4 rounded-lg border bg-muted/30 p-4">
                   {logoFile ? (
-                    <p className="text-sm text-muted-foreground">{logoFile.name}</p>
+                    <img
+                      src={URL.createObjectURL(logoFile)}
+                      alt="Logo Vorschau"
+                      className="max-h-20 max-w-[160px] object-contain"
+                    />
                   ) : (
                     <img
                       src={existingSponsor?.logo_url || ''}
                       alt="Logo Vorschau"
-                      className="max-h-20 object-contain"
+                      className="max-h-20 max-w-[160px] object-contain"
                     />
                   )}
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-sm font-medium">
+                      {logoFile ? logoFile.name : 'Aktuelles Logo'}
+                    </p>
+                    {logoFile && (
+                      <p className="text-xs text-muted-foreground">
+                        {(logoFile.size / 1024).toFixed(0)} KB
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => { setLogoFile(null); setIsDirty(true); }}
+                  >
+                    Entfernen
+                  </Button>
                 </div>
               )}
+
+              {/* Picker actions */}
+              <div className="flex flex-wrap gap-2">
+                <MediaAssetPicker
+                  onSelect={(file) => { setLogoFile(file); setIsDirty(true); }}
+                  buttonLabel="Aus Medienbibliothek"
+                />
+                <Button type="button" variant="outline" className="relative" asChild>
+                  <label className="cursor-pointer">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Datei hochladen
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) { setLogoFile(file); setIsDirty(true); }
+                        e.target.value = '';
+                      }}
+                    />
+                  </label>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
