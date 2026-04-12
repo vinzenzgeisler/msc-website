@@ -203,35 +203,39 @@ export default function MotocrossPage() {
 
       {/* Safety */}
       <section className="border-t border-border py-12">
-        <div className="container">
-          <Card className="border-destructive/30 bg-destructive/5">
-            <CardContent className="flex items-start gap-4 p-6">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-destructive/10">
-                <ShieldAlert className="h-6 w-6 text-destructive" />
-              </div>
-              <div>
-                <h2 className="mb-2 text-lg font-bold">{safety.title}</h2>
+        <div className="container max-w-3xl">
+          <button
+            onClick={() => setSafetyOpen(!safetyOpen)}
+            className="flex w-full items-center gap-3 text-left group"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-destructive/10">
+              <ShieldAlert className="h-5 w-5 text-destructive" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold group-hover:text-primary transition-colors">
+                {safety.title}
+              </h2>
+              {safety.subtitle && (
+                <p className="text-sm text-muted-foreground">{safety.subtitle}</p>
+              )}
+            </div>
+            <ArrowRight
+              className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${safetyOpen ? 'rotate-90' : ''}`}
+            />
+          </button>
+
+          {safetyOpen && (
+            <Card className="mt-4 border-destructive/20">
+              <CardContent className="p-6">
                 {safety.content && (
                   <div
-                    className="prose dark:prose-invert max-w-none text-muted-foreground"
-                    dangerouslySetInnerHTML={{ __html: safety.content.replace(/\n/g, '<br />') }}
+                    className="prose dark:prose-invert max-w-none text-sm text-muted-foreground [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-3"
+                    dangerouslySetInnerHTML={{ __html: safety.content }}
                   />
                 )}
-                {safety.primary_button_url && (
-                  <Button variant="outline" size="sm" className="mt-3" asChild>
-                    <a
-                      href={safety.primary_button_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {safety.primary_button_label || 'Sicherheitshinweise lesen'}
-                      <ExternalLink className="ml-1 h-3.5 w-3.5" />
-                    </a>
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </section>
 
