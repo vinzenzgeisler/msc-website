@@ -77,19 +77,19 @@ const howToJoinContent = {
 const ctaContent = {
   de: {
     title: 'Interesse geweckt?',
-    content: 'Wir freuen uns auf neue Mitglieder! Mitglieder des MSC können die Motocross-Trainingsstrecke in Hainewalde kostenlos nutzen.',
+    content: 'Wir freuen uns auf neue Mitglieder! Als Mitglied des MSC profitieren Sie von vergünstigten Trainingsmöglichkeiten, exklusiven Vereinsveranstaltungen und einer starken Gemeinschaft.',
     contactLabel: 'Kontakt aufnehmen',
     calendarLabel: 'Termine ansehen',
   },
   cz: {
     title: 'Zaujali jsme vás?',
-    content: 'Těšíme se na nové členy! Členové MSC mohou zdarma využívat motocrossovou tréninkovou trať v Hainewalde.',
+    content: 'Těšíme se na nové členy! Jako člen MSC získáte zvýhodněné tréninkové možnosti, exkluzivní klubové akce a silnou komunitu.',
     contactLabel: 'Kontaktujte nás',
     calendarLabel: 'Zobrazit termíny',
   },
   en: {
     title: 'Interested?',
-    content: 'We look forward to new members! MSC members can use the motocross training track in Hainewalde free of charge.',
+    content: 'We look forward to new members! As an MSC member, you benefit from discounted training opportunities, exclusive club events, and a strong community.',
     contactLabel: 'Get in touch',
     calendarLabel: 'View calendar',
   },
