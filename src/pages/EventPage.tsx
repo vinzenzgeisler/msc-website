@@ -230,7 +230,7 @@ export default function EventPage() {
               ) : (
                 <iframe
                   title={locale === 'de' ? 'Streckenkarte' : 'Track Map'}
-                  src={mapEmbedUrl || 'https://umap.openstreetmap.de/de/map/unbenannte-karte_132460?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=false&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=false&fullscreenControl=null'}
+                  src={mapEmbedUrl || 'https://umap.openstreetmap.de/de/map/oberlausitzer-dreieck_132460?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true'}
                   className="h-80 w-full border border-border rounded-md"
                   loading="lazy"
                   allowFullScreen
