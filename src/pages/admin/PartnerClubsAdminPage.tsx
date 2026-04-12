@@ -12,6 +12,8 @@ import { usePartnerClubsAdmin, usePartnerClubMutations } from '@/hooks/useStruct
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 import type { PartnerClub } from '@/integrations/pocketbase/client';
+import { LocaleTranslationBox, type TranslationTarget, type TranslationStatus } from '@/components/admin/LocaleTranslationBox';
+import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 
 type Locale = 'de' | 'en' | 'cz';
 const localeOptions: Locale[] = ['de', 'en', 'cz'];
@@ -19,8 +21,10 @@ const localeOptions: Locale[] = ['de', 'en', 'cz'];
 export default function PartnerClubsAdminPage() {
   const { data, isLoading } = usePartnerClubsAdmin();
   const { create, update, remove } = usePartnerClubMutations();
+  const translateMutation = useCmsTranslation();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -63,6 +67,48 @@ export default function PartnerClubsAdminPage() {
       reset();
     } catch (error) {
       toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Speichern'));
+    }
+  };
+
+  // Group DE entries for translation
+  const deEntries = (data || []).filter((c) => c.locale === 'de');
+
+  const getTranslationStatus = (name: string): TranslationStatus => ({
+    en: (data || []).some((c) => c.locale === 'en' && c.name === name),
+    cz: (data || []).some((c) => c.locale === 'cz' && c.name === name),
+  });
+
+  const handleTranslate = async (source: PartnerClub, target: TranslationTarget) => {
+    setIsTranslating(true);
+    try {
+      const translated = await translateMutation.mutateAsync({
+        targetLocale: target,
+        context: 'Partnerverein eines Motorsportvereins',
+        fields: { description: source.description || '' },
+      });
+
+      // Check if translation already exists
+      const existing = (data || []).find((c) => c.locale === target && c.name === source.name);
+      const payload: Record<string, unknown> = {
+        name: source.name,
+        description: translated.description || source.description || '',
+        location: source.location,
+        website: source.website,
+        active: source.active,
+        sortOrder: source.sort_order,
+        locale: target,
+      };
+
+      if (existing) {
+        await update.mutateAsync({ id: existing.id, payload });
+      } else {
+        await create.mutateAsync(payload);
+      }
+      toast.success(`Übersetzung nach ${target.toUpperCase()} gespeichert`);
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Übersetzung fehlgeschlagen'));
+    } finally {
+      setIsTranslating(false);
     }
   };
 
@@ -166,6 +212,29 @@ export default function PartnerClubsAdminPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Translation section */}
+      {deEntries.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Übersetzungen</CardTitle>
+            <CardDescription>Deutsche Einträge automatisch nach EN / CZ übersetzen.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {deEntries.map((club) => (
+              <div key={club.id} className="space-y-2 rounded-lg border p-4">
+                <p className="font-medium">{club.name}</p>
+                <LocaleTranslationBox
+                  description={`Beschreibung von „${club.name}" übersetzen`}
+                  status={getTranslationStatus(club.name)}
+                  onTranslate={(target) => handleTranslate(club, target)}
+                  isTranslating={isTranslating}
+                />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
