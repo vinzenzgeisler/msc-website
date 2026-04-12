@@ -29,7 +29,7 @@ export const PAGE_SECTIONS = {
   home: ['hero', 'club_teaser', 'upcoming_events', 'news', 'sponsors'],
   about: ['intro', 'mission', 'values'],
   board: ['intro'],
-  history: ['intro'],
+  history: ['intro', 'founding', 'track'],
   membership: ['intro', 'benefits', 'how_to_join', 'cta'],
   motocross: ['intro', 'training', 'fees', 'safety', 'directions', 'events'],
   trial: ['intro', 'contact', 'events'],
