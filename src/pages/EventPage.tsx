@@ -415,7 +415,7 @@ export default function EventPage() {
           ) : (
             <Card>
               <CardContent className="p-6 text-muted-foreground">
-                {locale === 'de' ? 'Noch kein Zeitplan hinterlegt.' : locale === 'cz' ? 'Zatím není k dispozici žádný harmonogram.' : 'No schedule has been added yet.'}
+                {locale === 'de' ? 'Der Zeitplan wurde noch nicht veröffentlicht.' : locale === 'cz' ? 'Harmonogram ještě nebyl zveřejněn.' : 'The schedule has not been published yet.'}
               </CardContent>
             </Card>
           )}
