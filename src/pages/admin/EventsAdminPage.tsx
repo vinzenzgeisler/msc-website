@@ -486,32 +486,6 @@ function MainEventForm({
             </CardContent>
           </Card>
 
-          {/* Quick links */}
-          <Card>
-            <CardHeader className="pb-4">
-              <CardTitle className="text-base">Schnellzugriff</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
-                <Link to="/admin/events/gallery-archive">
-                  <Images className="mr-2 h-4 w-4" />
-                  Fotogalerie verwalten
-                </Link>
-              </Button>
-              <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
-                <Link to="/admin/events/gallery-archive">
-                  <Archive className="mr-2 h-4 w-4" />
-                  Vergangene Events (Archiv)
-                </Link>
-              </Button>
-              <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
-                <Link to="/event" target="_blank">
-                  <Eye className="mr-2 h-4 w-4" />
-                  Eventseite ansehen
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </form>
