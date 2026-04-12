@@ -60,10 +60,13 @@ export default function NewsDetailPage() {
     );
   }
 
-  const categoryLabel = article.category === 'event' ? 'Veranstaltung' : 'Verein';
-  const categoryColor = article.category === 'event' 
-    ? 'border-l-4 border-accent bg-accent/15 text-accent dark:text-accent' 
-    : 'border-l-4 border-primary bg-primary/15 text-primary dark:text-primary-foreground dark:bg-primary/30';
+  const categoryLabel = article.category === 'event' ? 'Veranstaltung' 
+    : article.category === 'motocross' ? 'Motocross'
+    : article.category === 'trial' ? 'Trial'
+    : article.category === 'touring' ? 'Touring'
+    : 'Verein';
+
+  const displayDate = formatDate(article.published_at || article.created_at);
 
   const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return '';
