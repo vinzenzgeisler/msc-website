@@ -66,7 +66,7 @@ export default function EventPage() {
     title: locale === 'de' ? 'Sei dabei!' : locale === 'cz' ? 'Buď u toho!' : 'Join Us!',
     content:
       locale === 'de'
-        ? 'Du willst nicht nur zuschauen, sondern selbst Gas geben? Dann melde dich jetzt an und werde Teil des Oberlausitzer Dreiecks! Wir freuen uns auf dich und deine Maschine – egal ob Veteran oder Rennbolide.'
+        ? 'Du willst nicht nur zuschauen, sondern selbst Gas geben? Dann melde dich jetzt an und werde Teil des Oberlausitzer Dreiecks! Wir freuen uns auf dich und deine Maschine.'
         : locale === 'cz'
           ? 'Nechceš jen přihlížet, ale sám přidat plyn? Přihlas se a staň se součástí Horního Lužického trojúhelníku! Těšíme se na tebe a tvůj stroj.'
           : 'Don\'t just watch – get behind the handlebars! Register now and become part of the Oberlausitz Triangle. We look forward to seeing you and your machine on the track!',
