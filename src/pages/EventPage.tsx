@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation, useLanguage } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -63,11 +64,13 @@ export default function EventPage() {
     content: '', // embed URL
   });
   const registrationContent = useContentWithFallback('event', 'registration_info', {
-    title: locale === 'de' ? 'Teilnehmer-Anmeldung' : locale === 'cz' ? 'Registrace účastníků' : 'Participant Registration',
+    title: locale === 'de' ? 'Sei dabei!' : locale === 'cz' ? 'Buď u toho!' : 'Join Us!',
     content:
       locale === 'de'
-        ? 'Vereinsmitglieder des MSC Oberlausitzer Dreiländereck e.V. zahlen kein Nenngeld. Nachwuchsfahrer unter 18 Jahren benötigen eine schriftliche Einverständniserklärung eines Erziehungsberechtigten. Ab 70 Jahren ist ein ärztliches Attest erforderlich.'
-        : '',
+        ? 'Du willst nicht nur zuschauen, sondern selbst Gas geben? Dann melde dich jetzt an und werde Teil des Oberlausitzer Dreiecks! Wir freuen uns auf dich und deine Maschine.'
+        : locale === 'cz'
+          ? 'Nechceš jen přihlížet, ale sám přidat plyn? Přihlas se a staň se součástí Horního Lužického trojúhelníku! Těšíme se na tebe a tvůj stroj.'
+          : 'Don\'t just watch – get behind the handlebars! Register now and become part of the Oberlausitz Triangle. We look forward to seeing you and your machine on the track!',
   });
   const admissionContent = useContentWithFallback('event', 'visitors_admission', {
     title: locale === 'de' ? 'Eintrittspreise' : locale === 'cz' ? 'Vstupné' : 'Admission',
@@ -155,13 +158,31 @@ export default function EventPage() {
     return format(start, 'd. MMMM yyyy', { locale: dateLocale });
   };
 
+  const defaultClasses = [
+    { name: 'Klasse 1 Motorräder bis Bj. 1949', icon: Bike, description: '' },
+    { name: 'Klasse 2 Rennmotorräder 50–80 cm³ bis Bj. 1995', icon: Bike, description: '' },
+    { name: 'Klasse 3 Rennmotorräder 125–175 cm³ bis Bj. 1995', icon: Bike, description: '' },
+    { name: 'Klasse 4 Rennmotorräder 250 cm³ bis Bj. 1995', icon: Bike, description: '' },
+    { name: 'Klasse 5 Rennmotorräder 350–400 cm³ bis Bj. 1995', icon: Bike, description: '' },
+    { name: 'Klasse 6 Rennmotorräder 500–1000 cm³ bis Bj. 1995', icon: Bike, description: '' },
+    { name: 'Klasse 7 Seitenwagen offen', icon: Car, description: '' },
+    { name: 'Klasse 8 Rennmotorräder offen für Aktive und Ehemalige', icon: Bike, description: '' },
+    { name: 'Klasse 9 Formelwagen bis Baujahr 1995', icon: Car, description: '' },
+    { name: 'Klasse 10 Tourenwagen geschlossen bis Bj. 1995', icon: Car, description: '' },
+    { name: 'Klasse 11 Kart', icon: Car, description: '' },
+    { name: 'Nachwuchs', icon: Users, description: '' },
+    { name: 'Sonderlauf', icon: Users, description: '' },
+  ];
+
   const schedules = eventContent?.schedules || [];
   const participantClasses =
-    eventContent?.classes?.map((item) => ({
-      icon: iconMap[item.icon],
-      name: item.name,
-      description: item.description || '',
-    })) || [];
+    eventContent?.classes?.length
+      ? eventContent.classes.map((item) => ({
+          icon: iconMap[item.icon],
+          name: item.name,
+          description: item.description || '',
+        }))
+      : defaultClasses;
   const trackInfo = eventContent?.infos?.find((item) => item.section === 'track');
   const arrivalInfo = eventContent?.infos?.find((item) => item.section === 'visitors_arrival');
   const admissionInfo = eventContent?.infos?.find((item) => item.section === 'visitors_admission');
@@ -331,26 +352,41 @@ export default function EventPage() {
       <section id="classes" className="bg-muted/50 py-16">
         <div className="container">
           <h2 className="mb-8">{t.event.classes.title}</h2>
+          <p className="mb-6 text-muted-foreground">
+            {locale === 'de'
+              ? 'In diesen Klassen wird beim Oberlausitzer Dreieck gestartet:'
+              : locale === 'cz'
+                ? 'V těchto třídách se na Horním Lužickém trojúhelníku závodí:'
+                : 'These are the classes competing at the Oberlausitz Triangle:'}
+          </p>
           {participantClasses.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-              {participantClasses.map((cls) => (
-                <Card key={cls.name} className="text-center">
-                  <CardContent className="p-6">
-                    <cls.icon className="mx-auto mb-3 h-10 w-10 text-primary" />
-                    <h3 className="mb-1 text-lg font-semibold">{cls.name}</h3>
-                    <p className="text-sm text-muted-foreground">{cls.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <Carousel opts={{ align: 'start', loop: true }} className="w-full">
+              <CarouselContent className="-ml-3">
+                {participantClasses.map((cls, i) => (
+                  <CarouselItem key={cls.name} className="pl-3 basis-1/2 sm:basis-1/3 lg:basis-1/4 xl:basis-1/5">
+                    <div className="flex h-full flex-col items-center justify-center rounded-lg border border-border bg-card p-5 text-center">
+                      <cls.icon className="mb-3 h-8 w-8 text-primary" />
+                      {i < 11 && (
+                        <span className="mb-1 text-xs font-bold text-primary">Klasse {i + 1}</span>
+                      )}
+                      <span className="text-sm font-medium leading-tight">
+                        {cls.name.replace(/^Klasse \d+\s*/, '')}
+                      </span>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="-left-4 border-primary text-primary" />
+              <CarouselNext className="-right-4 border-primary text-primary" />
+            </Carousel>
           ) : (
             <Card>
               <CardContent className="p-6 text-muted-foreground">
                 {locale === 'de'
-                  ? 'Noch keine Teilnehmerklassen hinterlegt.'
+                  ? 'Die Klassen werden rechtzeitig vor der Veranstaltung veröffentlicht.'
                   : locale === 'cz'
-                    ? 'Zatím nejsou nastaveny žádné třídy účastníků.'
-                    : 'No participant classes have been added yet.'}
+                    ? 'Třídy budou zveřejněny včas před akcí.'
+                    : 'Classes will be published in time before the event.'}
               </CardContent>
             </Card>
           )}
