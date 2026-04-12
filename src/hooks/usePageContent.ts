@@ -37,7 +37,7 @@ export const PAGE_SECTIONS = {
   calendar: ['intro'],
   news: ['intro'],
   event: ['intro', 'track_map', 'location_map', 'registration_info', 'gallery', 'archive'],
-  contact: ['intro'],
+  contact: ['intro', 'info', 'map'],
   sponsors: ['intro', 'cta'],
   partner_clubs: ['intro'],
   imprint: ['content'],
