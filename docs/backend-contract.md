@@ -29,6 +29,7 @@ Fallback-Kette: `locale` → `de` → hardcoded Fallback
 | 16 | `membershipSteps` | Structured | ✓ | Schritte zum Beitritt |
 | 17 | `disciplineHighlights` | Structured | ✓ | Highlights je Sparte (Motocross/Trial/Touring) |
 | 18 | `media` | Asset | ✗ | Inline-Bilder für Rich-Text-Inhalte (News etc.) |
+| 19 | `eventArchive` | Content | ✓ | Vergangene Hauptveranstaltungen (Archiv) |
 
 ---
 
