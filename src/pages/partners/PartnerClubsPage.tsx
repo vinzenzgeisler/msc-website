@@ -10,9 +10,10 @@ export default function PartnerClubsPage() {
   const t = useTranslation();
   const { data: clubs } = usePartnerClubs();
   const intro = useContentWithFallback('partner_clubs', 'intro', {
-    title: t.nav.partnerClubs,
-    subtitle: 'Gemeinsam für den Motorsport in der Region',
-    content: '',
+    title: 'Partnervereine',
+    subtitle: 'Gemeinsam für den Motorsport in der Region und über Grenzen hinweg',
+    content:
+      'Der MSC Oberlausitzer Dreiländereck pflegt enge Verbindungen zu Motorsportvereinen in der Region sowie in den Nachbarländern Tschechien und Polen. Durch den aktiven Austausch und gemeinsame Veranstaltungen stärken wir die grenzüberschreitende Motorsport-Gemeinschaft.',
   });
 
   return (

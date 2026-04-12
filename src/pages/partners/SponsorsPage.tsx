@@ -13,12 +13,12 @@ export default function SponsorsPage() {
   const { data: allSponsors, isLoading, error } = useSponsors();
   const { data: settings } = useSettings();
   const intro = useContentWithFallback('sponsors', 'intro', {
-    title: t.nav.sponsors,
-    subtitle: 'Unsere Partner machen das Oberlausitzer Dreieck möglich',
+    title: 'Sponsoren & Partner',
+    subtitle: 'Ohne unsere Partner wäre der Motorsport im Dreiländereck nicht möglich',
   });
   const cta = useContentWithFallback('sponsors', 'cta', {
     title: 'Sponsor werden?',
-    content: 'Werden Sie Partner des MSC Oberlausitzer Dreiländereck und unterstützen Sie den Motorsport im Dreiländereck.',
+    content: 'Werden Sie Partner des MSC Oberlausitzer Dreiländereck und unterstützen Sie den Motorsport in der Region. Ob als Hauptsponsor, Partner oder Unterstützer – wir bieten attraktive Gegenleistungen und eine engagierte Gemeinschaft.',
   });
 
   const sponsors = {
@@ -84,10 +84,10 @@ export default function SponsorsPage() {
 
       <section className="bg-muted/50 py-16">
         <div className="container text-center">
-          <h2 className="mb-4">{cta.title || 'Sponsor werden?'}</h2>
+          <h2 className="mb-4">{cta.title}</h2>
           <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">{cta.content}</p>
-          <a href={`mailto:${settings?.sponsoring_email || settings?.contact_email || 'sponsoring@msc-oberlausitzer-dreilaendereck.de'}`} className="text-primary hover:underline">
-            {settings?.sponsoring_email || settings?.contact_email || 'sponsoring@msc-oberlausitzer-dreilaendereck.de'}
+          <a href={`mailto:${settings?.sponsoring_email || settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`} className="text-primary hover:underline">
+            {settings?.sponsoring_email || settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}
           </a>
         </div>
       </section>
