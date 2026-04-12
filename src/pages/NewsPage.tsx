@@ -160,12 +160,13 @@ export default function NewsPage() {
                 <Link to={`/news/${featuredArticle.slug}`} className="group mb-8 block overflow-hidden rounded-lg border-2 border-accent bg-card transition-shadow hover:shadow-xl">
                   <div className="grid md:grid-cols-2">
                     {/* Image */}
-                    <div className="flex h-64 items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20 md:h-auto relative">
+                    <div className="aspect-[16/9] md:aspect-auto md:h-full bg-gradient-to-br from-primary/20 to-accent/20 relative overflow-hidden">
                       {featuredArticle.image_url ? (
                         <img 
                           src={featuredArticle.image_url} 
                           alt={featuredArticle.title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-center"
+                          loading="lazy"
                         />
                       ) : (
                         <Newspaper className="h-16 w-16 text-muted-foreground" />
@@ -214,12 +215,13 @@ export default function NewsPage() {
                 {regularArticles.map((article) => (
                   <Link key={article.id} to={`/news/${article.slug}`} className="group block overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-lg">
                     {/* Image */}
-                    <div className="flex h-40 items-center justify-center bg-muted relative">
+                    <div className="aspect-[16/9] bg-muted relative overflow-hidden">
                       {article.image_url ? (
                         <img 
                           src={article.image_url} 
                           alt={article.title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-center"
+                          loading="lazy"
                         />
                       ) : (
                         <Newspaper className="h-8 w-8 text-muted-foreground" />

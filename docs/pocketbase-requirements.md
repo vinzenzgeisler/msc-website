@@ -67,3 +67,14 @@ Die Sektionen-Seiten zeigen automatisch die nächsten Kalender-Termine der jewei
 - `motocross` – für Motocross-Termine
 - `trial` – für Trial-Termine
 - `touring` – für Touring-Termine
+
+## News: Veröffentlichungsdatum
+
+Die `posts`-Collection hat aktuell **kein eigenes Datumsfeld** für das Veröffentlichungsdatum. Das Frontend nutzt stattdessen das automatische `created`-Feld von PocketBase als Anzeige-Datum.
+
+**Empfohlene Backend-Anpassung:** Ein optionales Feld `publishedAt` (Typ: DateTime) zur `posts`-Collection hinzufügen. Damit können Redakteure ein abweichendes Veröffentlichungsdatum setzen. Das Frontend sollte dann `publishedAt || created` als Anzeige-Datum nutzen.
+
+Schritte:
+1. In PocketBase-Admin → Collection `posts` → neues Feld `publishedAt` (DateTime, optional) anlegen
+2. Im Frontend `mapPostRecord()` in `src/integrations/pocketbase/client.ts` anpassen: `published_at: record.publishedAt || null`
+3. Im News-Formular (`NewsFormPage.tsx`) ein Datums-Eingabefeld für `publishedAt` ergänzen
