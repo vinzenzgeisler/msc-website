@@ -111,26 +111,48 @@ Tour ins Adlergebirge nach Jánské Lázně<br/>
         </div>
       </section>
 
-      {/* Current Tours */}
+      {/* Upcoming Events (filtered to touring) */}
       <section className="border-t border-border bg-muted/50 py-16">
         <div className="container">
-          <h2 className="mb-8 text-2xl font-bold flex items-center gap-2">
-            <Route className="h-6 w-6 text-primary" />
-            {toursCurrent.title}
-          </h2>
-          {toursCurrent.content && (
-            <div
-              className="prose dark:prose-invert max-w-none [&_.tour-item]:border-l-4 [&_.tour-item]:border-accent [&_.tour-item]:bg-background [&_.tour-item]:p-4 [&_.tour-item]:mb-4 [&_.tour-item_em]:text-muted-foreground"
-              dangerouslySetInnerHTML={{ __html: toursCurrent.content }}
-            />
-          )}
-          {toursCurrent.primary_button_url && (
-            <Button className="mt-4" asChild>
-              <a href={toursCurrent.primary_button_url} target="_blank" rel="noopener noreferrer">
-                {toursCurrent.primary_button_label || 'Zur Anmeldung'}
-              </a>
-            </Button>
-          )}
+          <div className="mx-auto max-w-3xl">
+            <h2 className="mb-6 text-2xl font-bold flex items-center gap-2">
+              <Route className="h-6 w-6 text-primary" />
+              {eventsContent.title || 'Kommende Touren'}
+            </h2>
+            {upcomingEvents.length > 0 ? (
+              <div className="space-y-4">
+                {upcomingEvents.map((event) => (
+                  <Card key={event.id}>
+                    <CardContent className="flex items-center gap-4 p-5">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                        <Calendar className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-muted-foreground mb-0.5">
+                          {format(new Date(event.start_dt), 'dd. MMMM yyyy', { locale: de })}
+                          {event.location && ` · ${event.location}`}
+                        </p>
+                        <h3 className="font-semibold">{event.title}</h3>
+                        {event.description && (
+                          <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{event.description}</p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">Derzeit keine anstehenden Touren geplant.</p>
+            )}
+            <div className="mt-8 flex flex-wrap gap-4 justify-center">
+              <Button asChild>
+                <Link to="/calendar">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Alle Termine ansehen
+                </Link>
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
 
