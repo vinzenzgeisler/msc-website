@@ -11,9 +11,8 @@ export default function PartnerClubsPage() {
   const { data: clubs } = usePartnerClubs();
   const intro = useContentWithFallback('partner_clubs', 'intro', {
     title: 'Partnervereine',
-    subtitle: 'Gemeinsam für den Motorsport in der Region und über Grenzen hinweg',
-    content:
-      'Der MSC Oberlausitzer Dreiländereck pflegt enge Verbindungen zu Motorsportvereinen in der Region sowie in den Nachbarländern Tschechien und Polen. Durch den aktiven Austausch und gemeinsame Veranstaltungen stärken wir die grenzüberschreitende Motorsport-Gemeinschaft.',
+    subtitle: 'Der MSC Oberlausitzer Dreiländereck pflegt enge Verbindungen zu Motorsportvereinen in der Region sowie in den Nachbarländern Tschechien und Polen. Durch den aktiven Austausch und gemeinsame Veranstaltungen stärken wir die grenzüberschreitende Motorsport-Gemeinschaft.',
+    content: '',
   });
 
   return (
@@ -22,14 +21,6 @@ export default function PartnerClubsPage() {
 
       <section className="py-16">
         <div className="container">
-          {intro.content ? (
-            <div className="mb-8">
-              <Card>
-                <CardContent className="prose prose-slate dark:prose-invert max-w-none p-8 text-muted-foreground"
-                  dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }} />
-              </Card>
-            </div>
-          ) : null}
 
           {clubs && clubs.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
