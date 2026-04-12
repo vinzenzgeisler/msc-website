@@ -328,6 +328,18 @@ export default function CalendarFormPage() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="registration_url">Anmelde-URL</Label>
+              <Input
+                id="registration_url"
+                type="url"
+                value={formData.registration_url}
+                onChange={(e) => setFormData({ ...formData, registration_url: e.target.value })}
+                placeholder="https://anmeldung.example.de"
+              />
+              <p className="text-xs text-muted-foreground">Link zum externen Anmeldeportal (wird als „Zur Anmeldung"-Button angezeigt)</p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="description">Beschreibung</Label>
               <Textarea
                 id="description"
