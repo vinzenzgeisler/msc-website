@@ -203,4 +203,93 @@
   .glow-racing {
     box-shadow: var(--shadow-racing);
   }
+
+  /* Hero Racing Animations */
+  @keyframes hero-speed-lines {
+    0% { transform: translateX(-100%) skewX(-20deg); opacity: 0; }
+    20% { opacity: 0.15; }
+    100% { transform: translateX(200%) skewX(-20deg); opacity: 0; }
+  }
+
+  @keyframes hero-slide-up {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes hero-slide-right {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(0); }
+  }
+
+  @keyframes hero-pulse-glow {
+    0%, 100% { opacity: 0.15; }
+    50% { opacity: 0.3; }
+  }
+
+  @keyframes hero-checkered-scroll {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 40px; }
+  }
+
+  @keyframes hero-rev-counter {
+    0% { width: 0%; }
+    60% { width: 100%; }
+    80% { width: 85%; }
+    100% { width: 100%; }
+  }
+
+  .hero-speed-line {
+    animation: hero-speed-lines 3s ease-in-out infinite;
+  }
+
+  .hero-speed-line-2 {
+    animation: hero-speed-lines 3s ease-in-out 0.8s infinite;
+  }
+
+  .hero-speed-line-3 {
+    animation: hero-speed-lines 3s ease-in-out 1.6s infinite;
+  }
+
+  .hero-animate-in {
+    animation: hero-slide-up 0.7s ease-out both;
+  }
+
+  .hero-animate-in-delay-1 {
+    animation: hero-slide-up 0.7s ease-out 0.15s both;
+  }
+
+  .hero-animate-in-delay-2 {
+    animation: hero-slide-up 0.7s ease-out 0.3s both;
+  }
+
+  .hero-animate-in-delay-3 {
+    animation: hero-slide-up 0.7s ease-out 0.45s both;
+  }
+
+  .hero-animate-in-delay-4 {
+    animation: hero-slide-up 0.7s ease-out 0.6s both;
+  }
+
+  .hero-stripe-slide {
+    animation: hero-slide-right 0.8s ease-out 0.2s both;
+  }
+
+  .hero-pulse-glow {
+    animation: hero-pulse-glow 4s ease-in-out infinite;
+  }
+
+  .hero-checkered {
+    background-image:
+      linear-gradient(45deg, hsl(var(--primary-foreground) / 0.03) 25%, transparent 25%),
+      linear-gradient(-45deg, hsl(var(--primary-foreground) / 0.03) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, hsl(var(--primary-foreground) / 0.03) 75%),
+      linear-gradient(-45deg, transparent 75%, hsl(var(--primary-foreground) / 0.03) 75%);
+    background-size: 40px 40px;
+    background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+    animation: hero-checkered-scroll 8s linear infinite;
+  }
+
+  .hero-rev-bar {
+    animation: hero-rev-counter 1.5s ease-out 0.5s both;
+  }
 }
