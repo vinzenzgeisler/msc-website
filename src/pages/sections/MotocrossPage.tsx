@@ -109,7 +109,7 @@ export default function MotocrossPage() {
       {/* Intro + Track Image */}
       <section className="py-12">
         <div className="container">
-          <div className="grid gap-8 lg:grid-cols-2 items-center">
+          <div className="grid gap-8 lg:grid-cols-2 items-start">
             <div>
               {intro.content && (
                 <div
