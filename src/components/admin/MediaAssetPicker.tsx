@@ -78,10 +78,12 @@ export function MediaAssetPicker({ onSelect, onSelectUrl, buttonLabel = 'Aus Med
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline">
-          <ImageIcon className="mr-2 h-4 w-4" />
-          {buttonLabel}
-        </Button>
+        {trigger || (
+          <Button type="button" variant="outline">
+            <ImageIcon className="mr-2 h-4 w-4" />
+            {buttonLabel}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
