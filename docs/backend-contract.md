@@ -109,6 +109,8 @@ Fallback-Kette: `locale` → `de` → hardcoded Fallback
 | `membership` | `benefits` | Vorteile-Überschrift | `title` |
 | `membership` | `how_to_join` | Beitritt-Überschrift | `title` |
 | `membership` | `cta` | Mitglied-CTA | `title`, `content`, `primaryButtonLabel`, `primaryButtonUrl` |
+| `membership` | `declaration_document` | Beitrittserklärung | `title`, `primaryButtonUrl` (Download-URL), `image` (PDF als Datei) |
+| `membership` | `statute_document` | Vereinssatzung | `title`, `primaryButtonUrl` (Download-URL), `image` (PDF als Datei) |
 | `motocross` | `intro` | Motocross Intro | `title`, `subtitle`, `content`, `image`, `statOneLabel`–`statThreeLabel` |
 | `motocross` | `training` | Öffnungszeiten | `title`, `subtitle` (Winterpause-Hinweis), `content` (HTML-Tabelle) |
 | `motocross` | `fees` | Gebühren | `title`, `subtitle` (Bonusinfo), `content` (HTML-Tabelle) |
