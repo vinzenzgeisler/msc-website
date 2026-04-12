@@ -147,9 +147,9 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Accent stripe */}
-      <div className="absolute -right-20 top-0 h-full w-40 skew-x-[-15deg] bg-accent opacity-80" />
-      <div className="absolute -right-32 top-0 h-full w-16 skew-x-[-15deg] bg-accent/40" />
+      {/* Accent stripe — hidden on mobile to keep text readable */}
+      <div className="absolute -right-20 top-0 hidden h-full w-40 skew-x-[-15deg] bg-accent md:block" />
+      <div className="absolute -right-32 top-0 hidden h-full w-16 skew-x-[-15deg] bg-accent/40 md:block" />
 
       <div className="container relative z-10 py-16">
         <div className="mx-auto max-w-4xl text-center text-white">
