@@ -92,7 +92,7 @@ export default function NewsDetailPage() {
           <div className="mx-auto max-w-3xl">
             <div className="flex items-center gap-3 mb-4">
               {article.category && (
-                <span className={`rounded px-3 py-1 text-xs font-bold uppercase ${categoryColor}`}>
+                <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider ${categoryColor}`}>
                   {categoryLabel}
                 </span>
               )}
