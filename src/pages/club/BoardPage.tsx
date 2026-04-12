@@ -11,8 +11,10 @@ export default function BoardPage() {
   const t = useTranslation();
   const { data: boardMembers, isLoading } = useBoardMembers();
   const intro = useContentWithFallback('board', 'intro', {
-    title: t.nav.board,
-    subtitle: 'Unser Vorstandsteam',
+    title: 'Vorstand',
+    subtitle: 'Ehrenamtlich engagiert für den Motorsport',
+    content:
+      'Der Vorstand des MSC Oberlausitzer Dreiländereck e.V. leitet den Verein ehrenamtlich und sorgt für die Organisation von Veranstaltungen, die Pflege der Vereinsanlagen und die Vertretung der Mitgliederinteressen.',
   });
 
   return (

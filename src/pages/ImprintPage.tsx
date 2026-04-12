@@ -14,8 +14,8 @@ const DEFAULT_IMPRINT_CONTENT = `
 
 <h2>Vertreten durch</h2>
 <p>
-  1. Vorsitzender: [Name]<br />
-  2. Vorsitzender: [Name]
+  1. Vorsitzender: Lutz Gärtner<br />
+  2. Vorsitzender: André Zimmer
 </p>
 
 <h2>Kontakt</h2>
@@ -27,13 +27,14 @@ const DEFAULT_IMPRINT_CONTENT = `
 <p>
   Eintragung im Vereinsregister.<br />
   Registergericht: Amtsgericht Zittau<br />
-  Registernummer: VR [Nummer]
+  Registernummer: VR 1783
 </p>
 
 <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
 <p>
-  [Name des Verantwortlichen]<br />
-  [Adresse]
+  Lutz Gärtner<br />
+  MSC Oberlausitzer Dreiländereck e.V.<br />
+  02797 Oybin
 </p>
 
 <h2>Streitschlichtung</h2>
@@ -77,7 +78,7 @@ const DEFAULT_IMPRINT_CONTENT = `
 export default function ImprintPage() {
   const t = useTranslation();
   const imprint = useContentWithFallback('imprint', 'content', {
-    title: t.nav.imprint,
+    title: 'Impressum',
     content: DEFAULT_IMPRINT_CONTENT,
   });
 

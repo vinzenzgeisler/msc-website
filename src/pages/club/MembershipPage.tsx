@@ -16,15 +16,16 @@ export default function MembershipPage() {
   const t = useTranslation();
   const { data: settings } = useSettings();
   const intro = useContentWithFallback('membership', 'intro', {
-    title: t.nav.membership,
-    subtitle: 'Mitglied werden',
-    content: 'Der MSC Oberlausitzer Dreiländereck e.V. freut sich über jedes neue Mitglied! Ob als aktiver Fahrer oder als Motorsport-Begeisterter – bei uns ist jeder willkommen.',
+    title: 'Mitgliedschaft',
+    subtitle: 'Werden Sie Teil unserer Motorsport-Familie',
+    content:
+      'Der MSC Oberlausitzer Dreiländereck e.V. freut sich über jedes neue Mitglied! Ob als aktiver Fahrer oder als Motorsport-Begeisterter – bei uns ist jeder willkommen. Unsere Mitglieder profitieren von vergünstigten Trainingsgebühren, exklusiven Vereinsveranstaltungen und einer starken Gemeinschaft rund um den Motorsport.',
   });
   const benefitsSection = useContentWithFallback('membership', 'benefits', { title: 'Vorteile einer Mitgliedschaft' });
   const howToJoin = useContentWithFallback('membership', 'how_to_join', { title: 'So werden Sie Mitglied' });
   const cta = useContentWithFallback('membership', 'cta', {
     title: 'Interesse geweckt?',
-    content: 'Wir freuen uns auf neue Mitglieder! Nehmen Sie Kontakt auf oder kommen Sie einfach zu einem unserer nächsten Termine vorbei.',
+    content: 'Wir freuen uns auf neue Mitglieder! Nehmen Sie Kontakt auf oder kommen Sie einfach zu einem unserer nächsten Termine vorbei. Mitglieder des MSC können die Motocross-Trainingsstrecke in Hainewalde kostenlos nutzen.',
   });
   const { data: benefitsList, isLoading: benefitsLoading } = useMembershipBenefits();
   const { data: steps, isLoading: stepsLoading } = useMembershipSteps();

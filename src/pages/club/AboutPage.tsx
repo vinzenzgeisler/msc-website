@@ -12,22 +12,25 @@ export default function AboutPage() {
   const t = useTranslation();
 
   const intro = useContentWithFallback('about', 'intro', {
-    title: t.nav.about,
-    subtitle: '',
-    content: '',
+    title: 'Über uns',
+    subtitle: 'Motorsport mit Leidenschaft im Dreiländereck',
+    content:
+      'Der MSC Oberlausitzer Dreiländereck e.V. ist ein gemeinnütziger Motorsportverein mit Sitz in der Oberlausitz. Seit unserer Gründung im Jahr 2013 verbinden wir die Begeisterung für Motorsport mit der Förderung von Jugendarbeit, Verkehrssicherheit und grenzüberschreitender Zusammenarbeit mit Vereinen in Tschechien und Polen. Unsere Mitglieder sind aktive und ehemalige Motorsportler sowie Freunde des Motorsports aus der gesamten Region.',
   });
   const mission = useContentWithFallback('about', 'mission', {
     title: 'Unsere Mission',
-    content: '',
+    content:
+      'Wir fördern den Motorsport in der Oberlausitz und darüber hinaus. Unser Ziel ist es, eine lebendige Motorsport-Gemeinschaft zu schaffen, die Jung und Alt gleichermaßen begeistert. Dabei legen wir besonderen Wert auf die Jugendförderung, die Erhöhung der Verkehrssicherheit und den Ausbau der Attraktivität unserer Region. Durch die Organisation von Veranstaltungen wie dem „Oberlausitzer Dreieck" tragen wir zum Bekanntheitsgrad der Region bei.',
   });
   const values = useContentWithFallback('about', 'values', {
     title: 'Unsere Werte',
-    content: '',
+    content:
+      '<ul><li><strong>Gemeinschaft</strong> – Motorsport verbindet: Wir sind ein Verein, in dem Zusammenhalt großgeschrieben wird.</li><li><strong>Sicherheit</strong> – Verantwortungsvolles Fahren und Handeln stehen bei uns an erster Stelle.</li><li><strong>Jugendförderung</strong> – Wir investieren in die nächste Generation von Motorsportlern.</li><li><strong>Grenzüberschreitend</strong> – Wir pflegen aktiv Verbindungen zu Motorsportvereinen in Tschechien und Polen.</li><li><strong>Leidenschaft</strong> – Ob auf der MX-Strecke, im Trial-Gelände oder auf Motorradtouren – bei uns dreht sich alles um die Begeisterung für den Motorsport.</li></ul>',
   });
 
   const quickLinks = [
     { icon: Users, title: t.nav.board, description: intro.primary_button_label || 'Lernen Sie unser Vorstandsteam kennen', path: '/club/board' },
-    { icon: History, title: t.nav.history, description: intro.secondary_button_label || 'Die Geschichte unseres Vereins', path: '/club/history' },
+    { icon: History, title: t.nav.history, description: intro.secondary_button_label || 'Die Geschichte unseres Vereins seit 2013', path: '/club/history' },
     { icon: Award, title: t.nav.membership, description: intro.stat_one_label || 'Werden Sie Teil unserer Gemeinschaft', path: '/club/membership' },
   ];
 
@@ -72,7 +75,7 @@ export default function AboutPage() {
           <div className="grid gap-6 md:grid-cols-2">
             <Card className="overflow-hidden border-0 bg-primary text-primary-foreground">
               <CardContent className="p-8">
-                <h2 className="mb-4 text-2xl font-bold">{mission.title || 'Unsere Mission'}</h2>
+                <h2 className="mb-4 text-2xl font-bold">{mission.title}</h2>
                 {mission.content ? (
                   <div className="prose prose-invert max-w-none"
                     dangerouslySetInnerHTML={{ __html: mission.content.replace(/\n/g, '<br />') }} />
@@ -83,7 +86,7 @@ export default function AboutPage() {
             </Card>
             <Card className="overflow-hidden">
               <CardContent className="p-8">
-                <h2 className="mb-4 text-2xl font-bold">{values.title || 'Unsere Werte'}</h2>
+                <h2 className="mb-4 text-2xl font-bold">{values.title}</h2>
                 {values.content ? (
                   <div className="prose dark:prose-invert max-w-none text-muted-foreground"
                     dangerouslySetInnerHTML={{ __html: values.content.replace(/\n/g, '<br />') }} />
