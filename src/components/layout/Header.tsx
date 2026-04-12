@@ -84,13 +84,13 @@ export function Header() {
               {(settings?.site_short_name || 'MSC').slice(0, 3)}
             </div>
           )}
-          <span className="hidden font-heading font-bold text-foreground uppercase tracking-wider md:inline-block truncate max-w-[200px] lg:max-w-none">
+          <span className="hidden font-heading font-bold text-foreground uppercase tracking-wider xl:inline-block">
             {settings?.site_name || 'MSC Oberlausitzer Dreiländereck'}
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-1 lg:flex">
+        <nav className="hidden items-center gap-1 xl:flex">
           {navItems.map((item) =>
             item.children ? (
               <DropdownMenu key={item.label}>
@@ -173,7 +173,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="xl:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -184,7 +184,7 @@ export function Header() {
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="border-t border-border bg-background lg:hidden">
+        <div className="border-t border-border bg-background xl:hidden">
           <nav className="container py-4">
             <ul className="space-y-1">
               {navItems.map((item) =>
