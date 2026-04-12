@@ -197,7 +197,7 @@
   }
   .hero-animate-stripe {
     transform-origin: right center;
-    animation: hero-stripe-sweep 0.8s cubic-bezier(0.65, 0, 0.35, 1) 0.3s both;
+    animation: hero-stripe-sweep 0.8s cubic-bezier(0.65, 0, 0.35, 1) 1.3s both;
   }
 
   /* Diagonal Racing Stripe Background */

@@ -189,7 +189,7 @@ export function HeroSection() {
 
           {isLoading ? (
             <Skeleton className="h-16 w-3/4 mx-auto mb-4 bg-white/10 md:mb-6" />
-          ) : shouldAnimate ? (
+          ) : shouldAnimate && hasMainEvent ? (
             <h1 className="mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl hero-animate-title">
               <span className="inline-block overflow-hidden whitespace-nowrap border-r-0 border-accent" style={{
                 animation: 'hero-typing 1.5s steps(30, end) 0.5s both, hero-blink-caret 0.75s step-end 0.5s 4',
@@ -198,7 +198,7 @@ export function HeroSection() {
               </span>
             </h1>
           ) : (
-            <h1 className="mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl">
+            <h1 className={`mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl ${a('hero-animate-title')}`}>
               {heroTitle}
             </h1>
           )}
