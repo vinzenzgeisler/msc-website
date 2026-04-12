@@ -21,14 +21,14 @@ export function Footer() {
                 <img
                   src={settings.logo_url}
                   alt={settings.logo_alt || settings.site_short_name || settings.site_name || 'Logo'}
-                  className="h-10 w-10 rounded-md object-contain bg-white p-1"
+                  className="h-12 w-12 object-contain"
                 />
               ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold">
+                <div className="flex h-12 w-12 items-center justify-center bg-primary text-primary-foreground font-bold">
                   {(settings?.site_short_name || 'MSC').slice(0, 3)}
                 </div>
               )}
-              <span className="font-bold">{settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}</span>
+              <span className="font-heading font-bold uppercase tracking-wider">{settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}</span>
             </div>
             <p className="mb-4 text-sm text-muted-foreground">
               {settings?.description || 'Motorsport mit Leidenschaft seit der Gründung.'}
