@@ -211,7 +211,7 @@ export default function EventPage() {
                 </ul>
               )}
               <a
-                href="https://www.google.com/maps/dir/Saalendorf,+Oybin/Jonsdorf/Waltersdorf,+Großschönau/@50.8585,14.735,14z"
+                href="https://maps.app.goo.gl/8ynVfs7AgjRU1Qem6"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
