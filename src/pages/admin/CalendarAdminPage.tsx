@@ -29,8 +29,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Search, MoreHorizontal, Pencil, Trash2, Calendar, Trophy, Bike, MapPin } from 'lucide-react';
-import { useCalendarEvents, useDeleteCalendarEvent } from '@/hooks/useCalendarEvents';
+import { Plus, Search, MoreHorizontal, Pencil, Trash2, Calendar, Trophy, Bike, MapPin, Star } from 'lucide-react';
+import { useCalendarEvents, useDeleteCalendarEvent, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
 import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
@@ -51,7 +51,20 @@ export default function CalendarAdminPage() {
 
   const { data: events, isLoading, error } = useCalendarEvents(false);
   const deleteEvent = useDeleteCalendarEvent();
+  const updateEvent = useUpdateCalendarEvent();
   const germanEvents = (events || []).filter((event) => event.locale === 'de');
+
+  const handleToggleMainEvent = async (event: { id: string; is_main_event?: boolean; title: string }) => {
+    try {
+      await updateEvent.mutateAsync({
+        id: event.id,
+        is_main_event: !event.is_main_event,
+      });
+      toast.success(event.is_main_event ? 'Hauptevent entfernt' : 'Als Hauptevent markiert');
+    } catch (error) {
+      toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Aktualisieren'));
+    }
+  };
 
   const filteredEvents = germanEvents.filter((event) => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -171,7 +184,10 @@ export default function CalendarAdminPage() {
                     <TableRow key={event.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${category?.color || 'bg-gray-400'}`} />
+                          {event.is_main_event && (
+                            <Star className="h-4 w-4 text-accent fill-accent flex-shrink-0" />
+                          )}
+                          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${category?.color || 'bg-gray-400'}`} />
                           <div>{event.title}</div>
                         </div>
                       </TableCell>
@@ -199,6 +215,10 @@ export default function CalendarAdminPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleToggleMainEvent(event)}>
+                              <Star className="mr-2 h-4 w-4" />
+                              {event.is_main_event ? 'Hauptevent entfernen' : 'Als Hauptevent markieren'}
+                            </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link to={`/admin/calendar/${event.id}`}>
                                 <Pencil className="mr-2 h-4 w-4" />
