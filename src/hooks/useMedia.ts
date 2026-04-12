@@ -118,7 +118,11 @@ export function useDeleteMediaFile() {
 
   return useMutation({
     mutationFn: async (file: MediaFile) => {
-      if (!file.album_id) return;
+      if (!file.album_id) {
+        // Standalone media file – delete from "media" collection
+        await pb.collection('media').delete(file.id);
+        return;
+      }
 
       const album = await pb.collection('mediaAlbums').getOne(file.album_id);
       const payload: Record<string, unknown> = { 'images-': [file.file_name] };
