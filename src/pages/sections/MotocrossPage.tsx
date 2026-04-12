@@ -114,7 +114,7 @@ export default function MotocrossPage() {
             <div className="relative bg-primary p-8 md:p-12 flex flex-col justify-center">
               {/* Racing stripe accent */}
               <div className="absolute top-0 left-0 w-1.5 h-full bg-accent" />
-              <div className="absolute -right-3 top-8 w-6 h-16 bg-accent/30 skew-y-[-15deg] hidden lg:block" />
+              
 
               {intro.content && (
                 <div
