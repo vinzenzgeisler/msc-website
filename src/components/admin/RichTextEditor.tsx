@@ -4,6 +4,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Button } from '@/components/ui/button';
+import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 import {
   Bold,
   Italic,
@@ -12,6 +13,7 @@ import {
   List,
   ListOrdered,
   ImagePlus,
+  FolderOpen,
   Undo,
   Redo,
   Minus,
@@ -210,6 +212,26 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
             <ImagePlus className="h-4 w-4" />
           )}
         </Button>
+
+        <MediaAssetPicker
+          onSelect={() => {}}
+          onSelectUrl={(url, alt) => {
+            if (editor) {
+              editor.chain().focus().setImage({ src: url, alt: alt || '' }).run();
+            }
+          }}
+          trigger={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              title="Bild aus Medien"
+            >
+              <FolderOpen className="h-4 w-4" />
+            </Button>
+          }
+        />
 
         <div className="ml-auto flex items-center gap-1">
           <Button
