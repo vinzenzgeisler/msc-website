@@ -104,9 +104,10 @@ export default function EventPage() {
 
   // Map embed URL: from CMS or fallback to Google Maps link
   const mapEmbedUrl = locationMapContent.content || null;
-  const googleMapsLink = mainEvent?.location
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mainEvent.location)}`
-    : null;
+  const googleMapsLink = locationMapContent.primary_button_url
+    || (mainEvent?.location
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mainEvent.location)}`
+      : 'https://maps.app.goo.gl/8ynVfs7AgjRU1Qem6');
 
   return (
     <MainLayout>
@@ -210,15 +211,18 @@ export default function EventPage() {
                   </li>
                 </ul>
               )}
-              <a
-                href="https://maps.app.goo.gl/8ynVfs7AgjRU1Qem6"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                {locale === 'de' ? 'In Google Maps öffnen' : locale === 'cz' ? 'Otevřít v Google Maps' : 'Open in Google Maps'}
-              </a>
+              {googleMapsLink && (
+                <a
+                  href={googleMapsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  {locationMapContent.primary_button_label
+                    || (locale === 'de' ? 'In Google Maps öffnen' : locale === 'cz' ? 'Otevřít v Google Maps' : 'Open in Google Maps')}
+                </a>
+              )}
             </div>
             <div className="relative">
               {trackMapContent.image_url ? (
