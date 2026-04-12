@@ -335,17 +335,17 @@ export default function MotocrossPage() {
             {upcomingEvents.length > 0 ? (
               <div className="space-y-4">
                 {upcomingEvents.map((event) => (
-                  <Card key={event.id} className="transition-shadow hover:shadow-md">
+                  <Card key={event.id}>
                     <CardContent className="flex items-center gap-4 p-5">
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
                         <Calendar className="h-6 w-6 text-primary" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold">{event.title}</h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground mb-0.5">
                           {format(new Date(event.start_dt), 'dd. MMMM yyyy', { locale: de })}
                           {event.location && ` · ${event.location}`}
                         </p>
+                        <h3 className="font-semibold">{event.title}</h3>
                       </div>
                     </CardContent>
                   </Card>
