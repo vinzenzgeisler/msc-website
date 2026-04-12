@@ -168,9 +168,11 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Accent stripe — hidden on mobile */}
-      <div className={`absolute -right-4 -top-32 -bottom-32 hidden w-56 skew-x-[-15deg] bg-accent md:block ${a('hero-animate-stripe')}`} />
-      <div className={`absolute -right-24 -top-32 -bottom-32 hidden w-16 skew-x-[-15deg] bg-accent/40 md:block ${a('hero-animate-stripe')}`} style={shouldAnimate ? { animationDelay: '0.5s' } : undefined} />
+      {/* Accent stripes — SVG polygons for pixel-perfect edge coverage */}
+      <svg className={`absolute right-0 top-0 hidden h-full md:block ${a('hero-animate-stripe')}`} width="120" viewBox="0 0 120 100" preserveAspectRatio="none" style={{ height: '100%' }}>
+        <polygon points="40,0 120,0 120,100 20,100" fill="hsl(48,100%,50%,0.4)" />
+        <polygon points="55,0 105,0 105,100 35,100" fill="hsl(48,100%,50%)" />
+      </svg>
 
       <div className="container relative z-10 py-8 md:py-16">
         <div className="mx-auto max-w-4xl text-center text-white">
