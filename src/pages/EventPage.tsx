@@ -113,10 +113,10 @@ export default function EventPage() {
     <MainLayout>
       {/* Hero */}
       <section className="relative overflow-hidden bg-primary py-20 text-primary-foreground">
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0">
           <div className="racing-stripe h-full w-full" />
         </div>
-        <div className="absolute -right-20 top-0 h-full w-40 skew-x-[-15deg] bg-accent opacity-80" />
+        <div className="absolute -right-20 top-0 h-full w-40 skew-x-[-15deg] bg-accent" />
 
         <div className="container relative z-10">
           {isLoading ? (

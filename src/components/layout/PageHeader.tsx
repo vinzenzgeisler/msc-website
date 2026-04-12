@@ -12,7 +12,7 @@ export function PageHeader({ title, subtitle, imageUrl, imageAlt, children }: Pa
   return (
     <section className="relative overflow-hidden bg-primary py-20 text-primary-foreground">
       {/* Racing stripe pattern */}
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0">
         <div className="racing-stripe h-full w-full" />
       </div>
 
