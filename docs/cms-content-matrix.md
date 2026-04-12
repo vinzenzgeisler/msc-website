@@ -113,7 +113,10 @@ Prinzip: `DE ist führend`, EN/CZ als Übersetzungen pro Datensatz (`locale`).
 | Motocross Anfahrt | `title`,`subtitle`,`content`,`image`,`primaryButtonLabel`,`primaryButtonUrl` (`motocross/directions`) | `pageContents` | optional |
 | Motocross Termine | `title`,`content` (`motocross/events`) | `pageContents` | optional |
 | Trial Intro/Training/Events | `title`,`subtitle`,`content`,`image`,`imageAlt` je SectionKey | `pageContents` | optional |
-| Touring Intro/Tours/Community | `title`,`subtitle`,`content`,`image`,`imageAlt` je SectionKey | `pageContents` | optional |
+| Touring Intro | `title`,`subtitle`,`content`,`image`,`imageAlt`,`statOneLabel`,`statTwoLabel`,`statThreeLabel` (`touring/intro`) | `pageContents` | required |
+| Touring aktuelle Touren | `title`,`content`,`primaryButtonLabel`,`primaryButtonUrl` (`touring/tours_current`) | `pageContents` | required |
+| Touring Archiv | `title`,`subtitle`,`content` (`touring/tours_archive`) | `pageContents` | optional |
+| Touring Termine | `title`,`content` (`touring/events`) | `pageContents` | optional |
 
 ## Partner
 | Frontend-Element | CMS-Feld | Collection | Pflicht |
