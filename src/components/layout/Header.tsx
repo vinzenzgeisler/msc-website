@@ -4,6 +4,7 @@ import { Menu, X, ChevronDown, ChevronRight, Sun, Moon } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useTheme } from '@/hooks/useTheme';
 import { useSettings } from '@/hooks/useSettings';
+import { useMainEvent } from '@/hooks/useMainEvent';
 import { Button } from '@/components/ui/button';
 import {
   Collapsible,
@@ -30,15 +31,18 @@ export function Header() {
   const { locale, setLocale, t } = useLanguage();
   const { toggleTheme, isDark } = useTheme();
   const { data: settings } = useSettings();
+  const { data: mainEvent } = useMainEvent();
   const location = useLocation();
 
   const currentLang = languages.find((l) => l.code === locale) || languages[0];
 
   const isActive = (path: string) => location.pathname === path;
 
+  const eventLabel = mainEvent?.title || t.nav.event;
+
   const navItems = [
     { path: '/', label: t.nav.home },
-    { path: '/event', label: t.nav.event },
+    { path: '/event', label: eventLabel },
     { path: '/calendar', label: t.nav.calendar },
     { path: '/news', label: t.nav.news },
     {
