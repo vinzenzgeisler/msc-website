@@ -324,56 +324,45 @@ export default function MotocrossPage() {
       {/* Upcoming Events */}
       <section className="border-t border-border py-16">
         <div className="container">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="mb-6 text-2xl font-bold">{eventsContent.title || 'Kommende Termine'}</h2>
-            {eventsContent.content && (
-              <div
-                className="mb-6 prose dark:prose-invert max-w-none text-muted-foreground"
-                dangerouslySetInnerHTML={{
-                  __html: eventsContent.content.replace(/\n/g, '<br />'),
-                }}
-              />
-            )}
-            {upcomingEvents.length > 0 ? (
-              <div className="space-y-4">
-                {upcomingEvents.map((event) => (
-                  <Card key={event.id}>
-                    <CardContent className="flex items-center gap-4 p-5">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                        <Calendar className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-muted-foreground mb-0.5">
-                          {format(new Date(event.start_dt), 'dd. MMMM yyyy', { locale: de })}
-                          {event.location && ` · ${event.location}`}
-                        </p>
-                        <h3 className="font-semibold">{event.title}</h3>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground">Derzeit keine anstehenden Termine.</p>
-            )}
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Button asChild>
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-2xl font-black uppercase tracking-tight">
+              {eventsContent.title || 'Kommende Termine'}
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              <Button variant="outline" className="rounded-none font-semibold uppercase tracking-wider" asChild>
                 <Link to="/calendar">
                   <Calendar className="mr-2 h-4 w-4" />
-                  Alle Termine ansehen
+                  Alle Termine
                 </Link>
               </Button>
-              <Button variant="outline" asChild>
-                <a
-                  href={`mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`}
-                >
+              <Button variant="outline" className="rounded-none" asChild>
+                <a href={`mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`}>
                   <Mail className="mr-2 h-4 w-4" />
-                  Kontakt aufnehmen
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  Kontakt
                 </a>
               </Button>
             </div>
           </div>
+          {eventsContent.content && (
+            <div
+              className="mb-6 prose dark:prose-invert max-w-none text-muted-foreground"
+              dangerouslySetInnerHTML={{
+                __html: eventsContent.content.replace(/\n/g, '<br />'),
+              }}
+            />
+          )}
+          {upcomingEvents.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-3">
+              {upcomingEvents.map((event) => (
+                <DisciplineEventCard key={event.id} event={event} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-none border-2 border-dashed border-border bg-card p-12 text-center">
+              <CalendarX className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <p className="text-muted-foreground">Derzeit keine anstehenden Termine.</p>
+            </div>
+          )}
         </div>
       </section>
     </MainLayout>
