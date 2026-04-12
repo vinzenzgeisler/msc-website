@@ -13,7 +13,7 @@ export function Footer() {
     <footer className="border-t border-border bg-muted/50">
       {/* Main Footer Content */}
       <div className="container py-12">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
           {/* Club Info */}
           <div>
             <div className="mb-4 flex items-center gap-2">
