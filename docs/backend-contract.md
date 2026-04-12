@@ -46,7 +46,27 @@ Wird vom Rich-Text-Editor im Admin genutzt, um Bilder innerhalb von News-Artikel
 
 ---
 
+### 2.19 `eventArchive` (Vergangene Hauptveranstaltungen)
+
+Archiv aller bisherigen Oberlausitzer Dreieck Veranstaltungen. Jeder Eintrag kann mit einem `mediaAlbums`-Fotoalbum verknüpft werden.
+
+| PB-Feld | Typ | Pflicht | Beschreibung |
+|---|---|---|---|
+| `title` | text | ✓ | Titel (z.B. „11. Oberlausitzer Dreieck") |
+| `year` | number | ✓ | Veranstaltungsjahr |
+| `description` | text | ✗ | Kurzbeschreibung |
+| `albumId` | relation | ✗ | → `mediaAlbums.id` (verknüpftes Fotoalbum) |
+| `sortOrder` | number | ✗ | Sortierung (Standard: Jahr) |
+| `locale` | text | ✗ | `de`/`en`/`cz` |
+
+**Frontend-Nutzung:** `useEventArchive()` → Archiv-Sektion, Admin
+
+**Hinweis:** Muss in PocketBase manuell angelegt werden. API-Regeln: authentifizierte Admins = CRUD, öffentlich = Lesen.
+
+---
+
 ## 2. Collection-Schemas
+
 
 ### 2.1 `siteSettings` (Singleton)
 
