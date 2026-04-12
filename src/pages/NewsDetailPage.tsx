@@ -89,18 +89,20 @@ export default function NewsDetailPage() {
             </Link>
           </Button>
           
-          <div className="flex items-center gap-3 mb-4">
-            {article.category && (
-              <span className={`rounded px-3 py-1 text-xs font-bold uppercase ${categoryColor}`}>
-                {categoryLabel}
+          <div className="mx-auto max-w-3xl">
+            <div className="flex items-center gap-3 mb-4">
+              {article.category && (
+                <span className={`rounded px-3 py-1 text-xs font-bold uppercase ${categoryColor}`}>
+                  {categoryLabel}
+                </span>
+              )}
+              <span className="text-sm text-primary-foreground/80">
+                {formatDate(article.created_at)}
               </span>
-            )}
-            <span className="text-sm text-primary-foreground/80">
-              {formatDate(article.published_at || article.created_at)}
-            </span>
+            </div>
+            
+            <h1 className="text-3xl md:text-4xl lg:text-5xl">{article.title}</h1>
           </div>
-          
-          <h1 className="mx-auto max-w-3xl text-3xl md:text-4xl lg:text-5xl">{article.title}</h1>
         </div>
       </section>
 
