@@ -349,9 +349,6 @@ export default function MotocrossPage() {
                       </div>
                     </CardContent>
                   </Card>
-                      </div>
-                    </CardContent>
-                  </Card>
                 ))}
               </div>
             ) : (
