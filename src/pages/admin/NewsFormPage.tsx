@@ -278,14 +278,15 @@ export default function NewsFormPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="content">Inhalt</Label>
-              <Textarea
-                id="content"
-                value={formData.content}
-                onChange={(e) => setFormData((current) => ({ ...current, content: e.target.value }))}
+              <Label>Inhalt</Label>
+              <RichTextEditor
+                content={formData.content}
+                onChange={(html) => setFormData((current) => ({ ...current, content: html }))}
                 placeholder="Vollständiger Artikeltext..."
-                rows={10}
               />
+              <p className="text-xs text-muted-foreground">
+                Nutze die Toolbar, um Text zu formatieren und Bilder einzufügen.
+              </p>
             </div>
           </CardContent>
         </Card>
