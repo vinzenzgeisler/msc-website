@@ -57,6 +57,7 @@ export default function CalendarFormPage() {
     end_dt: '',
     location: '',
     contact_email: '',
+    registration_url: '',
     is_main_event: false,
     published: true,
   });
