@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -124,31 +125,66 @@ export default function EventsAdminPage() {
               Hauptveranstaltung
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h3 className="text-xl font-bold">{mainEvent.title}</h3>
-                <p className="text-muted-foreground">
-                  {formatDateSafe(mainEvent.start_dt, 'dd. MMMM yyyy', de)}
-                  {mainEvent.end_dt && ` – ${formatDateSafe(mainEvent.end_dt, 'dd. MMMM yyyy', de)}`}
-                </p>
-                {mainEvent.location && (
-                  <p className="text-sm text-muted-foreground">{mainEvent.location}</p>
-                )}
+           <CardContent>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-bold">{mainEvent.title}</h3>
+                  <p className="text-muted-foreground">
+                    {formatDateSafe(mainEvent.start_dt, 'dd. MMMM yyyy', de)}
+                    {mainEvent.end_dt && ` – ${formatDateSafe(mainEvent.end_dt, 'dd. MMMM yyyy', de)}`}
+                  </p>
+                  {mainEvent.location && (
+                    <p className="text-sm text-muted-foreground">{mainEvent.location}</p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" asChild>
+                    <Link to="/event" target="_blank">
+                      <Eye className="mr-2 h-4 w-4" />
+                      Vorschau
+                    </Link>
+                  </Button>
+                  <Button asChild>
+                    <Link to={`/admin/calendar/${mainEvent.id}`}>
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Bearbeiten
+                    </Link>
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" asChild>
-                  <Link to="/event" target="_blank">
-                    <Eye className="mr-2 h-4 w-4" />
-                    Vorschau
-                  </Link>
-                </Button>
-                <Button asChild>
-                  <Link to={`/admin/calendar/${mainEvent.id}`}>
-                    <Pencil className="mr-2 h-4 w-4" />
-                    Bearbeiten
-                  </Link>
-                </Button>
+
+              {/* Registration URL inline edit */}
+              <div className="rounded-lg border p-3 bg-muted/30">
+                <Label className="text-xs font-medium text-muted-foreground">Anmeldeportal-URL</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    placeholder="https://anmeldung.example.com"
+                    defaultValue={mainEvent.registration_url || ''}
+                    onBlur={async (e) => {
+                      const newUrl = e.target.value.trim();
+                      if (newUrl !== (mainEvent.registration_url || '')) {
+                        try {
+                          await updateEventMutation.mutateAsync({
+                            id: mainEvent.id,
+                            registration_url: newUrl || null,
+                          });
+                          toast.success('Anmeldeportal-URL gespeichert');
+                        } catch (error) {
+                          toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Speichern'));
+                        }
+                      }
+                    }}
+                    className="flex-1"
+                  />
+                  {mainEvent.registration_url && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
+                        <Eye className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </CardContent>
