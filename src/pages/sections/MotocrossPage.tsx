@@ -1,4 +1,5 @@
 import { MainLayout } from '@/components/layout/MainLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,9 +27,8 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
-import heroMotocross from '@/assets/motocross-action.jpg';
-import trackImage from '@/assets/motocross-track.jpg';
-import anfahrtImage from '@/assets/motocross-anfahrt.jpg';
+import trackImageFallback from '@/assets/motocross-track.jpg';
+import anfahrtImageFallback from '@/assets/motocross-anfahrt.jpg';
 
 export default function MotocrossPage() {
   const t = useTranslation();
