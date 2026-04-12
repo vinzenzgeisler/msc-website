@@ -213,6 +213,26 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
           )}
         </Button>
 
+        <MediaAssetPicker
+          onSelect={() => {}}
+          onSelectUrl={(url, alt) => {
+            if (editor) {
+              editor.chain().focus().setImage({ src: url, alt: alt || '' }).run();
+            }
+          }}
+          trigger={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              title="Bild aus Medien"
+            >
+              <FolderOpen className="h-4 w-4" />
+            </Button>
+          }
+        />
+
         <div className="ml-auto flex items-center gap-1">
           <Button
             type="button"
