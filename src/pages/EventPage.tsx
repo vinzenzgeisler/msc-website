@@ -212,16 +212,18 @@ export default function EventPage() {
                 </ul>
               )}
               {googleMapsLink && (
-                <a
-                  href={googleMapsLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  {locationMapContent.primary_button_label
-                    || (locale === 'de' ? 'In Google Maps öffnen' : locale === 'cz' ? 'Otevřít v Google Maps' : 'Open in Google Maps')}
-                </a>
+                <Button className="mt-2" asChild>
+                  <a
+                    href={googleMapsLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MapPin className="mr-2 h-4 w-4" />
+                    {locationMapContent.primary_button_label
+                      || (locale === 'de' ? 'In Google Maps öffnen' : locale === 'cz' ? 'Otevřít v Google Maps' : 'Open in Google Maps')}
+                    <ExternalLink className="ml-1 h-3.5 w-3.5" />
+                  </a>
+                </Button>
               )}
             </div>
             <div className="relative">
