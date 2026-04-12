@@ -340,6 +340,44 @@ export default function NewsFormPage() {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label>Veröffentlichungsdatum</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={cn(
+                      'w-full justify-start text-left font-normal',
+                      !formData.published_at && 'text-muted-foreground',
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.published_at
+                      ? format(new Date(formData.published_at), 'd. MMMM yyyy', { locale: de })
+                      : 'Datum wählen (optional)'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={formData.published_at ? new Date(formData.published_at) : undefined}
+                    onSelect={(date) =>
+                      setFormData((current) => ({
+                        ...current,
+                        published_at: date ? date.toISOString() : null,
+                      }))
+                    }
+                    initialFocus
+                    className={cn('p-3 pointer-events-auto')}
+                  />
+                </PopoverContent>
+              </Popover>
+              <p className="text-xs text-muted-foreground">
+                Wird als Datum im Artikel angezeigt. Ohne Angabe wird das Erstellungsdatum verwendet.
+              </p>
+            </div>
+
             <LocaleTranslationBox
               description="DE bleibt führend. EN/CZ werden separat gespeichert (zuerst DE speichern)."
               status={translationStatus}
