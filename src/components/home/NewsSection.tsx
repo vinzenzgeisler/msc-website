@@ -26,13 +26,9 @@ export function NewsSection() {
   const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
   
   // Get only published posts, sorted by date, limit to 3
+  // Posts come pre-sorted (pinned first, then by date) from usePosts
   const newsItems = (posts || [])
     .filter(post => post.status === 'published')
-    .sort((a, b) => {
-      const timeA = getSafeTimestamp(a.display_date);
-      const timeB = getSafeTimestamp(b.display_date);
-      return timeB - timeA;
-    })
     .slice(0, 3);
 
   const formatDate = (dateStr?: string | null) => {
