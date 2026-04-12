@@ -76,6 +76,11 @@ export default function NewsDetailPage() {
     dateLocale,
     '',
   );
+  const publishedLabel = locale === 'de'
+    ? 'Veröffentlicht am'
+    : locale === 'cz'
+      ? 'Publikováno'
+      : 'Published on';
 
   return (
     <MainLayout>
@@ -106,7 +111,7 @@ export default function NewsDetailPage() {
             <h1 className="text-3xl md:text-4xl lg:text-5xl">{article.title}</h1>
             {displayDate && (
               <p className="mt-4 text-sm text-primary-foreground/70">
-                {displayDate}
+                {publishedLabel} {displayDate}
               </p>
             )}
           </div>
@@ -176,3 +181,4 @@ export default function NewsDetailPage() {
     </MainLayout>
   );
 }
+
