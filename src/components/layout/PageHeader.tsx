@@ -17,7 +17,7 @@ export function PageHeader({ title, subtitle, imageUrl, imageAlt, children }: Pa
       </div>
 
       {/* Diagonal accent stripe */}
-      <div className="absolute -right-20 top-0 h-full w-40 skew-x-[-15deg] bg-accent opacity-60" />
+      <div className="absolute -right-20 top-0 h-full w-40 skew-x-[-15deg] bg-accent" />
 
       {/* Optional CMS background image */}
       {imageUrl && (
