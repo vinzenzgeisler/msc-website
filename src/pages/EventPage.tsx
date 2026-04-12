@@ -24,6 +24,7 @@ import {
   Shield,
   Map,
   BedDouble,
+  ChevronDown,
 } from 'lucide-react';
 import { useMainEvent } from '@/hooks/useMainEvent';
 import { useEventContent } from '@/hooks/useEventContent';
@@ -78,37 +79,49 @@ export default function EventPage() {
     title: locale === 'de' ? 'Ablauf' : locale === 'cz' ? 'Průběh' : 'Schedule Overview',
     content: locale === 'de'
       ? 'Samstag: 8:00–ca. 18:00 Uhr Trainingsläufe, 20:00 Uhr Abendveranstaltung mit Livemusik. Sonntag: 8:00–ca. 18:00 Uhr Demoläufe.'
-      : '',
+      : locale === 'cz'
+        ? 'Sobota: 8:00–cca 18:00 tréninky, 20:00 večerní akce s živou hudbou. Neděle: 8:00–cca 18:00 ukázkové jízdy.'
+        : 'Saturday: 8:00 AM–approx. 6:00 PM practice runs, 8:00 PM evening event with live music. Sunday: 8:00 AM–approx. 6:00 PM demo runs.',
   });
   const parkingContent = useContentWithFallback('event', 'visitors_parking', {
     title: locale === 'de' ? 'Parkplätze & Shuttle' : locale === 'cz' ? 'Parkování a shuttle' : 'Parking & Shuttle',
     content: locale === 'de'
       ? 'Parkplätze sind ausgeschildert und kostenlos. An der Strecke gibt es kostenlose Shuttlebusse, welche die Besucher zu den Zuschauerbereichen fahren.'
-      : '',
+      : locale === 'cz'
+        ? 'Parkoviště jsou označena a zdarma. Na trati jsou k dispozici bezplatné autobusy, které návštěvníky zavezou k diváckým zónám.'
+        : 'Parking areas are signposted and free of charge. Free shuttle buses run along the track to take spectators to viewing areas.',
   });
   const paddockContent = useContentWithFallback('event', 'visitors_paddock', {
     title: locale === 'de' ? 'Fahrerlager' : locale === 'cz' ? 'Depo' : 'Paddock',
     content: locale === 'de'
       ? 'Die beiden Fahrerlager sind auch für die Zuschauer zugänglich.'
-      : '',
+      : locale === 'cz'
+        ? 'Obě depa jsou přístupná i pro diváky.'
+        : 'Both paddock areas are open to spectators.',
   });
   const photographerContent = useContentWithFallback('event', 'visitors_photographers', {
     title: locale === 'de' ? 'Fotografen' : locale === 'cz' ? 'Fotografové' : 'Photographers',
     content: locale === 'de'
       ? 'Die Fotografenbereiche sind farblich gekennzeichnet und dürfen nur von akkreditierten Fotografen betreten werden. Die Absperrungen dürfen nicht überschritten werden!'
-      : '',
+      : locale === 'cz'
+        ? 'Fotografické zóny jsou barevně označeny a přístupné pouze akreditovaným fotografům. Zábrany se nesmí překračovat!'
+        : 'Photographer zones are color-coded and may only be entered by accredited photographers. Barriers must not be crossed!',
   });
   const privacyNoticeContent = useContentWithFallback('event', 'visitors_privacy', {
     title: locale === 'de' ? 'Datenschutzhinweis' : locale === 'cz' ? 'Ochrana osobních údajů' : 'Privacy Notice',
     content: locale === 'de'
       ? 'Im Rahmen unserer Veranstaltungen behalten wir uns vor, Bild- und Tonaufnahmen von Beteiligten und Gästen zu Zwecken der PR- und Öffentlichkeitsarbeit zu erstellen, zu verarbeiten und zu verbreiten, soweit diese nicht im Einzelfall widersprechen. Mit der Anmeldung/Nennung erklären sich die Teilnehmer damit einverstanden, dass Aufnahmen während der Veranstaltung gemacht werden, die ohne Vergütungsanspruch für diese Zwecke verwendet werden dürfen.'
-      : '',
+      : locale === 'cz'
+        ? 'V rámci našich akcí si vyhrazujeme právo pořizovat obrazové a zvukové záznamy účastníků a hostů pro účely PR a veřejné komunikace.'
+        : 'During our events, we reserve the right to create, process, and distribute photo and audio recordings of participants and guests for PR and public relations purposes, unless individually objected to.',
   });
   const transportContent = useContentWithFallback('event', 'visitors_transport', {
     title: locale === 'de' ? 'Öffentliche Verkehrsmittel' : locale === 'cz' ? 'Veřejná doprava' : 'Public Transport',
     content: locale === 'de'
       ? 'Änderungen der Fahrpläne der öffentlichen Verkehrsmittel werden rechtzeitig aktualisiert.'
-      : '',
+      : locale === 'cz'
+        ? 'Změny jízdních řádů veřejné dopravy budou včas aktualizovány.'
+        : 'Public transport schedule changes will be updated in a timely manner.',
   });
   const siteMapContent = useContentWithFallback('event', 'visitors_site_map', {
     title: locale === 'de' ? 'Lageplan' : locale === 'cz' ? 'Plán areálu' : 'Site Map',
@@ -412,121 +425,80 @@ export default function EventPage() {
       {/* Visitors */}
       <section id="visitors" className="py-16">
         <div className="container">
-          <h2 className="mb-8">{t.event.visitors}</h2>
+          <h2 className="mb-10">{t.event.visitors}</h2>
 
-          {/* Admission & Schedule Overview */}
-          <div className="grid gap-6 md:grid-cols-2 mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Ticket className="h-5 w-5 text-primary" />
-                  {admissionContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{admissionContent.content}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-primary" />
-                  {scheduleOverviewContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{scheduleOverviewContent.content}</p>
-              </CardContent>
-            </Card>
+          {/* Key facts — compact highlight bar */}
+          <div className="mb-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+            {[
+              { icon: Ticket, title: locale === 'de' ? 'Tagesticket' : 'Day Ticket', value: '10 €' },
+              { icon: Ticket, title: locale === 'de' ? 'Wochenende' : 'Weekend', value: '15 €' },
+              { icon: Users, title: locale === 'de' ? 'Kinder < 14' : 'Kids < 14', value: locale === 'de' ? 'Frei' : 'Free' },
+              { icon: ParkingCircle, title: locale === 'de' ? 'Parkplätze' : 'Parking', value: locale === 'de' ? 'Kostenlos' : 'Free' },
+            ].map((fact) => (
+              <div key={fact.title} className="flex flex-col items-center border border-border bg-card p-4 text-center">
+                <fact.icon className="mb-2 h-6 w-6 text-primary" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{fact.title}</span>
+                <span className="mt-1 font-display text-2xl font-bold text-foreground">{fact.value}</span>
+              </div>
+            ))}
           </div>
 
-          {/* Parking, Paddock, Transport */}
-          <div className="grid gap-6 md:grid-cols-3 mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ParkingCircle className="h-5 w-5 text-primary" />
-                  {parkingContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{parkingContent.content}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Car className="h-5 w-5 text-primary" />
-                  {paddockContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{paddockContent.content}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bus className="h-5 w-5 text-primary" />
-                  {transportContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{transportContent.content}</p>
-              </CardContent>
-            </Card>
+          {/* Info items — clean list with accent stripe */}
+          <div className="space-y-4 mb-10">
+            {[
+              { icon: Clock, title: scheduleOverviewContent.title, content: scheduleOverviewContent.content },
+              { icon: ParkingCircle, title: parkingContent.title, content: parkingContent.content },
+              { icon: Car, title: paddockContent.title, content: paddockContent.content },
+              { icon: Bus, title: transportContent.title, content: transportContent.content },
+              { icon: Camera, title: photographerContent.title, content: photographerContent.content, image: photographerContent.image_url, imageAlt: photographerContent.image_alt },
+            ].filter((item) => item.content).map((item) => (
+              <div key={item.title} className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6">
+                <item.icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <div className="min-w-0">
+                  <h3 className="mb-1 text-base font-bold">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground">{item.content}</p>
+                  {'image' in item && item.image && (
+                    <img src={item.image} alt={item.imageAlt || item.title} className="mt-3 max-h-64 w-auto border border-border" />
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* Photographers & Site Map */}
-          <div className="grid gap-6 md:grid-cols-2 mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Camera className="h-5 w-5 text-primary" />
-                  {photographerContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                <p>{photographerContent.content}</p>
-                {photographerContent.image_url && (
-                  <img src={photographerContent.image_url} alt={photographerContent.image_alt || photographerContent.title} className="mt-4 w-full border border-border" />
-                )}
-              </CardContent>
-            </Card>
-            <Card>
+          {/* Site Map & Photographers images (if available from CMS) */}
+          {(siteMapContent.image_url || siteMapContent.content) && (
+            <Card className="mb-10">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Map className="h-5 w-5 text-primary" />
                   {siteMapContent.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-muted-foreground">
-                {siteMapContent.content && <p>{siteMapContent.content}</p>}
-                {siteMapContent.image_url && (
-                  <img src={siteMapContent.image_url} alt={siteMapContent.image_alt || siteMapContent.title} className="mt-4 w-full border border-border" />
-                )}
-                {!siteMapContent.content && !siteMapContent.image_url && (
-                  <p>{locale === 'de' ? 'Lageplan wird noch aktualisiert.' : locale === 'cz' ? 'Plán areálu bude aktualizován.' : 'Site map will be updated.'}</p>
+              <CardContent>
+                {siteMapContent.content && <p className="mb-4 text-muted-foreground">{siteMapContent.content}</p>}
+                {siteMapContent.image_url ? (
+                  <img src={siteMapContent.image_url} alt={siteMapContent.image_alt || siteMapContent.title} className="w-full border border-border" />
+                ) : (
+                  <p className="text-sm text-muted-foreground">{locale === 'de' ? 'Lageplan wird noch aktualisiert.' : locale === 'cz' ? 'Plán areálu bude aktualizován.' : 'Site map will be updated.'}</p>
                 )}
               </CardContent>
             </Card>
-          </div>
+          )}
 
-          {/* Privacy Notice */}
-          <Card className="border-l-4 border-l-accent">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-accent" />
-                {privacyNoticeContent.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
+          {/* Privacy Notice — collapsible, subtle */}
+          <details className="group mb-10 border border-border bg-card">
+            <summary className="flex cursor-pointer items-center gap-3 p-5 font-semibold">
+              <Shield className="h-5 w-5 text-muted-foreground" />
+              {privacyNoticeContent.title}
+              <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="border-t border-border px-5 pb-5 pt-3 text-sm text-muted-foreground">
               <p>{privacyNoticeContent.content}</p>
-            </CardContent>
-          </Card>
+            </div>
+          </details>
 
           {/* Link to Accommodation */}
-          <div className="mt-8 text-center">
+          <div className="text-center">
             <Button asChild size="lg">
               <Link to="/event/accommodation">
                 <BedDouble className="mr-2 h-5 w-5" />
