@@ -101,6 +101,8 @@ export function HeroSection() {
   });
   const [scrollY, setScrollY] = useState(0);
   const { data: mainEvent, isLoading } = useMainEvent();
+  const [displayedTitle, setDisplayedTitle] = useState('');
+  const [typingComplete, setTypingComplete] = useState(!shouldAnimate);
 
   // Parallax scroll
   useEffect(() => {
@@ -128,6 +130,42 @@ export function HeroSection() {
   const primaryButtonUrl = heroContent.primary_button_url || (hasMainEvent ? '/old' : '/club/about');
   const secondaryButtonLabel = heroContent.secondary_button_label || (hasMainEvent ? t.hero.ctaSchedule : t.nav.calendar);
   const secondaryButtonUrl = heroContent.secondary_button_url || (hasMainEvent ? '/old#schedule' : '/calendar');
+
+  // JS Typewriter effect for smooth multi-line wrapping
+  useEffect(() => {
+    if (!shouldAnimate || !hasMainEvent) {
+      setDisplayedTitle(heroTitle);
+      setTypingComplete(true);
+      return;
+    }
+
+    let isMounted = true;
+    setDisplayedTitle('');
+    setTypingComplete(false);
+
+    const delayTimer = setTimeout(() => {
+      let i = 0;
+      const chars = heroTitle.split('');
+      const intervalTime = 1500 / Math.max(chars.length, 1);
+
+      const typeTimer = setInterval(() => {
+        if (!isMounted) return;
+        i++;
+        setDisplayedTitle(chars.slice(0, i).join(''));
+        if (i >= chars.length) {
+          clearInterval(typeTimer);
+          setTypingComplete(true);
+        }
+      }, intervalTime);
+
+      return () => clearInterval(typeTimer);
+    }, 500);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(delayTimer);
+    };
+  }, [heroTitle, shouldAnimate, hasMainEvent]);
 
   const countdown = useCountdown(eventDate);
 
@@ -190,15 +228,19 @@ export function HeroSection() {
           {isLoading ? (
             <Skeleton className="h-16 w-3/4 mx-auto mb-4 bg-white/10 md:mb-6" />
           ) : shouldAnimate && hasMainEvent ? (
-            <h1 className="mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl hero-animate-title">
-              <span className="inline-block overflow-hidden whitespace-nowrap border-r-0 border-accent" style={{
-                animation: 'hero-typing 1.5s steps(30, end) 0.5s both, hero-blink-caret 0.75s step-end 0.5s 4',
-              }}>
-                {heroTitle}
+            <h1 className="mb-4 font-display text-3xl sm:text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl hero-animate-title">
+            {displayedTitle}
+            <span
+              className="inline-block border-r-[0.15em] border-accent"
+              style={{
+                animation: typingComplete ? 'hero-blink-caret 0.75s step-end 4' : 'none',
+              }}
+            >
+              &#8203;
               </span>
             </h1>
           ) : (
-            <h1 className={`mb-4 font-display text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl ${a('hero-animate-title')}`}>
+            <h1 className={`mb-4 font-display text-3xl sm:text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl ${a('hero-animate-title')}`}>
               {heroTitle}
             </h1>
           )}
