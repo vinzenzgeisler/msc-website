@@ -112,6 +112,7 @@ export default function CalendarFormPage() {
         location: existingEvent.location || '',
         contact_email: existingEvent.contact_email || '',
         registration_url: existingEvent.registration_url || '',
+        detail_url: existingEvent.detail_url || '',
         is_main_event: existingEvent.is_main_event || false,
         published: existingEvent.published !== false,
       });
@@ -146,6 +147,7 @@ export default function CalendarFormPage() {
         location: formData.location.trim() || null,
         contact_email: formData.contact_email.trim() || null,
         registration_url: formData.registration_url.trim() || null,
+        detail_url: formData.detail_url.trim() || null,
         is_main_event: formData.is_main_event,
         published: formData.published,
         locale: 'de',
