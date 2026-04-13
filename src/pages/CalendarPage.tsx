@@ -35,8 +35,8 @@ export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("upcoming");
   
-  // Load all events regardless of locale - calendar shows all events, UI is translated
-  const { data: events, isLoading } = useCalendarEvents(false);
+  // Filter events by current locale
+  const { data: events, isLoading } = useCalendarEvents(true);
   const intro = useContentWithFallback('calendar', 'intro', {
     title: t.calendar.title,
     subtitle: t.calendar.subtitle,
