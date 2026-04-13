@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation, useLanguage } from '@/i18n/LanguageContext';
@@ -37,6 +38,7 @@ import { useDownloads } from '@/hooks/useDownloads';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useMediaAlbums, useMediaFiles } from '@/hooks/useMedia';
 import { useContentWithFallback } from '@/hooks/usePageContent';
+import { useSettings } from '@/hooks/useSettings';
 import { format } from 'date-fns';
 import { de, cs, enUS } from 'date-fns/locale';
 
@@ -50,6 +52,7 @@ export default function EventPage() {
   const t = useTranslation();
   const { locale } = useLanguage();
   const { data: mainEvent, isLoading } = useMainEvent();
+  const { data: settings } = useSettings();
   const { data: allEvents } = useCalendarEvents(false);
   const { data: eventContent } = useEventContent(mainEvent?.id);
   const { data: downloads } = useDownloads();
@@ -70,7 +73,7 @@ export default function EventPage() {
   });
   const locationMapContent = useContentWithFallback('event', 'location_map', {
     title: '',
-    content: '', // embed URL
+    content: '',
   });
   const registrationContent = useContentWithFallback('event', 'registration_info', {
     title: locale === 'de' ? 'Sei dabei!' : locale === 'cz' ? 'Buď u toho!' : 'Join Us!',
@@ -213,7 +216,6 @@ export default function EventPage() {
   const registrationInfo = eventContent?.infos?.find((item) => item.section === 'registration');
   const eventDownloads = (downloads || []).filter((item) => item.category === 'event');
 
-  // Map embed URL: from CMS or fallback to Google Maps link
   const mapEmbedUrl = locationMapContent.content || null;
   const googleMapsLink = locationMapContent.primary_button_url
     || (mainEvent?.location
@@ -221,483 +223,485 @@ export default function EventPage() {
       : 'https://maps.app.goo.gl/8ynVfs7AgjRU1Qem6');
 
   return (
-    <MainLayout title={mainEvent?.title || eventIntro.title} description={mainEvent?.description || undefined}>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-primary py-20 text-primary-foreground">
-        <div className="absolute inset-0">
-          <div className="racing-stripe h-full w-full" />
-        </div>
-        <div className="absolute -right-20 top-0 h-full w-40 skew-x-[-15deg] bg-accent" />
+    <>
+      <Helmet>
+        <title>{mainEvent?.title || eventIntro.title} – {settings?.site_name || 'MSC'}</title>
+        <meta name="description" content={mainEvent?.description || eventIntro.content || ''} />
+        <meta property="og:title" content={mainEvent?.title || eventIntro.title} />
+        <meta property="og:description" content={mainEvent?.description || eventIntro.content || ''} />
+        <meta property="og:image" content={settings?.default_og_image_url || ''} />
+        <meta property="og:type" content="website" />
+      </Helmet>
 
-        <div className="container relative z-10">
-          {isLoading ? (
-            <>
-              <Skeleton className="h-6 w-40 mb-4 bg-primary-foreground/20" />
-              <Skeleton className="h-16 w-96 mb-4 bg-primary-foreground/20" />
-              <Skeleton className="h-8 w-[600px] bg-primary-foreground/20" />
-            </>
-          ) : mainEvent ? (
-            <>
-              <Badge className="mb-4 bg-accent text-accent-foreground">
-                {formatEventDate(mainEvent.start_dt, mainEvent.end_dt)}
-              </Badge>
-              <h1 className="mb-4 text-5xl font-black uppercase md:text-6xl">
-                {mainEvent.title}
-              </h1>
-              <p className="max-w-2xl text-xl text-primary-foreground/80">
-                {mainEvent.description || eventIntro.content}
-              </p>
-              <div className="mt-8">
-                <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold" asChild>
-                  <a
-                    href={mainEvent.registration_url || '#registration'}
-                    {...(mainEvent.registration_url ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                  >
-                    <ClipboardList className="h-5 w-5" />
-                    {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'Přihlásit se' : 'Register Now'}
-                    {mainEvent.registration_url && <ExternalLink className="h-4 w-4" />}
-                  </a>
-                </Button>
-              </div>
-            </>
-          ) : (
-            <>
-              <Badge className="mb-4 bg-accent text-accent-foreground">
-                {locale === 'de' ? 'Keine Veranstaltung hinterlegt' : locale === 'cz' ? 'Žádná akce není nastavena' : 'No event configured'}
-              </Badge>
-              <h1 className="mb-4 text-5xl font-black uppercase md:text-6xl">
-                {eventIntro.title}
-              </h1>
-              <p className="max-w-2xl text-xl text-primary-foreground/80">
-                {eventIntro.content}
-              </p>
-            </>
-          )}
-        </div>
-      </section>
+      <MainLayout title={mainEvent?.title || eventIntro.title} description={mainEvent?.description || undefined}>
+        {/* Hero */}
+        <section className="relative overflow-hidden bg-primary py-20 text-primary-foreground">
+          <div className="absolute inset-0">
+            <div className="racing-stripe h-full w-full" />
+          </div>
+          <div className="absolute -right-20 top-0 h-full w-40 skew-x-[-15deg] bg-accent" />
 
-      {/* Navigation bar */}
-      <section className="border-b border-border bg-muted/50 py-4">
-        <div className="container">
-          <div className="flex flex-wrap gap-2">
-            {[
-              { href: '#track', label: t.event.track, icon: MapPin },
-              { href: '#schedule', label: t.event.schedule, icon: Clock },
-              { href: '#classes', label: t.event.classes.title, icon: Users },
-              { href: '#registration', label: locale === 'de' ? 'Anmeldung' : locale === 'cz' ? 'Přihláška' : 'Registration', icon: ClipboardList },
-              { href: '#visitors', label: t.event.visitors, icon: Info },
-              { href: '#downloads', label: t.event.downloads, icon: Download },
-              { href: '/old/accommodation', label: locale === 'de' ? 'Übernachtung' : locale === 'cz' ? 'Ubytování' : 'Accommodation', icon: BedDouble, isLink: true },
-            ].map((item) => {
-              if ('isLink' in item && item.isLink) {
+          <div className="container relative z-10">
+            {isLoading ? (
+              <>
+                <Skeleton className="h-6 w-40 mb-4 bg-primary-foreground/20" />
+                <Skeleton className="h-16 w-96 mb-4 bg-primary-foreground/20" />
+                <Skeleton className="h-8 w-[600px] bg-primary-foreground/20" />
+              </>
+            ) : mainEvent ? (
+              <>
+                <Badge className="mb-4 bg-accent text-accent-foreground">
+                  {formatEventDate(mainEvent.start_dt, mainEvent.end_dt)}
+                </Badge>
+                <h1 className="mb-4 text-5xl font-black uppercase md:text-6xl">
+                  {mainEvent.title}
+                </h1>
+                <p className="max-w-2xl text-xl text-primary-foreground/80">
+                  {mainEvent.description || eventIntro.content}
+                </p>
+                <div className="mt-8">
+                  <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold" asChild>
+                    {mainEvent.registration_url ? (
+                      <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
+                        <ClipboardList className="h-5 w-5" />
+                        {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'Přihlásit se' : 'Register Now'}
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    ) : (
+                      <a href="#registration">
+                        <ClipboardList className="h-5 w-5" />
+                        {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'Přihlásit se' : 'Register Now'}
+                      </a>
+                    )}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <Badge className="mb-4 bg-accent text-accent-foreground">
+                  {locale === 'de' ? 'Keine Veranstaltung hinterlegt' : locale === 'cz' ? 'Žádná akce není nastavena' : 'No event configured'}
+                </Badge>
+                <h1 className="mb-4 text-5xl font-black uppercase md:text-6xl">
+                  {eventIntro.title}
+                </h1>
+                <p className="max-w-2xl text-xl text-primary-foreground/80">
+                  {eventIntro.content}
+                </p>
+              </>
+            )}
+          </div>
+        </section>
+
+        {/* Navigation bar */}
+        <section className="border-b border-border bg-muted/50 py-4">
+          <div className="container">
+            <div className="flex flex-wrap gap-2">
+              {[
+                { href: '#track', label: t.event.track, icon: MapPin },
+                { href: '#schedule', label: t.event.schedule, icon: Clock },
+                { href: '#classes', label: t.event.classes.title, icon: Users },
+                { href: '#registration', label: locale === 'de' ? 'Anmeldung' : locale === 'cz' ? 'Přihláška' : 'Registration', icon: ClipboardList },
+                { href: '#visitors', label: t.event.visitors, icon: Info },
+                { href: '#downloads', label: t.event.downloads, icon: Download },
+                { href: '/old/accommodation', label: locale === 'de' ? 'Übernachtung' : locale === 'cz' ? 'Ubytování' : 'Accommodation', icon: BedDouble, isLink: true },
+              ].map((item) => {
+                if ('isLink' in item && item.isLink) {
+                  return (
+                    <Button key={item.href} variant="outline" size="sm" asChild>
+                      <Link to={item.href}>
+                        <item.icon className="mr-1 h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    </Button>
+                  );
+                }
                 return (
                   <Button key={item.href} variant="outline" size="sm" asChild>
-                    <Link to={item.href}>
+                    <a href={item.href}>
                       <item.icon className="mr-1 h-4 w-4" />
                       {item.label}
-                    </Link>
+                    </a>
                   </Button>
                 );
-              }
-              return (
-                <Button key={item.href} variant="outline" size="sm" asChild>
-                  <a href={item.href}>
-                    <item.icon className="mr-1 h-4 w-4" />
-                    {item.label}
-                  </a>
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Track & Region */}
-      <section id="track" className="py-16">
-        <div className="container">
-          <h2 className="mb-8">{t.event.track}</h2>
-          <div className="grid gap-8 lg:grid-cols-2">
-            <div>
-              <p className="mb-4 text-lg text-muted-foreground">
-                {trackInfo?.content ||
-                  trackMapContent.content ||
-                  (locale === 'de'
-                    ? 'Die legendäre 5,9 km lange Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf bietet Motorsport-Fans ein unvergessliches Erlebnis mitten im Zittauer Gebirge.'
-                    : locale === 'cz'
-                      ? 'Legendární 5,9 km dlouhá trať mezi Saalendorfem, Jonsdorfem a Waltersdorfem nabízí fanouškům motorsportu nezapomenutelný zážitek uprostřed Žitavských hor.'
-                      : 'The legendary 5.9 km track between Saalendorf, Jonsdorf and Waltersdorf offers motorsport fans an unforgettable experience in the heart of the Zittau Mountains.')}
-              </p>
-              {mainEvent?.location && (
-                <ul className="mb-6 space-y-2">
-                  <li className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <span>{mainEvent.location}</span>
-                  </li>
-                </ul>
-              )}
-              {googleMapsLink && (
-                <Button className="mt-2" asChild>
-                  <a
-                    href={googleMapsLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <MapPin className="mr-2 h-4 w-4" />
-                    {locationMapContent.primary_button_label
-                      || (locale === 'de' ? 'In Google Maps öffnen' : locale === 'cz' ? 'Otevřít v Google Maps' : 'Open in Google Maps')}
-                    <ExternalLink className="ml-1 h-3.5 w-3.5" />
-                  </a>
-                </Button>
-              )}
-            </div>
-            <div className="relative">
-              {trackMapContent.image_url ? (
-                <img
-                  src={trackMapContent.image_url}
-                  alt={trackMapContent.image_alt || trackMapContent.title}
-                  className="h-80 w-full border border-border object-cover"
-                />
-              ) : (
-                <iframe
-                  title={locale === 'de' ? 'Streckenkarte' : 'Track Map'}
-                  src={mapEmbedUrl || 'https://umap.openstreetmap.de/de/map/oberlausitzer-dreieck_132460?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=false&editMode=disabled&moreControl=false&searchControl=false&tilelayersControl=false&embedControl=false&datalayersControl=false&onLoadPanel=none&captionBar=false&captionMenus=false&homeControl=false&fullscreenControl=false&captionControl=false'}
-                  className="h-80 w-full border border-border rounded-md"
-                  loading="lazy"
-                  allowFullScreen
-                />
-              )}
+              })}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Classes */}
-      <section id="classes" className="bg-muted/50 py-16">
-        <div className="container">
-          <h2 className="mb-8">{t.event.classes.title}</h2>
-          <p className="mb-6 text-muted-foreground">
-            {locale === 'de'
-              ? 'In diesen Klassen wird beim Oberlausitzer Dreieck gestartet:'
-              : locale === 'cz'
-                ? 'V těchto třídách se na Horním Lužickém trojúhelníku závodí:'
-                : 'These are the classes competing at the Oberlausitz Triangle:'}
-          </p>
-          {participantClasses.length > 0 ? (
-            <Carousel opts={{ align: 'start', loop: true }} className="w-full">
-              <CarouselContent className="-ml-3">
-                {participantClasses.map((cls, i) => (
-                  <CarouselItem key={cls.name} className="pl-3 basis-1/2 sm:basis-1/3 lg:basis-1/4 xl:basis-1/5">
-                    <div className="flex h-full flex-col items-center justify-center rounded-lg border border-border bg-card p-5 text-center">
-                      <cls.icon className="mb-3 h-8 w-8 text-primary" />
-                      {i < 11 && (
-                        <span className="mb-1 text-xs font-bold text-primary">Klasse {i + 1}</span>
-                      )}
-                      <span className="text-sm font-medium leading-tight">
-                        {cls.name.replace(/^Klasse \d+\s*/, '')}
-                      </span>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="-left-4 border-primary text-primary" />
-              <CarouselNext className="-right-4 border-primary text-primary" />
-            </Carousel>
-          ) : (
-            <Card>
-              <CardContent className="p-6 text-muted-foreground">
-                {locale === 'de'
-                  ? 'Die Klassen werden rechtzeitig vor der Veranstaltung veröffentlicht.'
-                  : locale === 'cz'
-                    ? 'Třídy budou zveřejněny včas před akcí.'
-                    : 'Classes will be published in time before the event.'}
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </section>
-
-      {/* Registration */}
-      <section id="registration" className="relative overflow-hidden py-16">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <ClipboardList className="mx-auto mb-4 h-16 w-16 text-accent" />
-            <h2 className="mb-4">
-              {registrationContent.title}
-            </h2>
-            <p className="mb-8 text-lg text-muted-foreground">
-              {registrationInfo?.content || registrationContent.content}
-            </p>
-            {mainEvent?.registration_url ? (
-              <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold" asChild>
-                <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
-                  <ClipboardList className="h-5 w-5" />
-                  {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'K registračnímu portálu' : 'Go to Registration Portal'}
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              </Button>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {locale === 'de' ? 'Das Anmeldeportal wird rechtzeitig vor der Veranstaltung freigeschaltet.' : locale === 'cz' ? 'Registrační portál bude otevřen včas před akcí.' : 'The registration portal will be opened in time before the event.'}
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Schedule */}
-      <section id="schedule" className="bg-muted/50 py-16">
-        <div className="container">
-          <h2 className="mb-8">{t.event.schedule}</h2>
-          {schedules.length > 0 ? (
+        {/* Track & Region */}
+        <section id="track" className="py-16">
+          <div className="container">
+            <h2 className="mb-8">{t.event.track}</h2>
             <div className="grid gap-8 lg:grid-cols-2">
-              {schedules.map((day) => (
-                <Card key={`${day.day_label}-${day.day_number}`}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Calendar className="h-5 w-5 text-primary" />
-                      {day.day_label}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      {day.entries.map((item, index) => (
-                        <li key={`${day.day_number}-${index}`} className="flex gap-4 border-b border-border pb-3 last:border-0">
-                          <span className="w-14 shrink-0 font-mono text-sm font-semibold text-primary">{item.time}</span>
-                          <span>{item.title}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="p-6 text-muted-foreground">
-                {locale === 'de' ? 'Der Zeitplan wurde noch nicht veröffentlicht.' : locale === 'cz' ? 'Harmonogram ještě nebyl zveřejněn.' : 'The schedule has not been published yet.'}
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </section>
-
-      {/* Visitors */}
-      <section id="visitors" className="py-16">
-        <div className="container">
-          <h2 className="mb-10">{t.event.visitors}</h2>
-
-          {/* Key facts — compact highlight bar */}
-          <div className="mb-10 grid grid-cols-2 gap-4 md:grid-cols-4">
-            {[
-              { icon: Ticket, title: locale === 'de' ? 'Tagesticket' : 'Day Ticket', value: '10 €' },
-              { icon: Ticket, title: locale === 'de' ? 'Wochenende' : 'Weekend', value: '15 €' },
-              { icon: Users, title: locale === 'de' ? 'Kinder < 14' : 'Kids < 14', value: locale === 'de' ? 'Frei' : 'Free' },
-              { icon: ParkingCircle, title: locale === 'de' ? 'Parkplätze' : 'Parking', value: locale === 'de' ? 'Kostenlos' : 'Free' },
-            ].map((fact) => (
-              <div key={fact.title} className="flex flex-col items-center border border-border bg-card p-4 text-center">
-                <fact.icon className="mb-2 h-6 w-6 text-primary" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{fact.title}</span>
-                <span className="mt-1 font-display text-2xl font-bold text-foreground">{fact.value}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Info items — clean list with accent stripe */}
-          <div className="space-y-4 mb-10">
-            {[
-              { icon: Clock, title: scheduleOverviewContent.title, content: scheduleOverviewContent.content },
-              { icon: ParkingCircle, title: parkingContent.title, content: parkingContent.content },
-              { icon: Car, title: paddockContent.title, content: paddockContent.content },
-              { icon: Bus, title: transportContent.title, content: transportContent.content },
-              { icon: Camera, title: photographerContent.title, content: photographerContent.content, image: photographerContent.image_url, imageAlt: photographerContent.image_alt },
-            ].filter((item) => item.content).map((item) => (
-              <div key={item.title} className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6">
-                <item.icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                <div className="min-w-0">
-                  <h3 className="mb-1 text-base font-bold">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">{item.content}</p>
-                  {'image' in item && item.image && (
-                    <img src={item.image} alt={item.imageAlt || item.title} className="mt-3 max-h-64 w-auto border border-border" />
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Site Map & Photographers images (if available from CMS) */}
-          {(siteMapContent.image_url || siteMapContent.content) && (
-            <Card className="mb-10">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Map className="h-5 w-5 text-primary" />
-                  {siteMapContent.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {siteMapContent.content && <p className="mb-4 text-muted-foreground">{siteMapContent.content}</p>}
-                {siteMapContent.image_url ? (
-                  <img src={siteMapContent.image_url} alt={siteMapContent.image_alt || siteMapContent.title} className="w-full border border-border" />
-                ) : (
-                  <p className="text-sm text-muted-foreground">{locale === 'de' ? 'Lageplan wird noch aktualisiert.' : locale === 'cz' ? 'Plán areálu bude aktualizován.' : 'Site map will be updated.'}</p>
+              <div>
+                <p className="mb-4 text-lg text-muted-foreground">
+                  {trackInfo?.content ||
+                    trackMapContent.content ||
+                    (locale === 'de'
+                      ? 'Die legendäre 5,9 km lange Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf bietet Motorsport-Fans ein unvergessliches Erlebnis mitten im Zittauer Gebirge.'
+                      : locale === 'cz'
+                        ? 'Legendární 5,9 km dlouhá trať mezi Saalendorfem, Jonsdorfem a Waltersdorfem nabízí fanouškům motorsportu nezapomenutelný zážitek uprostřed Žitavských hor.'
+                        : 'The legendary 5.9 km track between Saalendorf, Jonsdorf and Waltersdorf offers motorsport fans an unforgettable experience in the heart of the Zittau Mountains.')}
+                </p>
+                {mainEvent?.location && (
+                  <ul className="mb-6 space-y-2">
+                    <li className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-primary" />
+                      <span>{mainEvent.location}</span>
+                    </li>
+                  </ul>
                 )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Privacy Notice — collapsible, subtle */}
-          <details className="group mb-10 border border-border bg-card">
-            <summary className="flex cursor-pointer items-center gap-3 p-5 font-semibold">
-              <Shield className="h-5 w-5 text-muted-foreground" />
-              {privacyNoticeContent.title}
-              <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
-            </summary>
-            <div className="border-t border-border px-5 pb-5 pt-3 text-sm text-muted-foreground">
-              <p>{privacyNoticeContent.content}</p>
+                {googleMapsLink && (
+                  <Button className="mt-2" asChild>
+                    <a href={googleMapsLink} target="_blank" rel="noopener noreferrer">
+                      <MapPin className="mr-2 h-4 w-4" />
+                      {locationMapContent.primary_button_label
+                        || (locale === 'de' ? 'In Google Maps öffnen' : locale === 'cz' ? 'Otevřít v Google Maps' : 'Open in Google Maps')}
+                      <ExternalLink className="ml-1 h-3.5 w-3.5" />
+                    </a>
+                  </Button>
+                )}
+              </div>
+              <div className="relative">
+                {trackMapContent.image_url ? (
+                  <img
+                    src={trackMapContent.image_url}
+                    alt={trackMapContent.image_alt || trackMapContent.title}
+                    className="h-80 w-full border border-border object-cover"
+                  />
+                ) : (
+                  <iframe
+                    title={locale === 'de' ? 'Streckenkarte' : 'Track Map'}
+                    src={mapEmbedUrl || 'https://umap.openstreetmap.de/de/map/oberlausitzer-dreieck_132460?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=false&editMode=disabled&moreControl=false&searchControl=false&tilelayersControl=false&embedControl=false&datalayersControl=false&onLoadPanel=none&captionBar=false&captionMenus=false&homeControl=false&fullscreenControl=false&captionControl=false'}
+                    className="h-80 w-full border border-border rounded-md"
+                    loading="lazy"
+                    allowFullScreen
+                  />
+                )}
+              </div>
             </div>
-          </details>
-
-          {/* Link to Accommodation */}
-          <Link to="/old/accommodation" className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6 transition-colors hover:border-primary">
-            <BedDouble className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-            <div className="min-w-0">
-              <h3 className="mb-1 text-base font-bold">{locale === 'de' ? 'Übernachtungsmöglichkeiten' : locale === 'cz' ? 'Ubytování' : 'Accommodation'}</h3>
-              <p className="text-sm text-muted-foreground">{locale === 'de' ? 'Hotels, Pensionen und Ferienwohnungen in der Nähe der Rennstrecke.' : locale === 'cz' ? 'Hotely, penziony a apartmány v blízkosti závodní dráhy.' : 'Hotels, guesthouses and holiday apartments near the track.'}</p>
-            </div>
-            <ExternalLink className="mt-0.5 ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
-          </Link>
-        </div>
-      </section>
-
-      {/* Downloads */}
-      <section id="downloads" className="bg-muted/50 py-16">
-        <div className="container">
-          <h2 className="mb-8">{t.event.downloads}</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {eventDownloads.length > 0 ? eventDownloads.map((download) => (
-              <Card key={download.id} className="group transition-shadow hover:shadow-lg">
-                <CardContent className="flex items-center gap-4 p-4">
-                  <div className="bg-primary/10 p-3"><Download className="h-6 w-6 text-primary" /></div>
-                  <div className="min-w-0">
-                    <a href={download.file_url} target="_blank" rel="noopener noreferrer" className="font-medium group-hover:text-primary">{download.title}</a>
-                    <p className="text-sm text-muted-foreground">{download.file_type?.toUpperCase() || 'DATEI'}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )) : (
-              <Card className="lg:col-span-4">
-                <CardContent className="p-6 text-muted-foreground">
-                  {locale === 'de' ? 'Noch keine Downloads verfügbar.' : locale === 'cz' ? 'Zatím nejsou k dispozici žádné soubory.' : 'No downloads available yet.'}
-                </CardContent>
-              </Card>
-            )}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Gallery */}
-      <section className="py-16">
-        <div className="container">
-          <h2 className="mb-8">{t.event.gallery}</h2>
-          {galleryFilesLoading ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="aspect-[4/3] w-full rounded-lg" />
-              ))}
-            </div>
-          ) : galleryFiles && galleryFiles.length > 0 ? (
-            <div className="space-y-6">
-              <Carousel opts={{ align: 'start', loop: galleryFiles.length > 1 }} className="w-full px-12">
-                <CarouselContent className="-ml-4">
-                  {galleryFiles.map((file, index) => (
-                    <CarouselItem key={file.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                      <button
-                        type="button"
-                        onClick={() => openGalleryImage(index)}
-                        className="group block overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-lg"
-                      >
-                        <div className="aspect-[4/3] overflow-hidden bg-muted">
-                          <img
-                            src={file.file_url}
-                            alt={file.alt_text || mainEvent?.title || t.event.gallery}
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            loading="lazy"
-                          />
-                        </div>
-                      </button>
+        {/* Classes */}
+        <section id="classes" className="bg-muted/50 py-16">
+          <div className="container">
+            <h2 className="mb-8">{t.event.classes.title}</h2>
+            <p className="mb-6 text-muted-foreground">
+              {locale === 'de'
+                ? 'In diesen Klassen wird beim Oberlausitzer Dreieck gestartet:'
+                : locale === 'cz'
+                  ? 'V těchto třídách se na Horním Lužickém trojúhelníku závodí:'
+                  : 'These are the classes competing at the Oberlausitz Triangle:'}
+            </p>
+            {participantClasses.length > 0 ? (
+              <Carousel opts={{ align: 'start', loop: true }} className="w-full">
+                <CarouselContent className="-ml-3">
+                  {participantClasses.map((cls, i) => (
+                    <CarouselItem key={cls.name} className="pl-3 basis-1/2 sm:basis-1/3 lg:basis-1/4 xl:basis-1/5">
+                      <div className="flex h-full flex-col items-center justify-center rounded-lg border border-border bg-card p-5 text-center">
+                        <cls.icon className="mb-3 h-8 w-8 text-primary" />
+                        {i < 11 && (
+                          <span className="mb-1 text-xs font-bold text-primary">Klasse {i + 1}</span>
+                        )}
+                        <span className="text-sm font-medium leading-tight">
+                          {cls.name.replace(/^Klasse \d+\s*/, '')}
+                        </span>
+                      </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                {galleryFiles.length > 1 ? (
-                  <>
-                    <CarouselPrevious className="left-0" />
-                    <CarouselNext className="right-0" />
-                  </>
-                ) : null}
+                <CarouselPrevious className="-left-4 border-primary text-primary" />
+                <CarouselNext className="-right-4 border-primary text-primary" />
               </Carousel>
+            ) : (
+              <Card>
+                <CardContent className="p-6 text-muted-foreground">
+                  {locale === 'de'
+                    ? 'Die Klassen werden rechtzeitig vor der Veranstaltung veröffentlicht.'
+                    : locale === 'cz'
+                      ? 'Třídy budou zveřejněny včas před akcí.'
+                      : 'Classes will be published in time before the event.'}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </section>
 
-              <Dialog open={selectedGalleryIndex !== null} onOpenChange={(open) => !open && closeGalleryImage()}>
-                <DialogContent className="max-w-6xl border-none bg-transparent p-0 shadow-none">
-                  {selectedGalleryIndex !== null && galleryFiles[selectedGalleryIndex] ? (
-                    <div className="relative">
-                      <img
-                        src={galleryFiles[selectedGalleryIndex].file_url}
-                        alt={galleryFiles[selectedGalleryIndex].alt_text || mainEvent?.title || t.event.gallery}
-                        className="max-h-[82vh] w-full object-contain"
-                      />
-
-                      {galleryFiles.length > 1 ? (
-                        <>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            className="absolute left-2 top-1/2 h-10 w-10 -translate-y-1/2 border-white/30 bg-black/60 text-white hover:bg-black/80"
-                            onClick={showPreviousGalleryImage}
-                          >
-                            <ChevronLeft className="h-5 w-5" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            className="absolute right-2 top-1/2 h-10 w-10 -translate-y-1/2 border-white/30 bg-black/60 text-white hover:bg-black/80"
-                            onClick={showNextGalleryImage}
-                          >
-                            <ChevronRight className="h-5 w-5" />
-                          </Button>
-                        </>
-                      ) : null}
-
-                      {galleryFiles[selectedGalleryIndex].alt_text ? (
-                        <p className="mt-3 text-center text-sm text-white/80">
-                          {galleryFiles[selectedGalleryIndex].alt_text}
-                        </p>
-                      ) : null}
-                    </div>
-                  ) : null}
-                </DialogContent>
-              </Dialog>
+        {/* Registration */}
+        <section id="registration" className="relative overflow-hidden py-16">
+          <div className="container">
+            <div className="mx-auto max-w-2xl text-center">
+              <ClipboardList className="mx-auto mb-4 h-16 w-16 text-accent" />
+              <h2 className="mb-4">{registrationContent.title}</h2>
+              <p className="mb-8 text-lg text-muted-foreground">
+                {registrationInfo?.content || registrationContent.content}
+              </p>
+              {mainEvent?.registration_url ? (
+                <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold" asChild>
+                  <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
+                    <ClipboardList className="h-5 w-5" />
+                    {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'K registračnímu portálu' : 'Go to Registration Portal'}
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </Button>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {locale === 'de' ? 'Das Anmeldeportal wird rechtzeitig vor der Veranstaltung freigeschaltet.' : locale === 'cz' ? 'Registrační portál bude otevřen včas před akcí.' : 'The registration portal will be opened in time before the event.'}
+                </p>
+              )}
             </div>
-          ) : (
-            <Card>
-              <CardContent className="flex items-center gap-3 p-6 text-muted-foreground">
-                <Image className="h-5 w-5" />
-                <span>{galleryContent.content}</span>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* Archive */}
-      <section className="bg-muted/50 py-16">
-        <div className="container">
-          <h2 className="mb-8">{t.event.archive}</h2>
-          <Card>
-            <CardContent className="p-6 text-muted-foreground">{archiveContent.content}</CardContent>
-          </Card>
-        </div>
-      </section>
-    </MainLayout>
+        {/* Schedule */}
+        <section id="schedule" className="bg-muted/50 py-16">
+          <div className="container">
+            <h2 className="mb-8">{t.event.schedule}</h2>
+            {schedules.length > 0 ? (
+              <div className="grid gap-8 lg:grid-cols-2">
+                {schedules.map((day) => (
+                  <Card key={`${day.day_label}-${day.day_number}`}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-primary" />
+                        {day.day_label}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-3">
+                        {day.entries.map((item, index) => (
+                          <li key={`${day.day_number}-${index}`} className="flex gap-4 border-b border-border pb-3 last:border-0">
+                            <span className="w-14 shrink-0 font-mono text-sm font-semibold text-primary">{item.time}</span>
+                            <span>{item.title}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="p-6 text-muted-foreground">
+                  {locale === 'de' ? 'Der Zeitplan wurde noch nicht veröffentlicht.' : locale === 'cz' ? 'Harmonogram ještě nebyl zveřejněn.' : 'The schedule has not been published yet.'}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </section>
+
+        {/* Visitors */}
+        <section id="visitors" className="py-16">
+          <div className="container">
+            <h2 className="mb-10">{t.event.visitors}</h2>
+
+            <div className="mb-10 grid grid-cols-2 gap-4 md:grid-cols-4">
+              {[
+                { icon: Ticket, title: locale === 'de' ? 'Tagesticket' : 'Day Ticket', value: '10 €' },
+                { icon: Ticket, title: locale === 'de' ? 'Wochenende' : 'Weekend', value: '15 €' },
+                { icon: Users, title: locale === 'de' ? 'Kinder < 14' : 'Kids < 14', value: locale === 'de' ? 'Frei' : 'Free' },
+                { icon: ParkingCircle, title: locale === 'de' ? 'Parkplätze' : 'Parking', value: locale === 'de' ? 'Kostenlos' : 'Free' },
+              ].map((fact) => (
+                <div key={fact.title} className="flex flex-col items-center border border-border bg-card p-4 text-center">
+                  <fact.icon className="mb-2 h-6 w-6 text-primary" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{fact.title}</span>
+                  <span className="mt-1 font-display text-2xl font-bold text-foreground">{fact.value}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-4 mb-10">
+              {[
+                { icon: Clock, title: scheduleOverviewContent.title, content: scheduleOverviewContent.content },
+                { icon: ParkingCircle, title: parkingContent.title, content: parkingContent.content },
+                { icon: Car, title: paddockContent.title, content: paddockContent.content },
+                { icon: Bus, title: transportContent.title, content: transportContent.content },
+                { icon: Camera, title: photographerContent.title, content: photographerContent.content, image: photographerContent.image_url, imageAlt: photographerContent.image_alt },
+              ].filter((item) => item.content).map((item) => (
+                <div key={item.title} className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6">
+                  <item.icon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                  <div className="min-w-0">
+                    <h3 className="mb-1 text-base font-bold">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground">{item.content}</p>
+                    {'image' in item && item.image && (
+                      <img src={item.image} alt={item.imageAlt || item.title} className="mt-3 max-h-64 w-auto border border-border" />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {(siteMapContent.image_url || siteMapContent.content) && (
+              <Card className="mb-10">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Map className="h-5 w-5 text-primary" />
+                    {siteMapContent.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {siteMapContent.content && <p className="mb-4 text-muted-foreground">{siteMapContent.content}</p>}
+                  {siteMapContent.image_url ? (
+                    <img src={siteMapContent.image_url} alt={siteMapContent.image_alt || siteMapContent.title} className="w-full border border-border" />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{locale === 'de' ? 'Lageplan wird noch aktualisiert.' : locale === 'cz' ? 'Plán areálu bude aktualizován.' : 'Site map will be updated.'}</p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            <details className="group mb-10 border border-border bg-card">
+              <summary className="flex cursor-pointer items-center gap-3 p-5 font-semibold">
+                <Shield className="h-5 w-5 text-muted-foreground" />
+                {privacyNoticeContent.title}
+                <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="border-t border-border px-5 pb-5 pt-3 text-sm text-muted-foreground">
+                <p>{privacyNoticeContent.content}</p>
+              </div>
+            </details>
+
+            <Link to="/old/accommodation" className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6 transition-colors hover:border-primary">
+              <BedDouble className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+              <div className="min-w-0">
+                <h3 className="mb-1 text-base font-bold">{locale === 'de' ? 'Übernachtungsmöglichkeiten' : locale === 'cz' ? 'Ubytování' : 'Accommodation'}</h3>
+                <p className="text-sm text-muted-foreground">{locale === 'de' ? 'Hotels, Pensionen und Ferienwohnungen in der Nähe der Rennstrecke.' : locale === 'cz' ? 'Hotely, penziony a apartmány v blízkosti závodní dráhy.' : 'Hotels, guesthouses and holiday apartments near the track.'}</p>
+              </div>
+              <ExternalLink className="mt-0.5 ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
+            </Link>
+          </div>
+        </section>
+
+        {/* Downloads */}
+        <section id="downloads" className="bg-muted/50 py-16">
+          <div className="container">
+            <h2 className="mb-8">{t.event.downloads}</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {eventDownloads.length > 0 ? eventDownloads.map((download) => (
+                <Card key={download.id} className="group transition-shadow hover:shadow-lg">
+                  <CardContent className="flex items-center gap-4 p-4">
+                    <div className="bg-primary/10 p-3"><Download className="h-6 w-6 text-primary" /></div>
+                    <div className="min-w-0">
+                      <a href={download.file_url} target="_blank" rel="noopener noreferrer" className="font-medium group-hover:text-primary">{download.title}</a>
+                      <p className="text-sm text-muted-foreground">{download.file_type?.toUpperCase() || 'DATEI'}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )) : (
+                <Card className="lg:col-span-4">
+                  <CardContent className="p-6 text-muted-foreground">
+                    {locale === 'de' ? 'Noch keine Downloads verfügbar.' : locale === 'cz' ? 'Zatím nejsou k dispozici žádné soubory.' : 'No downloads available yet.'}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Gallery */}
+        <section className="py-16">
+          <div className="container">
+            <h2 className="mb-8">{t.event.gallery}</h2>
+            {galleryFilesLoading ? (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="aspect-[4/3] w-full rounded-lg" />
+                ))}
+              </div>
+            ) : galleryFiles && galleryFiles.length > 0 ? (
+              <div className="space-y-6">
+                <Carousel opts={{ align: 'start', loop: galleryFiles.length > 1 }} className="w-full px-12">
+                  <CarouselContent className="-ml-4">
+                    {galleryFiles.map((file, index) => (
+                      <CarouselItem key={file.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                        <button
+                          type="button"
+                          onClick={() => openGalleryImage(index)}
+                          className="group block overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-lg"
+                        >
+                          <div className="aspect-[4/3] overflow-hidden bg-muted">
+                            <img
+                              src={file.file_url}
+                              alt={file.alt_text || mainEvent?.title || t.event.gallery}
+                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              loading="lazy"
+                            />
+                          </div>
+                        </button>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  {galleryFiles.length > 1 ? (
+                    <>
+                      <CarouselPrevious className="left-0" />
+                      <CarouselNext className="right-0" />
+                    </>
+                  ) : null}
+                </Carousel>
+
+                <Dialog open={selectedGalleryIndex !== null} onOpenChange={(open) => !open && closeGalleryImage()}>
+                  <DialogContent className="max-w-6xl border-none bg-transparent p-0 shadow-none">
+                    {selectedGalleryIndex !== null && galleryFiles[selectedGalleryIndex] ? (
+                      <div className="relative">
+                        <img
+                          src={galleryFiles[selectedGalleryIndex].file_url}
+                          alt={galleryFiles[selectedGalleryIndex].alt_text || mainEvent?.title || t.event.gallery}
+                          className="max-h-[82vh] w-full object-contain"
+                        />
+                        {galleryFiles.length > 1 ? (
+                          <>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              className="absolute left-2 top-1/2 h-10 w-10 -translate-y-1/2 border-white/30 bg-black/60 text-white hover:bg-black/80"
+                              onClick={showPreviousGalleryImage}
+                            >
+                              <ChevronLeft className="h-5 w-5" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              className="absolute right-2 top-1/2 h-10 w-10 -translate-y-1/2 border-white/30 bg-black/60 text-white hover:bg-black/80"
+                              onClick={showNextGalleryImage}
+                            >
+                              <ChevronRight className="h-5 w-5" />
+                            </Button>
+                          </>
+                        ) : null}
+                        {galleryFiles[selectedGalleryIndex].alt_text ? (
+                          <p className="mt-3 text-center text-sm text-white/80">
+                            {galleryFiles[selectedGalleryIndex].alt_text}
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </DialogContent>
+                </Dialog>
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="flex items-center gap-3 p-6 text-muted-foreground">
+                  <Image className="h-5 w-5" />
+                  <span>{galleryContent.content}</span>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </section>
+
+        {/* Archive */}
+        <section className="bg-muted/50 py-16">
+          <div className="container">
+            <h2 className="mb-8">{t.event.archive}</h2>
+            <Card>
+              <CardContent className="p-6 text-muted-foreground">{archiveContent.content}</CardContent>
+            </Card>
+          </div>
+        </section>
+      </MainLayout>
+    </>
   );
 }
