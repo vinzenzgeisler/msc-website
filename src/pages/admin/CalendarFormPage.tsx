@@ -214,6 +214,7 @@ export default function CalendarFormPage() {
         location: formData.location.trim() || null,
         contact_email: formData.contact_email.trim() || null,
         registration_url: formData.registration_url.trim() || null,
+        detail_url: formData.detail_url.trim() || null,
         is_main_event: formData.is_main_event,
         published: formData.published,
         locale: targetLocale,
