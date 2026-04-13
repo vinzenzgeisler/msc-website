@@ -17,7 +17,12 @@ export default function PartnerClubsPage() {
 
   return (
     <MainLayout>
-      <PageHeader title={intro.title} subtitle={intro.subtitle || undefined} imageUrl={intro.image_url} imageAlt={intro.image_alt || intro.title} />
+      <PageHeader
+        title={intro.title}
+        subtitle={intro.subtitle || undefined}
+        imageUrl={intro.header_image_url || intro.image_url}
+        imageAlt={intro.header_image_alt || intro.image_alt || intro.title}
+      />
 
       <section className="py-16">
         <div className="container">

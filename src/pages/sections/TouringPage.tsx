@@ -20,6 +20,7 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { DisciplineEventCard } from '@/components/sections/DisciplineEventCard';
+import { RichContent } from '@/components/content/RichContent';
 
 import heroTouring from '@/assets/event-melkus.jpg';
 
@@ -69,7 +70,12 @@ Tour ins Adlergebirge nach Jánské Lázně<br/>
 
   return (
     <MainLayout>
-      <PageHeader title={intro.title || 'Motorradtouristik'} subtitle={intro.subtitle} />
+      <PageHeader
+        title={intro.title || 'Motorradtouristik'}
+        subtitle={intro.subtitle}
+        imageUrl={intro.header_image_url || undefined}
+        imageAlt={intro.header_image_alt || intro.title || 'Motorradtouristik'}
+      />
 
       {/* Intro */}
       <section className="py-16">
@@ -80,9 +86,9 @@ Tour ins Adlergebirge nach Jánské Lázně<br/>
               <div className="absolute top-0 left-0 w-1.5 h-full bg-accent" />
 
               {intro.content && (
-                <div
-                  className="text-lg text-primary-foreground/90 prose prose-invert max-w-none [&_strong]:text-accent"
-                  dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }}
+                <RichContent
+                  content={intro.content}
+                  className="text-lg text-primary-foreground/90 prose-invert [&_strong]:text-accent"
                 />
               )}
 
@@ -154,9 +160,9 @@ Tour ins Adlergebirge nach Jánské Lázně<br/>
             <p className="mb-8 text-muted-foreground">{toursArchive.subtitle}</p>
           )}
           {toursArchive.content && (
-            <div
-              className="prose dark:prose-invert max-w-none [&_.tour-item]:border-l-2 [&_.tour-item]:border-muted-foreground/30 [&_.tour-item]:pl-4 [&_.tour-item]:py-2 [&_.tour-item]:mb-2 [&_.tour-item]:text-sm"
-              dangerouslySetInnerHTML={{ __html: toursArchive.content }}
+            <RichContent
+              content={toursArchive.content}
+              className="[&_.tour-item]:border-l-2 [&_.tour-item]:border-muted-foreground/30 [&_.tour-item]:pl-4 [&_.tour-item]:py-2 [&_.tour-item]:mb-2 [&_.tour-item]:text-sm"
             />
           )}
         </div>

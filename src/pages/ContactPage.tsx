@@ -12,6 +12,7 @@ import { pb } from '@/integrations/pocketbase/client';
 import { toast } from 'sonner';
 import { useSettings } from '@/hooks/useSettings';
 import { useContentWithFallback } from '@/hooks/usePageContent';
+import { RichContent } from '@/components/content/RichContent';
 
 export default function ContactPage() {
   const t = useTranslation();
@@ -62,7 +63,12 @@ export default function ContactPage() {
 
   return (
     <MainLayout>
-      <PageHeader title={intro.title} subtitle={intro.subtitle || undefined} />
+      <PageHeader
+        title={intro.title}
+        subtitle={intro.subtitle || undefined}
+        imageUrl={intro.header_image_url || undefined}
+        imageAlt={intro.header_image_alt || intro.title}
+      />
 
       <section className="py-16">
         <div className="container">
@@ -118,8 +124,7 @@ export default function ContactPage() {
                 {locale === 'de' ? 'Kontaktdaten' : locale === 'cz' ? 'Kontaktní údaje' : 'Contact Information'}
               </h2>
               {infoContent.content ? (
-                <div className="mb-6 prose prose-slate dark:prose-invert max-w-none text-muted-foreground"
-                  dangerouslySetInnerHTML={{ __html: infoContent.content.replace(/\n/g, '<br />') }} />
+                <RichContent content={infoContent.content} className="mb-6 text-muted-foreground" />
               ) : null}
               <div className="space-y-6">
                 <div className="flex items-start gap-4">

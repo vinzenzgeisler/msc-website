@@ -5,7 +5,7 @@ export const translations = {
     // Navigation
     nav: {
       home: 'Startseite',
-      event: 'Veranstaltung',
+    event: 'Oberlausitzer Dreieck',
       calendar: 'Kalender',
       news: 'News',
       club: 'Verein',
@@ -45,7 +45,7 @@ export const translations = {
       cta: 'Mehr erfahren',
       statOneLabel: 'Mitglieder',
       statTwoLabel: 'Jahre Tradition',
-      statThreeLabel: 'Sektionen',
+      statThreeLabel: 'Zuschauer',
     },
     // Event
     event: {
@@ -85,6 +85,7 @@ export const translations = {
       exportCalendar: 'Kalender exportieren (ICS)',
       noEvents: 'Keine Termine gefunden.',
       noEventsHint: 'Wähle einen anderen Monat oder eine andere Kategorie.',
+      until: 'bis',
       eventCount: 'Termin',
       eventCountPlural: 'Termine',
       filter: {
@@ -139,7 +140,7 @@ export const translations = {
     // Navigation
     nav: {
       home: 'Domů',
-      event: 'Akce',
+    event: 'Oberlausitzer Dreieck',
       calendar: 'Kalendář',
       news: 'Novinky',
       club: 'Klub',
@@ -219,6 +220,7 @@ export const translations = {
       exportCalendar: 'Exportovat kalendář (ICS)',
       noEvents: 'Žádné termíny nenalezeny.',
       noEventsHint: 'Vyberte jiný měsíc nebo jinou kategorii.',
+      until: 'do',
       eventCount: 'termín',
       eventCountPlural: 'termínů',
       filter: {
@@ -273,7 +275,7 @@ export const translations = {
     // Navigation
     nav: {
       home: 'Home',
-      event: 'Event',
+    event: 'Oberlausitzer Dreieck',
       calendar: 'Calendar',
       news: 'News',
       club: 'Club',
@@ -353,6 +355,7 @@ export const translations = {
       exportCalendar: 'Export Calendar (ICS)',
       noEvents: 'No events found.',
       noEventsHint: 'Select a different month or category.',
+      until: 'to',
       eventCount: 'event',
       eventCountPlural: 'events',
       filter: {
@@ -485,6 +488,7 @@ export type Translations = {
     exportCalendar: string;
     noEvents: string;
     noEventsHint: string;
+    until: string;
     eventCount: string;
     eventCountPlural: string;
     filter: {

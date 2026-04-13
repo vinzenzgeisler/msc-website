@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useContentWithFallback } from '@/hooks/usePageContent';
+import { RichContent } from '@/components/content/RichContent';
 
 const DEFAULT_IMPRINT_CONTENT = `
 <h2>Angaben gemäß § 5 TMG</h2>
@@ -58,8 +59,9 @@ export default function ImprintPage() {
                 <Skeleton className="h-6 w-3/4" />
               </div>
             ) : (
-              <div className="prose prose-slate dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: imprint.content }} />
+              <div className="rounded-xl border border-border/60 bg-card p-6 md:p-8 shadow-sm">
+                <RichContent content={imprint.content} className="prose-lg prose-p:text-muted-foreground prose-li:text-muted-foreground" />
+              </div>
             )}
           </div>
         </div>

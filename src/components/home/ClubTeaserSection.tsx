@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronRight, Users, Trophy, MapPin } from 'lucide-react';
+import { ChevronRight, Users, Trophy, Eye } from 'lucide-react';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useSettings } from '@/hooks/useSettings';
 
@@ -30,9 +30,9 @@ export function ClubTeaserSection() {
       label: clubTeaser.stat_two_label || t.clubTeaser.statTwoLabel || settings?.tradition_years_label || 'Jahre Tradition',
     },
     {
-      icon: MapPin,
-      value: settings?.section_count || '3',
-      label: clubTeaser.stat_three_label || t.clubTeaser.statThreeLabel || settings?.section_count_label || 'Sektionen',
+      icon: Eye,
+      value: '> 6000',
+      label: 'Zuschauer',
     },
   ];
 
@@ -60,7 +60,7 @@ export function ClubTeaserSection() {
               </>
             ) : (
               <>
-                <h2 className="mb-4 text-4xl font-black uppercase tracking-tight md:text-5xl">
+                <h2 className="mb-4 text-4xl font-black uppercase leading-[1.08] tracking-[-0.02em] md:text-5xl md:leading-[1.1]">
                   {clubTeaser.title}
                 </h2>
                 

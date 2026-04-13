@@ -4,6 +4,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 import {
   Bold,
@@ -18,6 +19,8 @@ import {
   Redo,
   Minus,
   Loader2,
+  Code2,
+  PenSquare,
 } from 'lucide-react';
 import { pb } from '@/integrations/pocketbase/client';
 import { toast } from 'sonner';
@@ -30,6 +33,7 @@ interface RichTextEditorProps {
 
 export function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
   const [uploading, setUploading] = useState(false);
+  const [mode, setMode] = useState<'visual' | 'source'>('visual');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
@@ -119,11 +123,37 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
       <div className="flex flex-wrap items-center gap-1 border-b border-border px-2 py-1.5">
         <Button
           type="button"
+          variant={mode === 'visual' ? 'secondary' : 'ghost'}
+          size="sm"
+          className="h-8"
+          onClick={() => setMode('visual')}
+          title="Visueller Editor"
+        >
+          <PenSquare className="mr-1.5 h-4 w-4" />
+          Visuell
+        </Button>
+        <Button
+          type="button"
+          variant={mode === 'source' ? 'secondary' : 'ghost'}
+          size="sm"
+          className="h-8"
+          onClick={() => setMode('source')}
+          title="Markdown oder HTML bearbeiten"
+        >
+          <Code2 className="mr-1.5 h-4 w-4" />
+          Markdown / HTML
+        </Button>
+
+        <div className="mx-1 h-6 w-px bg-border" />
+
+        <Button
+          type="button"
           variant={editor.isActive('bold') ? 'secondary' : 'ghost'}
           size="icon"
           className="h-8 w-8"
           onClick={() => editor.chain().focus().toggleBold().run()}
           title="Fett"
+          disabled={mode !== 'visual'}
         >
           <Bold className="h-4 w-4" />
         </Button>
@@ -134,6 +164,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
           className="h-8 w-8"
           onClick={() => editor.chain().focus().toggleItalic().run()}
           title="Kursiv"
+          disabled={mode !== 'visual'}
         >
           <Italic className="h-4 w-4" />
         </Button>
@@ -147,6 +178,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
           className="h-8 w-8"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           title="Überschrift 2"
+          disabled={mode !== 'visual'}
         >
           <Heading2 className="h-4 w-4" />
         </Button>
@@ -157,6 +189,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
           className="h-8 w-8"
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
           title="Überschrift 3"
+          disabled={mode !== 'visual'}
         >
           <Heading3 className="h-4 w-4" />
         </Button>
@@ -170,6 +203,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
           className="h-8 w-8"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           title="Aufzählung"
+          disabled={mode !== 'visual'}
         >
           <List className="h-4 w-4" />
         </Button>
@@ -180,6 +214,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
           className="h-8 w-8"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           title="Nummerierte Liste"
+          disabled={mode !== 'visual'}
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
@@ -191,6 +226,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
           className="h-8 w-8"
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
           title="Trennlinie"
+          disabled={mode !== 'visual'}
         >
           <Minus className="h-4 w-4" />
         </Button>
@@ -203,7 +239,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
           size="icon"
           className="h-8 w-8"
           onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
+          disabled={uploading || mode !== 'visual'}
           title="Bild einfügen"
         >
           {uploading ? (
@@ -227,6 +263,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
               size="icon"
               className="h-8 w-8"
               title="Bild aus Medien"
+              disabled={mode !== 'visual'}
             >
               <FolderOpen className="h-4 w-4" />
             </Button>
@@ -240,7 +277,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
             size="icon"
             className="h-8 w-8"
             onClick={() => editor.chain().focus().undo().run()}
-            disabled={!editor.can().undo()}
+            disabled={mode !== 'visual' || !editor.can().undo()}
             title="Rückgängig"
           >
             <Undo className="h-4 w-4" />
@@ -251,7 +288,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
             size="icon"
             className="h-8 w-8"
             onClick={() => editor.chain().focus().redo().run()}
-            disabled={!editor.can().redo()}
+            disabled={mode !== 'visual' || !editor.can().redo()}
             title="Wiederholen"
           >
             <Redo className="h-4 w-4" />
@@ -259,8 +296,21 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         </div>
       </div>
 
-      {/* Editor */}
-      <EditorContent editor={editor} />
+      {mode === 'visual' ? (
+        <EditorContent editor={editor} />
+      ) : (
+        <div className="p-3">
+          <Textarea
+            value={content}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder || 'Markdown oder HTML eingeben...'}
+            className="min-h-[260px] font-mono text-sm"
+          />
+          <p className="mt-2 text-xs text-muted-foreground">
+            Im Quelltext-Modus kannst du Markdown oder HTML direkt speichern. Im visuellen Modus arbeitet der Editor HTML-basiert.
+          </p>
+        </div>
+      )}
 
       {/* Hidden file input */}
       <input

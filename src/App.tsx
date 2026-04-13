@@ -2,9 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import Index from "./pages/Index";
 import EventPage from "./pages/EventPage";
 import AccommodationPage from "./pages/event/AccommodationPage";
@@ -58,11 +59,14 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
               {/* Main Pages */}
               <Route path="/" element={<Index />} />
-              <Route path="/event" element={<EventPage />} />
-              <Route path="/event/accommodation" element={<AccommodationPage />} />
+              <Route path="/old" element={<EventPage />} />
+              <Route path="/old/accommodation" element={<AccommodationPage />} />
+              <Route path="/event" element={<Navigate to="/old" replace />} />
+              <Route path="/event/accommodation" element={<Navigate to="/old/accommodation" replace />} />
               <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/news" element={<NewsPage />} />
               <Route path="/news/:slug" element={<NewsDetailPage />} />

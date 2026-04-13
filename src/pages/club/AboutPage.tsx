@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { Users, History, Award, ChevronRight, Bike, Target, MapPin } from 'lucide-react';
 import { useContentWithFallback } from '@/hooks/usePageContent';
+import { RichContent } from '@/components/content/RichContent';
 
 const fallbacks = {
   de: {
@@ -32,6 +33,12 @@ export default function AboutPage() {
   const { locale } = useLanguage();
   const lang = (locale === 'cz' || locale === 'en') ? locale : 'de';
   const fb = fallbacks[lang];
+  const introBlockTitle =
+    lang === 'cz'
+      ? 'Kdo jsme'
+      : lang === 'en'
+        ? 'Who We Are'
+        : 'Wer wir sind';
 
   const intro = useContentWithFallback('about', 'intro', fb.intro);
   const mission = useContentWithFallback('about', 'mission', fb.mission);
@@ -54,51 +61,57 @@ export default function AboutPage() {
       <PageHeader
         title={intro.isLoading ? '...' : intro.title}
         subtitle={intro.subtitle || undefined}
-        imageUrl={intro.image_url}
-        imageAlt={intro.image_alt || intro.title}
+        imageUrl={intro.header_image_url || undefined}
+        imageAlt={intro.header_image_alt || intro.title}
       />
 
-      {/* About Content */}
-      {(intro.isLoading || intro.content) && (
-        <section className="py-16">
-          <div className="container">
-            <div className="mx-auto max-w-3xl">
-              {intro.isLoading ? (
-                <div className="space-y-4">
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-3/4" />
-                </div>
-              ) : intro.content ? (
-                <div className="prose prose-lg dark:prose-invert max-w-none text-muted-foreground"
-                  dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }} />
-              ) : null}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Mission & Values */}
-      <section className="border-t border-border py-16">
+      <section className="border-t border-border bg-muted/20 py-14 md:py-16">
         <div className="container">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card className="overflow-hidden border-0 bg-primary text-primary-foreground">
+          <div className="mx-auto grid max-w-6xl gap-6 xl:grid-cols-3">
+            <Card className="overflow-hidden border border-border/60 bg-card shadow-sm">
               <CardContent className="p-8">
-                <h2 className="mb-4 text-2xl font-bold">{mission.title}</h2>
-                {mission.content ? (
-                  <div className="prose prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ __html: mission.content.replace(/\n/g, '<br />') }} />
+                <div className="mb-5 h-1.5 w-14 bg-primary" />
+                <h2 className="mb-3 text-2xl font-bold">{introBlockTitle}</h2>
+                {intro.isLoading ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-3/4" />
+                  </div>
+                ) : intro.content ? (
+                  <RichContent
+                    content={intro.content}
+                    className="text-left text-muted-foreground prose-p:leading-8"
+                  />
                 ) : (
-                  <p className="text-primary-foreground/70">Noch keine Inhalte hinterlegt.</p>
+                  <p className="text-muted-foreground">Noch keine Inhalte hinterlegt.</p>
                 )}
               </CardContent>
             </Card>
-            <Card className="overflow-hidden">
+            <Card className="overflow-hidden border border-primary/10 bg-card text-card-foreground shadow-sm">
               <CardContent className="p-8">
+                <div className="mb-5 h-1.5 w-14 bg-accent" />
+                <h2 className="mb-4 text-2xl font-bold">{mission.title}</h2>
+                {mission.content ? (
+                  <RichContent
+                    content={mission.content}
+                    className="text-left text-muted-foreground prose-p:leading-8"
+                  />
+                ) : (
+                  <p className="text-muted-foreground">Noch keine Inhalte hinterlegt.</p>
+                )}
+              </CardContent>
+            </Card>
+            <Card className="overflow-hidden border border-border/60 bg-card shadow-sm">
+              <CardContent className="p-8">
+                <div className="mb-5 h-1.5 w-14 bg-primary" />
                 <h2 className="mb-4 text-2xl font-bold">{values.title}</h2>
                 {values.content ? (
-                  <div className="prose dark:prose-invert max-w-none text-muted-foreground"
-                    dangerouslySetInnerHTML={{ __html: values.content.replace(/\n/g, '<br />') }} />
+                  <RichContent
+                    content={values.content}
+                    className="text-left text-muted-foreground prose-li:mb-3 prose-li:leading-7"
+                  />
                 ) : (
                   <p className="text-muted-foreground">Noch keine Inhalte hinterlegt.</p>
                 )}

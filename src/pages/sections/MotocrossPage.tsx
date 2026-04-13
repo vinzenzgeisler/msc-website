@@ -15,7 +15,6 @@ import {
   ShieldAlert,
   Bike,
   Users,
-  Mail,
   ArrowRight,
   ExternalLink,
   AlertTriangle,
@@ -29,6 +28,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { RichContent } from '@/components/content/RichContent';
 
 import trackImageFallback from '@/assets/motocross-track.jpg';
 import anfahrtImageFallback from '@/assets/motocross-anfahrt.jpg';
@@ -106,7 +106,12 @@ export default function MotocrossPage() {
 
   return (
     <MainLayout>
-      <PageHeader title={intro.title || 'Motocross'} subtitle={intro.subtitle} />
+      <PageHeader
+        title={intro.title || 'Motocross'}
+        subtitle={intro.subtitle}
+        imageUrl={intro.header_image_url || undefined}
+        imageAlt={intro.header_image_alt || intro.title || 'Motocross'}
+      />
 
       {/* Intro + Track Image */}
       <section className="py-16">
@@ -119,9 +124,9 @@ export default function MotocrossPage() {
               
 
               {intro.content && (
-                <div
-                  className="text-lg text-primary-foreground/90 prose prose-invert max-w-none [&_strong]:text-accent"
-                  dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }}
+                <RichContent
+                  content={intro.content}
+                  className="text-lg text-primary-foreground/90 prose-invert [&_strong]:text-accent"
                 />
               )}
 
@@ -187,9 +192,9 @@ export default function MotocrossPage() {
                   </Badge>
                 )}
                 {training.content && (
-                  <div
-                    className="prose dark:prose-invert max-w-none [&_table]:w-full [&_td]:py-2 [&_td]:pr-4 [&_td:first-child]:font-semibold [&_td:first-child]:text-foreground [&_td:last-child]:text-muted-foreground"
-                    dangerouslySetInnerHTML={{ __html: training.content }}
+                  <RichContent
+                    content={training.content}
+                    className="[&_table]:w-full [&_td]:py-2 [&_td]:pr-4 [&_td:first-child]:font-semibold [&_td:first-child]:text-foreground [&_td:last-child]:text-muted-foreground"
                   />
                 )}
               </CardContent>
@@ -205,9 +210,9 @@ export default function MotocrossPage() {
               </CardHeader>
               <CardContent>
                 {fees.content && (
-                  <div
-                    className="prose dark:prose-invert max-w-none mb-4 [&_table]:w-full [&_td]:py-2 [&_td]:pr-4 [&_td:first-child]:text-foreground [&_td:last-child]:font-semibold [&_td:last-child]:text-primary"
-                    dangerouslySetInnerHTML={{ __html: fees.content }}
+                  <RichContent
+                    content={fees.content}
+                    className="mb-4 [&_table]:w-full [&_td]:py-2 [&_td]:pr-4 [&_td:first-child]:text-foreground [&_td:last-child]:font-semibold [&_td:last-child]:text-primary"
                   />
                 )}
                 {fees.subtitle && (
@@ -251,9 +256,9 @@ export default function MotocrossPage() {
             {safetyOpen && (
               <CardContent className="border-t border-destructive/10 px-5 pb-5 pt-4">
                 {safety.content && (
-                  <div
-                    className="prose dark:prose-invert max-w-none text-sm text-muted-foreground [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-3"
-                    dangerouslySetInnerHTML={{ __html: safety.content }}
+                  <RichContent
+                    content={safety.content}
+                    className="text-sm text-muted-foreground [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-3"
                   />
                 )}
               </CardContent>
@@ -275,12 +280,7 @@ export default function MotocrossPage() {
                 <Badge className="mb-4 bg-primary">{directions.subtitle}</Badge>
               )}
               {directions.content && (
-                <div
-                  className="prose dark:prose-invert max-w-none text-muted-foreground"
-                  dangerouslySetInnerHTML={{
-                    __html: directions.content.replace(/\n/g, '<br />'),
-                  }}
-                />
+                <RichContent content={directions.content} className="text-muted-foreground" />
               )}
               <div className="mt-6 flex flex-wrap gap-3">
                 <Button asChild>
@@ -335,21 +335,10 @@ export default function MotocrossPage() {
                   Alle Termine
                 </Link>
               </Button>
-              <Button variant="outline" className="rounded-none" asChild>
-                <a href={`mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`}>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Kontakt
-                </a>
-              </Button>
             </div>
           </div>
           {eventsContent.content && (
-            <div
-              className="mb-6 prose dark:prose-invert max-w-none text-muted-foreground"
-              dangerouslySetInnerHTML={{
-                __html: eventsContent.content.replace(/\n/g, '<br />'),
-              }}
-            />
+            <RichContent content={eventsContent.content} className="mb-6 text-muted-foreground" />
           )}
           {upcomingEvents.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-3">

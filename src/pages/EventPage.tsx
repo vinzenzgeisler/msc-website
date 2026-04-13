@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -6,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import {
   Calendar,
   MapPin,
@@ -26,10 +28,14 @@ import {
   Map,
   BedDouble,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { useMainEvent } from '@/hooks/useMainEvent';
 import { useEventContent } from '@/hooks/useEventContent';
 import { useDownloads } from '@/hooks/useDownloads';
+import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useMediaAlbums, useMediaFiles } from '@/hooks/useMedia';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { format } from 'date-fns';
 import { de, cs, enUS } from 'date-fns/locale';
@@ -44,8 +50,11 @@ export default function EventPage() {
   const t = useTranslation();
   const { locale } = useLanguage();
   const { data: mainEvent, isLoading } = useMainEvent();
+  const { data: allEvents } = useCalendarEvents(false);
   const { data: eventContent } = useEventContent(mainEvent?.id);
   const { data: downloads } = useDownloads();
+  const { data: albums } = useMediaAlbums();
+  const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
   const eventIntro = useContentWithFallback('event', 'intro', {
     title: locale === 'de' ? 'Das Oberlausitzer Dreieck' : locale === 'cz' ? 'Horní Lužický trojúhelník' : 'The Oberlausitz Triangle',
     content:
@@ -148,6 +157,20 @@ export default function EventPage() {
   });
 
   const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
+  const germanMainEvent = (allEvents || []).find((event) => event.locale === 'de' && event.is_main_event && event.published);
+  const galleryAlbumSlug = germanMainEvent?.slug ? `event-${germanMainEvent.slug}` : mainEvent?.slug ? `event-${mainEvent.slug}` : null;
+  const galleryAlbum = galleryAlbumSlug ? albums?.find((album) => album.slug === galleryAlbumSlug) : null;
+  const { data: galleryFiles, isLoading: galleryFilesLoading } = useMediaFiles(galleryAlbum?.id);
+  const openGalleryImage = (index: number) => setSelectedGalleryIndex(index);
+  const closeGalleryImage = () => setSelectedGalleryIndex(null);
+  const showPreviousGalleryImage = () => {
+    if (!galleryFiles || selectedGalleryIndex === null) return;
+    setSelectedGalleryIndex((selectedGalleryIndex - 1 + galleryFiles.length) % galleryFiles.length);
+  };
+  const showNextGalleryImage = () => {
+    if (!galleryFiles || selectedGalleryIndex === null) return;
+    setSelectedGalleryIndex((selectedGalleryIndex + 1) % galleryFiles.length);
+  };
 
   const formatEventDate = (startDt: string, endDt: string | null) => {
     const start = new Date(startDt);
@@ -264,7 +287,7 @@ export default function EventPage() {
               { href: '#registration', label: locale === 'de' ? 'Anmeldung' : locale === 'cz' ? 'Přihláška' : 'Registration', icon: ClipboardList },
               { href: '#visitors', label: t.event.visitors, icon: Info },
               { href: '#downloads', label: t.event.downloads, icon: Download },
-              { href: '/event/accommodation', label: locale === 'de' ? 'Übernachtung' : locale === 'cz' ? 'Ubytování' : 'Accommodation', icon: BedDouble, isLink: true },
+              { href: '/old/accommodation', label: locale === 'de' ? 'Übernachtung' : locale === 'cz' ? 'Ubytování' : 'Accommodation', icon: BedDouble, isLink: true },
             ].map((item) => {
               if ('isLink' in item && item.isLink) {
                 return (
@@ -534,7 +557,7 @@ export default function EventPage() {
           </details>
 
           {/* Link to Accommodation */}
-          <Link to="/event/accommodation" className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6 transition-colors hover:border-primary">
+          <Link to="/old/accommodation" className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6 transition-colors hover:border-primary">
             <BedDouble className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div className="min-w-0">
               <h3 className="mb-1 text-base font-bold">{locale === 'de' ? 'Übernachtungsmöglichkeiten' : locale === 'cz' ? 'Ubytování' : 'Accommodation'}</h3>
@@ -575,12 +598,94 @@ export default function EventPage() {
       <section className="py-16">
         <div className="container">
           <h2 className="mb-8">{t.event.gallery}</h2>
-          <Card>
-            <CardContent className="flex items-center gap-3 p-6 text-muted-foreground">
-              <Image className="h-5 w-5" />
-              <span>{galleryContent.content}</span>
-            </CardContent>
-          </Card>
+          {galleryFilesLoading ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="aspect-[4/3] w-full rounded-lg" />
+              ))}
+            </div>
+          ) : galleryFiles && galleryFiles.length > 0 ? (
+            <div className="space-y-6">
+              <Carousel opts={{ align: 'start', loop: galleryFiles.length > 1 }} className="w-full px-12">
+                <CarouselContent className="-ml-4">
+                  {galleryFiles.map((file, index) => (
+                    <CarouselItem key={file.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                      <button
+                        type="button"
+                        onClick={() => openGalleryImage(index)}
+                        className="group block overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-lg"
+                      >
+                        <div className="aspect-[4/3] overflow-hidden bg-muted">
+                          <img
+                            src={file.file_url}
+                            alt={file.alt_text || mainEvent?.title || t.event.gallery}
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        </div>
+                      </button>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                {galleryFiles.length > 1 ? (
+                  <>
+                    <CarouselPrevious className="left-0" />
+                    <CarouselNext className="right-0" />
+                  </>
+                ) : null}
+              </Carousel>
+
+              <Dialog open={selectedGalleryIndex !== null} onOpenChange={(open) => !open && closeGalleryImage()}>
+                <DialogContent className="max-w-6xl border-none bg-transparent p-0 shadow-none">
+                  {selectedGalleryIndex !== null && galleryFiles[selectedGalleryIndex] ? (
+                    <div className="relative">
+                      <img
+                        src={galleryFiles[selectedGalleryIndex].file_url}
+                        alt={galleryFiles[selectedGalleryIndex].alt_text || mainEvent?.title || t.event.gallery}
+                        className="max-h-[82vh] w-full object-contain"
+                      />
+
+                      {galleryFiles.length > 1 ? (
+                        <>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="absolute left-2 top-1/2 h-10 w-10 -translate-y-1/2 border-white/30 bg-black/60 text-white hover:bg-black/80"
+                            onClick={showPreviousGalleryImage}
+                          >
+                            <ChevronLeft className="h-5 w-5" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="absolute right-2 top-1/2 h-10 w-10 -translate-y-1/2 border-white/30 bg-black/60 text-white hover:bg-black/80"
+                            onClick={showNextGalleryImage}
+                          >
+                            <ChevronRight className="h-5 w-5" />
+                          </Button>
+                        </>
+                      ) : null}
+
+                      {galleryFiles[selectedGalleryIndex].alt_text ? (
+                        <p className="mt-3 text-center text-sm text-white/80">
+                          {galleryFiles[selectedGalleryIndex].alt_text}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </DialogContent>
+              </Dialog>
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="flex items-center gap-3 p-6 text-muted-foreground">
+                <Image className="h-5 w-5" />
+                <span>{galleryContent.content}</span>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </section>
 

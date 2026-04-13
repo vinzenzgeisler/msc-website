@@ -261,7 +261,7 @@ function MainEventForm({
         {/* Quick action buttons – prominent and always visible */}
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link to="/event" target="_blank">
+            <Link to="/old" target="_blank">
               <Eye className="mr-2 h-4 w-4" />
               Vorschau
             </Link>
@@ -505,7 +505,7 @@ function MainEventForm({
                 </Link>
               </Button>
               <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
-                <Link to="/event" target="_blank">
+                <Link to="/old" target="_blank">
                   <Eye className="mr-2 h-4 w-4" />
                   Eventseite ansehen
                 </Link>

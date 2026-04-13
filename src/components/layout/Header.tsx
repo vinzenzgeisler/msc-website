@@ -38,7 +38,7 @@ export function Header() {
 
   const navItems = [
     { path: '/', label: t.nav.home },
-    { path: '/event', label: t.nav.event },
+    { path: '/old', label: t.nav.event },
     { path: '/calendar', label: t.nav.calendar },
     { path: '/news', label: t.nav.news },
     {
@@ -84,13 +84,13 @@ export function Header() {
               {(settings?.site_short_name || 'MSC').slice(0, 3)}
             </div>
           )}
-          <span className="hidden font-heading font-bold text-foreground uppercase tracking-wider xl:inline-block">
+          <span className="hidden max-w-[14rem] whitespace-normal font-heading font-bold uppercase leading-tight tracking-wider text-foreground xl:inline-block 2xl:max-w-[15rem]">
             {settings?.site_name || 'MSC Oberlausitzer Dreiländereck'}
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-1 xl:flex">
+        <nav className="hidden items-center gap-1 xl:ml-8 xl:flex 2xl:ml-12">
           {navItems.map((item) =>
             item.children ? (
               <DropdownMenu key={item.label}>

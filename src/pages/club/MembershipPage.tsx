@@ -7,6 +7,7 @@ import { Mail, ArrowRight, Calendar, Download, FileText, Users } from 'lucide-re
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useSettings } from '@/hooks/useSettings';
 import { Link } from 'react-router-dom';
+import { RichContent } from '@/components/content/RichContent';
 
 const feeTable = {
   de: {
@@ -131,16 +132,15 @@ export default function MembershipPage() {
       <PageHeader
         title={intro.title}
         subtitle={intro.subtitle || introFallbacks[lang].subtitle}
-        imageUrl={intro.image_url}
-        imageAlt={intro.image_alt || intro.title}
+        imageUrl={intro.header_image_url || intro.image_url}
+        imageAlt={intro.header_image_alt || intro.image_alt || intro.title}
       />
 
       {/* Intro */}
       {intro.content && (
         <section className="py-12">
           <div className="container">
-            <div className="max-w-3xl prose prose-lg dark:prose-invert text-muted-foreground"
-              dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }} />
+            <RichContent content={intro.content} className="max-w-3xl prose-lg text-muted-foreground" />
           </div>
         </section>
       )}
@@ -191,7 +191,7 @@ export default function MembershipPage() {
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90" asChild>
                 <a
-                  href={declarationDoc.primary_button_url || declarationDoc.image_url || '#'}
+                  href={declarationDoc.attachment_url || declarationDoc.primary_button_url || declarationDoc.image_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -202,7 +202,7 @@ export default function MembershipPage() {
 
               <Button size="lg" variant="outline" asChild>
                 <a
-                  href={statuteDoc.primary_button_url || statuteDoc.image_url || '#'}
+                  href={statuteDoc.attachment_url || statuteDoc.primary_button_url || statuteDoc.image_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -219,10 +219,6 @@ export default function MembershipPage() {
 
       {/* CTA */}
       <section className="relative overflow-hidden bg-primary py-16 text-primary-foreground">
-        <div className="absolute inset-0 opacity-10">
-          <div className="racing-stripe h-full w-full" />
-        </div>
-        <div className="absolute -right-20 top-0 h-full w-40 skew-x-[-15deg] bg-accent opacity-60" />
         <div className="container relative z-10">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="mb-4 text-3xl font-bold">{cta.title}</h2>
@@ -235,7 +231,12 @@ export default function MembershipPage() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-primary-foreground/35 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                asChild
+              >
                 <Link to="/calendar">
                   <Calendar className="mr-2 h-4 w-4" />
                   {cta.calendarLabel}

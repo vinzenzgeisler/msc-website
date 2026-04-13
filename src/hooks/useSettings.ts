@@ -75,7 +75,7 @@ export function useSettings() {
           section_count: item.sectionCount || '3',
           member_count_label: item.memberCountLabel || 'Mitglieder',
           tradition_years_label: item.traditionYearsLabel || 'Jahre Tradition',
-          section_count_label: item.sectionCountLabel || 'Sektionen',
+          section_count_label: item.sectionCountLabel || 'Zuschauer',
           meta_keywords: '',
           notifications_contact: true,
           notifications_registration: true,

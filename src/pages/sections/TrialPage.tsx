@@ -14,17 +14,16 @@ import {
 } from 'lucide-react';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
-import { useSettings } from '@/hooks/useSettings';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { DisciplineEventCard } from '@/components/sections/DisciplineEventCard';
+import { RichContent } from '@/components/content/RichContent';
 
 import heroTrial from '@/assets/event-start-2.jpg';
 
 export default function TrialPage() {
   const t = useTranslation();
-  const { data: settings } = useSettings();
   const { data: calendarEvents } = useCalendarEvents(false);
 
   const intro = useContentWithFallback('trial', 'intro', {
@@ -52,7 +51,12 @@ export default function TrialPage() {
 
   return (
     <MainLayout>
-      <PageHeader title={intro.title || 'Trial'} subtitle={intro.subtitle} />
+      <PageHeader
+        title={intro.title || 'Trial'}
+        subtitle={intro.subtitle}
+        imageUrl={intro.header_image_url || undefined}
+        imageAlt={intro.header_image_alt || intro.title || 'Trial'}
+      />
 
       {/* Intro */}
       <section className="py-16">
@@ -62,9 +66,9 @@ export default function TrialPage() {
               <div className="absolute top-0 left-0 w-1.5 h-full bg-accent" />
 
               {intro.content && (
-                <div
-                  className="text-lg text-primary-foreground/90 prose prose-invert max-w-none [&_strong]:text-accent"
-                  dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }}
+                <RichContent
+                  content={intro.content}
+                  className="text-lg text-primary-foreground/90 prose-invert [&_strong]:text-accent"
                 />
               )}
 
@@ -106,10 +110,7 @@ export default function TrialPage() {
               <div className="flex flex-col md:flex-row md:items-start gap-6">
                 <div className="flex-1">
                   {contact.content && (
-                    <div
-                      className="prose dark:prose-invert max-w-none text-foreground"
-                      dangerouslySetInnerHTML={{ __html: contact.content }}
-                    />
+                    <RichContent content={contact.content} className="text-foreground" />
                   )}
                   {contact.subtitle && (
                     <p className="mt-3 flex items-center gap-2 text-muted-foreground">
@@ -159,12 +160,6 @@ export default function TrialPage() {
                   <Calendar className="mr-2 h-4 w-4" />
                   Alle Termine
                 </Link>
-              </Button>
-              <Button variant="outline" className="rounded-none" asChild>
-                <a href={`mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`}>
-                  <Mail className="mr-2 h-4 w-4" />
-                  Kontakt
-                </a>
               </Button>
             </div>
           </div>

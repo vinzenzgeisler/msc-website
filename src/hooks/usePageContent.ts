@@ -18,8 +18,14 @@ export interface PageContent {
   stat_one_label: string | null;
   stat_two_label: string | null;
   stat_three_label: string | null;
+  attachment_url: string | null;
+  attachment_name: string | null;
+  header_image_url: string | null;
+  header_image_alt: string | null;
+  header_image_name: string | null;
   image_url: string | null;
   image_alt: string | null;
+  image_name: string | null;
   resolved_locale: string;
   is_fallback: boolean;
   updated_at: string;
@@ -62,8 +68,14 @@ function mapPageContent(item: RecordModel): PageContent {
     stat_one_label: item.statOneLabel || null,
     stat_two_label: item.statTwoLabel || null,
     stat_three_label: item.statThreeLabel || null,
+    attachment_url: item.attachment ? pb.files.getURL(item, item.attachment) : null,
+    attachment_name: item.attachment || null,
+    header_image_url: item.headerImage ? pb.files.getURL(item, item.headerImage) : null,
+    header_image_alt: item.headerImageAlt || null,
+    header_image_name: item.headerImage || null,
     image_url: item.image ? pb.files.getURL(item, item.image) : null,
     image_alt: item.imageAlt || null,
+    image_name: item.image || null,
     resolved_locale: item.locale,
     is_fallback: false,
     updated_at: item.updated,
@@ -95,8 +107,14 @@ function resolveLocalizedRecord(items: RecordModel[], locale: string): PageConte
     stat_one_label: primaryContent.stat_one_label || germanContent?.stat_one_label || null,
     stat_two_label: primaryContent.stat_two_label || germanContent?.stat_two_label || null,
     stat_three_label: primaryContent.stat_three_label || germanContent?.stat_three_label || null,
+    attachment_url: primaryContent.attachment_url || germanContent?.attachment_url || null,
+    attachment_name: primaryContent.attachment_name || germanContent?.attachment_name || null,
+    header_image_url: primaryContent.header_image_url || germanContent?.header_image_url || null,
+    header_image_alt: primaryContent.header_image_alt || germanContent?.header_image_alt || null,
+    header_image_name: primaryContent.header_image_name || germanContent?.header_image_name || null,
     image_url: primaryContent.image_url || germanContent?.image_url || null,
     image_alt: primaryContent.image_alt || germanContent?.image_alt || null,
+    image_name: primaryContent.image_name || germanContent?.image_name || null,
     resolved_locale: exact ? locale : 'de',
     is_fallback: !exact && locale !== 'de',
   };
@@ -138,6 +156,10 @@ export function useContentWithFallback(
     stat_one_label: data?.stat_one_label || '',
     stat_two_label: data?.stat_two_label || '',
     stat_three_label: data?.stat_three_label || '',
+    attachment_url: data?.attachment_url || null,
+    attachment_name: data?.attachment_name || null,
+    header_image_url: data?.header_image_url || null,
+    header_image_alt: data?.header_image_alt || '',
     image_url: data?.image_url || null,
     image_alt: data?.image_alt || '',
     isLoading,
@@ -192,7 +214,7 @@ export function useUpdatePageContent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (content: Omit<PageContent, 'id' | 'updated_at' | 'resolved_locale' | 'is_fallback'> & { id?: string; image_file?: File | null }) => {
+    mutationFn: async (content: Omit<PageContent, 'id' | 'updated_at' | 'resolved_locale' | 'is_fallback'> & { id?: string; image_file?: File | null; header_image_file?: File | null; attachment_file?: File | null; clear_image?: boolean; clear_header_image?: boolean; clear_attachment?: boolean }) => {
       const payload: Record<string, unknown> = {
         pageKey: content.page_key,
         sectionKey: content.section_key,
@@ -207,10 +229,16 @@ export function useUpdatePageContent() {
         statOneLabel: content.stat_one_label || '',
         statTwoLabel: content.stat_two_label || '',
         statThreeLabel: content.stat_three_label || '',
+        headerImageAlt: content.header_image_alt || '',
         imageAlt: content.image_alt || '',
       };
 
+      if (content.attachment_file) payload.attachment = content.attachment_file;
+      if (content.header_image_file) payload.headerImage = content.header_image_file;
       if (content.image_file) payload.image = content.image_file;
+      if (content.clear_attachment && content.attachment_name) payload['attachment-'] = content.attachment_name;
+      if (content.clear_header_image && content.header_image_name) payload['headerImage-'] = content.header_image_name;
+      if (content.clear_image && content.image_name) payload['image-'] = content.image_name;
 
       const data = content.id
         ? await pb.collection('pageContents').update(content.id, payload)
@@ -242,8 +270,14 @@ export function useUpsertPageContent() {
       stat_one_label?: string | null;
       stat_two_label?: string | null;
       stat_three_label?: string | null;
+      attachment_file?: File | null;
+      clear_attachment?: boolean;
+      header_image_alt?: string | null;
+      header_image_file?: File | null;
+      clear_header_image?: boolean;
       image_alt?: string | null;
       image_file?: File | null;
+      clear_image?: boolean;
     }) => {
       const all = await listAllRecords('pageContents');
       const existing = all.find(
@@ -265,10 +299,16 @@ export function useUpsertPageContent() {
           statOneLabel: content.stat_one_label || '',
           statTwoLabel: content.stat_two_label || '',
           statThreeLabel: content.stat_three_label || '',
+          headerImageAlt: content.header_image_alt || '',
           imageAlt: content.image_alt || '',
         };
 
+        if (content.attachment_file) payload.attachment = content.attachment_file;
+        if (content.header_image_file) payload.headerImage = content.header_image_file;
         if (content.image_file) payload.image = content.image_file;
+        if (content.clear_attachment && existing.attachment) payload['attachment-'] = existing.attachment;
+        if (content.clear_header_image && existing.headerImage) payload['headerImage-'] = existing.headerImage;
+        if (content.clear_image && existing.image) payload['image-'] = existing.image;
 
         const updated = await pb.collection('pageContents').update(existing.id, payload);
 
@@ -289,9 +329,12 @@ export function useUpsertPageContent() {
         statOneLabel: content.stat_one_label || '',
         statTwoLabel: content.stat_two_label || '',
         statThreeLabel: content.stat_three_label || '',
+        headerImageAlt: content.header_image_alt || '',
         imageAlt: content.image_alt || '',
       };
 
+      if (content.attachment_file) payload.attachment = content.attachment_file;
+      if (content.header_image_file) payload.headerImage = content.header_image_file;
       if (content.image_file) payload.image = content.image_file;
 
       const created = await pb.collection('pageContents').create(payload);

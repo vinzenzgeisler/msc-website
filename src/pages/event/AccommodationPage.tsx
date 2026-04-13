@@ -148,7 +148,7 @@ export default function AccommodationPage() {
         <div className="container">
           <div className="mb-8">
             <Button variant="outline" asChild>
-              <Link to="/event">
+              <Link to="/old">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {locale === 'de' ? 'Zurück zur Veranstaltung' : locale === 'cz' ? 'Zpět na akci' : 'Back to Event'}
               </Link>

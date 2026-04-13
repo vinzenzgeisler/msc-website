@@ -48,6 +48,9 @@ export default function CalendarPage() {
   
   // Get the appropriate date-fns locale
   const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
+  const fullDateFormat = locale === 'en' ? 'MMMM d, yyyy' : 'd. MMMM yyyy';
+  const monthLabelFormat = locale === 'en' ? 'LLL' : 'MMM';
+  const timeFormat = locale === 'en' ? 'h:mm a' : 'HH:mm';
 
   // Filter and sort events
   const filteredEvents = (events || [])
@@ -215,7 +218,7 @@ export default function CalendarPage() {
                   {viewMode === "upcoming"
                     ? t.calendar.upcomingAll
                     : selectedDate
-                      ? format(selectedDate, "d. MMMM yyyy", { locale: dateLocale })
+                      ? format(selectedDate, fullDateFormat, { locale: dateLocale })
                       : format(currentMonth, "MMMM yyyy", { locale: dateLocale })}
                 </h2>
                 <span className="text-muted-foreground">
@@ -247,7 +250,7 @@ export default function CalendarPage() {
                     const eventDate = new Date(event.start_dt);
                     const eventEndDate = event.end_dt ? new Date(event.end_dt) : null;
                     
-                    const clickTarget = event.is_main_event ? '/event' : event.detail_url || null;
+                    const clickTarget = event.is_main_event ? '/old' : event.detail_url || null;
                     
                     return (
                       <Card
@@ -271,19 +274,19 @@ export default function CalendarPage() {
                             {eventEndDate && !isSameDay(eventDate, eventEndDate) ? (
                               <>
                                 <span className="text-3xl font-black leading-none">{eventDate.getDate()}</span>
-                                <span className="text-xs font-bold opacity-70">bis</span>
+                                <span className="text-xs font-bold opacity-70">{t.calendar.until}</span>
                                 <span className="text-3xl font-black leading-none">{eventEndDate.getDate()}</span>
                                 <span className="mt-1 text-sm font-medium uppercase">
                                   {isSameMonth(eventDate, eventEndDate)
-                                    ? format(eventDate, "MMM", { locale: dateLocale })
-                                    : `${format(eventDate, "MMM", { locale: dateLocale })} – ${format(eventEndDate, "MMM", { locale: dateLocale })}`}
+                                    ? format(eventDate, monthLabelFormat, { locale: dateLocale })
+                                    : `${format(eventDate, monthLabelFormat, { locale: dateLocale })} – ${format(eventEndDate, monthLabelFormat, { locale: dateLocale })}`}
                                 </span>
                               </>
                             ) : (
                               <>
                                 <span className="text-3xl font-black">{eventDate.getDate()}</span>
                                 <span className="text-sm font-medium uppercase">
-                                  {format(eventDate, "MMM", { locale: dateLocale })}
+                                  {format(eventDate, monthLabelFormat, { locale: dateLocale })}
                                 </span>
                               </>
                             )}
@@ -314,7 +317,7 @@ export default function CalendarPage() {
                             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                               <span className="flex items-center gap-1">
                                 <Clock className="h-4 w-4" />
-                                {format(eventDate, "HH:mm", { locale: dateLocale })}
+                                {format(eventDate, timeFormat, { locale: dateLocale })}
                               </span>
                               {event.location && (
                                 <span className="flex items-center gap-1">

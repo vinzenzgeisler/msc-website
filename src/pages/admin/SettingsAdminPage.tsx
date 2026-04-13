@@ -205,7 +205,7 @@ export default function SettingsAdminPage() {
                       id="sectionCountLabel"
                       value={formData.section_count_label || ''}
                       onChange={(e) => handleChange('section_count_label', e.target.value)}
-                      placeholder="Sektionen"
+                      placeholder="Zuschauer"
                     />
                   </div>
                 </div>

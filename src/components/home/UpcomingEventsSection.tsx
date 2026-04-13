@@ -146,7 +146,7 @@ export function UpcomingEventsSection() {
         <div className="grid gap-6 md:grid-cols-3">
           {upcomingEvents.map((event) => {
             const isMainEvent = event.is_main_event;
-            const clickTarget = isMainEvent ? '/event' : event.detail_url || null;
+            const clickTarget = isMainEvent ? '/old' : event.detail_url || null;
             
             return (
               <Card 

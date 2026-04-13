@@ -13,7 +13,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { FileText, Save, Loader2, Globe } from 'lucide-react';
+import { FileText, Save, Loader2, Globe, Trash2 } from 'lucide-react';
 import { useAllPageContent, useUpsertPageContent, PAGE_SECTIONS, PageKey } from '@/hooks/usePageContent';
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 import { LocaleTranslationBox, TranslationStatus, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
@@ -114,12 +114,26 @@ interface ContentEditorProps {
     stat_one_label?: string | null;
     stat_two_label?: string | null;
     stat_three_label?: string | null;
+    attachment_url?: string | null;
+    attachment_name?: string | null;
+    header_image_url?: string | null;
+    header_image_alt?: string | null;
     image_url?: string | null;
     image_alt?: string | null;
   };
   translationStatus: TranslationStatus;
+  allowHeaderImage: boolean;
   hasGermanBaseRecord: boolean;
-  onSave: (data: ContentFormData & { image_alt: string; image_file?: File | null }) => Promise<void>;
+  onSave: (data: ContentFormData & {
+    attachment_file?: File | null;
+    clear_attachment?: boolean;
+    header_image_alt: string;
+    header_image_file?: File | null;
+    clear_header_image?: boolean;
+    image_alt: string;
+    image_file?: File | null;
+    clear_image?: boolean;
+  }) => Promise<void>;
   onTranslate: (target: TranslationTarget, source: ContentFormData) => Promise<void>;
   isSaving: boolean;
   isTranslating: boolean;
@@ -131,6 +145,7 @@ function ContentEditor({
   allowImage,
   initialData,
   translationStatus,
+  allowHeaderImage,
   hasGermanBaseRecord,
   onSave,
   onTranslate,
@@ -149,8 +164,14 @@ function ContentEditor({
     stat_two_label: initialData?.stat_two_label || '',
     stat_three_label: initialData?.stat_three_label || '',
   });
+  const [headerImageAlt, setHeaderImageAlt] = useState(initialData?.header_image_alt || '');
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [clearAttachment, setClearAttachment] = useState(false);
+  const [headerImageFile, setHeaderImageFile] = useState<File | null>(null);
+  const [clearHeaderImage, setClearHeaderImage] = useState(false);
   const [imageAlt, setImageAlt] = useState(initialData?.image_alt || '');
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [clearImage, setClearImage] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -169,11 +190,17 @@ function ContentEditor({
       stat_two_label: initialData?.stat_two_label || '',
       stat_three_label: initialData?.stat_three_label || '',
     });
+    setHeaderImageAlt(initialData?.header_image_alt || '');
+    setAttachmentFile(null);
+    setClearAttachment(false);
+    setHeaderImageFile(null);
+    setClearHeaderImage(false);
     setImageAlt(initialData?.image_alt || '');
     setImageFile(null);
+    setClearImage(false);
     setIsDirty(false);
     setSaveSuccess(false);
-  }, [dataKey, initialData?.title, initialData?.subtitle, initialData?.content, initialData?.image_alt, initialData?.image_url]);
+  }, [dataKey, initialData?.title, initialData?.subtitle, initialData?.content, initialData?.header_image_alt, initialData?.header_image_url, initialData?.image_alt, initialData?.image_url]);
 
   const handleChange = (field: keyof ContentFormData, value: string) => {
     setFormData((current) => ({ ...current, [field]: value }));
@@ -183,7 +210,17 @@ function ContentEditor({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSave({ ...formData, image_alt: imageAlt, image_file: imageFile });
+    await onSave({
+      ...formData,
+      attachment_file: attachmentFile,
+      clear_attachment: clearAttachment,
+      header_image_alt: headerImageAlt,
+      header_image_file: headerImageFile,
+      clear_header_image: clearHeaderImage,
+      image_alt: imageAlt,
+      image_file: imageFile,
+      clear_image: clearImage,
+    });
     setIsDirty(false);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 2500);
@@ -195,8 +232,10 @@ function ContentEditor({
     formData.content.trim().length > 0;
   const supportsHeroButtons = pageKey === 'home' && sectionKey === 'hero';
   const supportsClubTeaserStats = pageKey === 'home' && sectionKey === 'club_teaser';
+  const supportsAttachment = pageKey === 'membership' && (sectionKey === 'declaration_document' || sectionKey === 'statute_document');
   const supportsBodyContent = !supportsHeroButtons;
   const showImageField = allowImage && !supportsHeroButtons;
+  const showHeaderImageField = allowHeaderImage && !supportsHeroButtons;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -323,15 +362,122 @@ function ContentEditor({
         </div>
       ) : null}
 
+      {showHeaderImageField ? (
+        <div className="space-y-2">
+          <Label htmlFor={`header-image-${sectionKey}`}>Headerbild</Label>
+          <Input
+            id={`header-image-${sectionKey}`}
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              setHeaderImageFile(e.target.files?.[0] || null);
+              setClearHeaderImage(false);
+              setIsDirty(true);
+              setSaveSuccess(false);
+            }}
+          />
+          <MediaAssetPicker
+            onSelect={(file, altText) => {
+              setHeaderImageFile(file);
+              setClearHeaderImage(false);
+              if (!headerImageAlt && altText) {
+                setHeaderImageAlt(altText);
+              }
+              setIsDirty(true);
+              setSaveSuccess(false);
+            }}
+          />
+          {(headerImageFile || (initialData?.header_image_url && !clearHeaderImage)) && (
+            <div className="space-y-2">
+              {headerImageFile ? (
+                <p className="text-sm text-muted-foreground">{headerImageFile.name}</p>
+              ) : initialData?.header_image_url ? (
+                <img
+                  src={initialData.header_image_url}
+                  alt={initialData.header_image_alt || ''}
+                  className="h-24 rounded border object-cover"
+                />
+              ) : null}
+              <Input
+                value={headerImageAlt}
+                onChange={(e) => {
+                  setHeaderImageAlt(e.target.value);
+                  setIsDirty(true);
+                  setSaveSuccess(false);
+                }}
+                placeholder="Alternativtext für das Headerbild"
+                className="max-w-xl"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setHeaderImageFile(null);
+                  setHeaderImageAlt('');
+                  setClearHeaderImage(true);
+                  setIsDirty(true);
+                  setSaveSuccess(false);
+                }}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Headerbild entfernen
+              </Button>
+            </div>
+          )}
+        </div>
+      ) : null}
+
+      {supportsAttachment ? (
+        <div className="space-y-2">
+          <Label htmlFor={`attachment-${sectionKey}`}>Dokument</Label>
+          <Input
+            id={`attachment-${sectionKey}`}
+            type="file"
+            accept=".pdf,.doc,.docx,.odt"
+            onChange={(e) => {
+              setAttachmentFile(e.target.files?.[0] || null);
+              setClearAttachment(false);
+              setIsDirty(true);
+              setSaveSuccess(false);
+            }}
+          />
+          {(attachmentFile || (initialData?.attachment_name && !clearAttachment)) && (
+            <div className="space-y-2">
+              {attachmentFile ? (
+                <p className="text-sm text-muted-foreground">{attachmentFile.name}</p>
+              ) : initialData?.attachment_name ? (
+                <p className="text-sm text-muted-foreground">{initialData.attachment_name}</p>
+              ) : null}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setAttachmentFile(null);
+                  setClearAttachment(true);
+                  setIsDirty(true);
+                  setSaveSuccess(false);
+                }}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Dokument entfernen
+              </Button>
+            </div>
+          )}
+        </div>
+      ) : null}
+
       {showImageField ? (
         <div className="space-y-2">
-          <Label htmlFor={`image-${sectionKey}`}>Bild</Label>
+          <Label htmlFor={`image-${sectionKey}`}>Abschnittsbild</Label>
           <Input
             id={`image-${sectionKey}`}
             type="file"
             accept="image/*"
             onChange={(e) => {
               setImageFile(e.target.files?.[0] || null);
+              setClearImage(false);
               setIsDirty(true);
               setSaveSuccess(false);
             }}
@@ -339,6 +485,7 @@ function ContentEditor({
           <MediaAssetPicker
             onSelect={(file, altText) => {
               setImageFile(file);
+              setClearImage(false);
               if (!imageAlt && altText) {
                 setImageAlt(altText);
               }
@@ -346,7 +493,7 @@ function ContentEditor({
               setSaveSuccess(false);
             }}
           />
-          {(imageFile || initialData?.image_url) && (
+          {(imageFile || (initialData?.image_url && !clearImage)) && (
             <div className="space-y-2">
               {imageFile ? (
                 <p className="text-sm text-muted-foreground">{imageFile.name}</p>
@@ -367,6 +514,21 @@ function ContentEditor({
                 placeholder="Alternativtext für das Bild"
                 className="max-w-xl"
               />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setImageFile(null);
+                  setImageAlt('');
+                  setClearImage(true);
+                  setIsDirty(true);
+                  setSaveSuccess(false);
+                }}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Abschnittsbild entfernen
+              </Button>
             </div>
           )}
         </div>
@@ -402,7 +564,8 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
   const upsertContent = useUpsertPageContent();
   const translate = useCmsTranslation();
   const sections = PAGE_SECTIONS[pageKey];
-  const imageSections = new Set(['home:hero', 'about:intro', 'event:track_map', 'history:intro', 'partner_clubs:intro']);
+  const imageSections = new Set(['event:track_map', 'history:intro', 'motocross:intro', 'trial:intro', 'touring:intro']);
+  const headerImageSections = new Set(['about:intro', 'board:intro', 'history:intro', 'membership:intro', 'partner_clubs:intro', 'motocross:intro', 'trial:intro', 'touring:intro', 'contact:intro']);
 
   const getContentForSection = (sectionKey: string, locale: string) =>
     content?.find((item) => item.section_key === sectionKey && item.locale === locale) || null;
@@ -414,7 +577,16 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
 
   const handleSaveGerman = async (
     sectionKey: string,
-    data: ContentFormData & { image_alt: string; image_file?: File | null },
+    data: ContentFormData & {
+      attachment_file?: File | null;
+      clear_attachment?: boolean;
+      header_image_alt: string;
+      header_image_file?: File | null;
+      clear_header_image?: boolean;
+      image_alt: string;
+      image_file?: File | null;
+      clear_image?: boolean;
+    },
   ) => {
     try {
       await upsertContent.mutateAsync({
@@ -431,8 +603,14 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
         stat_one_label: data.stat_one_label || null,
         stat_two_label: data.stat_two_label || null,
         stat_three_label: data.stat_three_label || null,
+        attachment_file: data.attachment_file || null,
+        clear_attachment: data.clear_attachment || false,
+        header_image_alt: data.header_image_alt || null,
+        header_image_file: data.header_image_file || null,
+        clear_header_image: data.clear_header_image || false,
         image_alt: data.image_alt || null,
         image_file: data.image_file || null,
+        clear_image: data.clear_image || false,
       });
       toast.success('Deutscher Inhalt gespeichert');
     } catch (error) {
@@ -515,8 +693,12 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
         stat_one_label: translatedStatOneLabel || source.stat_one_label || null,
         stat_two_label: translatedStatTwoLabel || source.stat_two_label || null,
         stat_three_label: translatedStatThreeLabel || source.stat_three_label || null,
+        header_image_alt: existingTarget?.header_image_alt || germanRecord?.header_image_alt || null,
+        header_image_file: null,
+        clear_header_image: false,
         image_alt: existingTarget?.image_alt || germanRecord?.image_alt || null,
         image_file: null,
+        clear_image: false,
       });
 
       toast.success(`Übersetzung ${targetLocale.toUpperCase()} gespeichert`);
@@ -569,6 +751,7 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
                   pageKey={pageKey}
                   sectionKey={sectionKey}
                   allowImage={imageSections.has(`${pageKey}:${sectionKey}`)}
+                  allowHeaderImage={headerImageSections.has(`${pageKey}:${sectionKey}`)}
                   initialData={germanContent || undefined}
                   translationStatus={translationStatus}
                   hasGermanBaseRecord={Boolean(germanContent)}

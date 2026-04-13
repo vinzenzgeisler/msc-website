@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { LucideIcon } from 'lucide-react';
 import type { DisciplineHighlight } from '@/integrations/pocketbase/client';
+import { RichContent } from '@/components/content/RichContent';
 
 const iconMap: Record<string, LucideIcon> = {
   training: MapPin, events: Calendar, award: Award, track: Bike,
@@ -71,8 +72,7 @@ export default function DisciplinePage({
         <section className="py-12">
           <div className="container">
             <div className="mx-auto max-w-3xl">
-              <div className="text-lg text-muted-foreground prose dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }} />
+              <RichContent content={intro.content} className="text-lg text-muted-foreground" />
             </div>
           </div>
         </section>
@@ -108,8 +108,7 @@ export default function DisciplinePage({
           <div className="container">
             <div className="mx-auto max-w-3xl">
               <h2 className="mb-6 text-2xl font-bold">{training.title}</h2>
-              <div className="prose dark:prose-invert max-w-none text-muted-foreground"
-                dangerouslySetInnerHTML={{ __html: training.content.replace(/\n/g, '<br />') }} />
+              <RichContent content={training.content} className="text-muted-foreground" />
             </div>
           </div>
         </section>
@@ -121,8 +120,7 @@ export default function DisciplinePage({
           <div className="mx-auto max-w-3xl">
             <h2 className="mb-6 text-2xl font-bold">{eventsContent.title || 'Kommende Termine'}</h2>
             {eventsContent.content && (
-              <div className="mb-6 prose dark:prose-invert max-w-none text-muted-foreground"
-                dangerouslySetInnerHTML={{ __html: eventsContent.content.replace(/\n/g, '<br />') }} />
+              <RichContent content={eventsContent.content} className="mb-6 text-muted-foreground" />
             )}
             {upcomingEvents.length > 0 ? (
               <div className="space-y-4">

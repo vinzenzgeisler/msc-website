@@ -19,7 +19,12 @@ export default function BoardPage() {
 
   return (
     <MainLayout>
-      <PageHeader title={intro.title} subtitle={intro.content || intro.subtitle || 'Unser Vorstandsteam'} imageUrl={intro.image_url} imageAlt={intro.image_alt || intro.title} />
+      <PageHeader
+        title={intro.title}
+        subtitle={intro.content || intro.subtitle || 'Unser Vorstandsteam'}
+        imageUrl={intro.header_image_url || intro.image_url}
+        imageAlt={intro.header_image_alt || intro.image_alt || intro.title}
+      />
 
       <section className="py-16">
         <div className="container">

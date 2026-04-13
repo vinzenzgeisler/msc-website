@@ -8,6 +8,7 @@ import { usePostBySlug } from '@/hooks/usePosts';
 import { de, cs, enUS } from 'date-fns/locale';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { formatDateSafe } from '@/lib/date';
+import { RichContent } from '@/components/content/RichContent';
 
 export default function NewsDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -137,16 +138,9 @@ export default function NewsDetailPage() {
 
             {/* Article Content */}
             {article.content && (
-              <article 
-                className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-bold prose-headings:tracking-tight prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:text-muted-foreground prose-li:text-muted-foreground prose-img:rounded-lg prose-img:my-6"
-                dangerouslySetInnerHTML={{
-                  __html: article.content.includes('<')
-                    ? article.content
-                    : article.content
-                        .split(/\n\n+/)
-                        .map((p) => `<p>${p.replace(/\n/g, '<br />')}</p>`)
-                        .join(''),
-                }}
+              <RichContent
+                content={article.content}
+                className="prose-lg prose-headings:tracking-tight prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:text-muted-foreground prose-li:text-muted-foreground"
               />
             )}
 
