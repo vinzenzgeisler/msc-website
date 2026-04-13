@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { useTranslation, useLanguage } from "@/i18n/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,6 +35,7 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("upcoming");
+  const navigate = useNavigate();
   
   // Filter events by current locale
   const { data: events, isLoading } = useCalendarEvents(true);
@@ -249,8 +251,9 @@ export default function CalendarPage() {
                       <Card
                         key={event.id}
                         className={`overflow-hidden transition-shadow hover:shadow-lg ${
-                          event.is_main_event ? "border-2 border-accent" : ""
+                          event.is_main_event ? "border-2 border-accent cursor-pointer" : ""
                         }`}
+                        onClick={event.is_main_event ? () => navigate('/event') : undefined}
                       >
                         <CardContent className="flex gap-4 p-0">
                           {/* Date sidebar */}
