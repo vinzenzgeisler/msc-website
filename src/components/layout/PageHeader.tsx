@@ -27,9 +27,11 @@ export function PageHeader({ title, subtitle, imageUrl, imageAlt, children }: Pa
       )}
 
       <div className="container relative z-10">
-        <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">{title}</h1>
-        {subtitle && <p className="text-lg text-primary-foreground/80">{subtitle}</p>}
-        {children}
+        <div className="pr-16 sm:pr-24 md:pr-32">
+          <h1 className="mb-2 text-4xl font-black uppercase md:text-5xl">{title}</h1>
+          {subtitle && <p className="text-lg text-primary-foreground/80">{subtitle}</p>}
+          {children}
+        </div>
       </div>
     </section>
   );

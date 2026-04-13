@@ -128,7 +128,7 @@ export default function MembershipPage() {
   const cta = ctaContent[lang];
 
   return (
-    <MainLayout>
+    <MainLayout title={intro.title} description={intro.subtitle || undefined}>
       <PageHeader
         title={intro.title}
         subtitle={intro.subtitle || introFallbacks[lang].subtitle}

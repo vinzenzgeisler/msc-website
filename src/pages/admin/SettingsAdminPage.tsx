@@ -235,7 +235,7 @@ export default function SettingsAdminPage() {
                         {logoFile ? (
                           <p className="text-sm text-muted-foreground">{logoFile.name}</p>
                         ) : formData.logo_url ? (
-                          <img src={formData.logo_url} alt={formData.logo_alt || 'Logo'} className="h-16 rounded border object-contain bg-white p-2" />
+                          <img src={formData.logo_url} alt={formData.logo_alt || 'Logo'} className="h-16 rounded border object-contain p-2 bg-muted/20" />
                         ) : null}
                         <Input
                           value={formData.logo_alt || ''}

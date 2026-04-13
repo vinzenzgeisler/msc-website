@@ -57,7 +57,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <MainLayout>
+    <MainLayout title={intro.title} description={intro.subtitle || undefined}>
       <PageHeader
         title={intro.isLoading ? '...' : intro.title}
         subtitle={intro.subtitle || undefined}

@@ -56,7 +56,7 @@ export default function EventPage() {
   const { data: albums } = useMediaAlbums();
   const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
   const eventIntro = useContentWithFallback('event', 'intro', {
-    title: locale === 'de' ? 'Das Oberlausitzer Dreieck' : locale === 'cz' ? 'Horní Lužický trojúhelník' : 'The Oberlausitz Triangle',
+    title: locale === 'de' ? 'Das Oberlausitzer Dreieck' : locale === 'cz' ? 'Oberlausitzer Dreieck' : 'The Oberlausitzer Dreieck',
     content:
       locale === 'de'
         ? 'Erleben Sie mitten im Zittauer Gebirge eine spannende Motorshow auf der legendären 5,9 km langen Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf.'
@@ -221,7 +221,7 @@ export default function EventPage() {
       : 'https://maps.app.goo.gl/8ynVfs7AgjRU1Qem6');
 
   return (
-    <MainLayout>
+    <MainLayout title={mainEvent?.title || eventIntro.title} description={mainEvent?.description || undefined}>
       {/* Hero */}
       <section className="relative overflow-hidden bg-primary py-20 text-primary-foreground">
         <div className="absolute inset-0">

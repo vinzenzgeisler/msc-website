@@ -62,7 +62,7 @@ export default function ContactPage() {
   };
 
   return (
-    <MainLayout>
+    <MainLayout title={intro.title} description={intro.subtitle || undefined}>
       <PageHeader
         title={intro.title}
         subtitle={intro.subtitle || undefined}
@@ -157,16 +157,6 @@ export default function ContactPage() {
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="mt-8 overflow-hidden border border-border">
-                <iframe
-                  title={settings?.contact_map_label || mapContent.title || 'Karte'}
-                  src={settings?.contact_map_embed_url || 'https://www.openstreetmap.org/export/embed.html?bbox=14.7050%2C50.8450%2C14.7650%2C50.8720&layer=mapnik&marker=50.8585%2C14.7350'}
-                  className="h-72 w-full border-0"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
               </div>
             </div>
           </div>

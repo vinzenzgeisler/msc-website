@@ -93,7 +93,7 @@ export default function CalendarPage() {
   const availableCategories = ['all', ...new Set((events || []).map(e => e.category).filter(Boolean))];
 
   return (
-    <MainLayout>
+    <MainLayout title={intro.title} description={intro.subtitle || undefined}>
       {/* Header */}
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container">

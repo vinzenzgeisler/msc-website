@@ -103,6 +103,7 @@ export function HeroSection() {
   const { data: mainEvent, isLoading } = useMainEvent();
   const [displayedTitle, setDisplayedTitle] = useState('');
   const [typingComplete, setTypingComplete] = useState(!shouldAnimate);
+  const [showCursor, setShowCursor] = useState(shouldAnimate);
 
   // Parallax scroll
   useEffect(() => {
@@ -128,7 +129,7 @@ export function HeroSection() {
     : (heroContent.subtitle || settings?.description || t.clubTeaser.subtitle);
   const primaryButtonLabel = heroContent.primary_button_label || (hasMainEvent ? t.hero.ctaEvent : t.hero.ctaDiscover);
   const primaryButtonUrl = heroContent.primary_button_url || (hasMainEvent ? '/old' : '/club/about');
-  const secondaryButtonLabel = heroContent.secondary_button_label || (hasMainEvent ? t.hero.ctaSchedule : t.nav.calendar);
+  const secondaryButtonLabel = heroContent.secondary_button_label || (hasMainEvent ? t.hero.ctaDiscover: t.nav.calendar);
   const secondaryButtonUrl = heroContent.secondary_button_url || (hasMainEvent ? '/old#schedule' : '/calendar');
 
   // JS Typewriter effect for smooth multi-line wrapping
@@ -136,12 +137,14 @@ export function HeroSection() {
     if (!shouldAnimate || !hasMainEvent) {
       setDisplayedTitle(heroTitle);
       setTypingComplete(true);
+      setShowCursor(false);
       return;
     }
 
     let isMounted = true;
     setDisplayedTitle('');
     setTypingComplete(false);
+    setShowCursor(true);
 
     const delayTimer = setTimeout(() => {
       let i = 0;
@@ -155,6 +158,11 @@ export function HeroSection() {
         if (i >= chars.length) {
           clearInterval(typeTimer);
           setTypingComplete(true);
+          
+          // Cursor nach 3 Sekunden (4 x 0.75s Blinken) ausblenden
+          setTimeout(() => {
+            if (isMounted) setShowCursor(false);
+          }, 3000);
         }
       }, intervalTime);
 
@@ -231,9 +239,9 @@ export function HeroSection() {
             <h1 className="mb-4 font-display text-3xl sm:text-4xl font-black uppercase tracking-tight md:mb-6 md:text-7xl hero-animate-title">
             {displayedTitle}
             <span
-              className="inline-block border-r-[0.15em] border-accent"
+              className={`inline-block ${showCursor ? 'border-r-[0.15em] border-accent' : ''}`}
               style={{
-                animation: typingComplete ? 'hero-blink-caret 0.75s step-end 4' : 'none',
+                animation: typingComplete && showCursor ? 'hero-blink-caret 0.75s step-end 4' : 'none',
               }}
             >
               &#8203;

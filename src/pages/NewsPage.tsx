@@ -122,7 +122,7 @@ export default function NewsPage() {
   };
 
   return (
-    <MainLayout>
+    <MainLayout title={intro.title} description={intro.subtitle || undefined}>
       {/* Header */}
       <section className="bg-primary py-16 text-primary-foreground">
         <div className="container">

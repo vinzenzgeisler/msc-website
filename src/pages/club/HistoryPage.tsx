@@ -34,7 +34,7 @@ export default function HistoryPage() {
   const track = useContentWithFallback('history', 'track', fb.track);
 
   return (
-    <MainLayout>
+    <MainLayout title={intro.title} description={intro.subtitle || undefined}>
       <PageHeader
         title={intro.title}
         subtitle={intro.subtitle || 'Vereinsgeschichte'}

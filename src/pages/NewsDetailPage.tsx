@@ -9,6 +9,7 @@ import { de, cs, enUS } from 'date-fns/locale';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { formatDateSafe } from '@/lib/date';
 import { RichContent } from '@/components/content/RichContent';
+import { toast } from 'sonner';
 
 export default function NewsDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -83,8 +84,28 @@ export default function NewsDetailPage() {
       ? 'Publikováno'
       : 'Published on';
 
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const encodedUrl = encodeURIComponent(shareUrl);
+  const encodedTitle = encodeURIComponent(article.title);
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: article.title,
+          url: shareUrl,
+        });
+      } catch (err) {
+        console.error('Fehler beim Teilen:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      toast.success(locale === 'de' ? 'Link kopiert!' : locale === 'cz' ? 'Odkaz byl zkopírován!' : 'Link copied!');
+    }
+  };
+
   return (
-    <MainLayout>
+    <MainLayout title={article.title} description={article.excerpt || undefined}>
       {/* Header */}
       <section className="bg-primary py-12 text-primary-foreground">
         <div className="container">
@@ -148,13 +169,27 @@ export default function NewsDetailPage() {
             <div className="mt-12 border-t border-border pt-8">
               <div className="flex items-center gap-4">
                 <span className="font-semibold">Teilen:</span>
-                <Button variant="outline" size="icon">
-                  <Facebook className="h-4 w-4" />
+                <Button variant="outline" size="icon" asChild>
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Auf Facebook teilen"
+                  >
+                    <Facebook className="h-4 w-4" />
+                  </a>
                 </Button>
-                <Button variant="outline" size="icon">
-                  <Twitter className="h-4 w-4" />
+                <Button variant="outline" size="icon" asChild>
+                  <a
+                    href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Auf X (Twitter) teilen"
+                  >
+                    <Twitter className="h-4 w-4" />
+                  </a>
                 </Button>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" onClick={handleShare} title="Link kopieren / Teilen">
                   <Share2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -175,4 +210,3 @@ export default function NewsDetailPage() {
     </MainLayout>
   );
 }
-

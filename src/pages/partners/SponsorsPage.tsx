@@ -58,7 +58,7 @@ export default function SponsorsPage() {
   };
 
   return (
-    <MainLayout>
+    <MainLayout title={intro.title} description={intro.subtitle || undefined}>
       <PageHeader title={intro.title} subtitle={intro.subtitle || undefined} />
 
       <section className="py-16">

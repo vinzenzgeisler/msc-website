@@ -18,7 +18,7 @@ export default function BoardPage() {
   });
 
   return (
-    <MainLayout>
+    <MainLayout title={intro.title} description={intro.subtitle || undefined}>
       <PageHeader
         title={intro.title}
         subtitle={intro.content || intro.subtitle || 'Unser Vorstandsteam'}

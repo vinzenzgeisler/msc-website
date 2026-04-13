@@ -12,7 +12,18 @@ export function usePosts(filterByLocale = true) {
       const data = await listAllRecords('posts');
       const posts = data.map(mapPostRecord) as Post[];
 
-      return posts
+      // Bild-Fallback auf Deutsch (DE), falls in EN/CZ kein Bild hinterlegt ist
+      const postsWithImages = posts.map((post) => {
+        if (post.locale !== 'de' && !(post as any).image_url) {
+          const dePost = posts.find((p) => p.slug === post.slug && p.locale === 'de');
+          if (dePost && (dePost as any).image_url) {
+            return { ...post, image_url: (dePost as any).image_url } as Post;
+          }
+        }
+        return post;
+      });
+
+      return postsWithImages
         .filter((post) => !filterByLocale || post.locale === locale)
         .sort((a, b) => {
           if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
@@ -31,7 +42,23 @@ export function usePost(id: string) {
     queryKey: ['posts', id],
     queryFn: async () => {
       const data = await pb.collection('posts').getOne(id);
-      return mapPostRecord(data) as Post;
+      const post = mapPostRecord(data) as Post;
+
+      // Bild-Fallback auf Deutsch (DE), falls in EN/CZ kein Bild hinterlegt ist
+      if (post.locale !== 'de' && !(post as any).image_url) {
+        const allData = await listAllRecords('posts');
+        const deRecord = allData.find(
+          (item: any) => item.slug === post.slug && item.locale === 'de'
+        );
+        if (deRecord) {
+          const dePost = mapPostRecord(deRecord) as Post;
+          if ((dePost as any).image_url) {
+            return { ...post, image_url: (dePost as any).image_url } as Post;
+          }
+        }
+      }
+
+      return post;
     },
     enabled: !!id,
   });
@@ -50,7 +77,20 @@ export function usePostBySlug(slug: string) {
         throw new Error(`Post not found for slug "${slug}" and locale "${locale}"`);
       }
 
-      return mapPostRecord(record) as Post;
+      const post = mapPostRecord(record) as Post;
+
+      // Bild-Fallback auf Deutsch (DE), falls in EN/CZ kein Bild hinterlegt ist
+      if (post.locale !== 'de' && !(post as any).image_url) {
+        const deRecord = data.find((item: any) => item.slug === slug && item.locale === 'de');
+        if (deRecord) {
+          const dePost = mapPostRecord(deRecord) as Post;
+          if ((dePost as any).image_url) {
+            return { ...post, image_url: (dePost as any).image_url } as Post;
+          }
+        }
+      }
+
+      return post;
     },
     enabled: !!slug,
   });

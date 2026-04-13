@@ -7,7 +7,7 @@ export const translations = {
       home: 'Startseite',
     event: 'Oberlausitzer Dreieck',
       calendar: 'Kalender',
-      news: 'News',
+      news: 'Neuigkeiten',
       club: 'Verein',
       about: 'Über uns',
       board: 'Vorstand',
