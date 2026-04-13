@@ -142,7 +142,7 @@ export function HeroSection() {
     const singleFormat = locale === 'en' ? 'MMMM d, yyyy' : 'd. MMMM yyyy';
     const startFormatted = format(eventDate, startFormat, { locale: dateLocale });
     if (eventEndDate) {
-      return `${startFormatted}–${format(eventEndDate, endFormat, { locale: dateLocale })}`;
+      return `${startFormatted} – ${format(eventEndDate, endFormat, { locale: dateLocale })}`;
     }
     return format(eventDate, singleFormat, { locale: dateLocale });
   };
