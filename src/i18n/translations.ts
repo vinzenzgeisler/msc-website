@@ -18,6 +18,7 @@ export const translations = {
       motocross: 'Motocross',
       trial: 'Trial',
       partners: 'Partner',
+      mainSponsors: "Hauptsponsoren",
       sponsors: 'Sponsoren',
       partnerClubs: 'Partnervereine',
       contact: 'Kontakt',
@@ -153,6 +154,7 @@ export const translations = {
       motocross: 'Motokros',
       trial: 'Trial',
       partners: 'Partneři',
+      mainSponsors: "Hlavní sponzoři",
       sponsors: 'Sponzoři',
       partnerClubs: 'Partnerské kluby',
       contact: 'Kontakt',
@@ -288,6 +290,7 @@ export const translations = {
       motocross: 'Motocross',
       trial: 'Trial',
       partners: 'Partners',
+      mainSponsors: "Main Sponsors",
       sponsors: 'Sponsors',
       partnerClubs: 'Partner Clubs',
       contact: 'Contact',
@@ -425,6 +428,7 @@ export type Translations = {
     motocross: string;
     trial: string;
     partners: string;
+    mainSponsors: string;
     sponsors: string;
     partnerClubs: string;
     contact: string;

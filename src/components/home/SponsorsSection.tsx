@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronRight, Building2 } from 'lucide-react';
@@ -7,6 +8,7 @@ import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 export function SponsorsSection() {
+  const t = useTranslation();
   const { locale } = useLanguage();
   const { data: sponsors, isLoading, error } = useSponsors();
   const sectionContent = useContentWithFallback('home', 'sponsors', {
@@ -18,7 +20,7 @@ export function SponsorsSection() {
           ? 'Děkujeme všem, kteří podporují náš klub'
           : 'Thanks to everyone supporting our club',
   });
-  
+
   const mainSponsors = (sponsors || []).filter(s => s.tier === 'main' && s.active);
   const partners = (sponsors || []).filter(s => s.tier === 'partner' && s.active);
   const supporters = (sponsors || []).filter(s => s.tier === 'supporter' && s.active);
@@ -90,7 +92,7 @@ export function SponsorsSection() {
         {mainSponsors.length > 0 && (
           <div className="mb-10">
             <p className="mb-6 text-center text-sm font-bold uppercase tracking-widest text-primary">
-              Hauptsponsoren
+              {t.nav.mainSponsors}
             </p>
             <div className="flex flex-wrap justify-center gap-8">
               {mainSponsors.map((sponsor) => (

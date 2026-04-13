@@ -168,7 +168,7 @@ export function UpcomingEventsSection() {
                 {isMainEvent && (
                   <div className="absolute right-0 top-0 flex items-center gap-1 bg-accent px-3 py-1 text-xs font-bold uppercase text-accent-foreground">
                     <Flag className="h-3 w-3" />
-                    Hauptevent
+                    {t.calendar.mainEvent}
                   </div>
                 )}
 
