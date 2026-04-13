@@ -262,13 +262,13 @@ export default function CalendarPage() {
                           >
                             {eventEndDate && !isSameDay(eventDate, eventEndDate) ? (
                               <>
-                                <span className="text-2xl font-black leading-none">
-                                  {eventDate.getDate()}.–{eventEndDate.getDate()}.
-                                </span>
+                                <span className="text-3xl font-black leading-none">{eventDate.getDate()}</span>
+                                <span className="text-xs font-bold opacity-70">bis</span>
+                                <span className="text-3xl font-black leading-none">{eventEndDate.getDate()}</span>
                                 <span className="mt-1 text-sm font-medium uppercase">
                                   {isSameMonth(eventDate, eventEndDate)
                                     ? format(eventDate, "MMM", { locale: dateLocale })
-                                    : `${format(eventDate, "MMM", { locale: dateLocale })}–${format(eventEndDate, "MMM", { locale: dateLocale })}`}
+                                    : `${format(eventDate, "MMM", { locale: dateLocale })} – ${format(eventEndDate, "MMM", { locale: dateLocale })}`}
                                 </span>
                               </>
                             ) : (
