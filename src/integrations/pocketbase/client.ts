@@ -1,6 +1,6 @@
 import PocketBase, { RecordModel } from 'pocketbase';
 
-const pocketbaseUrl = import.meta.env.VITE_POCKETBASE_URL || 'https://cream-salamander.pikapod.net';
+const pocketbaseUrl = import.meta.env.VITE_POCKETBASE_URL || 'https://backend.msc-oberlausitz.de';
 
 export const pb = new PocketBase(pocketbaseUrl);
 pb.autoCancellation(false);
