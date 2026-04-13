@@ -376,6 +376,21 @@ export default function CalendarFormPage() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="detail_url" className="flex items-center gap-1.5">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Detail-Seite URL
+                </Label>
+                <Input
+                  id="detail_url"
+                  type="url"
+                  value={formData.detail_url}
+                  onChange={(e) => updateField('detail_url', e.target.value)}
+                  placeholder="https://msc-oberlausitz.de/events/beispiel"
+                />
+                <p className="text-xs text-muted-foreground">Optional: Macht den Termin auf der Website klickbar</p>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="contact_email" className="flex items-center gap-1.5">
                   <Mail className="h-3.5 w-3.5" />
                   Kontakt-E-Mail
