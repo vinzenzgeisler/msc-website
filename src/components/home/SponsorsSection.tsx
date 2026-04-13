@@ -99,7 +99,7 @@ export function SponsorsSection() {
                   href={sponsor.website || '#'}
                   target={sponsor.website ? '_blank' : undefined}
                   rel="noopener noreferrer"
-                  className="group relative flex h-32 w-64 items-center justify-center overflow-hidden rounded-none border-2 border-primary/20 bg-card p-6 transition-all hover:border-primary hover:shadow-lg"
+                  className="group relative flex h-40 w-72 items-center justify-center overflow-hidden rounded-none border-2 border-primary/20 bg-card p-8 transition-all hover:border-primary hover:shadow-lg"
                 >
                   {/* Diagonal accent on hover */}
                   <div className="absolute -right-8 -top-8 h-16 w-16 rotate-45 bg-primary/0 transition-all group-hover:bg-primary/10" />
@@ -134,13 +134,13 @@ export function SponsorsSection() {
                   href={sponsor.website || '#'}
                   target={sponsor.website ? '_blank' : undefined}
                   rel="noopener noreferrer"
-                  className="group flex h-20 items-center justify-center rounded-none border border-border bg-card px-4 transition-all hover:border-primary/50 hover:shadow-md"
+                  className="group flex h-24 items-center justify-center rounded-none border border-border bg-card px-5 transition-all hover:border-primary/50 hover:shadow-md"
                 >
                   {sponsor.logo_url ? (
                     <img 
                       src={sponsor.logo_url} 
                       alt={sponsor.name}
-                      className="max-h-12 max-w-full object-contain grayscale transition-all group-hover:grayscale-0"
+                      className="max-h-16 max-w-full object-contain grayscale transition-all group-hover:grayscale-0"
                     />
                   ) : (
                     <span className="text-lg font-semibold text-muted-foreground transition-colors group-hover:text-foreground">
