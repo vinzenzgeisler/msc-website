@@ -51,8 +51,8 @@ export const translations = {
     // Event
     event: {
       title: 'Oberlausitzer Dreieck',
-      subtitle: 'Der legendäre Demolauf',
-      description: 'Erlebe Motorsport-Geschichte auf der 5,9 km langen Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf. Kein Rennen – ein unvergessliches Erlebnis!',
+      subtitle: 'Die historische Rennveranstaltung in der Oberlausitz.',
+      description: 'Erlebe Motorsport-Geschichte auf der 5,9 km langen Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf.',
       track: 'Strecke & Region',
       schedule: 'Zeitplan',
       visitors: 'Besucherinformationen',

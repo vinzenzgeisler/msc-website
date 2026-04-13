@@ -19,8 +19,8 @@ interface Accommodation {
 const FALLBACK_ACCOMMODATIONS: Accommodation[] = [
   {
     name: 'Gästehaus der Oberlausitzer Dreieck gGmbH',
-    description: 'Direkt an der Rennstrecke in unmittelbarer Nähe zum Fahrerlager 1. Neu eröffnetes Gästehaus mit allem, was man zur Übernachtung an einem Motorsportwochenende braucht. Auch die Verpflegung wird angeboten.',
-    address: 'An der Rennstrecke, Oberlausitzer Dreieck',
+    description: 'Direkt an am Start- und Ziel des Oberlausitzer Dreiecks in unmittelbarer Nähe zum Fahrerlager 1. Neu eröffnetes Gästehaus mit allem, was man zur Übernachtung an einem Motorsportwochenende braucht. Auch die Verpflegung wird angeboten.',
+    address: 'Jägerwäldchen 2, 02763 Bertsdorf-Hörnitz',
     website: 'https://oberlausitzer-dreieck.de/',
   },
   {
@@ -81,7 +81,7 @@ const FALLBACK_ACCOMMODATIONS: Accommodation[] = [
   },
   {
     name: 'Ferienwohnung Familie Hockert',
-    description: 'In Saalendorf, direkt an der Rennstrecke.',
+    description: 'In Saalendorf am Fahrerlager 2',
     address: 'OT Saalendorf 14, 02799 Waltersdorf',
     phone: '035841 / 36372',
     email: 'ferienwohnung-hockert@gmx.de',
