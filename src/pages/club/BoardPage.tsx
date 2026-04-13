@@ -19,16 +19,7 @@ export default function BoardPage() {
 
   return (
     <MainLayout>
-      <PageHeader title={intro.title} subtitle={intro.subtitle || 'Unser Vorstandsteam'} imageUrl={intro.image_url} imageAlt={intro.image_alt || intro.title} />
-
-      {intro.content && (
-        <section className="py-10">
-          <div className="container">
-            <div className="mx-auto max-w-3xl prose prose-lg dark:prose-invert text-muted-foreground"
-              dangerouslySetInnerHTML={{ __html: intro.content.replace(/\n/g, '<br />') }} />
-          </div>
-        </section>
-      )}
+      <PageHeader title={intro.title} subtitle={intro.content || intro.subtitle || 'Unser Vorstandsteam'} imageUrl={intro.image_url} imageAlt={intro.image_alt || intro.title} />
 
       <section className="py-16">
         <div className="container">
