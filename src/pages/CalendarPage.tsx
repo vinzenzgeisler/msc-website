@@ -251,8 +251,9 @@ export default function CalendarPage() {
                       <Card
                         key={event.id}
                         className={`overflow-hidden transition-shadow hover:shadow-lg ${
-                          event.is_main_event ? "border-2 border-accent" : ""
+                          event.is_main_event ? "border-2 border-accent cursor-pointer" : ""
                         }`}
+                        onClick={event.is_main_event ? () => navigate('/event') : undefined}
                       >
                         <CardContent className="flex gap-4 p-0">
                           {/* Date sidebar */}
