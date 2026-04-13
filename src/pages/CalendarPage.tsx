@@ -35,6 +35,7 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("upcoming");
+  const navigate = useNavigate();
   
   // Filter events by current locale
   const { data: events, isLoading } = useCalendarEvents(true);
