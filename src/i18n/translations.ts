@@ -180,7 +180,7 @@ export const translations = {
       cta: 'Více informací',
       statOneLabel: 'Členové',
       statTwoLabel: 'Let tradice',
-      statThreeLabel: 'Sekce',
+      statThreeLabel: 'Diváci',
     },
     // Event
     event: {
@@ -315,7 +315,7 @@ export const translations = {
       cta: 'Learn More',
       statOneLabel: 'Members',
       statTwoLabel: 'Years of Tradition',
-      statThreeLabel: 'Sections',
+      statThreeLabel: 'Spectators',
     },
     // Event
     event: {

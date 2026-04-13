@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronRight, Users, Trophy, Eye } from 'lucide-react';
+import { ChevronRight, Users, Trophy, Eye, MapPin } from 'lucide-react';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useSettings } from '@/hooks/useSettings';
 
@@ -32,7 +32,7 @@ export function ClubTeaserSection() {
     {
       icon: Eye,
       value: '> 6000',
-      label: 'Zuschauer',
+      label: t.clubTeaser.statThreeLabel || settings?.section_count_label || 'Zuschauer',
     },
   ];
 
