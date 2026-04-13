@@ -260,12 +260,24 @@ export default function CalendarPage() {
                           <div
                             className={`flex w-24 shrink-0 flex-col items-center justify-center p-4 ${colors.bgColor} ${colors.color}`}
                           >
-                            <span className="text-3xl font-black">{eventDate.getDate()}</span>
-                            <span className="text-sm font-medium uppercase">
-                              {format(eventDate, "MMM", { locale: dateLocale })}
-                            </span>
-                            {eventEndDate && !isSameDay(eventDate, eventEndDate) && (
-                              <span className="mt-1 text-xs opacity-80">– {eventEndDate.getDate()}.</span>
+                            {eventEndDate && !isSameDay(eventDate, eventEndDate) ? (
+                              <>
+                                <span className="text-2xl font-black leading-none">
+                                  {eventDate.getDate()}.–{eventEndDate.getDate()}.
+                                </span>
+                                <span className="mt-1 text-sm font-medium uppercase">
+                                  {isSameMonth(eventDate, eventEndDate)
+                                    ? format(eventDate, "MMM", { locale: dateLocale })
+                                    : `${format(eventDate, "MMM", { locale: dateLocale })}–${format(eventEndDate, "MMM", { locale: dateLocale })}`}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="text-3xl font-black">{eventDate.getDate()}</span>
+                                <span className="text-sm font-medium uppercase">
+                                  {format(eventDate, "MMM", { locale: dateLocale })}
+                                </span>
+                              </>
                             )}
                           </div>
 
