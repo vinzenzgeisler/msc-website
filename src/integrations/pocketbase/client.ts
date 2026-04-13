@@ -67,6 +67,7 @@ export interface CalendarEvent {
   is_main_event: boolean;
   contact_email: string | null;
   registration_url: string | null;
+  detail_url: string | null;
   published: boolean;
   created_at: string;
   updated_at: string;
@@ -331,6 +332,7 @@ export function mapCalendarEventRecord(record: RecordModel): CalendarEvent {
     is_main_event: Boolean(record.isMainEvent),
     contact_email: record.contactEmail || null,
     registration_url: record.registrationUrl || null,
+    detail_url: record.detailUrl || null,
     published: Boolean(record.published),
     created_at: record.created,
     updated_at: record.updated,

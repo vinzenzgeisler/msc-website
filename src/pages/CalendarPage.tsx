@@ -247,13 +247,21 @@ export default function CalendarPage() {
                     const eventDate = new Date(event.start_dt);
                     const eventEndDate = event.end_dt ? new Date(event.end_dt) : null;
                     
+                    const clickTarget = event.is_main_event ? '/event' : event.detail_url || null;
+                    
                     return (
                       <Card
                         key={event.id}
                         className={`overflow-hidden transition-shadow hover:shadow-lg ${
-                          event.is_main_event ? "border-2 border-accent cursor-pointer" : ""
-                        }`}
-                        onClick={event.is_main_event ? () => navigate('/event') : undefined}
+                          event.is_main_event ? "border-2 border-accent" : ""
+                        } ${clickTarget ? "cursor-pointer" : ""}`}
+                        onClick={clickTarget ? () => {
+                          if (clickTarget.startsWith('http')) {
+                            window.open(clickTarget, '_blank');
+                          } else {
+                            navigate(clickTarget);
+                          }
+                        } : undefined}
                       >
                         <CardContent className="flex gap-4 p-0">
                           {/* Date sidebar */}

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import { de } from 'date-fns/locale';
 export function UpcomingEventsSection() {
   const t = useTranslation();
   const { locale } = useLanguage();
+  const navigate = useNavigate();
   const { data: events, isLoading } = useCalendarEvents();
   const sectionContent = useContentWithFallback('home', 'upcoming_events', {
     title: t.calendar.upcoming,
@@ -145,6 +146,7 @@ export function UpcomingEventsSection() {
         <div className="grid gap-6 md:grid-cols-3">
           {upcomingEvents.map((event) => {
             const isMainEvent = event.is_main_event;
+            const clickTarget = isMainEvent ? '/event' : event.detail_url || null;
             
             return (
               <Card 
@@ -153,7 +155,14 @@ export function UpcomingEventsSection() {
                   isMainEvent 
                     ? 'border-accent bg-gradient-to-br from-accent/5 to-transparent hover:border-accent' 
                     : 'border-border hover:border-primary'
-                }`}
+                } ${clickTarget ? 'cursor-pointer' : ''}`}
+                onClick={clickTarget ? () => {
+                  if (clickTarget.startsWith('http')) {
+                    window.open(clickTarget, '_blank');
+                  } else {
+                    navigate(clickTarget);
+                  }
+                } : undefined}
               >
                 {/* Highlight badge for main event */}
                 {isMainEvent && (

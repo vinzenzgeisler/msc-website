@@ -58,6 +58,7 @@ export default function CalendarFormPage() {
     location: '',
     contact_email: '',
     registration_url: '',
+    detail_url: '',
     is_main_event: false,
     published: true,
   });
@@ -111,6 +112,7 @@ export default function CalendarFormPage() {
         location: existingEvent.location || '',
         contact_email: existingEvent.contact_email || '',
         registration_url: existingEvent.registration_url || '',
+        detail_url: existingEvent.detail_url || '',
         is_main_event: existingEvent.is_main_event || false,
         published: existingEvent.published !== false,
       });
@@ -145,6 +147,7 @@ export default function CalendarFormPage() {
         location: formData.location.trim() || null,
         contact_email: formData.contact_email.trim() || null,
         registration_url: formData.registration_url.trim() || null,
+        detail_url: formData.detail_url.trim() || null,
         is_main_event: formData.is_main_event,
         published: formData.published,
         locale: 'de',
@@ -211,6 +214,7 @@ export default function CalendarFormPage() {
         location: formData.location.trim() || null,
         contact_email: formData.contact_email.trim() || null,
         registration_url: formData.registration_url.trim() || null,
+        detail_url: formData.detail_url.trim() || null,
         is_main_event: formData.is_main_event,
         published: formData.published,
         locale: targetLocale,
@@ -369,6 +373,21 @@ export default function CalendarFormPage() {
                   placeholder="https://anmeldung.example.de"
                 />
                 <p className="text-xs text-muted-foreground">Wird als „Zur Anmeldung"-Button angezeigt</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="detail_url" className="flex items-center gap-1.5">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Detail-Seite URL
+                </Label>
+                <Input
+                  id="detail_url"
+                  type="url"
+                  value={formData.detail_url}
+                  onChange={(e) => updateField('detail_url', e.target.value)}
+                  placeholder="https://msc-oberlausitz.de/events/beispiel"
+                />
+                <p className="text-xs text-muted-foreground">Optional: Macht den Termin auf der Website klickbar</p>
               </div>
 
               <div className="space-y-2">
