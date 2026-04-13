@@ -39,7 +39,7 @@ export function ClubTeaserSection() {
   return (
     <section className="relative overflow-hidden py-20 md:py-28">
       {/* Subtle racing stripe background */}
-      <div className="absolute inset-0 racing-stripe" />
+      <div className="absolute inset-0 racing-stripe opacity-30" />
       
       {/* Accent line */}
       <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-accent to-primary" />
