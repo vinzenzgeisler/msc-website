@@ -13,10 +13,10 @@ export function SponsorsSection() {
     title: locale === 'de' ? 'Partner & Sponsoren' : locale === 'cz' ? 'Partneři a sponzoři' : 'Partners & Sponsors',
     subtitle:
       locale === 'de'
-        ? 'Danke an alle, die unsere Veranstaltung unterstützen'
+        ? 'Danke an alle, die unseren Verein unterstützen'
         : locale === 'cz'
-          ? 'Děkujeme všem, kteří podporují naši akci'
-          : 'Thanks to everyone supporting our event',
+          ? 'Děkujeme všem, kteří podporují náš klub'
+          : 'Thanks to everyone supporting our club',
   });
   
   const mainSponsors = (sponsors || []).filter(s => s.tier === 'main' && s.active);
