@@ -49,6 +49,7 @@ export function useCreateCalendarEvent() {
       if (event.location) payload.location = event.location;
       if (event.contact_email) payload.contactEmail = event.contact_email;
       if (event.registration_url) payload.registrationUrl = event.registration_url;
+      if (event.detail_url) payload.detailUrl = event.detail_url;
       if (event.is_main_event) payload.isMainEvent = true;
 
       const data = await pb.collection('calendarEvents').create(payload);
@@ -79,6 +80,7 @@ export function useUpdateCalendarEvent() {
       if (updates.is_main_event !== undefined) payload.isMainEvent = updates.is_main_event;
       if (updates.contact_email !== undefined) payload.contactEmail = updates.contact_email || null;
       if (updates.registration_url !== undefined) payload.registrationUrl = updates.registration_url || null;
+      if (updates.detail_url !== undefined) payload.detailUrl = updates.detail_url || null;
       if (updates.published !== undefined) payload.published = updates.published;
 
       const data = await pb.collection('calendarEvents').update(id, payload);
