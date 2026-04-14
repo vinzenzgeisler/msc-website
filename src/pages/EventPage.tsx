@@ -239,9 +239,9 @@ export default function EventPage() {
           <div className="absolute inset-0">
             <div className="racing-stripe h-full w-full" />
           </div>
-          <div className="absolute -right-32 top-0 h-full w-40 skew-x-[-15deg] bg-accent" />
+          <div className="absolute -right-36 top-0 h-full w-40 skew-x-[-15deg] bg-accent" />
 
-          <div className="container relative z-10">
+          <div className="container relative z-10 pr-16 sm:pr-24 md:pr-32">
             {isLoading ? (
               <>
                 <Skeleton className="h-6 w-40 mb-4 bg-primary-foreground/20" />
