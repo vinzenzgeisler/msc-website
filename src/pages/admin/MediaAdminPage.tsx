@@ -113,6 +113,7 @@ export default function MediaAdminPage() {
         description: newAlbumDescription.trim(),
         locale: 'de',
         cover_image_url: null,
+        images: [],
       });
       toast.success('Album erstellt');
       setShowCreateAlbum(false);
