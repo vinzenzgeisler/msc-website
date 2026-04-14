@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ImageGallerySection } from '@/components/sections/ImageGallerySection';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -320,6 +321,13 @@ export default function MotocrossPage() {
           </div>
         </div>
       </section>
+
+      {/* Gallery */}
+      <ImageGallerySection
+        albumSlug="motocross"
+        title="Galerie"
+        fallbackText="Noch keine Bilder vorhanden."
+      />
 
       {/* Upcoming Events */}
       <section className="border-t border-border py-16">
