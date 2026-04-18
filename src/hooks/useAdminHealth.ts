@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { pb } from '@/integrations/pocketbase/client';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 
@@ -51,6 +51,8 @@ export function useAdminHealth() {
         const checks = await Promise.all([
           checkCollection('siteSettings', 'siteSettings', true),
           checkCollection('pageContents', 'pageContents'),
+          checkCollection('downloads', 'downloads'),
+          checkCollection('media', 'media'),
           checkCollection('boardMembers', 'boardMembers'),
           checkCollection('posts', 'posts'),
           checkCollection('calendarEvents', 'calendarEvents'),
@@ -61,6 +63,26 @@ export function useAdminHealth() {
           checks,
         };
       }
+    },
+  });
+}
+
+export function useRepairAdminHealth() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () =>
+      pb.send<{
+        ok: boolean;
+        message?: string;
+      }>('/api/cms/admin/repair', {
+        method: 'POST',
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin_health'] });
+    },
+    onError: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['admin_health'] });
     },
   });
 }

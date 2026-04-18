@@ -13,10 +13,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { FileText, Save, Loader2, Globe, Trash2 } from 'lucide-react';
+import { FileText, Plus, Save, Loader2, Globe, Trash2 } from 'lucide-react';
 import { useAllPageContent, useUpsertPageContent, PAGE_SECTIONS, PageKey } from '@/hooks/usePageContent';
+import { useDownloads } from '@/hooks/useDownloads';
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 import { LocaleTranslationBox, TranslationStatus, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
+import { DownloadAssetPicker } from '@/components/admin/DownloadAssetPicker';
 import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 import { RowsEditor } from '@/components/admin/RowsEditor';
 import {
@@ -25,6 +27,7 @@ import {
   serializeStructuredRows,
   type StructuredRow,
 } from '@/lib/structured-rows';
+import { parseSelectedDownloadIds, serializeSelectedDownloadIds } from '@/lib/download-selection';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 
@@ -99,6 +102,7 @@ const SECTION_LABELS: Record<string, string> = {
   track_map: 'Streckenkarte',
   location_map: 'Karten-Embed',
   registration_info: 'Anmeldung',
+  downloads: 'Downloads-Auswahl',
   visitors_admission: 'Eintrittspreise',
   visitors_schedule: 'Zeitplan / Ablauf',
   visitors_parking: 'Parkplätze & Shuttle',
@@ -209,6 +213,12 @@ function ContentEditor({
   const [clearImage, setClearImage] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [eventDownloadIds, setEventDownloadIds] = useState<string[]>(() =>
+    pageKey === 'event' && sectionKey === 'downloads'
+      ? parseSelectedDownloadIds(initialData?.content)
+      : [],
+  );
+  const { data: downloads } = useDownloads();
 
   const rowsConfig = ROWS_EDITOR_CONFIG[`${pageKey}:${sectionKey}`];
   const [rows, setRows] = useState<StructuredRow[]>(() =>
@@ -241,9 +251,14 @@ function ContentEditor({
     if (rowsConfig) {
       setRows(parseStructuredRows(initialData?.content));
     }
+    setEventDownloadIds(
+      pageKey === 'event' && sectionKey === 'downloads'
+        ? parseSelectedDownloadIds(initialData?.content)
+        : [],
+    );
     setIsDirty(false);
     setSaveSuccess(false);
-  }, [dataKey, initialData?.title, initialData?.subtitle, initialData?.content, initialData?.header_image_alt, initialData?.header_image_url, initialData?.image_alt, initialData?.image_url, rowsConfig]);
+  }, [dataKey, initialData?.title, initialData?.subtitle, initialData?.content, initialData?.header_image_alt, initialData?.header_image_url, initialData?.image_alt, initialData?.image_url, pageKey, rowsConfig, sectionKey]);
 
   const handleChange = (field: keyof ContentFormData, value: string) => {
     setFormData((current) => ({ ...current, [field]: value }));
@@ -269,40 +284,71 @@ function ContentEditor({
     setTimeout(() => setSaveSuccess(false), 2500);
   };
 
-  const hasSourceText =
-    formData.title.trim().length > 0 ||
-    formData.subtitle.trim().length > 0 ||
-    formData.content.trim().length > 0;
   const supportsHeroButtons = pageKey === 'home' && sectionKey === 'hero';
+  const supportsEventRegistrationSecondaryButton = pageKey === 'event' && sectionKey === 'registration_info';
+  const supportsEventDownloadsSelection = pageKey === 'event' && sectionKey === 'downloads';
+  const supportsContactButtons =
+    (pageKey === 'motocross' || pageKey === 'trial' || pageKey === 'touring')
+    && sectionKey === 'contact';
+  const titleLabel = supportsContactButtons ? 'Überschrift der Box' : 'Titel (DE)';
+  const titlePlaceholder = supportsContactButtons ? 'z. B. Ansprechpartner Trial' : 'Titel eingeben...';
+  const subtitleLabel = supportsContactButtons ? 'Telefon / Zusatzzeile' : 'Untertitel (DE)';
+  const subtitlePlaceholder = supportsContactButtons ? 'z. B. Tel.: 0172 7346799' : 'Untertitel eingeben...';
+  const contentLabel = supportsContactButtons ? 'Ansprechpartner / Anschrift / Beschreibung' : 'Inhalt (DE)';
+  const contentPlaceholder = supportsContactButtons
+    ? 'z. B. **Stefan Funke**<br/>Kirchstr. 8<br/>02791 Oderwitz'
+    : 'Inhalt eingeben... (Markdown wird unterstützt)';
   const supportsClubTeaserStats = pageKey === 'home' && sectionKey === 'club_teaser';
-  const supportsAttachment = pageKey === 'membership' && (sectionKey === 'declaration_document' || sectionKey === 'statute_document');
-  const supportsBodyContent = !supportsHeroButtons;
+  const supportsAttachment =
+    (pageKey === 'membership' && (sectionKey === 'declaration_document' || sectionKey === 'statute_document'))
+    || (pageKey === 'event' && sectionKey === 'registration_info');
+  const supportsBodyContent = !supportsHeroButtons && !supportsEventDownloadsSelection;
   const showImageField = allowImage && !supportsHeroButtons;
   const showHeaderImageField = allowHeaderImage && !supportsHeroButtons;
+  const availableDownloads = [...(downloads || [])].sort((a, b) => {
+    if (a.category === b.category) return a.title.localeCompare(b.title, 'de');
+    if (a.category === 'event') return -1;
+    if (b.category === 'event') return 1;
+    return (a.category || '').localeCompare(b.category || '', 'de');
+  });
+  const selectedEventDownloads = eventDownloadIds
+    .map((id) => availableDownloads.find((download) => download.id === id))
+    .filter(Boolean);
+  const remainingDownloads = availableDownloads.filter((download) => !eventDownloadIds.includes(download.id));
+  const hasSourceText =
+    !supportsEventDownloadsSelection && (
+      formData.title.trim().length > 0 ||
+      formData.subtitle.trim().length > 0 ||
+      formData.content.trim().length > 0
+    );
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor={`title-${sectionKey}`}>Titel (DE)</Label>
-        <Input
-          id={`title-${sectionKey}`}
-          value={formData.title}
-          onChange={(e) => handleChange('title', e.target.value)}
-          placeholder="Titel eingeben..."
-          className="max-w-xl"
-        />
-      </div>
+      {!supportsEventDownloadsSelection ? (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor={`title-${sectionKey}`}>{titleLabel}</Label>
+            <Input
+              id={`title-${sectionKey}`}
+              value={formData.title}
+              onChange={(e) => handleChange('title', e.target.value)}
+              placeholder={titlePlaceholder}
+              className="max-w-xl"
+            />
+          </div>
 
-      <div className="space-y-2">
-        <Label htmlFor={`subtitle-${sectionKey}`}>Untertitel (DE)</Label>
-        <Input
-          id={`subtitle-${sectionKey}`}
-          value={formData.subtitle}
-          onChange={(e) => handleChange('subtitle', e.target.value)}
-          placeholder="Untertitel eingeben..."
-          className="max-w-xl"
-        />
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor={`subtitle-${sectionKey}`}>{subtitleLabel}</Label>
+            <Input
+              id={`subtitle-${sectionKey}`}
+              value={formData.subtitle}
+              onChange={(e) => handleChange('subtitle', e.target.value)}
+              placeholder={subtitlePlaceholder}
+              className="max-w-xl"
+            />
+          </div>
+        </>
+      ) : null}
 
       {supportsBodyContent ? (
         rowsConfig ? (
@@ -329,18 +375,24 @@ function ContentEditor({
           </div>
         ) : (
           <div className="space-y-2">
-            <Label htmlFor={`content-${sectionKey}`}>Inhalt (DE)</Label>
+            <Label htmlFor={`content-${sectionKey}`}>{contentLabel}</Label>
             <Textarea
               id={`content-${sectionKey}`}
               value={formData.content}
               onChange={(e) => handleChange('content', e.target.value)}
-              placeholder="Inhalt eingeben... (Markdown wird unterstützt)"
+              placeholder={contentPlaceholder}
               rows={10}
               className="font-mono text-sm"
             />
-            <p className="text-xs text-muted-foreground">
-              Markdown: **fett**, *kursiv*, [Link](url)
-            </p>
+            {supportsContactButtons ? (
+              <p className="text-xs text-muted-foreground">
+                Name, Anschrift oder Zusatzinfos. HTML/Markdown ist erlaubt, z. B. `**Name**` oder `<br/>` für Zeilenumbrüche.
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Markdown: **fett**, *kursiv*, [Link](url)
+              </p>
+            )}
           </div>
         )
       ) : null}
@@ -393,6 +445,188 @@ function ContentEditor({
                 className="max-w-xl"
               />
             </div>
+          </div>
+        </div>
+      ) : null}
+
+      {supportsContactButtons ? (
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Die Ansprechpartner-Box erscheint auf der Website nur, wenn mindestens eines dieser Felder befüllt ist.
+            Buttons werden nur angezeigt, wenn jeweils `Label` und `Ziel` gesetzt sind.
+          </p>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="space-y-4 rounded-lg border p-4">
+              <p className="font-medium">Primärer Button</p>
+              <div className="space-y-2">
+                <Label htmlFor={`primary-button-label-${sectionKey}`}>Label</Label>
+                <Input
+                  id={`primary-button-label-${sectionKey}`}
+                  value={formData.primary_button_label}
+                  onChange={(e) => handleChange('primary_button_label', e.target.value)}
+                  placeholder="z. B. E-Mail senden"
+                  className="max-w-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`primary-button-url-${sectionKey}`}>Ziel</Label>
+                <Input
+                  id={`primary-button-url-${sectionKey}`}
+                  value={formData.primary_button_url}
+                  onChange={(e) => handleChange('primary_button_url', e.target.value)}
+                  placeholder="mailto:info@example.de"
+                  className="max-w-xl"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4 rounded-lg border p-4">
+              <p className="font-medium">Sekundärer Button</p>
+              <div className="space-y-2">
+                <Label htmlFor={`secondary-button-label-${sectionKey}`}>Label</Label>
+                <Input
+                  id={`secondary-button-label-${sectionKey}`}
+                  value={formData.secondary_button_label}
+                  onChange={(e) => handleChange('secondary_button_label', e.target.value)}
+                  placeholder="z. B. Weitere Infos"
+                  className="max-w-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`secondary-button-url-${sectionKey}`}>Ziel</Label>
+                <Input
+                  id={`secondary-button-url-${sectionKey}`}
+                  value={formData.secondary_button_url}
+                  onChange={(e) => handleChange('secondary_button_url', e.target.value)}
+                  placeholder="https://..."
+                  className="max-w-xl"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {supportsEventRegistrationSecondaryButton ? (
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Dieser Button erscheint oben im Hero auf `/old` als zweiter Button. Wenn ein Dokument hochgeladen ist, wird dieses bevorzugt verlinkt. Das URL-Feld dient dann als Fallback.
+          </p>
+          <div className="rounded-lg border p-4 space-y-4">
+            <p className="font-medium">Hero Download-Button</p>
+            <div className="space-y-2">
+              <Label htmlFor={`secondary-button-label-${sectionKey}`}>Label</Label>
+              <Input
+                id={`secondary-button-label-${sectionKey}`}
+                value={formData.secondary_button_label}
+                onChange={(e) => handleChange('secondary_button_label', e.target.value)}
+                placeholder="z. B. Download Ausschreibung"
+                className="max-w-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor={`secondary-button-url-${sectionKey}`}>Ziel / Fallback-URL</Label>
+              <Input
+                id={`secondary-button-url-${sectionKey}`}
+                value={formData.secondary_button_url}
+                onChange={(e) => handleChange('secondary_button_url', e.target.value)}
+                placeholder="https://..."
+                className="max-w-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Dokument aus Bibliothek wählen</Label>
+              <DownloadAssetPicker
+                buttonLabel="Dokument auswählen oder hochladen"
+                onSelect={(selectedDownload) => {
+                  setFormData((current) => ({
+                    ...current,
+                    secondary_button_label: current.secondary_button_label || selectedDownload.title,
+                    secondary_button_url: selectedDownload.file_url,
+                  }));
+                  setIsDirty(true);
+                  setSaveSuccess(false);
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                Übernimmt die Datei-URL aus `Downloads` in das Ziel-Feld. Ein hochgeladenes Dokument in diesem Abschnitt hat weiterhin Vorrang.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {supportsEventDownloadsSelection ? (
+        <div className="space-y-4 rounded-lg border p-4">
+          <div className="space-y-1">
+            <p className="font-medium">Downloads unten auf `/old`</p>
+            <p className="text-xs text-muted-foreground">
+              Hier wählst du direkt aus, welche vorhandenen Dokumente in der Download-Sektion angezeigt werden. Die Kategorie in `Downloads` ist dafür nicht mehr nötig.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 md:flex-row md:items-end">
+            <div className="flex-1 space-y-2">
+              <Label>Dokument hinzufügen</Label>
+              <DownloadAssetPicker
+                buttonLabel="Dokument auswählen oder hochladen"
+                onSelect={(selectedDownload) => {
+                  if (eventDownloadIds.includes(selectedDownload.id)) {
+                    toast.error('Dieses Dokument ist bereits in der Event-Liste enthalten');
+                    return;
+                  }
+
+                  const nextIds = [...eventDownloadIds, selectedDownload.id];
+                  setEventDownloadIds(nextIds);
+                  setFormData((current) => ({
+                    ...current,
+                    content: serializeSelectedDownloadIds(nextIds),
+                  }));
+                  setIsDirty(true);
+                  setSaveSuccess(false);
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Ausgewählte Dokumente</Label>
+            {selectedEventDownloads.length > 0 ? (
+              <div className="space-y-2">
+                {selectedEventDownloads.map((download) => (
+                  <div key={download.id} className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{download.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {download.category || 'ohne Kategorie'} · {download.file_type?.toUpperCase() || 'DATEI'}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const nextIds = eventDownloadIds.filter((id) => id !== download.id);
+                        setEventDownloadIds(nextIds);
+                        setFormData((current) => ({
+                          ...current,
+                          content: serializeSelectedDownloadIds(nextIds),
+                        }));
+                        setIsDirty(true);
+                        setSaveSuccess(false);
+                      }}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Entfernen
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Noch keine Dokumente ausgewählt. Solange hier nichts ausgewählt ist, verwendet die Website weiter den alten Kategorie-Fallback `event`.
+              </p>
+            )}
           </div>
         </div>
       ) : null}
@@ -509,6 +743,11 @@ function ContentEditor({
               setSaveSuccess(false);
             }}
           />
+          {pageKey === 'event' && sectionKey === 'registration_info' ? (
+            <p className="text-xs text-muted-foreground">
+              Dieses Dokument wird auf `/old` automatisch als Hero-Button "Download Ausschreibung" verlinkt.
+            </p>
+          ) : null}
           {(attachmentFile || (initialData?.attachment_name && !clearAttachment)) && (
             <div className="space-y-2">
               {attachmentFile ? (
@@ -601,13 +840,15 @@ function ContentEditor({
         </div>
       ) : null}
 
-      <LocaleTranslationBox
-        description="DE bleibt führend. EN/CZ werden separat gespeichert (zuerst DE speichern)."
-        status={translationStatus}
-        onTranslate={(target) => onTranslate(target, formData)}
-        isTranslating={isTranslating}
-        disabled={!hasSourceText || !hasGermanBaseRecord}
-      />
+      {!supportsEventDownloadsSelection ? (
+        <LocaleTranslationBox
+          description="DE bleibt führend. EN/CZ werden separat gespeichert (zuerst DE speichern)."
+          status={translationStatus}
+          onTranslate={(target) => onTranslate(target, formData)}
+          isTranslating={isTranslating}
+          disabled={!hasSourceText || !hasGermanBaseRecord}
+        />
+      ) : null}
 
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={isSaving || !isDirty}>
@@ -793,7 +1034,13 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
         {sections.map((sectionKey) => {
           const germanContent = getContentForSection(sectionKey, 'de');
           const translationStatus = getTranslationStatus(sectionKey);
-          const hasGermanContent = Boolean(germanContent?.title || germanContent?.content || germanContent?.subtitle);
+          const hasGermanContent = Boolean(
+            germanContent?.title
+            || germanContent?.content
+            || germanContent?.subtitle
+            || (germanContent?.primary_button_label && germanContent?.primary_button_url)
+            || (germanContent?.secondary_button_label && germanContent?.secondary_button_url),
+          );
 
           return (
             <AccordionItem key={sectionKey} value={sectionKey} className="rounded-lg border px-4">

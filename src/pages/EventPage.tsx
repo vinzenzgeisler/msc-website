@@ -37,8 +37,9 @@ import { useEventContent } from '@/hooks/useEventContent';
 import { useDownloads } from '@/hooks/useDownloads';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useMediaAlbums, useMediaFiles } from '@/hooks/useMedia';
-import { useContentWithFallback } from '@/hooks/usePageContent';
+import { useContentWithFallback, useSectionContent } from '@/hooks/usePageContent';
 import { useSettings } from '@/hooks/useSettings';
+import { parseSelectedDownloadIds } from '@/lib/download-selection';
 import { format } from 'date-fns';
 import { de, cs, enUS } from 'date-fns/locale';
 
@@ -56,6 +57,7 @@ export default function EventPage() {
   const { data: allEvents } = useCalendarEvents(false);
   const { data: eventContent } = useEventContent(mainEvent?.id);
   const { data: downloads } = useDownloads();
+  const { data: selectedDownloadsContent } = useSectionContent('event', 'downloads');
   const { data: albums } = useMediaAlbums();
   const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
   const eventIntro = useContentWithFallback('event', 'intro', {
@@ -214,7 +216,13 @@ export default function EventPage() {
   const admissionInfo = eventContent?.infos?.find((item) => item.section === 'visitors_admission');
   const paddockInfo = eventContent?.infos?.find((item) => item.section === 'visitors_paddock');
   const registrationInfo = eventContent?.infos?.find((item) => item.section === 'registration');
-  const eventDownloads = (downloads || []).filter((item) => item.category === 'event');
+  const selectedDownloadIds = parseSelectedDownloadIds(selectedDownloadsContent?.content);
+  const selectedEventDownloads = selectedDownloadIds
+    .map((id) => (downloads || []).find((item) => item.id === id))
+    .filter(Boolean);
+  const eventDownloads = selectedEventDownloads.length > 0
+    ? selectedEventDownloads
+    : (downloads || []).filter((item) => item.category === 'event');
 
   const mapEmbedUrl = locationMapContent.content || null;
   const googleMapsLink = locationMapContent.primary_button_url
@@ -598,15 +606,24 @@ export default function EventPage() {
             <h2 className="mb-8">{t.event.downloads}</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {eventDownloads.length > 0 ? eventDownloads.map((download) => (
-                <Card key={download.id} className="group transition-shadow hover:shadow-lg">
-                  <CardContent className="flex items-center gap-4 p-4">
-                    <div className="bg-primary/10 p-3"><Download className="h-6 w-6 text-primary" /></div>
-                    <div className="min-w-0">
-                      <a href={download.file_url} target="_blank" rel="noopener noreferrer" className="font-medium group-hover:text-primary">{download.title}</a>
-                      <p className="text-sm text-muted-foreground">{download.file_type?.toUpperCase() || 'DATEI'}</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <a
+                  key={download.id}
+                  href={download.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block"
+                >
+                  <Card className="h-full transition-shadow hover:shadow-lg hover:border-primary">
+                    <CardContent className="flex items-center gap-4 p-4">
+                      <div className="bg-primary/10 p-3"><Download className="h-6 w-6 text-primary" /></div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium group-hover:text-primary">{download.title}</p>
+                        <p className="text-sm text-muted-foreground">{download.file_type?.toUpperCase() || 'DATEI'}</p>
+                      </div>
+                      <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+                    </CardContent>
+                  </Card>
+                </a>
               )) : (
                 <Card className="lg:col-span-4">
                   <CardContent className="p-6 text-muted-foreground">

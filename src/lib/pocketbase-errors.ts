@@ -27,6 +27,10 @@ export function getPocketBaseErrorMessage(error: unknown, fallback = 'Speichern 
   const message = String(error.response?.message || error.message || '').trim();
   const raw = `${message} ${JSON.stringify(error.response?.data || {})}`;
 
+  if (raw.includes('create rule failure') && raw.includes('sql: no rows in result set')) {
+    return 'Die CMS-Sitzung ist wahrscheinlich veraltet oder die Live-PocketBase nutzt noch alte Collection-Rules. Bitte neu anmelden und die PocketBase-Konfiguration auf der Instanz prüfen.';
+  }
+
   if (raw.includes('create rule failure') || raw.includes('update rule failure') || raw.includes('delete rule failure')) {
     return 'Die PocketBase-Zugriffsregel für diesen Datentyp blockiert den Vorgang. Bitte Collections und Rules prüfen.';
   }

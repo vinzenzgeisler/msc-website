@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { listAllRecords, pb } from '@/integrations/pocketbase/client';
+import { ensureCmsSession, listAllRecords, pb } from '@/integrations/pocketbase/client';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { RecordModel } from 'pocketbase';
+import { getSafeTimestamp } from '@/lib/date';
+import { ClientResponseError, RecordModel } from 'pocketbase';
 
 export interface PageContent {
   id: string;
@@ -42,7 +43,7 @@ export const PAGE_SECTIONS = {
   touring: ['intro', 'tours_current', 'tours_archive', 'contact', 'events'],
   calendar: ['intro'],
   news: ['intro'],
-  event: ['intro', 'track_map', 'location_map', 'registration_info', 'visitors_admission', 'visitors_schedule', 'visitors_parking', 'visitors_paddock', 'visitors_photographers', 'visitors_privacy', 'visitors_transport', 'visitors_site_map', 'gallery', 'archive', 'accommodation_intro', 'accommodation_list'],
+  event: ['intro', 'track_map', 'location_map', 'registration_info', 'downloads', 'visitors_admission', 'visitors_schedule', 'visitors_parking', 'visitors_paddock', 'visitors_photographers', 'visitors_privacy', 'visitors_transport', 'visitors_site_map', 'gallery', 'archive', 'accommodation_intro', 'accommodation_list'],
   contact: ['intro', 'info', 'map'],
   sponsors: ['intro', 'cta'],
   partner_clubs: ['intro'],
@@ -82,9 +83,23 @@ function mapPageContent(item: RecordModel): PageContent {
   };
 }
 
+function getLatestRecord(items: RecordModel[]): RecordModel | null {
+  if (!items.length) return null;
+
+  return [...items].sort(
+    (a, b) =>
+      getSafeTimestamp(b.updated || b.updatedAt || b.updated_at || b.created) -
+      getSafeTimestamp(a.updated || a.updatedAt || a.updated_at || a.created),
+  )[0] || null;
+}
+
+function isRetryableUpdateMiss(error: unknown) {
+  return error instanceof ClientResponseError && error.status === 404;
+}
+
 function resolveLocalizedRecord(items: RecordModel[], locale: string): PageContent | null {
-  const exact = items.find((item) => item.locale === locale);
-  const german = items.find((item) => item.locale === 'de');
+  const exact = getLatestRecord(items.filter((item) => item.locale === locale));
+  const german = getLatestRecord(items.filter((item) => item.locale === 'de'));
   const primary = exact || german;
 
   if (!primary) return null;
@@ -200,9 +215,32 @@ export function useAllPageContent(pageKey: PageKey) {
     queryKey: ['page_content', pageKey, 'all'],
     queryFn: async () => {
       const data = await listAllRecords('pageContents');
+      const deduped = new Map<string, RecordModel>();
 
-      return (data
+      data
         .filter((item) => item.pageKey === pageKey)
+        .forEach((item) => {
+          const key = `${item.pageKey}:${item.sectionKey}:${item.locale}`;
+          const existing = deduped.get(key);
+
+          if (!existing) {
+            deduped.set(key, item);
+            return;
+          }
+
+          const existingTime = getSafeTimestamp(
+            existing.updated || existing.updatedAt || existing.updated_at || existing.created,
+          );
+          const currentTime = getSafeTimestamp(
+            item.updated || item.updatedAt || item.updated_at || item.created,
+          );
+
+          if (currentTime >= existingTime) {
+            deduped.set(key, item);
+          }
+        });
+
+      return (Array.from(deduped.values())
         .map(mapPageContent) as PageContent[]).sort(
         (a, b) => a.section_key.localeCompare(b.section_key) || a.locale.localeCompare(b.locale),
       );
@@ -215,6 +253,8 @@ export function useUpdatePageContent() {
 
   return useMutation({
     mutationFn: async (content: Omit<PageContent, 'id' | 'updated_at' | 'resolved_locale' | 'is_fallback'> & { id?: string; image_file?: File | null; header_image_file?: File | null; attachment_file?: File | null; clear_image?: boolean; clear_header_image?: boolean; clear_attachment?: boolean }) => {
+      await ensureCmsSession();
+
       const payload: Record<string, unknown> = {
         pageKey: content.page_key,
         sectionKey: content.section_key,
@@ -279,12 +319,38 @@ export function useUpsertPageContent() {
       image_file?: File | null;
       clear_image?: boolean;
     }) => {
+      await ensureCmsSession();
+
       const all = await listAllRecords('pageContents');
-      const existing = all.find(
-        (item) =>
-          item.pageKey === content.page_key &&
-          item.sectionKey === content.section_key &&
-          item.locale === content.locale,
+      const createPayload: Record<string, unknown> = {
+        pageKey: content.page_key,
+        sectionKey: content.section_key,
+        locale: content.locale,
+        title: content.title || '',
+        subtitle: content.subtitle || '',
+        content: content.content || '',
+        primaryButtonLabel: content.primary_button_label || '',
+        primaryButtonUrl: content.primary_button_url || '',
+        secondaryButtonLabel: content.secondary_button_label || '',
+        secondaryButtonUrl: content.secondary_button_url || '',
+        statOneLabel: content.stat_one_label || '',
+        statTwoLabel: content.stat_two_label || '',
+        statThreeLabel: content.stat_three_label || '',
+        headerImageAlt: content.header_image_alt || '',
+        imageAlt: content.image_alt || '',
+      };
+
+      if (content.attachment_file) createPayload.attachment = content.attachment_file;
+      if (content.header_image_file) createPayload.headerImage = content.header_image_file;
+      if (content.image_file) createPayload.image = content.image_file;
+
+      const existing = getLatestRecord(
+        all.filter(
+          (item) =>
+            item.pageKey === content.page_key &&
+            item.sectionKey === content.section_key &&
+            item.locale === content.locale,
+        ),
       );
 
       if (existing) {
@@ -310,34 +376,21 @@ export function useUpsertPageContent() {
         if (content.clear_header_image && existing.headerImage) payload['headerImage-'] = existing.headerImage;
         if (content.clear_image && existing.image) payload['image-'] = existing.image;
 
-        const updated = await pb.collection('pageContents').update(existing.id, payload);
+        try {
+          const updated = await pb.collection('pageContents').update(existing.id, payload);
 
-        return mapPageContent(updated);
+          return mapPageContent(updated);
+        } catch (error) {
+          if (!isRetryableUpdateMiss(error)) {
+            throw error;
+          }
+
+          const created = await pb.collection('pageContents').create(createPayload);
+          return mapPageContent(created);
+        }
       }
 
-      const payload: Record<string, unknown> = {
-        pageKey: content.page_key,
-        sectionKey: content.section_key,
-        locale: content.locale,
-        title: content.title || '',
-        subtitle: content.subtitle || '',
-        content: content.content || '',
-        primaryButtonLabel: content.primary_button_label || '',
-        primaryButtonUrl: content.primary_button_url || '',
-        secondaryButtonLabel: content.secondary_button_label || '',
-        secondaryButtonUrl: content.secondary_button_url || '',
-        statOneLabel: content.stat_one_label || '',
-        statTwoLabel: content.stat_two_label || '',
-        statThreeLabel: content.stat_three_label || '',
-        headerImageAlt: content.header_image_alt || '',
-        imageAlt: content.image_alt || '',
-      };
-
-      if (content.attachment_file) payload.attachment = content.attachment_file;
-      if (content.header_image_file) payload.headerImage = content.header_image_file;
-      if (content.image_file) payload.image = content.image_file;
-
-      const created = await pb.collection('pageContents').create(payload);
+      const created = await pb.collection('pageContents').create(createPayload);
 
       return mapPageContent(created);
     },

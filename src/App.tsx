@@ -39,6 +39,7 @@ import CalendarFormPage from "./pages/admin/CalendarFormPage";
 import SponsorsAdminPage from "./pages/admin/SponsorsAdminPage";
 import SponsorFormPage from "./pages/admin/SponsorFormPage";
 import DownloadsAdminPage from "./pages/admin/DownloadsAdminPage";
+import DownloadsFormPage from "./pages/admin/DownloadsFormPage";
 import MediaAdminPage from "./pages/admin/MediaAdminPage";
 import ContentAdminPage from "./pages/admin/ContentAdminPage";
 import StructuredContentAdminPage from "./pages/admin/StructuredContentAdminPage";
@@ -108,6 +109,8 @@ const App = () => (
               <Route path="/admin/sponsors/new" element={<AdminLayout><SponsorFormPage /></AdminLayout>} />
               <Route path="/admin/sponsors/:id" element={<AdminLayout><SponsorFormPage /></AdminLayout>} />
               <Route path="/admin/downloads" element={<AdminLayout><DownloadsAdminPage /></AdminLayout>} />
+              <Route path="/admin/downloads/new" element={<AdminLayout><DownloadsFormPage /></AdminLayout>} />
+              <Route path="/admin/downloads/:id" element={<AdminLayout><DownloadsFormPage /></AdminLayout>} />
               <Route path="/admin/media" element={<AdminLayout><MediaAdminPage /></AdminLayout>} />
               <Route path="/admin/content" element={<AdminLayout><ContentAdminPage /></AdminLayout>} />
               <Route path="/admin/board" element={<AdminLayout><BoardAdminPage /></AdminLayout>} />

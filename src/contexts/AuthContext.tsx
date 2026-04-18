@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { pb, UserRole, mapProfileRecord } from '@/integrations/pocketbase/client';
+import { ensureCmsSession, pb, UserRole, mapProfileRecord } from '@/integrations/pocketbase/client';
 
 export type { UserRole };
 
@@ -49,13 +49,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    let cancelled = false;
+
     const unsubscribe = pb.authStore.onChange(() => {
       syncFromStore();
     }, true);
 
-    syncFromStore();
+    const validateSession = async () => {
+      if (!pb.authStore.token || !pb.authStore.record) {
+        syncFromStore();
+        return;
+      }
+
+      try {
+        await ensureCmsSession();
+      } catch {
+        if (!cancelled) {
+          pb.authStore.clear();
+        }
+      } finally {
+        if (!cancelled) {
+          syncFromStore();
+        }
+      }
+    };
+
+    validateSession();
 
     return () => {
+      cancelled = true;
       unsubscribe();
     };
   }, []);

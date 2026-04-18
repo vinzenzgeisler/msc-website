@@ -1,6 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { pb, Download, listAllRecords, mapDownloadRecord } from '@/integrations/pocketbase/client';
+import { pb, Download, ensureCmsSession, listAllRecords, mapDownloadRecord } from '@/integrations/pocketbase/client';
 import { getSafeTimestamp } from '@/lib/date';
+
+export interface DownloadInput {
+  title: string;
+  description?: string | null;
+  category?: string | null;
+  file?: File | null;
+}
+
+export interface UpdateDownloadInput extends DownloadInput {
+  id: string;
+}
 
 export function useDownloads() {
   return useQuery({
@@ -29,7 +40,9 @@ export function useCreateDownload() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (download: Omit<Download, 'id' | 'created_at'> & { file?: File | null }) => {
+    mutationFn: async (download: DownloadInput) => {
+      await ensureCmsSession();
+
       const data = await pb.collection('downloads').create({
         title: download.title,
         description: download.description || '',
@@ -48,7 +61,9 @@ export function useUpdateDownload() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, file, ...updates }: Partial<Download> & { id: string; file?: File | null }) => {
+    mutationFn: async ({ id, file, ...updates }: UpdateDownloadInput) => {
+      await ensureCmsSession();
+
       const payload: Record<string, unknown> = {};
       if (updates.title !== undefined) payload.title = updates.title;
       if (updates.description !== undefined) payload.description = updates.description || '';
@@ -70,6 +85,7 @@ export function useDeleteDownload() {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      await ensureCmsSession();
       await pb.collection('downloads').delete(id);
     },
     onSuccess: () => {

@@ -5,6 +5,32 @@ const pocketbaseUrl = import.meta.env.VITE_POCKETBASE_URL || 'https://backend.ms
 export const pb = new PocketBase(pocketbaseUrl);
 pb.autoCancellation(false);
 
+export async function ensureCmsSession() {
+  const token = pb.authStore.token;
+  const record = pb.authStore.record;
+
+  if (!token || !record) {
+    throw new Error('CMS-Sitzung fehlt. Bitte erneut anmelden.');
+  }
+
+  try {
+    const authData = await pb.collection('cms_users').authRefresh();
+
+    if (authData?.token && authData?.record) {
+      pb.authStore.save(authData.token, authData.record);
+    }
+
+    const role = String(authData?.record?.role || '');
+    if (role !== 'super_admin' && role !== 'admin' && role !== 'editor') {
+      pb.authStore.clear();
+      throw new Error('Keine Berechtigung für den Admin-Bereich.');
+    }
+  } catch {
+    pb.authStore.clear();
+    throw new Error('CMS-Sitzung abgelaufen. Bitte erneut anmelden.');
+  }
+}
+
 export async function listAllRecords<T = RecordModel>(collectionName: string): Promise<T[]> {
   const perPage = 200;
   let page = 1;
@@ -102,6 +128,7 @@ export interface Download {
   title: string;
   description: string | null;
   file_url: string;
+  file_name: string | null;
   file_type: string | null;
   file_size: number | null;
   category: string | null;
@@ -375,6 +402,7 @@ export function mapDownloadRecord(record: RecordModel): Download {
     title: record.title,
     description: record.description || null,
     file_url: getFileUrl(record, 'file') || '',
+    file_name: fileName,
     file_type: typeof fileName === 'string' && fileName.includes('.') ? fileName.split('.').pop() || null : null,
     file_size: null,
     category: record.category || null,
