@@ -24,7 +24,6 @@ import PartnerClubsPage from "./pages/partners/PartnerClubsPage";
 import ContactPage from "./pages/ContactPage";
 import ImprintPage from "./pages/ImprintPage";
 import PrivacyPage from "./pages/PrivacyPage";
-import NotFound from "./pages/NotFound";
 
 // Admin Pages
 import LoginPage from "./pages/admin/LoginPage";
@@ -120,7 +119,7 @@ const App = () => (
               <Route path="/admin/settings" element={<AdminLayout><SettingsAdminPage /></AdminLayout>} />
               
               {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
