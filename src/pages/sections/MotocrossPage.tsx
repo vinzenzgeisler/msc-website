@@ -102,6 +102,13 @@ export default function MotocrossPage() {
   const trackImage = intro.image_url || trackImageFallback;
   const directionsImage = directions.image_url || anfahrtImageFallback;
 
+  const trainingContentHtml = isStructuredRowsContent(training.content)
+    ? rowsToHtmlTable(parseStructuredRows(training.content))
+    : training.content;
+  const feesContentHtml = isStructuredRowsContent(fees.content)
+    ? rowsToHtmlTable(parseStructuredRows(fees.content))
+    : fees.content;
+
   const upcomingEvents = (calendarEvents || [])
     .filter((e) => e.category === 'motocross' && e.published && new Date(e.start_dt) >= new Date())
     .slice(0, 3);
