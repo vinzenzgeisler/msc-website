@@ -30,6 +30,7 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { RichContent } from '@/components/content/RichContent';
+import { isStructuredRowsContent, parseStructuredRows, rowsToHtmlTable } from '@/lib/structured-rows';
 
 import trackImageFallback from '@/assets/motocross-track.jpg';
 import anfahrtImageFallback from '@/assets/motocross-anfahrt.jpg';
@@ -100,6 +101,13 @@ export default function MotocrossPage() {
   const [safetyOpen, setSafetyOpen] = useState(false);
   const trackImage = intro.image_url || trackImageFallback;
   const directionsImage = directions.image_url || anfahrtImageFallback;
+
+  const trainingContentHtml = isStructuredRowsContent(training.content)
+    ? rowsToHtmlTable(parseStructuredRows(training.content))
+    : training.content;
+  const feesContentHtml = isStructuredRowsContent(fees.content)
+    ? rowsToHtmlTable(parseStructuredRows(fees.content))
+    : fees.content;
 
   const upcomingEvents = (calendarEvents || [])
     .filter((e) => e.category === 'motocross' && e.published && new Date(e.start_dt) >= new Date())
@@ -194,7 +202,7 @@ export default function MotocrossPage() {
                 )}
                 {training.content && (
                   <RichContent
-                    content={training.content}
+                    content={trainingContentHtml}
                     className="[&_table]:w-full [&_td]:py-2 [&_td]:pr-4 [&_td:first-child]:font-semibold [&_td:first-child]:text-foreground [&_td:last-child]:text-muted-foreground"
                   />
                 )}
@@ -212,7 +220,7 @@ export default function MotocrossPage() {
               <CardContent>
                 {fees.content && (
                   <RichContent
-                    content={fees.content}
+                    content={feesContentHtml}
                     className="mb-4 [&_table]:w-full [&_td]:py-2 [&_td]:pr-4 [&_td:first-child]:text-foreground [&_td:last-child]:font-semibold [&_td:last-child]:text-primary"
                   />
                 )}

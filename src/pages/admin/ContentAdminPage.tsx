@@ -18,8 +18,43 @@ import { useAllPageContent, useUpsertPageContent, PAGE_SECTIONS, PageKey } from 
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 import { LocaleTranslationBox, TranslationStatus, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
 import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
+import { RowsEditor } from '@/components/admin/RowsEditor';
+import {
+  isStructuredRowsContent,
+  parseStructuredRows,
+  serializeStructuredRows,
+  type StructuredRow,
+} from '@/lib/structured-rows';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+
+interface RowsEditorConfig {
+  labelHeader: string;
+  valueHeader: string;
+  labelPlaceholder: string;
+  valuePlaceholder: string;
+  addLabel: string;
+  helpText: string;
+}
+
+const ROWS_EDITOR_CONFIG: Record<string, RowsEditorConfig> = {
+  'motocross:training': {
+    labelHeader: 'Tag',
+    valueHeader: 'Zeit',
+    labelPlaceholder: 'z. B. Mittwoch',
+    valuePlaceholder: 'z. B. 17:00 – 19:00 Uhr',
+    addLabel: 'Trainingstag hinzufügen',
+    helpText: 'Jede Zeile entspricht einem Trainingstag. Wird automatisch als Tabelle dargestellt.',
+  },
+  'motocross:fees': {
+    labelHeader: 'Fahrzeug / Kategorie',
+    valueHeader: 'Gebühr',
+    labelPlaceholder: 'z. B. Motorräder bis 85 ccm',
+    valuePlaceholder: 'z. B. 10,00 € pro Trainingstag',
+    addLabel: 'Gebühr hinzufügen',
+    helpText: 'Eine Zeile pro Fahrzeugklasse. Wird im Frontend als Preisliste angezeigt.',
+  },
+};
 
 const PAGE_LABELS: Record<PageKey, string> = {
   home: 'Startseite',
@@ -175,6 +210,11 @@ function ContentEditor({
   const [isDirty, setIsDirty] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  const rowsConfig = ROWS_EDITOR_CONFIG[`${pageKey}:${sectionKey}`];
+  const [rows, setRows] = useState<StructuredRow[]>(() =>
+    rowsConfig ? parseStructuredRows(initialData?.content) : [],
+  );
+
   const dataKey = `${pageKey}:${sectionKey}:de`;
 
   useEffect(() => {
@@ -198,9 +238,12 @@ function ContentEditor({
     setImageAlt(initialData?.image_alt || '');
     setImageFile(null);
     setClearImage(false);
+    if (rowsConfig) {
+      setRows(parseStructuredRows(initialData?.content));
+    }
     setIsDirty(false);
     setSaveSuccess(false);
-  }, [dataKey, initialData?.title, initialData?.subtitle, initialData?.content, initialData?.header_image_alt, initialData?.header_image_url, initialData?.image_alt, initialData?.image_url]);
+  }, [dataKey, initialData?.title, initialData?.subtitle, initialData?.content, initialData?.header_image_alt, initialData?.header_image_url, initialData?.image_alt, initialData?.image_url, rowsConfig]);
 
   const handleChange = (field: keyof ContentFormData, value: string) => {
     setFormData((current) => ({ ...current, [field]: value }));
@@ -262,20 +305,44 @@ function ContentEditor({
       </div>
 
       {supportsBodyContent ? (
-        <div className="space-y-2">
-          <Label htmlFor={`content-${sectionKey}`}>Inhalt (DE)</Label>
-          <Textarea
-            id={`content-${sectionKey}`}
-            value={formData.content}
-            onChange={(e) => handleChange('content', e.target.value)}
-            placeholder="Inhalt eingeben... (Markdown wird unterstützt)"
-            rows={10}
-            className="font-mono text-sm"
-          />
-          <p className="text-xs text-muted-foreground">
-            Markdown: **fett**, *kursiv*, [Link](url)
-          </p>
-        </div>
+        rowsConfig ? (
+          <div className="space-y-2">
+            <Label>Inhalt (DE)</Label>
+            <RowsEditor
+              rows={rows}
+              onChange={(next) => {
+                setRows(next);
+                setFormData((current) => ({
+                  ...current,
+                  content: serializeStructuredRows(next),
+                }));
+                setIsDirty(true);
+                setSaveSuccess(false);
+              }}
+              labelHeader={rowsConfig.labelHeader}
+              valueHeader={rowsConfig.valueHeader}
+              labelPlaceholder={rowsConfig.labelPlaceholder}
+              valuePlaceholder={rowsConfig.valuePlaceholder}
+              addLabel={rowsConfig.addLabel}
+            />
+            <p className="text-xs text-muted-foreground">{rowsConfig.helpText}</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Label htmlFor={`content-${sectionKey}`}>Inhalt (DE)</Label>
+            <Textarea
+              id={`content-${sectionKey}`}
+              value={formData.content}
+              onChange={(e) => handleChange('content', e.target.value)}
+              placeholder="Inhalt eingeben... (Markdown wird unterstützt)"
+              rows={10}
+              className="font-mono text-sm"
+            />
+            <p className="text-xs text-muted-foreground">
+              Markdown: **fett**, *kursiv*, [Link](url)
+            </p>
+          </div>
+        )
       ) : null}
 
       {supportsHeroButtons ? (
