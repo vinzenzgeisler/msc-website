@@ -340,6 +340,19 @@ export default function MotocrossPage() {
         fallbackText="Noch keine Bilder vorhanden."
       />
 
+      {/* Contact (only when configured in CMS) */}
+      {contact.hasDbContent && (contact.title || contact.content) && (
+        <ContactSection
+          title={contact.title || 'Ansprechpartner'}
+          content={contact.content}
+          subtitle={contact.subtitle}
+          primaryLabel={contact.primary_button_label}
+          primaryUrl={contact.primary_button_url}
+          secondaryLabel={contact.secondary_button_label}
+          secondaryUrl={contact.secondary_button_url}
+        />
+      )}
+
       {/* Upcoming Events */}
       <section className="border-t border-border py-16">
         <div className="container">
