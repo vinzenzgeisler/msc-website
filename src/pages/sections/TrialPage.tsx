@@ -19,6 +19,7 @@ import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { DisciplineEventCard } from '@/components/sections/DisciplineEventCard';
 import { RichContent } from '@/components/content/RichContent';
+import { ContactSection } from '@/components/sections/ContactSection';
 
 import heroTrial from '@/assets/event-start-2.jpg';
 
