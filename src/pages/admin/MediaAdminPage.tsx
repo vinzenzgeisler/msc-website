@@ -200,6 +200,9 @@ export default function MediaAdminPage() {
                   />
                 </div>
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                  <Button variant="secondary" size="sm" onClick={() => copyUrl(file.file_url)} title="URL kopieren">
+                    <LinkIcon className="h-4 w-4" />
+                  </Button>
                   <Button variant="secondary" size="sm" onClick={() => setDeleteFile(file)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -264,7 +267,7 @@ export default function MediaAdminPage() {
             ref={fileInputRef}
             type="file"
             multiple
-            accept="image/*"
+            accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip"
             className="hidden"
             onChange={handleFileUpload}
           />
@@ -434,10 +437,22 @@ export default function MediaAdminPage() {
                 <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                   {filteredFiles.map((file) => (
                     <div key={file.id} className="group relative">
-                      <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                        <img src={file.file_url} alt={file.alt_text || file.file_name} className="w-full h-full object-cover" />
+                      <div className="aspect-square bg-muted rounded-lg overflow-hidden flex items-center justify-center">
+                        {isImageFile(file) ? (
+                          <img src={file.file_url} alt={file.alt_text || file.file_name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="flex flex-col items-center gap-2 p-4 text-center">
+                            <FileText className="h-12 w-12 text-muted-foreground" />
+                            <span className="text-xs uppercase font-semibold text-muted-foreground">
+                              {file.file_type || 'Datei'}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                        <Button variant="secondary" size="sm" onClick={() => copyUrl(file.file_url)} title="URL kopieren">
+                          <LinkIcon className="h-4 w-4" />
+                        </Button>
                         <Button variant="secondary" size="sm" onClick={() => setDeleteFile(file)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -450,8 +465,12 @@ export default function MediaAdminPage() {
                 <div className="space-y-2">
                   {filteredFiles.map((file) => (
                     <div key={file.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="w-12 h-12 bg-muted rounded overflow-hidden flex-shrink-0">
-                        <img src={file.file_url} alt={file.alt_text || file.file_name} className="w-full h-full object-cover" />
+                      <div className="w-12 h-12 bg-muted rounded overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        {isImageFile(file) ? (
+                          <img src={file.file_url} alt={file.alt_text || file.file_name} className="w-full h-full object-cover" />
+                        ) : (
+                          <FileText className="h-6 w-6 text-muted-foreground" />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{file.file_name}</p>
@@ -459,13 +478,20 @@ export default function MediaAdminPage() {
                           {file.file_type} • {file.file_size ? `${(file.file_size / 1024).toFixed(1)} KB` : '-'}
                         </p>
                       </div>
+                      <Button variant="ghost" size="icon" onClick={() => copyUrl(file.file_url)} title="URL kopieren">
+                        <LinkIcon className="h-4 w-4" />
+                      </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => copyUrl(file.file_url)}>
+                            <LinkIcon className="mr-2 h-4 w-4" />
+                            URL kopieren
+                          </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            <a href={file.file_url} target="_blank" rel="noopener noreferrer">Details</a>
+                            <a href={file.file_url} target="_blank" rel="noopener noreferrer">Öffnen</a>
                           </DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive" onClick={() => setDeleteFile(file)}>
                             <Trash2 className="mr-2 h-4 w-4" />
