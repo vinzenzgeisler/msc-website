@@ -202,7 +202,7 @@ export default function MotocrossPage() {
                 )}
                 {training.content && (
                   <RichContent
-                    content={training.content}
+                    content={trainingContentHtml}
                     className="[&_table]:w-full [&_td]:py-2 [&_td]:pr-4 [&_td:first-child]:font-semibold [&_td:first-child]:text-foreground [&_td:last-child]:text-muted-foreground"
                   />
                 )}
@@ -220,7 +220,7 @@ export default function MotocrossPage() {
               <CardContent>
                 {fees.content && (
                   <RichContent
-                    content={fees.content}
+                    content={feesContentHtml}
                     className="mb-4 [&_table]:w-full [&_td]:py-2 [&_td]:pr-4 [&_td:first-child]:text-foreground [&_td:last-child]:font-semibold [&_td:last-child]:text-primary"
                   />
                 )}
