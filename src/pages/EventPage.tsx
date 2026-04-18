@@ -259,7 +259,7 @@ export default function EventPage() {
                 <p className="max-w-2xl text-xl text-primary-foreground/80">
                   {mainEvent.description || eventIntro.content}
                 </p>
-                <div className="mt-8">
+                <div className="mt-8 flex flex-wrap gap-3">
                   <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold" asChild>
                     {mainEvent.registration_url ? (
                       <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
@@ -274,6 +274,25 @@ export default function EventPage() {
                       </a>
                     )}
                   </Button>
+                  {(registrationContent.attachment_url || registrationContent.secondary_button_url) && (
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="gap-2 border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary font-bold"
+                      asChild
+                    >
+                      <a
+                        href={registrationContent.attachment_url || registrationContent.secondary_button_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Download className="h-5 w-5" />
+                        {registrationContent.secondary_button_label
+                          || registrationContent.attachment_name
+                          || (locale === 'de' ? 'Download Ausschreibung' : locale === 'cz' ? 'Stáhnout propozice' : 'Download Regulations')}
+                      </a>
+                    </Button>
+                  )}
                 </div>
               </>
             ) : (
