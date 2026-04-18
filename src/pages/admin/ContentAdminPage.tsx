@@ -210,6 +210,11 @@ function ContentEditor({
   const [isDirty, setIsDirty] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  const rowsConfig = ROWS_EDITOR_CONFIG[`${pageKey}:${sectionKey}`];
+  const [rows, setRows] = useState<StructuredRow[]>(() =>
+    rowsConfig ? parseStructuredRows(initialData?.content) : [],
+  );
+
   const dataKey = `${pageKey}:${sectionKey}:de`;
 
   useEffect(() => {
@@ -233,9 +238,12 @@ function ContentEditor({
     setImageAlt(initialData?.image_alt || '');
     setImageFile(null);
     setClearImage(false);
+    if (rowsConfig) {
+      setRows(parseStructuredRows(initialData?.content));
+    }
     setIsDirty(false);
     setSaveSuccess(false);
-  }, [dataKey, initialData?.title, initialData?.subtitle, initialData?.content, initialData?.header_image_alt, initialData?.header_image_url, initialData?.image_alt, initialData?.image_url]);
+  }, [dataKey, initialData?.title, initialData?.subtitle, initialData?.content, initialData?.header_image_alt, initialData?.header_image_url, initialData?.image_alt, initialData?.image_url, rowsConfig]);
 
   const handleChange = (field: keyof ContentFormData, value: string) => {
     setFormData((current) => ({ ...current, [field]: value }));
