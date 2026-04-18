@@ -34,11 +34,7 @@ export default function TrialPage() {
       'Die Sektion Trial des MSC Oberlausitzer Dreiländereck widmet sich dem faszinierenden Geschicklichkeitssport auf dem Motorrad. Trial erfordert Balance, Konzentration und Technik – nicht Geschwindigkeit.',
   });
 
-  const contact = useContentWithFallback('trial', 'contact', {
-    title: 'Ansprechpartner Trial',
-    content: `<strong>Stefan Funke</strong><br/>Kirchstr. 8<br/>02791 Oderwitz`,
-    subtitle: 'Tel.: 0172 7346799',
-  });
+  const contact = useContentWithFallback('trial', 'contact', {});
 
   const eventsContent = useContentWithFallback('trial', 'events', {
     title: 'Kommende Termine',
