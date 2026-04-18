@@ -95,54 +95,18 @@ export default function TrialPage() {
         </div>
       </section>
 
-      {/* Contact */}
-      <section className="border-t border-border bg-muted/50 py-16">
-        <div className="container">
-          <h2 className="mb-8 text-2xl font-bold flex items-center gap-2">
-            <Mail className="h-6 w-6 text-primary" />
-            {contact.title}
-          </h2>
-          <Card>
-            <CardContent className="p-6 md:p-8">
-              <div className="flex flex-col md:flex-row md:items-start gap-6">
-                <div className="flex-1">
-                  {contact.content && (
-                    <RichContent content={contact.content} className="text-foreground" />
-                  )}
-                  {contact.subtitle && (
-                    <p className="mt-3 flex items-center gap-2 text-muted-foreground">
-                      <Phone className="h-4 w-4" />
-                      {contact.subtitle}
-                    </p>
-                  )}
-                </div>
-                <div className="flex flex-col gap-3">
-                  {(contact.primary_button_url || true) && (
-                    <Button asChild>
-                      <a href={contact.primary_button_url || 'mailto:funke@ostdeutsche-trialmeisterschaft.de'}>
-                        <Mail className="mr-2 h-4 w-4" />
-                        {contact.primary_button_label || 'E-Mail senden'}
-                      </a>
-                    </Button>
-                  )}
-                  {(contact.secondary_button_url || true) && (
-                    <Button variant="outline" asChild>
-                      <a
-                        href={contact.secondary_button_url || 'https://ostdeutsche-trialmeisterschaft.de/'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {contact.secondary_button_label || 'Weitere Infos'}
-                        <ExternalLink className="ml-1 h-3.5 w-3.5" />
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+      {/* Contact (only when configured in CMS) */}
+      {contact.hasDbContent && (contact.title || contact.content) && (
+        <ContactSection
+          title={contact.title || 'Ansprechpartner'}
+          content={contact.content}
+          subtitle={contact.subtitle}
+          primaryLabel={contact.primary_button_label}
+          primaryUrl={contact.primary_button_url}
+          secondaryLabel={contact.secondary_button_label}
+          secondaryUrl={contact.secondary_button_url}
+        />
+      )}
 
       {/* Upcoming Events */}
       <section className="border-t border-border py-16">
