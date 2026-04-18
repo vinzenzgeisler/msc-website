@@ -30,6 +30,7 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { RichContent } from '@/components/content/RichContent';
+import { ContactSection } from '@/components/sections/ContactSection';
 import { isStructuredRowsContent, parseStructuredRows, rowsToHtmlTable } from '@/lib/structured-rows';
 
 import trackImageFallback from '@/assets/motocross-track.jpg';
@@ -97,6 +98,8 @@ export default function MotocrossPage() {
     title: 'Kommende Termine',
     content: '',
   });
+
+  const contact = useContentWithFallback('motocross', 'contact', {});
 
   const [safetyOpen, setSafetyOpen] = useState(false);
   const trackImage = intro.image_url || trackImageFallback;
@@ -336,6 +339,19 @@ export default function MotocrossPage() {
         title="Galerie"
         fallbackText="Noch keine Bilder vorhanden."
       />
+
+      {/* Contact (only when configured in CMS) */}
+      {contact.hasDbContent && (contact.title || contact.content) && (
+        <ContactSection
+          title={contact.title || 'Ansprechpartner'}
+          content={contact.content}
+          subtitle={contact.subtitle}
+          primaryLabel={contact.primary_button_label}
+          primaryUrl={contact.primary_button_url}
+          secondaryLabel={contact.secondary_button_label}
+          secondaryUrl={contact.secondary_button_url}
+        />
+      )}
 
       {/* Upcoming Events */}
       <section className="border-t border-border py-16">
