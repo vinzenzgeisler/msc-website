@@ -63,6 +63,8 @@ Tour ins Adlergebirge nach Jánské Lázně<br/>
     title: 'Kommende Termine',
   });
 
+  const contact = useContentWithFallback('touring', 'contact', {});
+
   const heroImage = intro.image_url || heroTouring;
 
   const upcomingEvents = (calendarEvents || [])
