@@ -18,8 +18,43 @@ import { useAllPageContent, useUpsertPageContent, PAGE_SECTIONS, PageKey } from 
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 import { LocaleTranslationBox, TranslationStatus, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
 import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
+import { RowsEditor } from '@/components/admin/RowsEditor';
+import {
+  isStructuredRowsContent,
+  parseStructuredRows,
+  serializeStructuredRows,
+  type StructuredRow,
+} from '@/lib/structured-rows';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+
+interface RowsEditorConfig {
+  labelHeader: string;
+  valueHeader: string;
+  labelPlaceholder: string;
+  valuePlaceholder: string;
+  addLabel: string;
+  helpText: string;
+}
+
+const ROWS_EDITOR_CONFIG: Record<string, RowsEditorConfig> = {
+  'motocross:training': {
+    labelHeader: 'Tag',
+    valueHeader: 'Zeit',
+    labelPlaceholder: 'z. B. Mittwoch',
+    valuePlaceholder: 'z. B. 17:00 – 19:00 Uhr',
+    addLabel: 'Trainingstag hinzufügen',
+    helpText: 'Jede Zeile entspricht einem Trainingstag. Wird automatisch als Tabelle dargestellt.',
+  },
+  'motocross:fees': {
+    labelHeader: 'Fahrzeug / Kategorie',
+    valueHeader: 'Gebühr',
+    labelPlaceholder: 'z. B. Motorräder bis 85 ccm',
+    valuePlaceholder: 'z. B. 10,00 € pro Trainingstag',
+    addLabel: 'Gebühr hinzufügen',
+    helpText: 'Eine Zeile pro Fahrzeugklasse. Wird im Frontend als Preisliste angezeigt.',
+  },
+};
 
 const PAGE_LABELS: Record<PageKey, string> = {
   home: 'Startseite',
