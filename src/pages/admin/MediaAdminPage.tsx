@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import {
   Plus, Search, FolderOpen, Image, Upload, Trash2, MoreHorizontal,
-  Grid, List, Loader2, ArrowLeft, Save,
+  Grid, List, Loader2, ArrowLeft, Save, Link as LinkIcon, FileText,
 } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
