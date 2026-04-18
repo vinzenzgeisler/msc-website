@@ -297,20 +297,44 @@ function ContentEditor({
       </div>
 
       {supportsBodyContent ? (
-        <div className="space-y-2">
-          <Label htmlFor={`content-${sectionKey}`}>Inhalt (DE)</Label>
-          <Textarea
-            id={`content-${sectionKey}`}
-            value={formData.content}
-            onChange={(e) => handleChange('content', e.target.value)}
-            placeholder="Inhalt eingeben... (Markdown wird unterstützt)"
-            rows={10}
-            className="font-mono text-sm"
-          />
-          <p className="text-xs text-muted-foreground">
-            Markdown: **fett**, *kursiv*, [Link](url)
-          </p>
-        </div>
+        rowsConfig ? (
+          <div className="space-y-2">
+            <Label>Inhalt (DE)</Label>
+            <RowsEditor
+              rows={rows}
+              onChange={(next) => {
+                setRows(next);
+                setFormData((current) => ({
+                  ...current,
+                  content: serializeStructuredRows(next),
+                }));
+                setIsDirty(true);
+                setSaveSuccess(false);
+              }}
+              labelHeader={rowsConfig.labelHeader}
+              valueHeader={rowsConfig.valueHeader}
+              labelPlaceholder={rowsConfig.labelPlaceholder}
+              valuePlaceholder={rowsConfig.valuePlaceholder}
+              addLabel={rowsConfig.addLabel}
+            />
+            <p className="text-xs text-muted-foreground">{rowsConfig.helpText}</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Label htmlFor={`content-${sectionKey}`}>Inhalt (DE)</Label>
+            <Textarea
+              id={`content-${sectionKey}`}
+              value={formData.content}
+              onChange={(e) => handleChange('content', e.target.value)}
+              placeholder="Inhalt eingeben... (Markdown wird unterstützt)"
+              rows={10}
+              className="font-mono text-sm"
+            />
+            <p className="text-xs text-muted-foreground">
+              Markdown: **fett**, *kursiv*, [Link](url)
+            </p>
+          </div>
+        )
       ) : null}
 
       {supportsHeroButtons ? (
