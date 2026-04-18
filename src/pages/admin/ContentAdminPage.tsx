@@ -286,7 +286,8 @@ function ContentEditor({
 
   const supportsHeroButtons = pageKey === 'home' && sectionKey === 'hero';
   const supportsEventRegistrationSecondaryButton = pageKey === 'event' && sectionKey === 'registration_info';
-  const supportsEventDownloadsSelection = pageKey === 'event' && sectionKey === 'downloads';
+  const supportsDownloadSelection =
+    (pageKey === 'event' || pageKey === 'motocross') && sectionKey === 'downloads';
   const supportsContactButtons =
     (pageKey === 'motocross' || pageKey === 'trial' || pageKey === 'touring')
     && sectionKey === 'contact';
@@ -302,7 +303,7 @@ function ContentEditor({
   const supportsAttachment =
     (pageKey === 'membership' && (sectionKey === 'declaration_document' || sectionKey === 'statute_document'))
     || (pageKey === 'event' && sectionKey === 'registration_info');
-  const supportsBodyContent = !supportsHeroButtons && !supportsEventDownloadsSelection;
+  const supportsBodyContent = !supportsHeroButtons && !supportsDownloadSelection;
   const showImageField = allowImage && !supportsHeroButtons;
   const showHeaderImageField = allowHeaderImage && !supportsHeroButtons;
   const availableDownloads = [...(downloads || [])].sort((a, b) => {
@@ -316,7 +317,7 @@ function ContentEditor({
     .filter(Boolean);
   const remainingDownloads = availableDownloads.filter((download) => !eventDownloadIds.includes(download.id));
   const hasSourceText =
-    !supportsEventDownloadsSelection && (
+    !supportsDownloadSelection && (
       formData.title.trim().length > 0 ||
       formData.subtitle.trim().length > 0 ||
       formData.content.trim().length > 0
@@ -324,7 +325,7 @@ function ContentEditor({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {!supportsEventDownloadsSelection ? (
+      {!supportsDownloadSelection ? (
         <>
           <div className="space-y-2">
             <Label htmlFor={`title-${sectionKey}`}>{titleLabel}</Label>
@@ -556,12 +557,16 @@ function ContentEditor({
         </div>
       ) : null}
 
-      {supportsEventDownloadsSelection ? (
+      {supportsDownloadSelection ? (
         <div className="space-y-4 rounded-lg border p-4">
           <div className="space-y-1">
-            <p className="font-medium">Downloads unten auf `/old`</p>
+            <p className="font-medium">
+              {pageKey === 'event' ? 'Downloads unten auf `/old`' : 'Downloads in der Motocross-Sektion'}
+            </p>
             <p className="text-xs text-muted-foreground">
-              Hier wählst du direkt aus, welche vorhandenen Dokumente in der Download-Sektion angezeigt werden. Die Kategorie in `Downloads` ist dafür nicht mehr nötig.
+              {pageKey === 'event'
+                ? 'Hier wählst du direkt aus, welche vorhandenen Dokumente in der Download-Sektion angezeigt werden. Die Kategorie in `Downloads` ist dafür nicht mehr nötig.'
+                : 'Hier wählst du direkt aus, welche vorhandenen Dokumente in der Motocross-Sektion angezeigt werden.'}
             </p>
           </div>
 
@@ -624,7 +629,9 @@ function ContentEditor({
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                Noch keine Dokumente ausgewählt. Solange hier nichts ausgewählt ist, verwendet die Website weiter den alten Kategorie-Fallback `event`.
+                {pageKey === 'event'
+                  ? 'Noch keine Dokumente ausgewählt. Solange hier nichts ausgewählt ist, verwendet die Website weiter den alten Kategorie-Fallback `event`.'
+                  : 'Noch keine Dokumente ausgewählt.'}
               </p>
             )}
           </div>
@@ -840,7 +847,7 @@ function ContentEditor({
         </div>
       ) : null}
 
-      {!supportsEventDownloadsSelection ? (
+      {!supportsDownloadSelection ? (
         <LocaleTranslationBox
           description="DE bleibt führend. EN/CZ werden separat gespeichert (zuerst DE speichern)."
           status={translationStatus}

@@ -18,6 +18,7 @@ import {
   Users,
   ArrowRight,
   ExternalLink,
+  Download,
   AlertTriangle,
   Ticket,
   CalendarX,
@@ -25,6 +26,7 @@ import {
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useDisciplineHighlights } from '@/hooks/useStructuredContent';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useDownloads } from '@/hooks/useDownloads';
 import { useSettings } from '@/hooks/useSettings';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { format } from 'date-fns';
@@ -32,6 +34,7 @@ import { de } from 'date-fns/locale';
 import { RichContent } from '@/components/content/RichContent';
 import { ContactSection } from '@/components/sections/ContactSection';
 import { isStructuredRowsContent, parseStructuredRows, rowsToHtmlTable } from '@/lib/structured-rows';
+import { parseSelectedDownloadIds } from '@/lib/download-selection';
 
 import trackImageFallback from '@/assets/motocross-track.jpg';
 import anfahrtImageFallback from '@/assets/motocross-anfahrt.jpg';
@@ -41,6 +44,7 @@ export default function MotocrossPage() {
   const { data: settings } = useSettings();
   const { data: highlights, isLoading: highlightsLoading } = useDisciplineHighlights('motocross');
   const { data: calendarEvents } = useCalendarEvents(false);
+  const { data: downloads } = useDownloads();
 
   const intro = useContentWithFallback('motocross', 'intro', {
     title: 'Motocross',
@@ -100,6 +104,7 @@ export default function MotocrossPage() {
   });
 
   const contact = useContentWithFallback('motocross', 'contact', {});
+  const downloadsContent = useContentWithFallback('motocross', 'downloads', {});
 
   const [safetyOpen, setSafetyOpen] = useState(false);
   const trackImage = intro.image_url || trackImageFallback;
@@ -115,6 +120,10 @@ export default function MotocrossPage() {
   const upcomingEvents = (calendarEvents || [])
     .filter((e) => e.category === 'motocross' && e.published && new Date(e.start_dt) >= new Date())
     .slice(0, 3);
+  const selectedDownloadIds = parseSelectedDownloadIds(downloadsContent.content);
+  const motocrossDownloads = selectedDownloadIds
+    .map((id) => (downloads || []).find((item) => item.id === id))
+    .filter(Boolean);
 
   return (
     <MainLayout>
@@ -240,6 +249,46 @@ export default function MotocrossPage() {
           </div>
         </div>
       </section>
+
+      {motocrossDownloads.length > 0 ? (
+        <section className="border-t border-border py-12">
+          <div className="container">
+            <h2 className="mb-6 text-2xl font-bold flex items-center gap-2">
+              <Download className="h-6 w-6 text-primary" />
+              {downloadsContent.title || 'Dokumente & Downloads'}
+            </h2>
+            {downloadsContent.subtitle ? (
+              <p className="mb-6 text-muted-foreground">{downloadsContent.subtitle}</p>
+            ) : null}
+            <div className="grid gap-4 md:grid-cols-2">
+              {motocrossDownloads.map((download) => (
+                <a
+                  key={download.id}
+                  href={download.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block"
+                >
+                  <Card className="h-full transition-shadow hover:shadow-lg hover:border-primary">
+                    <CardContent className="flex items-center gap-4 p-5">
+                      <div className="bg-primary/10 p-3">
+                        <Download className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium group-hover:text-primary">{download.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {download.file_type?.toUpperCase() || 'DATEI'}
+                        </p>
+                      </div>
+                      <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+                    </CardContent>
+                  </Card>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* Safety */}
       <section className="border-t border-border py-12">
