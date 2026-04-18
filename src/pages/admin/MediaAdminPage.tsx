@@ -126,6 +126,21 @@ export default function MediaAdminPage() {
     }
   };
 
+  const copyUrl = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('URL kopiert');
+    } catch {
+      toast.error('URL konnte nicht kopiert werden');
+    }
+  };
+
+  const isImageFile = (file: MediaFile) => {
+    const t = (file.file_type || '').toLowerCase();
+    if (['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'avif'].includes(t)) return true;
+    return /\.(png|jpe?g|webp|gif|svg|avif)$/i.test(file.file_name || '');
+  };
+
   const filteredAlbums = albums?.filter((a) =>
     a.title.toLowerCase().includes(searchQuery.toLowerCase()),
   ) || [];
