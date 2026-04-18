@@ -30,6 +30,7 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { RichContent } from '@/components/content/RichContent';
+import { ContactSection } from '@/components/sections/ContactSection';
 import { isStructuredRowsContent, parseStructuredRows, rowsToHtmlTable } from '@/lib/structured-rows';
 
 import trackImageFallback from '@/assets/motocross-track.jpg';
