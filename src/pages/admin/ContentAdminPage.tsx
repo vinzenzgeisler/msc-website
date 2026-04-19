@@ -268,8 +268,13 @@ function ContentEditor({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const resolvedContent = supportsDownloadSelection
+      ? serializeSelectedDownloadIds(selectedDownloadIds)
+      : formData.content;
+
     await onSave({
       ...formData,
+      content: resolvedContent,
       attachment_file: attachmentFile,
       clear_attachment: clearAttachment,
       header_image_alt: headerImageAlt,
@@ -575,17 +580,27 @@ function ContentEditor({
               <DownloadAssetPicker
                 buttonLabel="Dokument auswählen oder hochladen"
                 onSelect={(selectedDownload) => {
-                  if (selectedDownloadIds.includes(selectedDownload.id)) {
+                  let alreadySelected = false;
+
+                  setSelectedDownloadIds((current) => {
+                    if (current.includes(selectedDownload.id)) {
+                      alreadySelected = true;
+                      return current;
+                    }
+
+                    const nextIds = [...current, selectedDownload.id];
+                    setFormData((currentForm) => ({
+                      ...currentForm,
+                      content: serializeSelectedDownloadIds(nextIds),
+                    }));
+                    return nextIds;
+                  });
+
+                  if (alreadySelected) {
                     toast.error('Dieses Dokument ist bereits ausgewählt');
                     return;
                   }
 
-                  const nextIds = [...selectedDownloadIds, selectedDownload.id];
-                  setSelectedDownloadIds(nextIds);
-                  setFormData((current) => ({
-                    ...current,
-                    content: serializeSelectedDownloadIds(nextIds),
-                  }));
                   setIsDirty(true);
                   setSaveSuccess(false);
                 }}
@@ -610,12 +625,14 @@ function ContentEditor({
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        const nextIds = selectedDownloadIds.filter((id) => id !== download.id);
-                        setSelectedDownloadIds(nextIds);
-                        setFormData((current) => ({
-                          ...current,
-                          content: serializeSelectedDownloadIds(nextIds),
-                        }));
+                        setSelectedDownloadIds((current) => {
+                          const nextIds = current.filter((id) => id !== download.id);
+                          setFormData((currentForm) => ({
+                            ...currentForm,
+                            content: serializeSelectedDownloadIds(nextIds),
+                          }));
+                          return nextIds;
+                        });
                         setIsDirty(true);
                         setSaveSuccess(false);
                       }}
