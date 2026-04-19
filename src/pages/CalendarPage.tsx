@@ -13,7 +13,7 @@ import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { downloadIcs } from '@/lib/ics-export';
 import { toast } from 'sonner';
-import { getCalendarEventClickTarget } from '@/lib/calendar-event-links';
+import { getCalendarEventClickTarget, hasCalendarEventTime } from '@/lib/calendar-event-links';
 
 type ViewMode = "month" | "upcoming";
 
@@ -331,10 +331,12 @@ export default function CalendarPage() {
                             )}
 
                             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Clock className="h-4 w-4" />
-                                {format(eventDate, timeFormat, { locale: dateLocale })}
-                              </span>
+                              {hasCalendarEventTime(event.start_dt) ? (
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-4 w-4" />
+                                  {format(eventDate, timeFormat, { locale: dateLocale })}
+                                </span>
+                              ) : null}
                               {event.location && (
                                 <span className="flex items-center gap-1">
                                   <MapPin className="h-4 w-4" />

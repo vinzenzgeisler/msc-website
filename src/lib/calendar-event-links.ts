@@ -19,3 +19,12 @@ export function getCalendarEventClickTarget(
 
   return getCalendarEventDetailPath(event.slug);
 }
+
+export function hasCalendarEventTime(value?: string | null) {
+  if (!value) return false;
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return false;
+
+  return date.getHours() !== 0 || date.getMinutes() !== 0 || date.getSeconds() !== 0;
+}

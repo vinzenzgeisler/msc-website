@@ -8,9 +8,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { RichContent } from '@/components/content/RichContent';
 import { useCalendarEventBySlug } from '@/hooks/useCalendarEvents';
 import { useEventContent } from '@/hooks/useEventContent';
-import { useLanguage } from '@/i18n/LanguageContext';
+import { useLanguage, useTranslation } from '@/i18n/LanguageContext';
 import { format } from 'date-fns';
 import { de, cs, enUS } from 'date-fns/locale';
+import { getCalendarEventDetailPath, hasCalendarEventTime } from '@/lib/calendar-event-links';
 import {
   Calendar,
   Clock,
@@ -37,6 +38,7 @@ type Locale = 'de' | 'en' | 'cz';
 export default function CalendarDetailPage() {
   const { slug = '' } = useParams();
   const { locale } = useLanguage();
+  const t = useTranslation();
   const { data: event, isLoading } = useCalendarEventBySlug(slug);
   const { data: eventContent } = useEventContent(event?.id);
 
@@ -73,7 +75,27 @@ export default function CalendarDetailPage() {
     );
   }
 
+  const internalDetailPath = getCalendarEventDetailPath(event.slug);
+  if (!event.is_main_event && event.detail_url !== internalDetailPath) {
+    return (
+      <MainLayout>
+        <section className="py-16">
+          <div className="container">
+            <Card>
+              <CardContent className="p-8 text-center text-muted-foreground">
+                Termin-Unterseite nicht aktiviert.
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      </MainLayout>
+    );
+  }
+
   const formattedDate = formatEventDateRange(event.start_dt, event.end_dt, locale as Locale);
+  const categoryLabel = event.category
+    ? t.calendar.filter[event.category as keyof typeof t.calendar.filter] || event.category
+    : null;
 
   return (
     <MainLayout title={event.title} description={event.description || undefined}>
@@ -164,7 +186,7 @@ export default function CalendarDetailPage() {
                   <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                   <span>{formattedDate}</span>
                 </div>
-                {event.start_dt ? (
+                {hasCalendarEventTime(event.start_dt) ? (
                   <div className="flex items-start gap-3 text-sm text-muted-foreground">
                     <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <span>{format(new Date(event.start_dt), locale === 'en' ? 'h:mm a' : 'HH:mm', { locale: locale === 'cz' ? cs : locale === 'en' ? enUS : de })}</span>
@@ -196,9 +218,9 @@ export default function CalendarDetailPage() {
                   </a>
                 </Button>
               ) : null}
-              {event.category ? (
+              {categoryLabel ? (
                 <Badge variant="outline" className="w-fit">
-                  {event.category}
+                  {categoryLabel}
                 </Badge>
               ) : null}
             </div>

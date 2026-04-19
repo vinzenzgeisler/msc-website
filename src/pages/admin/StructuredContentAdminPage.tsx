@@ -35,6 +35,11 @@ import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 type Locale = 'de' | 'en' | 'cz';
 
 const localeOptions: Locale[] = ['de', 'en', 'cz'];
+const disciplineLabels: Record<DisciplineHighlight['discipline_key'], string> = {
+  motocross: 'Motocross',
+  trial: 'Trial',
+  touring: 'Motorradtouristik',
+};
 
 function LocaleBadge({ locale }: { locale: string }) {
   return <Badge variant="outline">{locale.toUpperCase()}</Badge>;
@@ -615,7 +620,7 @@ function DisciplinesEditor() {
             <div className="flex items-center gap-2">
               <p className="font-medium">{item.title}</p>
               <LocaleBadge locale={item.locale} />
-              <Badge>{item.discipline_key}</Badge>
+              <Badge>{disciplineLabels[item.discipline_key]}</Badge>
             </div>
             <p className="text-sm text-muted-foreground">{item.icon}</p>
           </div>
@@ -630,7 +635,7 @@ function DisciplinesEditor() {
               <Label>Sektion</Label>
               <Select value={form.disciplineKey} onValueChange={(value: DisciplineHighlight['discipline_key']) => setForm((current) => ({ ...current, disciplineKey: value }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{['motocross', 'trial', 'touring'].map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent>
+                <SelectContent>{(['motocross', 'trial', 'touring'] as DisciplineHighlight['discipline_key'][]).map((value) => <SelectItem key={value} value={value}>{disciplineLabels[value]}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="space-y-2">

@@ -181,6 +181,7 @@ export default function CalendarAdminPage() {
                 {filteredEvents.map((event) => {
                   const category = event.category ? categoryConfig[event.category] : null;
                   const Icon = category?.icon || Calendar;
+                  const target = getCalendarEventClickTarget(event);
                   return (
                     <TableRow key={event.id}>
                       <TableCell className="font-medium">
@@ -216,20 +217,12 @@ export default function CalendarAdminPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => {
-                                const target = getCalendarEventClickTarget(event);
-                                if (!target) return;
-                                if (target.startsWith('http')) {
-                                  window.open(target, '_blank');
-                                } else {
-                                  window.open(target, '_blank');
-                                }
-                              }}
-                            >
-                              <ExternalLink className="mr-2 h-4 w-4" />
-                              Unterseite öffnen
-                            </DropdownMenuItem>
+                            {target ? (
+                              <DropdownMenuItem onClick={() => window.open(target, '_blank')}>
+                                <ExternalLink className="mr-2 h-4 w-4" />
+                                Unterseite öffnen
+                              </DropdownMenuItem>
+                            ) : null}
                             <DropdownMenuItem onClick={() => handleToggleMainEvent(event)}>
                               <Star className="mr-2 h-4 w-4" />
                               {event.is_main_event ? 'Hauptevent entfernen' : 'Als Hauptevent markieren'}

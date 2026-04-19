@@ -23,21 +23,35 @@ import { format } from 'date-fns';
 import { buildSlug } from '@/integrations/pocketbase/client';
 import { LocaleTranslationBox, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
-import { getCalendarEventDetailPath } from '@/lib/calendar-event-links';
+import { getCalendarEventDetailPath, hasCalendarEventTime } from '@/lib/calendar-event-links';
 
 const categories = [
   { value: 'allgemein', label: 'Allgemein', icon: Calendar },
   { value: 'event', label: 'Veranstaltung', icon: Trophy },
   { value: 'motocross', label: 'Motocross', icon: Bike },
   { value: 'trial', label: 'Trial', icon: MapPin },
-  { value: 'touring', label: 'Touring', icon: Calendar },
+  { value: 'touring', label: 'Motorradtouristik', icon: Calendar },
 ];
 
-function toDateTimeInputValue(value?: string | null) {
+function toDateInputValue(value?: string | null) {
   if (!value) return '';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-  return format(date, "yyyy-MM-dd'T'HH:mm");
+  return format(date, 'yyyy-MM-dd');
+}
+
+function toTimeInputValue(value?: string | null) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime()) || !hasCalendarEventTime(value)) return '';
+  return format(date, 'HH:mm');
+}
+
+function combineDateAndTime(dateValue: string, timeValue?: string) {
+  const date = dateValue.trim();
+  if (!date) return null;
+  const time = timeValue?.trim() || '00:00';
+  return new Date(`${date}T${time}`).toISOString();
 }
 
 export default function CalendarFormPage() {
@@ -59,7 +73,9 @@ export default function CalendarFormPage() {
     description: '',
     category: '',
     start_dt: '',
+    start_time: '',
     end_dt: '',
+    end_time: '',
     location: '',
     contact_email: '',
     registration_url: '',
@@ -68,6 +84,7 @@ export default function CalendarFormPage() {
     published: true,
   });
   const [isDirty, setIsDirty] = useState(false);
+  const [detailPageEnabled, setDetailPageEnabled] = useState(false);
   const [detailPageTitle, setDetailPageTitle] = useState('');
   const [detailPageContent, setDetailPageContent] = useState('');
 
@@ -115,19 +132,25 @@ export default function CalendarFormPage() {
         }
       }
 
+      const generatedPath = getCalendarEventDetailPath(existingEvent.slug);
+      const usesInternalDetailPage = Boolean(generatedPath && existingEvent.detail_url === generatedPath);
+
       setFormData({
         title: existingEvent.title || '',
         description: existingEvent.description || '',
         category: existingEvent.category || '',
-        start_dt: toDateTimeInputValue(existingEvent.start_dt),
-        end_dt: toDateTimeInputValue(existingEvent.end_dt),
+        start_dt: toDateInputValue(existingEvent.start_dt),
+        start_time: toTimeInputValue(existingEvent.start_dt),
+        end_dt: toDateInputValue(existingEvent.end_dt),
+        end_time: toTimeInputValue(existingEvent.end_dt),
         location: existingEvent.location || '',
         contact_email: existingEvent.contact_email || '',
         registration_url: existingEvent.registration_url || '',
-        detail_url: existingEvent.detail_url || '',
+        detail_url: usesInternalDetailPage ? '' : existingEvent.detail_url || '',
         is_main_event: existingEvent.is_main_event || false,
         published: existingEvent.published !== false,
       });
+      setDetailPageEnabled(usesInternalDetailPage);
       setDetailPageTitle(germanDetailRecord?.title || '');
       setDetailPageContent(germanDetailRecord?.content || '');
       setIsDirty(false);
@@ -151,17 +174,18 @@ export default function CalendarFormPage() {
     }
 
     try {
+      const resolvedDetailTarget = formData.detail_url.trim() || (detailPageEnabled ? generatedDetailPath || '' : '');
       const eventData = {
         title: formData.title,
         slug: generatedSlug,
         description: formData.description.trim() || null,
         category: formData.category || null,
-        start_dt: new Date(formData.start_dt).toISOString(),
-        end_dt: formData.end_dt ? new Date(formData.end_dt).toISOString() : null,
+        start_dt: combineDateAndTime(formData.start_dt, formData.start_time)!,
+        end_dt: combineDateAndTime(formData.end_dt, formData.end_time),
         location: formData.location.trim() || null,
         contact_email: formData.contact_email.trim() || null,
         registration_url: formData.registration_url.trim() || null,
-        detail_url: formData.detail_url.trim() || null,
+        detail_url: resolvedDetailTarget || null,
         is_main_event: formData.is_main_event,
         published: formData.published,
         locale: 'de',
@@ -180,14 +204,14 @@ export default function CalendarFormPage() {
             event: eventId,
             section: 'detail_content',
             locale: 'de',
-            title: sourceTitle || null,
-            content: sourceContent || null,
+            title: detailPageEnabled ? sourceTitle || null : null,
+            content: detailPageEnabled ? sourceContent || null : null,
             sort_order: 0,
           });
-          return true;
+          return detailPageEnabled;
         }
 
-        if (!sourceTitle && !sourceContent) {
+        if (!detailPageEnabled || (!sourceTitle && !sourceContent)) {
           await upsertEventInfo.mutateAsync({
             event: eventId,
             section: 'detail_content',
@@ -269,12 +293,12 @@ export default function CalendarFormPage() {
           slug: generatedSlug,
           description: translatedDescription || sourceDescription || null,
           category: formData.category || null,
-          start_dt: new Date(formData.start_dt).toISOString(),
-          end_dt: formData.end_dt ? new Date(formData.end_dt).toISOString() : null,
+          start_dt: combineDateAndTime(formData.start_dt, formData.start_time)!,
+          end_dt: combineDateAndTime(formData.end_dt, formData.end_time),
           location: formData.location.trim() || null,
           contact_email: formData.contact_email.trim() || null,
           registration_url: formData.registration_url.trim() || null,
-          detail_url: formData.detail_url.trim() || null,
+          detail_url: resolvedDetailTarget || null,
           is_main_event: formData.is_main_event,
           published: formData.published,
           locale: targetLocale,
@@ -326,7 +350,7 @@ export default function CalendarFormPage() {
   };
 
   const handleTranslateTo = async (targetLocale: TranslationTarget) => {
-    if (!formData.title || !formData.start_dt) {
+      if (!formData.title || !formData.start_dt) {
       toast.error('Bitte erst deutschen Termin speichern (Titel + Startdatum).');
       return;
     }
@@ -367,17 +391,18 @@ export default function CalendarFormPage() {
           ),
       );
 
+      const resolvedDetailTarget = formData.detail_url.trim() || (detailPageEnabled ? generatedDetailPath || '' : '');
       const payload = {
         title: translatedTitle || sourceTitle,
         slug: deSlug,
         description: translatedDescription || sourceDescription || null,
         category: formData.category || null,
-        start_dt: new Date(formData.start_dt).toISOString(),
-        end_dt: formData.end_dt ? new Date(formData.end_dt).toISOString() : null,
+        start_dt: combineDateAndTime(formData.start_dt, formData.start_time)!,
+        end_dt: combineDateAndTime(formData.end_dt, formData.end_time),
         location: formData.location.trim() || null,
         contact_email: formData.contact_email.trim() || null,
         registration_url: formData.registration_url.trim() || null,
-        detail_url: formData.detail_url.trim() || null,
+        detail_url: resolvedDetailTarget || null,
         is_main_event: formData.is_main_event,
         published: formData.published,
         locale: targetLocale,
@@ -389,7 +414,7 @@ export default function CalendarFormPage() {
 
       const subpageTitle = detailPageTitle.trim();
       const subpageContent = detailPageContent.trim();
-      if (subpageTitle || subpageContent) {
+      if (detailPageEnabled && (subpageTitle || subpageContent)) {
         const translatedDetail = await translate.mutateAsync({
           sourceLocale: 'de',
           targetLocale,
@@ -445,7 +470,7 @@ export default function CalendarFormPage() {
         </Button>
         <div>
           <h1 className="text-2xl font-bold">{isEditing ? 'Termin bearbeiten' : 'Neuer Termin'}</h1>
-          <p className="text-muted-foreground text-sm">Bearbeitung erfolgt immer in Deutsch (DE). Dieses Formular pflegt auch die interne Termin-Unterseite.</p>
+          <p className="text-muted-foreground text-sm">Bearbeitung erfolgt immer in Deutsch (DE). Interne Termin-Unterseiten sind optional.</p>
         </div>
       </div>
 
@@ -510,27 +535,51 @@ export default function CalendarFormPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
                   <Label htmlFor="start_dt">Startdatum *</Label>
                   <Input
                     id="start_dt"
-                    type="datetime-local"
+                    type="date"
                     value={formData.start_dt}
                     onChange={(e) => updateField('start_dt', e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="start_time">Uhrzeit</Label>
+                  <Input
+                    id="start_time"
+                    type="time"
+                    value={formData.start_time}
+                    onChange={(e) => updateField('start_time', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
                   <Label htmlFor="end_dt">Enddatum</Label>
                   <Input
                     id="end_dt"
-                    type="datetime-local"
+                    type="date"
                     value={formData.end_dt}
                     onChange={(e) => updateField('end_dt', e.target.value)}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="end_time">End-Uhrzeit</Label>
+                  <Input
+                    id="end_time"
+                    type="time"
+                    value={formData.end_time}
+                    onChange={(e) => updateField('end_time', e.target.value)}
+                  />
+                </div>
               </div>
+              <p className="text-xs text-muted-foreground">
+                Uhrzeiten sind optional. Wenn keine Uhrzeit gesetzt ist, wird auf der Website nur das Datum angezeigt.
+              </p>
 
               <div className="space-y-2">
                 <Label htmlFor="location" className="flex items-center gap-1.5">
@@ -611,9 +660,22 @@ export default function CalendarFormPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Interne Unterseiten-URL</Label>
+                <div className="flex items-center justify-between rounded-lg border px-3 py-2">
+                  <div>
+                    <p className="text-sm font-medium">Interne Termin-Unterseite aktivieren</p>
+                    <p className="text-xs text-muted-foreground">Nur dann bekommt der Termin eine eigene klickbare Unterseite.</p>
+                  </div>
+                  <Switch
+                    checked={detailPageEnabled}
+                    onCheckedChange={(checked) => {
+                      setDetailPageEnabled(checked);
+                      setIsDirty(true);
+                    }}
+                  />
+                </div>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                   <Input value={generatedDetailPath || ''} readOnly placeholder="Wird aus dem Termin-Titel erzeugt" />
-                  {generatedDetailPath ? (
+                  {detailPageEnabled && generatedDetailPath ? (
                     <Button type="button" variant="outline" asChild>
                       <Link to={generatedDetailPath} target="_blank">
                         Öffnen
@@ -623,7 +685,7 @@ export default function CalendarFormPage() {
                   ) : null}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Diese Unterseite wird automatisch aus dem Termin erzeugt. Titel, Beschreibung, Datum und Ort kommen aus den Grunddaten oben.
+                  Titel, Beschreibung, Datum und Ort kommen aus den Grunddaten oben. Der zusätzliche Inhalt unten ergänzt diese Seite nur bei aktivierter Unterseite.
                 </p>
               </div>
 

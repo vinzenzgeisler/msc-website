@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { MapPin, Mail, Facebook, Loader2, CheckCircle } from 'lucide-react';
+import { MapPin, Mail, Facebook, Instagram, Share2, Loader2, CheckCircle } from 'lucide-react';
 import { pb } from '@/integrations/pocketbase/client';
 import { toast } from 'sonner';
 import { useSettings } from '@/hooks/useSettings';
@@ -148,12 +148,32 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3"><Facebook className="h-6 w-6 text-primary" /></div>
+                  <div className="bg-primary/10 p-3"><Share2 className="h-6 w-6 text-primary" /></div>
                   <div>
                     <h3 className="font-semibold">Social Media</h3>
-                    <div className="flex gap-4">
-                      {settings?.facebook_url ? <a href={settings.facebook_url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">Facebook</a> : null}
-                      {settings?.instagram_url ? <a href={settings.instagram_url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">Instagram</a> : null}
+                    <div className="flex flex-col gap-3">
+                      {settings?.facebook_url ? (
+                        <a
+                          href={settings.facebook_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary"
+                        >
+                          <Facebook className="h-5 w-5" />
+                          <span>Facebook</span>
+                        </a>
+                      ) : null}
+                      {settings?.instagram_url ? (
+                        <a
+                          href={settings.instagram_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary"
+                        >
+                          <Instagram className="h-5 w-5" />
+                          <span>Instagram</span>
+                        </a>
+                      ) : null}
                     </div>
                   </div>
                 </div>
