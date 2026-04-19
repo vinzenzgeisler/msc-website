@@ -23,7 +23,7 @@ import {
   Images,
   Archive,
 } from 'lucide-react';
-import { useCalendarEvents, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
+import { useCalendarEvents, useCreateCalendarEvent, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 import { LocaleTranslationBox, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
 import type { CalendarEvent } from '@/integrations/pocketbase/client';
@@ -43,6 +43,7 @@ function toDateTimeInputValue(value?: string | null) {
 
 export default function EventsAdminPage() {
   const { data: events, isLoading } = useCalendarEvents(false);
+  const createEvent = useCreateCalendarEvent();
   const updateEvent = useUpdateCalendarEvent();
   const translate = useCmsTranslation();
 
@@ -54,7 +55,13 @@ export default function EventsAdminPage() {
       {isLoading ? (
         <Skeleton className="h-48 w-full" />
       ) : mainEvent ? (
-        <MainEventForm event={mainEvent} allEvents={events || []} updateMutation={updateEvent} translate={translate} />
+        <MainEventForm
+          event={mainEvent}
+          allEvents={events || []}
+          createMutation={createEvent}
+          updateMutation={updateEvent}
+          translate={translate}
+        />
       ) : (
         <EmptyState />
       )}
@@ -109,11 +116,13 @@ function EmptyState() {
 function MainEventForm({
   event,
   allEvents,
+  createMutation,
   updateMutation,
   translate,
 }: {
   event: CalendarEvent;
   allEvents: CalendarEvent[];
+  createMutation: ReturnType<typeof useCreateCalendarEvent>;
   updateMutation: ReturnType<typeof useUpdateCalendarEvent>;
   translate: ReturnType<typeof useCmsTranslation>;
 }) {
@@ -230,8 +239,7 @@ function MainEventForm({
       if (existingTranslation) {
         await updateMutation.mutateAsync({ id: existingTranslation.id, ...payload });
       } else {
-        toast.error(`Bitte legen Sie die ${targetLocale.toUpperCase()}-Version erst im Terminkalender an.`);
-        return;
+        await createMutation.mutateAsync(payload);
       }
       toast.success(`Übersetzung ${targetLocale.toUpperCase()} gespeichert`);
     } catch (error) {
