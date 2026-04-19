@@ -16,14 +16,14 @@ type ViewMode = "month" | "upcoming";
 
 // Category colors only - labels come from translations
 const categoryColors: Record<string, { color: string; bgColor: string }> = {
-  all: { color: "text-primary-foreground", bgColor: "bg-primary" },
+  all: { color: "text-white", bgColor: "bg-slate-500" },
+  touring: { color: "text-white", bgColor: "bg-slate-500" },
+  motorradtouristik: { color: "text-white", bgColor: "bg-slate-500" },
   club: { color: "text-primary-foreground", bgColor: "bg-primary" },
   verein: { color: "text-primary-foreground", bgColor: "bg-primary" },
   event: { color: "text-accent-foreground", bgColor: "bg-accent" },
   veranstaltung: { color: "text-accent-foreground", bgColor: "bg-accent" },
   training: { color: "text-white", bgColor: "bg-green-600" },
-  touring: { color: "text-white", bgColor: "bg-orange-600" },
-  motorradtouristik: { color: "text-white", bgColor: "bg-orange-600" },
   orgTeam: { color: "text-white", bgColor: "bg-purple-600" },
   orgteam: { color: "text-white", bgColor: "bg-purple-600" },
   orga: { color: "text-white", bgColor: "bg-purple-600" },
