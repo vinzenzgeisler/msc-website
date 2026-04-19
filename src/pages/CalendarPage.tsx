@@ -312,7 +312,7 @@ export default function CalendarPage() {
                           <div className="flex-1 py-4 pr-4">
                             <div className="mb-1 flex items-center gap-2 flex-wrap">
                               <span
-                                className={`rounded px-2 py-0.5 text-xs font-semibold ${colors.bgColor} ${colors.color}`}
+                                className={`rounded-none px-2 py-0.5 text-xs font-semibold uppercase tracking-wider ${colors.bgColor} ${colors.color}`}
                               >
                                 {categoryLabel}
                               </span>
