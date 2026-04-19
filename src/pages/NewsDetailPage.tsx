@@ -73,7 +73,7 @@ export default function NewsDetailPage() {
     article.category === 'event' ? 'Veranstaltung'
     : article.category === 'motocross' ? 'Motocross'
     : article.category === 'trial' ? 'Trial'
-    : article.category === 'touring' ? 'Touring'
+    : article.category === 'touring' ? 'Motorradtouristik'
     : 'Verein';
 
   const displayDate = formatDateSafe(article.display_date, 'd. MMMM yyyy', dateLocale, '');
