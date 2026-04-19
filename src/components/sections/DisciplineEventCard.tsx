@@ -16,6 +16,7 @@ interface CalendarEvent {
   description?: string | null;
   detail_url?: string | null;
   is_main_event?: boolean;
+  slug?: string | null;
 }
 
 interface DisciplineEventCardProps {
