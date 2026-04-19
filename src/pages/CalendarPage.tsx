@@ -11,6 +11,8 @@ import { de, cs, enUS } from "date-fns/locale";
 import { format, isSameMonth, isSameDay, isAfter, startOfDay } from "date-fns";
 import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useContentWithFallback } from '@/hooks/usePageContent';
+import { downloadIcs } from '@/lib/ics-export';
+import { toast } from 'sonner';
 
 type ViewMode = "month" | "upcoming";
 
@@ -207,7 +209,18 @@ export default function CalendarPage() {
               )}
 
               {/* ICS Export */}
-              <Button variant="outline" className="w-full gap-2">
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => {
+                  if (!filteredEvents.length) {
+                    toast.error('Keine Termine zum Exportieren');
+                    return;
+                  }
+                  downloadIcs(filteredEvents, `msc-kalender-${new Date().toISOString().slice(0, 10)}.ics`);
+                  toast.success(`${filteredEvents.length} Termin(e) exportiert`);
+                }}
+              >
                 <Download className="h-4 w-4" />
                 {t.calendar.exportCalendar}
               </Button>
