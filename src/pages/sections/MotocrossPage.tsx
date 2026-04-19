@@ -43,7 +43,7 @@ export default function MotocrossPage() {
   const t = useTranslation();
   const { data: settings } = useSettings();
   const { data: highlights, isLoading: highlightsLoading } = useDisciplineHighlights('motocross');
-  const { data: calendarEvents } = useCalendarEvents(false);
+  const { data: calendarEvents } = useCalendarEvents();
   const { data: downloads } = useDownloads();
 
   const intro = useContentWithFallback('motocross', 'intro', {

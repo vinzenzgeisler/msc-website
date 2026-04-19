@@ -14,7 +14,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { FileText, Plus, Save, Loader2, Globe, Trash2 } from 'lucide-react';
-import { useAllPageContent, useUpsertPageContent, PAGE_SECTIONS, PageKey } from '@/hooks/usePageContent';
+import { useAllPageContent, useUpsertPageContent, PAGE_SECTIONS, PageKey, PageContent } from '@/hooks/usePageContent';
 import { useDownloads } from '@/hooks/useDownloads';
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 import { LocaleTranslationBox, TranslationStatus, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
@@ -213,8 +213,8 @@ function ContentEditor({
   const [clearImage, setClearImage] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [eventDownloadIds, setEventDownloadIds] = useState<string[]>(() =>
-    pageKey === 'event' && sectionKey === 'downloads'
+  const [selectedDownloadIds, setSelectedDownloadIds] = useState<string[]>(() =>
+    (pageKey === 'event' || pageKey === 'motocross') && sectionKey === 'downloads'
       ? parseSelectedDownloadIds(initialData?.content)
       : [],
   );
@@ -251,8 +251,8 @@ function ContentEditor({
     if (rowsConfig) {
       setRows(parseStructuredRows(initialData?.content));
     }
-    setEventDownloadIds(
-      pageKey === 'event' && sectionKey === 'downloads'
+    setSelectedDownloadIds(
+      (pageKey === 'event' || pageKey === 'motocross') && sectionKey === 'downloads'
         ? parseSelectedDownloadIds(initialData?.content)
         : [],
     );
@@ -312,10 +312,9 @@ function ContentEditor({
     if (b.category === 'event') return 1;
     return (a.category || '').localeCompare(b.category || '', 'de');
   });
-  const selectedEventDownloads = eventDownloadIds
+  const selectedDownloads = selectedDownloadIds
     .map((id) => availableDownloads.find((download) => download.id === id))
     .filter(Boolean);
-  const remainingDownloads = availableDownloads.filter((download) => !eventDownloadIds.includes(download.id));
   const hasSourceText =
     !supportsDownloadSelection && (
       formData.title.trim().length > 0 ||
@@ -576,13 +575,13 @@ function ContentEditor({
               <DownloadAssetPicker
                 buttonLabel="Dokument auswählen oder hochladen"
                 onSelect={(selectedDownload) => {
-                  if (eventDownloadIds.includes(selectedDownload.id)) {
-                    toast.error('Dieses Dokument ist bereits in der Event-Liste enthalten');
+                  if (selectedDownloadIds.includes(selectedDownload.id)) {
+                    toast.error('Dieses Dokument ist bereits ausgewählt');
                     return;
                   }
 
-                  const nextIds = [...eventDownloadIds, selectedDownload.id];
-                  setEventDownloadIds(nextIds);
+                  const nextIds = [...selectedDownloadIds, selectedDownload.id];
+                  setSelectedDownloadIds(nextIds);
                   setFormData((current) => ({
                     ...current,
                     content: serializeSelectedDownloadIds(nextIds),
@@ -596,9 +595,9 @@ function ContentEditor({
 
           <div className="space-y-2">
             <Label>Ausgewählte Dokumente</Label>
-            {selectedEventDownloads.length > 0 ? (
+            {selectedDownloads.length > 0 ? (
               <div className="space-y-2">
-                {selectedEventDownloads.map((download) => (
+                {selectedDownloads.map((download) => (
                   <div key={download.id} className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{download.title}</p>
@@ -611,8 +610,8 @@ function ContentEditor({
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        const nextIds = eventDownloadIds.filter((id) => id !== download.id);
-                        setEventDownloadIds(nextIds);
+                        const nextIds = selectedDownloadIds.filter((id) => id !== download.id);
+                        setSelectedDownloadIds(nextIds);
                         setFormData((current) => ({
                           ...current,
                           content: serializeSelectedDownloadIds(nextIds),
@@ -878,6 +877,7 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
   const { data: content, isLoading } = useAllPageContent(pageKey);
   const upsertContent = useUpsertPageContent();
   const translate = useCmsTranslation();
+  const autoTranslationTargets: TranslationTarget[] = ['en', 'cz'];
   const sections = PAGE_SECTIONS[pageKey];
   const imageSections = new Set(['event:track_map', 'history:intro', 'motocross:intro', 'trial:intro', 'touring:intro']);
   const headerImageSections = new Set(['about:intro', 'board:intro', 'history:intro', 'membership:intro', 'partner_clubs:intro', 'motocross:intro', 'trial:intro', 'touring:intro', 'contact:intro']);
@@ -889,6 +889,114 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
     en: Boolean(getContentForSection(sectionKey, 'en')),
     cz: Boolean(getContentForSection(sectionKey, 'cz')),
   });
+
+  const hasTranslatableSectionText = (source: ContentFormData) =>
+    Boolean(
+      source.title.trim() ||
+      source.subtitle.trim() ||
+      source.content.trim() ||
+      source.primary_button_label.trim() ||
+      source.secondary_button_label.trim() ||
+      source.stat_one_label.trim() ||
+      source.stat_two_label.trim() ||
+      source.stat_three_label.trim(),
+    );
+
+  const translateSectionTo = async (
+    sectionKey: string,
+    targetLocale: TranslationTarget,
+    source: ContentFormData,
+    options?: {
+      suppressSuccessToast?: boolean;
+      germanRecordOverride?: PageContent | null;
+    },
+  ) => {
+    if (!hasTranslatableSectionText(source)) {
+      if (!options?.suppressSuccessToast) {
+        toast.error('Bitte zuerst deutsche Inhalte eintragen.');
+      }
+      return false;
+    }
+
+    const germanRecord = options?.germanRecordOverride || getContentForSection(sectionKey, 'de');
+    if (!germanRecord) {
+      if (!options?.suppressSuccessToast) {
+        toast.error('Bitte zuerst den deutschen Abschnitt speichern.');
+      }
+      return false;
+    }
+
+    const translated = await translate.mutateAsync({
+      sourceLocale: 'de',
+      targetLocale,
+      context: `${PAGE_LABELS[pageKey]} / ${SECTION_LABELS[sectionKey] || sectionKey}`,
+      fields: {
+        title: source.title,
+        subtitle: source.subtitle,
+        content: source.content,
+        primaryButtonLabel: source.primary_button_label,
+        secondaryButtonLabel: source.secondary_button_label,
+        statOneLabel: source.stat_one_label,
+        statTwoLabel: source.stat_two_label,
+        statThreeLabel: source.stat_three_label,
+      },
+    });
+
+    const translatedTitle = String(translated.title || '').trim();
+    const translatedSubtitle = String(translated.subtitle || '').trim();
+    const translatedContent = String(translated.content || '').trim();
+    const translatedPrimaryButtonLabel = String(translated.primaryButtonLabel || '').trim();
+    const translatedSecondaryButtonLabel = String(translated.secondaryButtonLabel || '').trim();
+    const translatedStatOneLabel = String(translated.statOneLabel || '').trim();
+    const translatedStatTwoLabel = String(translated.statTwoLabel || '').trim();
+    const translatedStatThreeLabel = String(translated.statThreeLabel || '').trim();
+
+    if (
+      !translatedTitle &&
+      !translatedSubtitle &&
+      !translatedContent &&
+      !translatedPrimaryButtonLabel &&
+      !translatedSecondaryButtonLabel &&
+      !translatedStatOneLabel &&
+      !translatedStatTwoLabel &&
+      !translatedStatThreeLabel
+    ) {
+      throw new Error('DeepL hat keine verwertbaren Texte geliefert.');
+    }
+
+    const existingTarget = getContentForSection(sectionKey, targetLocale);
+
+    await upsertContent.mutateAsync({
+      page_key: pageKey,
+      section_key: sectionKey,
+      locale: targetLocale,
+      title: translatedTitle || source.title || null,
+      subtitle: translatedSubtitle || source.subtitle || null,
+      content: translatedContent || source.content || null,
+      primary_button_label:
+        translatedPrimaryButtonLabel || source.primary_button_label || null,
+      primary_button_url: existingTarget?.primary_button_url || germanRecord.primary_button_url || null,
+      secondary_button_label:
+        translatedSecondaryButtonLabel || source.secondary_button_label || null,
+      secondary_button_url:
+        existingTarget?.secondary_button_url || germanRecord.secondary_button_url || null,
+      stat_one_label: translatedStatOneLabel || source.stat_one_label || null,
+      stat_two_label: translatedStatTwoLabel || source.stat_two_label || null,
+      stat_three_label: translatedStatThreeLabel || source.stat_three_label || null,
+      header_image_alt: existingTarget?.header_image_alt || germanRecord.header_image_alt || null,
+      header_image_file: null,
+      clear_header_image: false,
+      image_alt: existingTarget?.image_alt || germanRecord.image_alt || null,
+      image_file: null,
+      clear_image: false,
+    });
+
+    if (!options?.suppressSuccessToast) {
+      toast.success(`Übersetzung ${targetLocale.toUpperCase()} gespeichert`);
+    }
+
+    return true;
+  };
 
   const handleSaveGerman = async (
     sectionKey: string,
@@ -904,7 +1012,7 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
     },
   ) => {
     try {
-      await upsertContent.mutateAsync({
+      const savedGerman = await upsertContent.mutateAsync({
         page_key: pageKey,
         section_key: sectionKey,
         locale: 'de',
@@ -927,7 +1035,29 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
         image_file: data.image_file || null,
         clear_image: data.clear_image || false,
       });
-      toast.success('Deutscher Inhalt gespeichert');
+
+      const failedLocales: string[] = [];
+      if (hasTranslatableSectionText(data)) {
+        for (const targetLocale of autoTranslationTargets) {
+          try {
+            await translateSectionTo(sectionKey, targetLocale, data, {
+              suppressSuccessToast: true,
+              germanRecordOverride: savedGerman,
+            });
+          } catch {
+            failedLocales.push(targetLocale.toUpperCase());
+          }
+        }
+      }
+
+      if (failedLocales.length > 0) {
+        toast.success('Deutscher Inhalt gespeichert');
+        toast.error(`Automatische Übersetzung fehlgeschlagen: ${failedLocales.join(', ')}`);
+      } else if (hasTranslatableSectionText(data)) {
+        toast.success('Deutscher Inhalt und Übersetzungen gespeichert');
+      } else {
+        toast.success('Deutscher Inhalt gespeichert');
+      }
     } catch (error) {
       toast.error(getPocketBaseErrorMessage(error, 'Fehler beim Speichern'));
     }
@@ -938,85 +1068,8 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
     targetLocale: TranslationTarget,
     source: ContentFormData,
   ) => {
-    if (!source.title.trim() && !source.subtitle.trim() && !source.content.trim()) {
-      toast.error('Bitte zuerst deutsche Inhalte eintragen.');
-      return;
-    }
-
-    const germanRecord = getContentForSection(sectionKey, 'de');
-    if (!germanRecord) {
-      toast.error('Bitte zuerst den deutschen Abschnitt speichern.');
-      return;
-    }
-
     try {
-      const translated = await translate.mutateAsync({
-        sourceLocale: 'de',
-        targetLocale,
-        context: `${PAGE_LABELS[pageKey]} / ${SECTION_LABELS[sectionKey] || sectionKey}`,
-        fields: {
-          title: source.title,
-          subtitle: source.subtitle,
-          content: source.content,
-          primaryButtonLabel: source.primary_button_label,
-          secondaryButtonLabel: source.secondary_button_label,
-          statOneLabel: source.stat_one_label,
-          statTwoLabel: source.stat_two_label,
-          statThreeLabel: source.stat_three_label,
-        },
-      });
-
-      const translatedTitle = String(translated.title || '').trim();
-      const translatedSubtitle = String(translated.subtitle || '').trim();
-      const translatedContent = String(translated.content || '').trim();
-      const translatedPrimaryButtonLabel = String(translated.primaryButtonLabel || '').trim();
-      const translatedSecondaryButtonLabel = String(translated.secondaryButtonLabel || '').trim();
-      const translatedStatOneLabel = String(translated.statOneLabel || '').trim();
-      const translatedStatTwoLabel = String(translated.statTwoLabel || '').trim();
-      const translatedStatThreeLabel = String(translated.statThreeLabel || '').trim();
-
-      if (
-        !translatedTitle &&
-        !translatedSubtitle &&
-        !translatedContent &&
-        !translatedPrimaryButtonLabel &&
-        !translatedSecondaryButtonLabel &&
-        !translatedStatOneLabel &&
-        !translatedStatTwoLabel &&
-        !translatedStatThreeLabel
-      ) {
-        toast.error('DeepL hat keine verwertbaren Texte geliefert.');
-        return;
-      }
-
-      const existingTarget = getContentForSection(sectionKey, targetLocale);
-
-      await upsertContent.mutateAsync({
-        page_key: pageKey,
-        section_key: sectionKey,
-        locale: targetLocale,
-        title: translatedTitle || source.title || null,
-        subtitle: translatedSubtitle || source.subtitle || null,
-        content: translatedContent || source.content || null,
-        primary_button_label:
-          translatedPrimaryButtonLabel || source.primary_button_label || null,
-        primary_button_url: existingTarget?.primary_button_url || germanRecord?.primary_button_url || null,
-        secondary_button_label:
-          translatedSecondaryButtonLabel || source.secondary_button_label || null,
-        secondary_button_url:
-          existingTarget?.secondary_button_url || germanRecord?.secondary_button_url || null,
-        stat_one_label: translatedStatOneLabel || source.stat_one_label || null,
-        stat_two_label: translatedStatTwoLabel || source.stat_two_label || null,
-        stat_three_label: translatedStatThreeLabel || source.stat_three_label || null,
-        header_image_alt: existingTarget?.header_image_alt || germanRecord?.header_image_alt || null,
-        header_image_file: null,
-        clear_header_image: false,
-        image_alt: existingTarget?.image_alt || germanRecord?.image_alt || null,
-        image_file: null,
-        clear_image: false,
-      });
-
-      toast.success(`Übersetzung ${targetLocale.toUpperCase()} gespeichert`);
+      await translateSectionTo(sectionKey, targetLocale, source);
     } catch (error: unknown) {
       toast.error(getPocketBaseErrorMessage(error, 'Übersetzung fehlgeschlagen'));
     }

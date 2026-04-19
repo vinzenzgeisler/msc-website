@@ -25,7 +25,7 @@ import heroTrial from '@/assets/event-start-2.jpg';
 
 export default function TrialPage() {
   const t = useTranslation();
-  const { data: calendarEvents } = useCalendarEvents(false);
+  const { data: calendarEvents } = useCalendarEvents();
 
   const intro = useContentWithFallback('trial', 'intro', {
     title: 'Trial',

@@ -1,15 +1,20 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, cs, enUS } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface CalendarEvent {
   id: string;
   title: string;
   start_dt: string;
+  end_dt?: string | null;
   location?: string | null;
   category?: string | null;
   description?: string | null;
+  detail_url?: string | null;
+  is_main_event?: boolean;
 }
 
 interface DisciplineEventCardProps {
@@ -25,8 +30,33 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export function DisciplineEventCard({ event }: DisciplineEventCardProps) {
+  const navigate = useNavigate();
+  const { locale } = useLanguage();
+  const dateLocale = locale === 'cz' ? cs : locale === 'en' ? enUS : de;
+  const clickTarget = event.is_main_event ? '/old' : event.detail_url || null;
+
+  const formatEventDate = (startDt: string, endDt?: string | null) => {
+    const start = new Date(startDt);
+    const end = endDt ? new Date(endDt) : null;
+
+    if (!end) {
+      return format(start, 'd. MMMM yyyy', { locale: dateLocale });
+    }
+
+    return `${format(start, 'd. MMMM yyyy', { locale: dateLocale })} - ${format(end, 'd. MMMM yyyy', { locale: dateLocale })}`;
+  };
+
   return (
-    <Card className="group relative overflow-hidden rounded-none border-2 border-border transition-all hover:border-primary hover:shadow-lg">
+    <Card
+      className={`group relative overflow-hidden rounded-none border-2 border-border transition-all hover:border-primary hover:shadow-lg ${clickTarget ? 'cursor-pointer' : ''}`}
+      onClick={clickTarget ? () => {
+        if (clickTarget.startsWith('http')) {
+          window.open(clickTarget, '_blank');
+        } else {
+          navigate(clickTarget);
+        }
+      } : undefined}
+    >
       <CardContent className="p-6">
         <div className="mb-3 flex items-center gap-2">
           <span className="rounded-none bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground">
@@ -36,7 +66,7 @@ export function DisciplineEventCard({ event }: DisciplineEventCardProps) {
 
         <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4" />
-          {format(new Date(event.start_dt), 'd. MMMM yyyy', { locale: de })}
+          {formatEventDate(event.start_dt, event.end_dt)}
         </div>
 
         {event.location && (

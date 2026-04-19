@@ -48,6 +48,7 @@ export default function CalendarFormPage() {
   const createEvent = useCreateCalendarEvent();
   const updateEvent = useUpdateCalendarEvent();
   const translate = useCmsTranslation();
+  const autoTranslationTargets: TranslationTarget[] = ['en', 'cz'];
 
   const [formData, setFormData] = useState({
     title: '',
@@ -153,12 +154,95 @@ export default function CalendarFormPage() {
         locale: 'de',
       };
 
+      const translateEventTo = async (
+        targetLocale: TranslationTarget,
+        options?: { suppressSuccessToast?: boolean },
+      ) => {
+        const sourceTitle = formData.title.trim();
+        const sourceDescription = formData.description.trim();
+
+        if (!sourceTitle && !sourceDescription) {
+          if (!options?.suppressSuccessToast) {
+            toast.error('Es gibt keinen deutschen Text zum Übersetzen.');
+          }
+          return false;
+        }
+
+        const translated = await translate.mutateAsync({
+          sourceLocale: 'de',
+          targetLocale,
+          context: 'Kalendertermin oder Veranstaltung für die Vereinswebsite',
+          fields: { title: sourceTitle, description: sourceDescription },
+        });
+
+        const translatedTitle = String(translated.title || '').trim();
+        const translatedDescription = String(translated.description || '').trim();
+        if (!translatedTitle && !translatedDescription) {
+          throw new Error('DeepL hat keine verwertbaren Texte geliefert.');
+        }
+
+        const existingTranslation = allEvents?.find(
+          (event) =>
+            event.locale === targetLocale &&
+            (
+              event.slug === generatedSlug ||
+              (isEditing && existingEvent?.slug ? event.slug === existingEvent.slug : false)
+            ),
+        );
+
+        const payload = {
+          title: translatedTitle || sourceTitle,
+          slug: generatedSlug,
+          description: translatedDescription || sourceDescription || null,
+          category: formData.category || null,
+          start_dt: new Date(formData.start_dt).toISOString(),
+          end_dt: formData.end_dt ? new Date(formData.end_dt).toISOString() : null,
+          location: formData.location.trim() || null,
+          contact_email: formData.contact_email.trim() || null,
+          registration_url: formData.registration_url.trim() || null,
+          detail_url: formData.detail_url.trim() || null,
+          is_main_event: formData.is_main_event,
+          published: formData.published,
+          locale: targetLocale,
+        };
+
+        if (existingTranslation) {
+          await updateEvent.mutateAsync({ id: existingTranslation.id, ...payload });
+        } else {
+          await createEvent.mutateAsync(payload);
+        }
+
+        if (!options?.suppressSuccessToast) {
+          toast.success(`Übersetzung ${targetLocale.toUpperCase()} gespeichert`);
+        }
+
+        return true;
+      };
+
       if (isEditing) {
         await updateEvent.mutateAsync({ id, ...eventData });
-        toast.success('Deutscher Termin aktualisiert');
       } else {
         await createEvent.mutateAsync(eventData);
-        toast.success('Deutscher Termin erstellt');
+      }
+
+      const failedLocales: string[] = [];
+      for (const targetLocale of autoTranslationTargets) {
+        try {
+          await translateEventTo(targetLocale, { suppressSuccessToast: true });
+        } catch {
+          failedLocales.push(targetLocale.toUpperCase());
+        }
+      }
+
+      if (failedLocales.length > 0) {
+        toast.success(isEditing ? 'Deutscher Termin aktualisiert' : 'Deutscher Termin erstellt');
+        toast.error(`Automatische Übersetzung fehlgeschlagen: ${failedLocales.join(', ')}`);
+      } else {
+        toast.success(
+          isEditing
+            ? 'Deutscher Termin und Übersetzungen aktualisiert'
+            : 'Deutscher Termin und Übersetzungen erstellt',
+        );
       }
       setIsDirty(false);
       navigate('/admin/calendar');
@@ -201,7 +285,12 @@ export default function CalendarFormPage() {
       }
 
       const existingTranslation = allEvents?.find(
-        (event) => event.locale === targetLocale && event.slug === deSlug,
+        (event) =>
+          event.locale === targetLocale &&
+          (
+            event.slug === deSlug ||
+            (isEditing && existingEvent?.slug ? event.slug === existingEvent.slug : false)
+          ),
       );
 
       const payload = {
@@ -382,12 +471,14 @@ export default function CalendarFormPage() {
                 </Label>
                 <Input
                   id="detail_url"
-                  type="url"
+                  type="text"
                   value={formData.detail_url}
                   onChange={(e) => updateField('detail_url', e.target.value)}
-                  placeholder="https://msc-oberlausitz.de/events/beispiel"
+                  placeholder="/old/accommodation oder https://..."
                 />
-                <p className="text-xs text-muted-foreground">Optional: Macht den Termin auf der Website klickbar</p>
+                <p className="text-xs text-muted-foreground">
+                  Optional: Macht den Termin auf der Website klickbar. Erlaubt sind interne Pfade wie `/old/accommodation` oder komplette URLs. Ein eigener CMS-Editor für Termin-Unterseiten existiert aktuell noch nicht.
+                </p>
               </div>
 
               <div className="space-y-2">

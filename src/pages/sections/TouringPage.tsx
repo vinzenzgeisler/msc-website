@@ -28,7 +28,7 @@ import heroTouring from '@/assets/event-melkus.jpg';
 export default function TouringPage() {
   const t = useTranslation();
   const { data: settings } = useSettings();
-  const { data: calendarEvents } = useCalendarEvents(false);
+  const { data: calendarEvents } = useCalendarEvents();
 
   const intro = useContentWithFallback('touring', 'intro', {
     title: 'Motorradtouristik',

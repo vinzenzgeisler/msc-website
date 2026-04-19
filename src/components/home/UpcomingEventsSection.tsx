@@ -8,11 +8,12 @@ import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { format, isAfter, startOfDay } from 'date-fns';
-import { de } from 'date-fns/locale';
+import { de, cs, enUS } from 'date-fns/locale';
 
 export function UpcomingEventsSection() {
   const t = useTranslation();
   const { locale } = useLanguage();
+  const dateLocale = locale === 'cz' ? cs : locale === 'en' ? enUS : de;
   const navigate = useNavigate();
   const { data: events, isLoading } = useCalendarEvents();
   const sectionContent = useContentWithFallback('home', 'upcoming_events', {
@@ -39,6 +40,17 @@ export function UpcomingEventsSection() {
   const getCategoryLabel = (category: string | null) => {
     const key = category as keyof typeof t.calendar.filter;
     return t.calendar.filter[key] || category || 'Termin';
+  };
+
+  const formatEventDate = (startDt: string, endDt?: string | null) => {
+    const start = new Date(startDt);
+    const end = endDt ? new Date(endDt) : null;
+
+    if (!end) {
+      return format(start, 'd. MMMM yyyy', { locale: dateLocale });
+    }
+
+    return `${format(start, 'd. MMMM yyyy', { locale: dateLocale })} - ${format(end, 'd. MMMM yyyy', { locale: dateLocale })}`;
   };
 
   const gridOverlay = (
@@ -185,7 +197,7 @@ export function UpcomingEventsSection() {
                   
                   <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    {format(new Date(event.start_dt), 'd. MMMM yyyy', { locale: de })}
+                    {formatEventDate(event.start_dt, event.end_dt)}
                   </div>
                   
                   <h3 className={`text-xl font-bold transition-colors ${
