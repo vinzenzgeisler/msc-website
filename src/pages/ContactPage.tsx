@@ -22,9 +22,9 @@ export default function ContactPage() {
     title: t.nav.contact,
     subtitle:
       locale === 'de'
-        ? 'Wir freuen uns auf Ihre Nachricht'
+        ? 'Wir freuen uns auf deine Nachricht'
         : locale === 'cz'
-          ? 'Těšíme se na vaši zprávu'
+          ? 'Těšíme se na tvou zprávu'
           : 'We look forward to your message',
   });
   const infoContent = useContentWithFallback('contact', 'info', { content: '' });
@@ -151,16 +151,16 @@ export default function ContactPage() {
                   <div className="bg-primary/10 p-3"><Share2 className="h-6 w-6 text-primary" /></div>
                   <div>
                     <h3 className="font-semibold">Social Media</h3>
-                    <div className="flex flex-col gap-3">
+                    <div className="mt-4 flex items-center gap-4">
                       {settings?.facebook_url ? (
                         <a
                           href={settings.facebook_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary"
+                          className="text-muted-foreground hover:text-primary"
+                          aria-label="Facebook"
                         >
                           <Facebook className="h-5 w-5" />
-                          <span>Facebook</span>
                         </a>
                       ) : null}
                       {settings?.instagram_url ? (
@@ -168,10 +168,10 @@ export default function ContactPage() {
                           href={settings.instagram_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary"
+                          className="text-muted-foreground hover:text-primary"
+                          aria-label="Instagram"
                         >
                           <Instagram className="h-5 w-5" />
-                          <span>Instagram</span>
                         </a>
                       ) : null}
                     </div>
