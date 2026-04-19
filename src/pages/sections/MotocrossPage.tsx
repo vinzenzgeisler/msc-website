@@ -239,7 +239,7 @@ export default function MotocrossPage() {
                 {fees.subtitle && (
                   <div className="space-y-3 border-t border-border pt-4">
                     <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <Ticket className="mt-0.5 h-4 w-4 shrink-0 text-accent-foreground" />
+                      <Ticket className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                       <span>{fees.subtitle}</span>
                     </div>
                   </div>
