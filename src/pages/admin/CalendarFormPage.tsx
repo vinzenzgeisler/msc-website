@@ -17,11 +17,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, Loader2, Calendar, MapPin, Bike, Trophy, Star, AlertCircle, Save, FileText, ExternalLink, Mail } from 'lucide-react';
 import { useCalendarEvent, useCalendarEvents, useCreateCalendarEvent, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
+import { useEventInfoAdmin, useUpsertEventInfo } from '@/hooks/useEventContent';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { buildSlug } from '@/integrations/pocketbase/client';
 import { LocaleTranslationBox, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+import { getCalendarEventDetailPath } from '@/lib/calendar-event-links';
 
 const categories = [
   { value: 'allgemein', label: 'Allgemein', icon: Calendar },
@@ -45,8 +47,10 @@ export default function CalendarFormPage() {
 
   const { data: existingEvent, isLoading: isLoadingEvent } = useCalendarEvent(isEditing ? id : '');
   const { data: allEvents } = useCalendarEvents(false);
+  const { data: detailContentRecords } = useEventInfoAdmin(isEditing ? id : undefined, 'detail_content');
   const createEvent = useCreateCalendarEvent();
   const updateEvent = useUpdateCalendarEvent();
+  const upsertEventInfo = useUpsertEventInfo();
   const translate = useCmsTranslation();
   const autoTranslationTargets: TranslationTarget[] = ['en', 'cz'];
 
@@ -64,6 +68,8 @@ export default function CalendarFormPage() {
     published: true,
   });
   const [isDirty, setIsDirty] = useState(false);
+  const [detailPageTitle, setDetailPageTitle] = useState('');
+  const [detailPageContent, setDetailPageContent] = useState('');
 
   const updateField = <K extends keyof typeof formData>(key: K, value: (typeof formData)[K]) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -73,6 +79,11 @@ export default function CalendarFormPage() {
   const deSlug = useMemo(
     () => buildSlug(formData.title || existingEvent?.title || ''),
     [formData.title, existingEvent?.title],
+  );
+  const generatedDetailPath = useMemo(() => getCalendarEventDetailPath(deSlug), [deSlug]);
+  const germanDetailRecord = useMemo(
+    () => detailContentRecords?.find((item) => item.locale === 'de') || null,
+    [detailContentRecords],
   );
 
   const translationStatus = useMemo(() => {
@@ -117,9 +128,11 @@ export default function CalendarFormPage() {
         is_main_event: existingEvent.is_main_event || false,
         published: existingEvent.published !== false,
       });
+      setDetailPageTitle(germanDetailRecord?.title || '');
+      setDetailPageContent(germanDetailRecord?.content || '');
       setIsDirty(false);
     }
-  }, [existingEvent, allEvents, navigate]);
+  }, [existingEvent, allEvents, germanDetailRecord?.title, germanDetailRecord?.content, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,6 +165,67 @@ export default function CalendarFormPage() {
         is_main_event: formData.is_main_event,
         published: formData.published,
         locale: 'de',
+      };
+
+      const upsertDetailContentForLocale = async (
+        eventId: string,
+        targetLocale: TranslationTarget | 'de',
+        options?: { suppressSuccessToast?: boolean },
+      ) => {
+        const sourceTitle = detailPageTitle.trim();
+        const sourceContent = detailPageContent.trim();
+
+        if (targetLocale === 'de') {
+          await upsertEventInfo.mutateAsync({
+            event: eventId,
+            section: 'detail_content',
+            locale: 'de',
+            title: sourceTitle || null,
+            content: sourceContent || null,
+            sort_order: 0,
+          });
+          return true;
+        }
+
+        if (!sourceTitle && !sourceContent) {
+          await upsertEventInfo.mutateAsync({
+            event: eventId,
+            section: 'detail_content',
+            locale: targetLocale,
+            title: null,
+            content: null,
+            sort_order: 0,
+          });
+          return false;
+        }
+
+        const translated = await translate.mutateAsync({
+          sourceLocale: 'de',
+          targetLocale,
+          context: 'Termin-Unterseite für die Vereinswebsite',
+          fields: {
+            title: sourceTitle,
+            content: sourceContent,
+          },
+        });
+
+        const translatedTitle = String(translated.title || '').trim();
+        const translatedContent = String(translated.content || '').trim();
+
+        await upsertEventInfo.mutateAsync({
+          event: eventId,
+          section: 'detail_content',
+          locale: targetLocale,
+          title: translatedTitle || sourceTitle || null,
+          content: translatedContent || sourceContent || null,
+          sort_order: 0,
+        });
+
+        if (!options?.suppressSuccessToast) {
+          toast.success(`Unterseite ${targetLocale.toUpperCase()} gespeichert`);
+        }
+
+        return true;
       };
 
       const translateEventTo = async (
@@ -206,24 +280,24 @@ export default function CalendarFormPage() {
           locale: targetLocale,
         };
 
-        if (existingTranslation) {
-          await updateEvent.mutateAsync({ id: existingTranslation.id, ...payload });
-        } else {
-          await createEvent.mutateAsync(payload);
-        }
+        const savedTranslation = existingTranslation
+          ? await updateEvent.mutateAsync({ id: existingTranslation.id, ...payload })
+          : await createEvent.mutateAsync(payload);
+
+        await upsertDetailContentForLocale(savedTranslation.id, targetLocale, { suppressSuccessToast: true });
 
         if (!options?.suppressSuccessToast) {
           toast.success(`Übersetzung ${targetLocale.toUpperCase()} gespeichert`);
         }
 
-        return true;
+        return savedTranslation;
       };
 
-      if (isEditing) {
-        await updateEvent.mutateAsync({ id, ...eventData });
-      } else {
-        await createEvent.mutateAsync(eventData);
-      }
+      const savedGermanEvent = isEditing
+        ? await updateEvent.mutateAsync({ id, ...eventData })
+        : await createEvent.mutateAsync(eventData);
+
+      await upsertDetailContentForLocale(savedGermanEvent.id, 'de', { suppressSuccessToast: true });
 
       const failedLocales: string[] = [];
       for (const targetLocale of autoTranslationTargets) {
@@ -309,10 +383,40 @@ export default function CalendarFormPage() {
         locale: targetLocale,
       };
 
-      if (existingTranslation) {
-        await updateEvent.mutateAsync({ id: existingTranslation.id, ...payload });
+      const savedTranslation = existingTranslation
+        ? await updateEvent.mutateAsync({ id: existingTranslation.id, ...payload })
+        : await createEvent.mutateAsync(payload);
+
+      const subpageTitle = detailPageTitle.trim();
+      const subpageContent = detailPageContent.trim();
+      if (subpageTitle || subpageContent) {
+        const translatedDetail = await translate.mutateAsync({
+          sourceLocale: 'de',
+          targetLocale,
+          context: 'Termin-Unterseite für die Vereinswebsite',
+          fields: {
+            title: subpageTitle,
+            content: subpageContent,
+          },
+        });
+
+        await upsertEventInfo.mutateAsync({
+          event: savedTranslation.id,
+          section: 'detail_content',
+          locale: targetLocale,
+          title: String(translatedDetail.title || '').trim() || subpageTitle || null,
+          content: String(translatedDetail.content || '').trim() || subpageContent || null,
+          sort_order: 0,
+        });
       } else {
-        await createEvent.mutateAsync(payload);
+        await upsertEventInfo.mutateAsync({
+          event: savedTranslation.id,
+          section: 'detail_content',
+          locale: targetLocale,
+          title: null,
+          content: null,
+          sort_order: 0,
+        });
       }
       toast.success(`Übersetzung ${targetLocale.toUpperCase()} gespeichert`);
     } catch (error) {
@@ -320,7 +424,7 @@ export default function CalendarFormPage() {
     }
   };
 
-  const isSubmitting = createEvent.isPending || updateEvent.isPending;
+  const isSubmitting = createEvent.isPending || updateEvent.isPending || upsertEventInfo.isPending;
 
   if (isEditing && isLoadingEvent) {
     return (
@@ -341,7 +445,7 @@ export default function CalendarFormPage() {
         </Button>
         <div>
           <h1 className="text-2xl font-bold">{isEditing ? 'Termin bearbeiten' : 'Neuer Termin'}</h1>
-          <p className="text-muted-foreground text-sm">Bearbeitung erfolgt immer in Deutsch (DE)</p>
+          <p className="text-muted-foreground text-sm">Bearbeitung erfolgt immer in Deutsch (DE). Dieses Formular pflegt auch die interne Termin-Unterseite.</p>
         </div>
       </div>
 
@@ -467,7 +571,7 @@ export default function CalendarFormPage() {
               <div className="space-y-2">
                 <Label htmlFor="detail_url" className="flex items-center gap-1.5">
                   <ExternalLink className="h-3.5 w-3.5" />
-                  Detail-Seite URL
+                  Externe Detail-URL überschreiben
                 </Label>
                 <Input
                   id="detail_url"
@@ -477,7 +581,7 @@ export default function CalendarFormPage() {
                   placeholder="/old/accommodation oder https://..."
                 />
                 <p className="text-xs text-muted-foreground">
-                  Optional: Macht den Termin auf der Website klickbar. Erlaubt sind interne Pfade wie `/old/accommodation` oder komplette URLs. Ein eigener CMS-Editor für Termin-Unterseiten existiert aktuell noch nicht.
+                  Optional: Nur falls dieser Termin statt der automatischen internen Unterseite auf eine andere Seite oder externe URL zeigen soll.
                 </p>
               </div>
 
@@ -493,6 +597,65 @@ export default function CalendarFormPage() {
                   onChange={(e) => updateField('contact_email', e.target.value)}
                   placeholder="info@msc-dreilaendereck.de"
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                Termin-Unterseite
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Interne Unterseiten-URL</Label>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <Input value={generatedDetailPath || ''} readOnly placeholder="Wird aus dem Termin-Titel erzeugt" />
+                  {generatedDetailPath ? (
+                    <Button type="button" variant="outline" asChild>
+                      <Link to={generatedDetailPath} target="_blank">
+                        Öffnen
+                        <ExternalLink className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  ) : null}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Diese Unterseite wird automatisch aus dem Termin erzeugt. Titel, Beschreibung, Datum und Ort kommen aus den Grunddaten oben.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="detail-page-title">Unterseiten-Titel (optional)</Label>
+                <Input
+                  id="detail-page-title"
+                  value={detailPageTitle}
+                  onChange={(e) => {
+                    setDetailPageTitle(e.target.value);
+                    setIsDirty(true);
+                  }}
+                  placeholder="Optionaler eigener Titel für die Termin-Unterseite"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="detail-page-content">Zusätzlicher Seiteninhalt</Label>
+                <Textarea
+                  id="detail-page-content"
+                  value={detailPageContent}
+                  onChange={(e) => {
+                    setDetailPageContent(e.target.value);
+                    setIsDirty(true);
+                  }}
+                  placeholder="Zusätzliche Informationen, Ablauf, Hinweise oder Textblöcke für diese Termin-Unterseite..."
+                  rows={10}
+                  className="font-mono text-sm"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Markdown/HTML ist erlaubt. Dieser Inhalt wird zusammen mit dem Termin automatisch nach EN/CZ übersetzt.
+                </p>
               </div>
             </CardContent>
           </Card>

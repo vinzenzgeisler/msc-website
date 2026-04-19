@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import EventPage from "./pages/EventPage";
 import AccommodationPage from "./pages/event/AccommodationPage";
 import CalendarPage from "./pages/CalendarPage";
+import CalendarDetailPage from "./pages/CalendarDetailPage";
 import NewsPage from "./pages/NewsPage";
 import NewsDetailPage from "./pages/NewsDetailPage";
 import AboutPage from "./pages/club/AboutPage";
@@ -68,6 +69,7 @@ const App = () => (
               <Route path="/event" element={<Navigate to="/old" replace />} />
               <Route path="/event/accommodation" element={<Navigate to="/old/accommodation" replace />} />
               <Route path="/calendar" element={<CalendarPage />} />
+              <Route path="/calendar/:slug" element={<CalendarDetailPage />} />
               <Route path="/news" element={<NewsPage />} />
               <Route path="/news/:slug" element={<NewsDetailPage />} />
               

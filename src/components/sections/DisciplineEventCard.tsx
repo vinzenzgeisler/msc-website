@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { de, cs, enUS } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { getCalendarEventClickTarget } from '@/lib/calendar-event-links';
 
 interface CalendarEvent {
   id: string;
@@ -33,7 +34,7 @@ export function DisciplineEventCard({ event }: DisciplineEventCardProps) {
   const navigate = useNavigate();
   const { locale } = useLanguage();
   const dateLocale = locale === 'cz' ? cs : locale === 'en' ? enUS : de;
-  const clickTarget = event.is_main_event ? '/old' : event.detail_url || null;
+  const clickTarget = getCalendarEventClickTarget(event);
 
   const formatEventDate = (startDt: string, endDt?: string | null) => {
     const start = new Date(startDt);

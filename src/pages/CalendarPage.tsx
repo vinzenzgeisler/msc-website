@@ -13,6 +13,7 @@ import { useCalendarEvents } from "@/hooks/useCalendarEvents";
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { downloadIcs } from '@/lib/ics-export';
 import { toast } from 'sonner';
+import { getCalendarEventClickTarget } from '@/lib/calendar-event-links';
 
 type ViewMode = "month" | "upcoming";
 
@@ -265,7 +266,7 @@ export default function CalendarPage() {
                     const eventDate = new Date(event.start_dt);
                     const eventEndDate = event.end_dt ? new Date(event.end_dt) : null;
                     
-                    const clickTarget = event.is_main_event ? '/old' : event.detail_url || null;
+                    const clickTarget = getCalendarEventClickTarget(event);
                     
                     return (
                       <Card

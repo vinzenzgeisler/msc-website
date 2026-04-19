@@ -30,6 +30,27 @@ export function useCalendarEvent(id: string) {
   });
 }
 
+export function useCalendarEventBySlug(slug?: string) {
+  const { locale } = useLanguage();
+
+  return useQuery({
+    queryKey: ['calendar_events', 'slug', slug, locale],
+    enabled: Boolean(slug),
+    queryFn: async () => {
+      const data = await listAllRecords('calendarEvents');
+      const events = data
+        .map(mapCalendarEventRecord)
+        .filter((event): event is CalendarEvent => event.slug === slug && event.published !== false);
+
+      return (
+        events.find((event) => event.locale === locale)
+        || events.find((event) => event.locale === 'de')
+        || null
+      );
+    },
+  });
+}
+
 export function useCreateCalendarEvent() {
   const queryClient = useQueryClient();
 

@@ -9,6 +9,7 @@ import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { format, isAfter, startOfDay } from 'date-fns';
 import { de, cs, enUS } from 'date-fns/locale';
+import { getCalendarEventClickTarget } from '@/lib/calendar-event-links';
 
 export function UpcomingEventsSection() {
   const t = useTranslation();
@@ -158,7 +159,7 @@ export function UpcomingEventsSection() {
         <div className="grid gap-6 md:grid-cols-3">
           {upcomingEvents.map((event) => {
             const isMainEvent = event.is_main_event;
-            const clickTarget = isMainEvent ? '/old' : event.detail_url || null;
+            const clickTarget = getCalendarEventClickTarget(event);
             
             return (
               <Card 

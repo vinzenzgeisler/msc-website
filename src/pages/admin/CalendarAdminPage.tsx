@@ -35,6 +35,7 @@ import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 import { formatDateSafe } from '@/lib/date';
+import { getCalendarEventClickTarget } from '@/lib/calendar-event-links';
 
 const categoryConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   allgemein: { label: 'Allgemein', color: 'bg-blue-500', icon: Calendar },
@@ -215,6 +216,20 @@ export default function CalendarAdminPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                const target = getCalendarEventClickTarget(event);
+                                if (!target) return;
+                                if (target.startsWith('http')) {
+                                  window.open(target, '_blank');
+                                } else {
+                                  window.open(target, '_blank');
+                                }
+                              }}
+                            >
+                              <ExternalLink className="mr-2 h-4 w-4" />
+                              Unterseite öffnen
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleToggleMainEvent(event)}>
                               <Star className="mr-2 h-4 w-4" />
                               {event.is_main_event ? 'Hauptevent entfernen' : 'Als Hauptevent markieren'}
