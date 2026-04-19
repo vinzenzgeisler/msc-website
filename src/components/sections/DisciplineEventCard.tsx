@@ -14,8 +14,8 @@ interface CalendarEvent {
   location?: string | null;
   category?: string | null;
   description?: string | null;
-  detail_url?: string | null;
-  is_main_event?: boolean;
+  detail_url: string | null;
+  is_main_event: boolean;
   slug: string;
 }
 
