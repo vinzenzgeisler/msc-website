@@ -42,7 +42,7 @@ const categoryConfig: Record<string, { label: string; color: string; icon: React
   event: { label: 'Veranstaltung', color: 'bg-green-500', icon: Trophy },
   motocross: { label: 'Motocross', color: 'bg-orange-500', icon: Bike },
   trial: { label: 'Trial', color: 'bg-purple-500', icon: MapPin },
-  touring: { label: 'Touring', color: 'bg-sky-500', icon: Calendar },
+  touring: { label: 'Motorradtouristik', color: 'bg-sky-500', icon: Calendar },
 };
 
 export default function CalendarAdminPage() {

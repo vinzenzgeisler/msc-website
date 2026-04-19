@@ -28,7 +28,7 @@ const categories = [
   { value: 'event', label: 'Veranstaltung' },
   { value: 'motocross', label: 'Motocross' },
   { value: 'trial', label: 'Trial' },
-  { value: 'touring', label: 'Touring' },
+  { value: 'touring', label: 'Motorradtouristik' },
   { value: 'verein', label: 'Verein' },
 ];
 

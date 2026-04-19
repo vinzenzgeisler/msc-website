@@ -26,7 +26,7 @@ interface DisciplineEventCardProps {
 const CATEGORY_LABELS: Record<string, string> = {
   motocross: 'Motocross',
   trial: 'Trial',
-  touring: 'Touristik',
+  touring: 'Motorradtouristik',
   allgemein: 'Allgemein',
   verein: 'Verein',
 };
