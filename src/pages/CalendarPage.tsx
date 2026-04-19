@@ -24,8 +24,6 @@ const categoryColors: Record<string, { color: string; bgColor: string }> = {
   event: { color: "text-accent-foreground", bgColor: "bg-accent" },
   veranstaltung: { color: "text-accent-foreground", bgColor: "bg-accent" },
   training: { color: "text-white", bgColor: "bg-green-600" },
-  touring: { color: "text-white", bgColor: "bg-orange-600" },
-  motorradtouristik: { color: "text-white", bgColor: "bg-orange-600" },
   orgTeam: { color: "text-white", bgColor: "bg-purple-600" },
   orgteam: { color: "text-white", bgColor: "bg-purple-600" },
   orga: { color: "text-white", bgColor: "bg-purple-600" },
