@@ -16,7 +16,9 @@ type ViewMode = "month" | "upcoming";
 
 // Category colors only - labels come from translations
 const categoryColors: Record<string, { color: string; bgColor: string }> = {
-  all: { color: "text-primary-foreground", bgColor: "bg-primary" },
+  all: { color: "text-white", bgColor: "bg-slate-500" },
+  touring: { color: "text-white", bgColor: "bg-slate-500" },
+  motorradtouristik: { color: "text-white", bgColor: "bg-slate-500" },
   club: { color: "text-primary-foreground", bgColor: "bg-primary" },
   verein: { color: "text-primary-foreground", bgColor: "bg-primary" },
   event: { color: "text-accent-foreground", bgColor: "bg-accent" },
