@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { Users, History, Award, ChevronRight, Bike, Target, MapPin } from 'lucide-react';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { RichContent } from '@/components/content/RichContent';
+import { localize } from '@/i18n/locale-utils';
 
 const fallbacks = {
   de: {
@@ -26,18 +27,25 @@ const fallbacks = {
     mission: { title: 'Our Mission', content: 'We promote motorsport in Upper Lusatia and beyond. Our goal is to create a vibrant motorsport community that inspires young and old alike.' },
     values: { title: 'Our Values', content: '<ul><li><strong>Community</strong> – Motorsport connects.</li><li><strong>Safety</strong> – Responsible driving comes first.</li><li><strong>Youth Development</strong> – We invest in the next generation of motorsport athletes.</li><li><strong>Cross-border</strong> – We actively maintain connections with clubs in the Czech Republic and Poland.</li><li><strong>Passion</strong> – Everything revolves around the enthusiasm for motorsport.</li></ul>' },
   },
+  pl: {
+    intro: { title: 'O nas', subtitle: 'Motorsport z pasja w regionie trzech granic', content: 'MSC Oberlausitzer Dreilaendereck e.V. to niedochodowy klub motorsportowy z siedziba na Gornych Luzycach. Od zalozenia w 2013 roku laczymy pasje do motorsportu ze wspieraniem pracy z mlodzieza, bezpieczenstwa ruchu drogowego i wspolpracy transgranicznej z klubami w Czechach i Polsce.' },
+    mission: { title: 'Nasza misja', content: 'Wspieramy motorsport na Gornych Luzycach i poza nimi. Naszym celem jest tworzenie zywej spolecznosci motorsportowej, ktora inspiruje mlodych i starszych.' },
+    values: { title: 'Nasze wartosci', content: '<ul><li><strong>Wspolnota</strong> - motorsport laczy.</li><li><strong>Bezpieczenstwo</strong> - odpowiedzialna jazda jest najwazniejsza.</li><li><strong>Wsparcie mlodziezy</strong> - inwestujemy w kolejne pokolenie motorsportowcow.</li><li><strong>Wspolpraca transgraniczna</strong> - aktywnie utrzymujemy kontakty z klubami w Czechach i Polsce.</li><li><strong>Pasja</strong> - wszystko kreci sie wokol pasji do motorsportu.</li></ul>' },
+  },
 };
 
 export default function AboutPage() {
   const t = useTranslation();
   const { locale } = useLanguage();
-  const lang = (locale === 'cz' || locale === 'en') ? locale : 'de';
+  const lang = (locale === 'cz' || locale === 'en' || locale === 'pl') ? locale : 'de';
   const fb = fallbacks[lang];
   const introBlockTitle =
     lang === 'cz'
       ? 'Kdo jsme'
       : lang === 'en'
         ? 'Who We Are'
+        : lang === 'pl'
+          ? 'Kim jestesmy'
         : 'Wer wir sind';
 
   const intro = useContentWithFallback('about', 'intro', fb.intro);
@@ -45,9 +53,9 @@ export default function AboutPage() {
   const values = useContentWithFallback('about', 'values', fb.values);
 
   const quickLinks = [
-    { icon: Users, title: t.nav.board, description: intro.primary_button_label || 'Lernen Sie unser Vorstandsteam kennen', path: '/club/board' },
-    { icon: History, title: t.nav.history, description: intro.secondary_button_label || 'Die Geschichte unseres Vereins seit 2013', path: '/club/history' },
-    { icon: Award, title: t.nav.membership, description: intro.stat_one_label || 'Werden Sie Teil unserer Gemeinschaft', path: '/club/membership' },
+    { icon: Users, title: t.nav.board, description: intro.primary_button_label || localize(locale, { de: 'Lernen Sie unser Vorstandsteam kennen', cz: 'Poznejte nas tym vedeni', en: 'Meet our board team', pl: 'Poznaj nasz zarzad' }), path: '/club/board' },
+    { icon: History, title: t.nav.history, description: intro.secondary_button_label || localize(locale, { de: 'Die Geschichte unseres Vereins seit 2013', cz: 'Historie naseho klubu od roku 2013', en: 'The history of our club since 2013', pl: 'Historia naszego klubu od 2013 roku' }), path: '/club/history' },
+    { icon: Award, title: t.nav.membership, description: intro.stat_one_label || localize(locale, { de: 'Werden Sie Teil unserer Gemeinschaft', cz: 'Stante se soucasti nasi komunity', en: 'Become part of our community', pl: 'Zostan czescia naszej spolecznosci' }), path: '/club/membership' },
   ];
 
   const sections = [
@@ -85,7 +93,7 @@ export default function AboutPage() {
                     className="text-left text-muted-foreground prose-p:leading-8"
                   />
                 ) : (
-                  <p className="text-muted-foreground">Noch keine Inhalte hinterlegt.</p>
+                  <p className="text-muted-foreground">{localize(locale, { de: 'Noch keine Inhalte hinterlegt.', cz: 'Zatim nejsou zadne obsahy.', en: 'No content added yet.', pl: 'Nie dodano jeszcze tresci.' })}</p>
                 )}
               </CardContent>
             </Card>
@@ -99,7 +107,7 @@ export default function AboutPage() {
                     className="text-left text-muted-foreground prose-p:leading-8"
                   />
                 ) : (
-                  <p className="text-muted-foreground">Noch keine Inhalte hinterlegt.</p>
+                  <p className="text-muted-foreground">{localize(locale, { de: 'Noch keine Inhalte hinterlegt.', cz: 'Zatim nejsou zadne obsahy.', en: 'No content added yet.', pl: 'Nie dodano jeszcze tresci.' })}</p>
                 )}
               </CardContent>
             </Card>
@@ -113,7 +121,7 @@ export default function AboutPage() {
                     className="text-left text-muted-foreground prose-li:mb-3 prose-li:leading-7"
                   />
                 ) : (
-                  <p className="text-muted-foreground">Noch keine Inhalte hinterlegt.</p>
+                  <p className="text-muted-foreground">{localize(locale, { de: 'Noch keine Inhalte hinterlegt.', cz: 'Zatim nejsou zadne obsahy.', en: 'No content added yet.', pl: 'Nie dodano jeszcze tresci.' })}</p>
                 )}
               </CardContent>
             </Card>
@@ -124,7 +132,7 @@ export default function AboutPage() {
       {/* Sektionen */}
       <section className="border-t border-border py-16">
         <div className="container">
-          <h2 className="mb-8 text-center text-3xl font-bold">Unsere Sektionen</h2>
+          <h2 className="mb-8 text-center text-3xl font-bold">{localize(locale, { de: 'Unsere Sektionen', cz: 'Nase sekce', en: 'Our Sections', pl: 'Nasze sekcje' })}</h2>
           <div className="grid gap-4 md:grid-cols-3">
             {sections.map((section) => (
               <Link key={section.path} to={section.path}
@@ -135,7 +143,7 @@ export default function AboutPage() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold">{section.title}</h3>
-                    <span className="text-sm text-muted-foreground">Mehr erfahren →</span>
+                    <span className="text-sm text-muted-foreground">{localize(locale, { de: 'Mehr erfahren', cz: 'Vice informaci', en: 'Learn more', pl: 'Dowiedz sie wiecej' })} →</span>
                   </div>
                 </div>
               </Link>
@@ -157,7 +165,7 @@ export default function AboutPage() {
                   <h3 className="mb-2 text-xl font-semibold">{link.title}</h3>
                   <p className="mb-4 text-muted-foreground">{link.description}</p>
                   <Button variant="outline" asChild>
-                    <Link to={link.path}>Mehr erfahren<ChevronRight className="ml-1 h-4 w-4" /></Link>
+                    <Link to={link.path}>{localize(locale, { de: 'Mehr erfahren', cz: 'Vice informaci', en: 'Learn more', pl: 'Dowiedz sie wiecej' })}<ChevronRight className="ml-1 h-4 w-4" /></Link>
                   </Button>
                 </CardContent>
               </Card>

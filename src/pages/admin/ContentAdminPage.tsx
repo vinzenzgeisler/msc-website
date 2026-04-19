@@ -865,7 +865,7 @@ function ContentEditor({
 
       {!supportsDownloadSelection ? (
         <LocaleTranslationBox
-          description="DE bleibt führend. EN/CZ werden separat gespeichert (zuerst DE speichern)."
+          description="DE bleibt führend. EN/CZ/PL werden separat gespeichert (zuerst DE speichern)."
           status={translationStatus}
           onTranslate={(target) => onTranslate(target, formData)}
           isTranslating={isTranslating}
@@ -894,7 +894,7 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
   const { data: content, isLoading } = useAllPageContent(pageKey);
   const upsertContent = useUpsertPageContent();
   const translate = useCmsTranslation();
-  const autoTranslationTargets: TranslationTarget[] = ['en', 'cz'];
+  const autoTranslationTargets: TranslationTarget[] = ['en', 'cz', 'pl'];
   const sections = PAGE_SECTIONS[pageKey];
   const imageSections = new Set(['event:track_map', 'history:intro', 'motocross:intro', 'trial:intro', 'touring:intro']);
   const headerImageSections = new Set(['about:intro', 'board:intro', 'history:intro', 'membership:intro', 'partner_clubs:intro', 'motocross:intro', 'trial:intro', 'touring:intro', 'contact:intro']);
@@ -905,6 +905,7 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
   const getTranslationStatus = (sectionKey: string): TranslationStatus => ({
     en: Boolean(getContentForSection(sectionKey, 'en')),
     cz: Boolean(getContentForSection(sectionKey, 'cz')),
+    pl: Boolean(getContentForSection(sectionKey, 'pl')),
   });
 
   const hasTranslatableSectionText = (source: ContentFormData) =>
@@ -1104,7 +1105,7 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
-        Bearbeitung erfolgt immer in Deutsch. EN/CZ werden separat über „Übersetzungen“ gepflegt.
+        Bearbeitung erfolgt immer in Deutsch. EN/CZ/PL werden separat über „Übersetzungen“ gepflegt.
       </p>
 
       <Accordion type="single" collapsible className="space-y-2">
@@ -1134,6 +1135,9 @@ function PageContentSection({ pageKey }: { pageKey: PageKey }) {
                   </Badge>
                   <Badge variant={translationStatus.cz ? 'secondary' : 'outline'} className="text-xs">
                     CZ {translationStatus.cz ? 'ok' : 'fehlt'}
+                  </Badge>
+                  <Badge variant={translationStatus.pl ? 'secondary' : 'outline'} className="text-xs">
+                    PL {translationStatus.pl ? 'ok' : 'fehlt'}
                   </Badge>
                 </div>
               </AccordionTrigger>

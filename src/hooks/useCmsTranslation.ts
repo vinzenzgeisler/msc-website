@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { pb } from '@/integrations/pocketbase/client';
 import { ClientResponseError } from 'pocketbase';
 
-type Locale = 'de' | 'en' | 'cz';
+type Locale = 'de' | 'en' | 'cz' | 'pl';
 
 interface TranslatePayload {
   sourceLocale?: Locale;

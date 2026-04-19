@@ -154,10 +154,11 @@ function MainEventForm({
   );
 
   const translationStatus = useMemo(() => {
-    const map: Record<TranslationTarget, boolean> = { en: false, cz: false };
+    const map: Record<TranslationTarget, boolean> = { en: false, cz: false, pl: false };
     if (!deSlug) return map;
     map.en = Boolean(allEvents.find((e) => e.locale === 'en' && e.slug === deSlug));
     map.cz = Boolean(allEvents.find((e) => e.locale === 'cz' && e.slug === deSlug));
+    map.pl = Boolean(allEvents.find((e) => e.locale === 'pl' && e.slug === deSlug));
     return map;
   }, [allEvents, deSlug]);
 
@@ -477,7 +478,7 @@ function MainEventForm({
             </CardHeader>
             <CardContent>
               <LocaleTranslationBox
-                description="DE führend. EN/CZ separat."
+                description="DE führend. EN/CZ/PL separat."
                 status={translationStatus}
                 onTranslate={handleTranslateTo}
                 isTranslating={translate.isPending}

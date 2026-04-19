@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { useSettings } from '@/hooks/useSettings';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { RichContent } from '@/components/content/RichContent';
+import { localize } from '@/i18n/locale-utils';
 
 export default function ContactPage() {
   const t = useTranslation();
@@ -20,12 +21,12 @@ export default function ContactPage() {
   const { data: settings } = useSettings();
   const intro = useContentWithFallback('contact', 'intro', {
     title: t.nav.contact,
-    subtitle:
-      locale === 'de'
-        ? 'Wir freuen uns auf deine Nachricht'
-        : locale === 'cz'
-          ? 'Těšíme se na tvou zprávu'
-          : 'We look forward to your message',
+    subtitle: localize(locale, {
+      de: 'Wir freuen uns auf deine Nachricht',
+      cz: 'Těšíme se na tvou zprávu',
+      en: 'We look forward to your message',
+      pl: 'Czekamy na twoja wiadomosc',
+    }),
   });
   const infoContent = useContentWithFallback('contact', 'info', { content: '' });
   const mapContent = useContentWithFallback('contact', 'map', {
@@ -39,12 +40,22 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
-      toast.error(locale === 'de' ? 'Bitte füllen Sie alle Felder aus' : locale === 'cz' ? 'Vyplňte prosím všechna pole' : 'Please fill in all fields');
+      toast.error(localize(locale, {
+        de: 'Bitte füllen Sie alle Felder aus',
+        cz: 'Vyplnte prosim vsechna pole',
+        en: 'Please fill in all fields',
+        pl: 'Prosze wypelnic wszystkie pola',
+      }));
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toast.error(locale === 'de' ? 'Ungültige E-Mail-Adresse' : locale === 'cz' ? 'Neplatná e-mailová adresa' : 'Invalid email address');
+      toast.error(localize(locale, {
+        de: 'Ungültige E-Mail-Adresse',
+        cz: 'Neplatna e-mailova adresa',
+        en: 'Invalid email address',
+        pl: 'Nieprawidlowy adres e-mail',
+      }));
       return;
     }
     setIsSubmitting(true);
@@ -55,7 +66,12 @@ export default function ContactPage() {
       toast.success(t.contact.success);
     } catch (error: unknown) {
       console.error('Contact form error:', error);
-      toast.error(locale === 'de' ? 'Fehler beim Senden. Bitte versuchen Sie es später erneut.' : locale === 'cz' ? 'Chyba při odesílání. Zkuste to prosím později.' : 'Error sending message. Please try again later.');
+      toast.error(localize(locale, {
+        de: 'Fehler beim Senden. Bitte versuchen Sie es später erneut.',
+        cz: 'Chyba pri odesilani. Zkuste to prosim pozdeji.',
+        en: 'Error sending message. Please try again later.',
+        pl: 'Blad podczas wysylania. Sprobuj ponownie pozniej.',
+      }));
     } finally {
       setIsSubmitting(false);
     }
@@ -76,19 +92,39 @@ export default function ContactPage() {
             <Card>
               <CardContent className="p-6">
                 <h2 className="mb-6 text-2xl font-semibold">
-                  {locale === 'de' ? 'Nachricht senden' : locale === 'cz' ? 'Odeslat zprávu' : 'Send Message'}
+                  {localize(locale, {
+                    de: 'Nachricht senden',
+                    cz: 'Odeslat zpravu',
+                    en: 'Send Message',
+                    pl: 'Wyslij wiadomosc',
+                  })}
                 </h2>
                 {isSuccess ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
                     <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
                     <h3 className="text-xl font-semibold mb-2">
-                      {locale === 'de' ? 'Nachricht gesendet!' : locale === 'cz' ? 'Zpráva odeslána!' : 'Message sent!'}
+                      {localize(locale, {
+                        de: 'Nachricht gesendet!',
+                        cz: 'Zprava odeslana!',
+                        en: 'Message sent!',
+                        pl: 'Wiadomosc wyslana!',
+                      })}
                     </h3>
                     <p className="text-muted-foreground mb-6">
-                      {locale === 'de' ? 'Wir werden uns so schnell wie möglich bei Ihnen melden.' : locale === 'cz' ? 'Ozveme se vám co nejdříve.' : 'We will get back to you as soon as possible.'}
+                      {localize(locale, {
+                        de: 'Wir werden uns so schnell wie möglich bei dir melden.',
+                        cz: 'Ozveme se ti co nejdriv.',
+                        en: 'We will get back to you as soon as possible.',
+                        pl: 'Odezwiemy sie do ciebie tak szybko, jak to mozliwe.',
+                      })}
                     </p>
                     <Button onClick={() => setIsSuccess(false)}>
-                      {locale === 'de' ? 'Weitere Nachricht senden' : locale === 'cz' ? 'Odeslat další zprávu' : 'Send another message'}
+                      {localize(locale, {
+                        de: 'Weitere Nachricht senden',
+                        cz: 'Odeslat dalsi zpravu',
+                        en: 'Send another message',
+                        pl: 'Wyslij kolejna wiadomosc',
+                      })}
                     </Button>
                   </div>
                 ) : (
@@ -96,23 +132,23 @@ export default function ContactPage() {
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="name">{t.contact.name} *</Label>
-                        <Input id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder={locale === 'de' ? 'Ihr Name' : locale === 'cz' ? 'Vaše jméno' : 'Your name'} maxLength={100} required disabled={isSubmitting} />
+                        <Input id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder={localize(locale, { de: 'Dein Name', cz: 'Tvoje jmeno', en: 'Your name', pl: 'Twoje imie' })} maxLength={100} required disabled={isSubmitting} />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">{t.contact.email} *</Label>
-                        <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder={locale === 'de' ? 'ihre@email.de' : locale === 'cz' ? 'vas@email.cz' : 'your@email.com'} maxLength={255} required disabled={isSubmitting} />
+                        <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder={localize(locale, { de: 'deine@email.de', cz: 'tvuj@email.cz', en: 'your@email.com', pl: 'twoj@email.pl' })} maxLength={255} required disabled={isSubmitting} />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="subject">{t.contact.subject} *</Label>
-                      <Input id="subject" value={formData.subject} onChange={(e) => setFormData({ ...formData, subject: e.target.value })} placeholder={locale === 'de' ? 'Betreff' : locale === 'cz' ? 'Předmět' : 'Subject'} maxLength={200} required disabled={isSubmitting} />
+                      <Input id="subject" value={formData.subject} onChange={(e) => setFormData({ ...formData, subject: e.target.value })} placeholder={localize(locale, { de: 'Betreff', cz: 'Predmet', en: 'Subject', pl: 'Temat' })} maxLength={200} required disabled={isSubmitting} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="message">{t.contact.message} *</Label>
-                      <Textarea id="message" value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} placeholder={locale === 'de' ? 'Ihre Nachricht...' : locale === 'cz' ? 'Vaše zpráva...' : 'Your message...'} rows={6} maxLength={5000} required disabled={isSubmitting} />
+                      <Textarea id="message" value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} placeholder={localize(locale, { de: 'Deine Nachricht...', cz: 'Tvoje zprava...', en: 'Your message...', pl: 'Twoja wiadomosc...' })} rows={6} maxLength={5000} required disabled={isSubmitting} />
                     </div>
                     <Button type="submit" className="w-full" disabled={isSubmitting}>
-                      {isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />{locale === 'de' ? 'Wird gesendet...' : locale === 'cz' ? 'Odesílání...' : 'Sending...'}</>) : t.contact.send}
+                      {isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />{localize(locale, { de: 'Wird gesendet...', cz: 'Odesilani...', en: 'Sending...', pl: 'Wysylanie...' })}</>) : t.contact.send}
                     </Button>
                   </form>
                 )}
@@ -121,7 +157,12 @@ export default function ContactPage() {
 
             <div>
               <h2 className="mb-6 text-2xl font-semibold">
-                {locale === 'de' ? 'Kontaktdaten' : locale === 'cz' ? 'Kontaktní údaje' : 'Contact Information'}
+                {localize(locale, {
+                  de: 'Kontaktdaten',
+                  cz: 'Kontaktni udaje',
+                  en: 'Contact Information',
+                  pl: 'Dane kontaktowe',
+                })}
               </h2>
               {infoContent.content ? (
                 <RichContent content={infoContent.content} className="mb-6 text-muted-foreground" />
@@ -130,11 +171,11 @@ export default function ContactPage() {
                 <div className="flex items-start gap-4">
                   <div className="bg-primary/10 p-3"><MapPin className="h-6 w-6 text-primary" /></div>
                   <div>
-                    <h3 className="font-semibold">{locale === 'de' ? 'Adresse' : locale === 'cz' ? 'Adresa' : 'Address'}</h3>
+                    <h3 className="font-semibold">{localize(locale, { de: 'Adresse', cz: 'Adresa', en: 'Address', pl: 'Adres' })}</h3>
                     <p className="text-muted-foreground">
                       {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}<br />
                       {settings?.address || '02797 Oybin'}<br />
-                      Sachsen, {locale === 'de' ? 'Deutschland' : locale === 'cz' ? 'Německo' : 'Germany'}
+                      Sachsen, {localize(locale, { de: 'Deutschland', cz: 'Nemecko', en: 'Germany', pl: 'Niemcy' })}
                     </p>
                   </div>
                 </div>

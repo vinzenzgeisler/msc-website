@@ -8,6 +8,7 @@ import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useSettings } from '@/hooks/useSettings';
 import { Link } from 'react-router-dom';
 import { RichContent } from '@/components/content/RichContent';
+import { localize } from '@/i18n/locale-utils';
 
 const feeTable = {
   de: {
@@ -43,6 +44,17 @@ const feeTable = {
     ],
     perYear: '/ year',
   },
+  pl: {
+    title: 'Skladki czlonkowskie',
+    categories: [
+      { label: 'Dzieci do 6 lat', fee: 'bezplatnie' },
+      { label: 'Dzieci i mlodziez (6-17 lat)', fee: '45,00 €' },
+      { label: 'Mlodzi dorosli (18-21 lat)', fee: '57,00 €' },
+      { label: 'Dorosli (od 22 lat)', fee: '100,00 €' },
+      { label: 'Skladka rodzinna', fee: '147,00 €' },
+    ],
+    perYear: '/ rok',
+  },
 };
 
 const howToJoinContent = {
@@ -73,6 +85,15 @@ const howToJoinContent = {
     ],
     cancelNote: 'Membership can be cancelled with 3 months notice before the end of the year.',
   },
+  pl: {
+    title: 'Jak dolaczyc',
+    steps: [
+      { title: 'Pobierz deklaracje', desc: 'Pobierz formularz i wypelnij go.' },
+      { title: 'Wyslij formularz', desc: 'Wyslij wypelniona deklaracje poczta na adres:\nMSC Oberlausitzer Dreilaendereck e.V.\nAm Weiher 4\n02791 Oderwitz' },
+      { title: 'Witamy w klubie!', desc: 'Po otrzymaniu deklaracji wyslemy potwierdzenie i od razu mozesz brac udzial w aktywnosciach klubu.' },
+    ],
+    cancelNote: 'Czlonkostwo mozna wypowiedziec z 3-miesiecznym okresem wypowiedzenia na koniec roku.',
+  },
 };
 
 const ctaContent = {
@@ -94,6 +115,12 @@ const ctaContent = {
     contactLabel: 'Get in touch',
     calendarLabel: 'View calendar',
   },
+  pl: {
+    title: 'Zainteresowany?',
+    content: 'Cieszymy sie na nowych czlonkow! Jako czlonek MSC korzystasz z tanszych treningow, ekskluzywnych wydarzen klubowych i silnej spolecznosci.',
+    contactLabel: 'Skontaktuj sie',
+    calendarLabel: 'Zobacz kalendarz',
+  },
 };
 
 const introFallbacks = {
@@ -112,12 +139,17 @@ const introFallbacks = {
     subtitle: 'Join our motorsport family',
     content: 'MSC Oberlausitzer Dreiländereck e.V. welcomes every new member! Whether as an active rider or a motorsport enthusiast – everyone is welcome.',
   },
+  pl: {
+    title: 'Zostan czlonkiem',
+    subtitle: 'Dolacz do naszej motorsportowej rodziny',
+    content: 'MSC Oberlausitzer Dreilaendereck e.V. cieszy sie z kazdego nowego czlonka! Niezaleznie od tego, czy jestes aktywnym zawodnikiem, czy fanem motorsportu - kazdy jest u nas mile widziany.',
+  },
 };
 
 export default function MembershipPage() {
   const { locale } = useLanguage();
   const { data: settings } = useSettings();
-  const lang = (locale === 'cz' || locale === 'en') ? locale : 'de';
+  const lang = (locale === 'cz' || locale === 'en' || locale === 'pl') ? locale : 'de';
 
   const intro = useContentWithFallback('membership', 'intro', introFallbacks[lang]);
   const declarationDoc = useContentWithFallback('membership', 'declaration_document', {});
@@ -157,7 +189,7 @@ export default function MembershipPage() {
                     <div key={i} className="flex items-center justify-between px-6 py-4">
                       <span className="font-medium">{cat.label}</span>
                       <span className="text-lg font-bold text-primary">
-                        {cat.fee} {cat.fee !== 'kostenlos' && cat.fee !== 'zdarma' && cat.fee !== 'free' ? fees.perYear : ''}
+                        {cat.fee} {cat.fee !== 'kostenlos' && cat.fee !== 'zdarma' && cat.fee !== 'free' && cat.fee !== 'bezplatnie' ? fees.perYear : ''}
                       </span>
                     </div>
                   ))}
@@ -196,7 +228,7 @@ export default function MembershipPage() {
                   rel="noopener noreferrer"
                 >
                   <Download className="mr-2 h-5 w-5" />
-                  {declarationDoc.title || (lang === 'de' ? 'Beitrittserklärung herunterladen' : lang === 'cz' ? 'Stáhnout přihlášku' : 'Download application form')}
+                  {declarationDoc.title || localize(lang, { de: 'Beitrittserklaerung herunterladen', cz: 'Stahnout prihlasku', en: 'Download application form', pl: 'Pobierz deklaracje czlonkowska' })}
                 </a>
               </Button>
 
@@ -207,7 +239,7 @@ export default function MembershipPage() {
                   rel="noopener noreferrer"
                 >
                   <FileText className="mr-2 h-5 w-5" />
-                  {statuteDoc.title || (lang === 'de' ? 'Vereinssatzung' : lang === 'cz' ? 'Stanovy spolku' : 'Club statutes')}
+                  {statuteDoc.title || localize(lang, { de: 'Vereinssatzung', cz: 'Stanovy spolku', en: 'Club statutes', pl: 'Statut klubu' })}
                 </a>
               </Button>
             </div>

@@ -6,6 +6,7 @@ import { formatDateSafe } from '@/lib/date';
 const TARGETS = [
   { value: 'en', label: 'EN' },
   { value: 'cz', label: 'CZ' },
+  { value: 'pl', label: 'PL' },
 ] as const;
 
 export type TranslationTarget = (typeof TARGETS)[number]['value'];
@@ -13,6 +14,7 @@ export type TranslationTarget = (typeof TARGETS)[number]['value'];
 export interface TranslationStatus {
   en: boolean;
   cz: boolean;
+  pl: boolean;
 }
 
 export interface TranslationMeta {

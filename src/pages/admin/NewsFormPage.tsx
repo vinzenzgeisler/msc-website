@@ -66,15 +66,16 @@ export default function NewsFormPage() {
   );
 
   const translationStatus = useMemo(() => {
-    const status = { en: false, cz: false };
+    const status = { en: false, cz: false, pl: false };
     if (!allPosts || !deSlug) return status;
     status.en = Boolean(allPosts.find((post) => post.locale === 'en' && post.slug === deSlug));
     status.cz = Boolean(allPosts.find((post) => post.locale === 'cz' && post.slug === deSlug));
+    status.pl = Boolean(allPosts.find((post) => post.locale === 'pl' && post.slug === deSlug));
     return status;
   }, [allPosts, deSlug]);
 
   const translationMeta = useMemo<Record<TranslationTarget, TranslationMeta>>(() => {
-    const fallback = { en: { exists: false }, cz: { exists: false } } as Record<TranslationTarget, TranslationMeta>;
+    const fallback = { en: { exists: false }, cz: { exists: false }, pl: { exists: false } } as Record<TranslationTarget, TranslationMeta>;
     if (!allPosts || !deSlug) return fallback;
 
     const buildMeta = (targetLocale: TranslationTarget): TranslationMeta => {
@@ -83,7 +84,7 @@ export default function NewsFormPage() {
       return { exists: true, status: translation.status, date: translation.display_date };
     };
 
-    return { en: buildMeta('en'), cz: buildMeta('cz') };
+    return { en: buildMeta('en'), cz: buildMeta('cz'), pl: buildMeta('pl') };
   }, [allPosts, deSlug]);
 
   const hasGermanBaseRecord = useMemo(
@@ -464,7 +465,7 @@ export default function NewsFormPage() {
             </CardHeader>
             <CardContent>
               <LocaleTranslationBox
-                description="DE bleibt führend. EN/CZ werden separat gespeichert."
+                description="DE bleibt führend. EN/CZ/PL werden separat gespeichert."
                 status={translationStatus}
                 meta={translationMeta}
                 onTranslate={handleTranslateTo}

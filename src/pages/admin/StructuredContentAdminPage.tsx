@@ -32,9 +32,9 @@ import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 
-type Locale = 'de' | 'en' | 'cz';
+type Locale = 'de' | 'en' | 'cz' | 'pl';
 
-const localeOptions: Locale[] = ['de', 'en', 'cz'];
+const localeOptions: Locale[] = ['de', 'en', 'cz', 'pl'];
 const disciplineLabels: Record<DisciplineHighlight['discipline_key'], string> = {
   motocross: 'Motocross',
   trial: 'Trial',

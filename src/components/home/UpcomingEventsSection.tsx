@@ -8,23 +8,23 @@ import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { format, isAfter, startOfDay } from 'date-fns';
-import { de, cs, enUS } from 'date-fns/locale';
 import { getCalendarEventClickTarget } from '@/lib/calendar-event-links';
+import { getDateFnsLocale, localize } from '@/i18n/locale-utils';
 
 export function UpcomingEventsSection() {
   const t = useTranslation();
   const { locale } = useLanguage();
-  const dateLocale = locale === 'cz' ? cs : locale === 'en' ? enUS : de;
+  const dateLocale = getDateFnsLocale(locale);
   const navigate = useNavigate();
   const { data: events, isLoading } = useCalendarEvents();
   const sectionContent = useContentWithFallback('home', 'upcoming_events', {
     title: t.calendar.upcoming,
-    subtitle:
-      locale === 'de'
-        ? 'Die nächsten Termine im Überblick'
-        : locale === 'cz'
-          ? 'Přehled nejbližších termínů'
-          : 'Overview of upcoming dates',
+    subtitle: localize(locale, {
+      de: 'Die nächsten Termine im Überblick',
+      cz: 'Prehled nejblizsich terminu',
+      en: 'Overview of upcoming dates',
+      pl: 'Przeglad najblizszych terminow',
+    }),
   });
   
   const today = startOfDay(new Date());

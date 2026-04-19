@@ -7,8 +7,8 @@ import { ChevronRight, ArrowUpRight, Newspaper } from 'lucide-react';
 import { usePosts } from '@/hooks/usePosts';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { de, cs, enUS } from 'date-fns/locale';
 import { formatDateSafe, getSafeTimestamp } from '@/lib/date';
+import { getDateFnsLocale, localize } from '@/i18n/locale-utils';
 
 export function NewsSection() {
   const t = useTranslation();
@@ -16,14 +16,14 @@ export function NewsSection() {
   const { data: posts, isLoading } = usePosts();
   const sectionContent = useContentWithFallback('home', 'news', {
     title: t.nav.news,
-    subtitle:
-      locale === 'de'
-        ? 'Aktuelles aus dem Vereinsleben'
-        : locale === 'cz'
-          ? 'Aktuálně ze života klubu'
-          : 'Latest updates from club life',
+    subtitle: localize(locale, {
+      de: 'Aktuelles aus dem Vereinsleben',
+      cz: 'Aktualne ze zivota klubu',
+      en: 'Latest updates from club life',
+      pl: 'Aktualnosci z zycia klubu',
+    }),
   });
-  const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
+  const dateLocale = getDateFnsLocale(locale);
   
   // Get only published posts, sorted by date, limit to 3
   // Posts come pre-sorted (pinned first, then by date) from usePosts
@@ -79,7 +79,12 @@ export function NewsSection() {
           <Card className="border-dashed border-2 bg-muted/50">
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
               <Newspaper className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Noch keine News veröffentlicht</p>
+              <p className="text-muted-foreground">{localize(locale, {
+                de: 'Noch keine News veröffentlicht',
+                cz: 'Zatim nebyly zverejneny zadne novinky',
+                en: 'No news published yet',
+                pl: 'Nie opublikowano jeszcze zadnych aktualnosci',
+              })}</p>
             </CardContent>
           </Card>
         </div>
@@ -108,7 +113,12 @@ export function NewsSection() {
             asChild
           >
             <Link to="/news">
-              Alle News
+              {localize(locale, {
+                de: 'Alle News',
+                cz: 'Vsechny novinky',
+                en: 'All News',
+                pl: 'Wszystkie aktualnosci',
+              })}
               <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
@@ -146,7 +156,7 @@ export function NewsSection() {
 
               <div className="p-6">
                 <p className="mb-2 text-sm text-muted-foreground">
-                  {formatDate(news.display_date)}
+                  {t.news.publishedOn} {formatDate(news.display_date)}
                 </p>
                 
                 <h3 className={`font-bold transition-colors group-hover:text-primary ${

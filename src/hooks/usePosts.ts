@@ -3,6 +3,30 @@ import { pb, Post, buildSlug, listAllRecords, mapPostRecord } from '@/integratio
 import { useLanguage } from '@/i18n/LanguageContext';
 import { getSafeTimestamp } from '@/lib/date';
 
+function resolveLocalizedPosts(posts: Post[], locale: string) {
+  const grouped = new Map<string, Post[]>();
+
+  for (const post of posts) {
+    const key = post.slug || post.id;
+    const bucket = grouped.get(key);
+    if (bucket) {
+      bucket.push(post);
+    } else {
+      grouped.set(key, [post]);
+    }
+  }
+
+  return Array.from(grouped.values())
+    .map((variants) => {
+      return (
+        variants.find((post) => post.locale === locale)
+        || variants.find((post) => post.locale === 'de')
+        || variants[0]
+      );
+    })
+    .filter((post): post is Post => Boolean(post));
+}
+
 export function usePosts(filterByLocale = true) {
   const { locale } = useLanguage();
 
@@ -23,8 +47,9 @@ export function usePosts(filterByLocale = true) {
         return post;
       });
 
-      return postsWithImages
-        .filter((post) => !filterByLocale || post.locale === locale)
+      const resolvedPosts = filterByLocale ? resolveLocalizedPosts(postsWithImages, locale) : postsWithImages;
+
+      return resolvedPosts
         .sort((a, b) => {
           if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
 
@@ -71,7 +96,9 @@ export function usePostBySlug(slug: string) {
     queryKey: ['posts', 'slug', slug, locale],
     queryFn: async () => {
       const data = await listAllRecords('posts');
-      const record = data.find((item: any) => item.slug === slug && item.locale === locale);
+      const record =
+        data.find((item: any) => item.slug === slug && item.locale === locale)
+        || data.find((item: any) => item.slug === slug && item.locale === 'de');
 
       if (!record) {
         throw new Error(`Post not found for slug "${slug}" and locale "${locale}"`);

@@ -29,8 +29,12 @@ export default function SponsorsPage() {
 
   const renderSponsorSection = (title: string, items: typeof sponsors.main, size: 'lg' | 'md' | 'sm') => {
     if (items.length === 0) return null;
-    const sizeClasses = { lg: 'h-32', md: 'h-24', sm: 'h-20' };
-    const gridClasses = { lg: 'grid-cols-1 sm:grid-cols-2', md: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4', sm: 'grid-cols-2 sm:grid-cols-4 lg:grid-cols-6' };
+    const sizeClasses = { lg: 'h-28 sm:h-32', md: 'h-24', sm: 'h-20' };
+    const gridClasses = {
+      lg: 'grid-cols-2 md:grid-cols-3',
+      md: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
+      sm: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6',
+    };
 
     return (
       <div className="mb-12 last:mb-0">

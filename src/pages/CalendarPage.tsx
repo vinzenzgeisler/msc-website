@@ -14,6 +14,7 @@ import { useContentWithFallback } from '@/hooks/usePageContent';
 import { downloadIcs } from '@/lib/ics-export';
 import { toast } from 'sonner';
 import { getCalendarEventClickTarget, hasCalendarEventTime } from '@/lib/calendar-event-links';
+import { getDateFnsLocale, isEnglishLocale } from '@/i18n/locale-utils';
 
 type ViewMode = "month" | "upcoming";
 
@@ -52,10 +53,10 @@ export default function CalendarPage() {
   const today = startOfDay(new Date());
   
   // Get the appropriate date-fns locale
-  const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
-  const fullDateFormat = locale === 'en' ? 'MMMM d, yyyy' : 'd. MMMM yyyy';
-  const monthLabelFormat = locale === 'en' ? 'LLL' : 'MMM';
-  const timeFormat = locale === 'en' ? 'h:mm a' : 'HH:mm';
+  const dateLocale = getDateFnsLocale(locale);
+  const fullDateFormat = isEnglishLocale(locale) ? 'MMMM d, yyyy' : 'd. MMMM yyyy';
+  const monthLabelFormat = isEnglishLocale(locale) ? 'LLL' : 'MMM';
+  const timeFormat = isEnglishLocale(locale) ? 'h:mm a' : 'HH:mm';
 
   // Filter and sort events
   const filteredEvents = (events || [])

@@ -16,8 +16,8 @@ import { LocaleTranslationBox, type TranslationTarget, type TranslationStatus } 
 import { useCmsTranslation } from '@/hooks/useCmsTranslation';
 import { MediaAssetPicker } from '@/components/admin/MediaAssetPicker';
 
-type Locale = 'de' | 'en' | 'cz';
-const localeOptions: Locale[] = ['de', 'en', 'cz'];
+type Locale = 'de' | 'en' | 'cz' | 'pl';
+const localeOptions: Locale[] = ['de', 'en', 'cz', 'pl'];
 
 export default function PartnerClubsAdminPage() {
   const { data, isLoading } = usePartnerClubsAdmin();
@@ -77,6 +77,7 @@ export default function PartnerClubsAdminPage() {
   const getTranslationStatus = (name: string): TranslationStatus => ({
     en: (data || []).some((c) => c.locale === 'en' && c.name === name),
     cz: (data || []).some((c) => c.locale === 'cz' && c.name === name),
+    pl: (data || []).some((c) => c.locale === 'pl' && c.name === name),
   });
 
   const handleTranslate = async (source: PartnerClub, target: TranslationTarget) => {
@@ -223,7 +224,7 @@ export default function PartnerClubsAdminPage() {
         <Card>
           <CardHeader>
             <CardTitle>Übersetzungen</CardTitle>
-            <CardDescription>Deutsche Einträge automatisch nach EN / CZ übersetzen.</CardDescription>
+            <CardDescription>Deutsche Einträge automatisch nach EN / CZ / PL übersetzen.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {deEntries.map((club) => (

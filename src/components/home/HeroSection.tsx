@@ -8,8 +8,8 @@ import { useMainEvent } from '@/hooks/useMainEvent';
 import { useSettings } from '@/hooks/useSettings';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { format } from 'date-fns';
-import { cs, de, enUS } from 'date-fns/locale';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { getDateFnsLocale, isEnglishLocale } from '@/i18n/locale-utils';
 const CYCLE_INTERVAL = 8000;
 
 // Module-level flag: true on fresh page load, false after first HeroSection mount
@@ -182,10 +182,10 @@ export function HeroSection() {
 
   const formatEventDate = () => {
     if (!eventDate) return '';
-    const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
-    const startFormat = locale === 'en' ? 'MMMM d' : 'd. MMMM';
-    const endFormat = locale === 'en' ? 'MMMM d, yyyy' : 'd. MMMM yyyy';
-    const singleFormat = locale === 'en' ? 'MMMM d, yyyy' : 'd. MMMM yyyy';
+    const dateLocale = getDateFnsLocale(locale);
+    const startFormat = isEnglishLocale(locale) ? 'MMMM d' : 'd. MMMM';
+    const endFormat = isEnglishLocale(locale) ? 'MMMM d, yyyy' : 'd. MMMM yyyy';
+    const singleFormat = isEnglishLocale(locale) ? 'MMMM d, yyyy' : 'd. MMMM yyyy';
     const startFormatted = format(eventDate, startFormat, { locale: dateLocale });
     if (eventEndDate) {
       return `${startFormatted} – ${format(eventEndDate, endFormat, { locale: dateLocale })}`;

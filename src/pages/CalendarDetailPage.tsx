@@ -10,8 +10,8 @@ import { useCalendarEventBySlug } from '@/hooks/useCalendarEvents';
 import { useEventContent } from '@/hooks/useEventContent';
 import { useLanguage, useTranslation } from '@/i18n/LanguageContext';
 import { format } from 'date-fns';
-import { de, cs, enUS } from 'date-fns/locale';
 import { getCalendarEventDetailPath, hasCalendarEventTime } from '@/lib/calendar-event-links';
+import { getDateFnsLocale, isEnglishLocale, localize } from '@/i18n/locale-utils';
 import {
   Calendar,
   Clock,
@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 
 function formatEventDateRange(startDt: string, endDt: string | null, locale: Locale) {
-  const dateLocale = locale === 'cz' ? cs : locale === 'en' ? enUS : de;
+  const dateLocale = getDateFnsLocale(locale);
   const start = new Date(startDt);
   const end = endDt ? new Date(endDt) : null;
 
@@ -33,7 +33,7 @@ function formatEventDateRange(startDt: string, endDt: string | null, locale: Loc
   return `${format(start, 'd. MMMM yyyy', { locale: dateLocale })} - ${format(end, 'd. MMMM yyyy', { locale: dateLocale })}`;
 }
 
-type Locale = 'de' | 'en' | 'cz';
+type Locale = 'de' | 'en' | 'cz' | 'pl';
 
 export default function CalendarDetailPage() {
   const { slug = '' } = useParams();
@@ -66,7 +66,7 @@ export default function CalendarDetailPage() {
           <div className="container">
             <Card>
               <CardContent className="p-8 text-center text-muted-foreground">
-                Termin nicht gefunden.
+                {localize(locale as Locale, { de: 'Termin nicht gefunden.', cz: 'Termin nebyl nalezen.', en: 'Event not found.', pl: 'Nie znaleziono terminu.' })}
               </CardContent>
             </Card>
           </div>
@@ -83,7 +83,7 @@ export default function CalendarDetailPage() {
           <div className="container">
             <Card>
               <CardContent className="p-8 text-center text-muted-foreground">
-                Termin-Unterseite nicht aktiviert.
+                {localize(locale as Locale, { de: 'Termin-Unterseite nicht aktiviert.', cz: 'Podstranka terminu neni aktivovana.', en: 'Event subpage not enabled.', pl: 'Podstrona wydarzenia nie jest aktywna.' })}
               </CardContent>
             </Card>
           </div>
@@ -109,7 +109,7 @@ export default function CalendarDetailPage() {
           <Button variant="outline" asChild>
             <Link to="/calendar">
               <ChevronLeft className="mr-2 h-4 w-4" />
-              Zurück zum Kalender
+              {localize(locale as Locale, { de: 'Zurück zum Kalender', cz: 'Zpet do kalendare', en: 'Back to calendar', pl: 'Powrot do kalendarza' })}
             </Link>
           </Button>
         </div>
@@ -155,7 +155,7 @@ export default function CalendarDetailPage() {
             {eventContent?.schedules?.length ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Zeitplan</CardTitle>
+                  <CardTitle>{localize(locale as Locale, { de: 'Zeitplan', cz: 'Harmonogram', en: 'Schedule', pl: 'Harmonogram' })}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {eventContent.schedules.map((day) => (
@@ -179,7 +179,7 @@ export default function CalendarDetailPage() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Termininfos</CardTitle>
+                <CardTitle>{localize(locale as Locale, { de: 'Termininfos', cz: 'Informace o terminu', en: 'Event info', pl: 'Informacje o terminie' })}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start gap-3 text-sm text-muted-foreground">
@@ -189,7 +189,7 @@ export default function CalendarDetailPage() {
                 {hasCalendarEventTime(event.start_dt) ? (
                   <div className="flex items-start gap-3 text-sm text-muted-foreground">
                     <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <span>{format(new Date(event.start_dt), locale === 'en' ? 'h:mm a' : 'HH:mm', { locale: locale === 'cz' ? cs : locale === 'en' ? enUS : de })}</span>
+                    <span>{format(new Date(event.start_dt), isEnglishLocale(locale as Locale) ? 'h:mm a' : 'HH:mm', { locale: getDateFnsLocale(locale as Locale) })}</span>
                   </div>
                 ) : null}
                 {event.location ? (
@@ -213,7 +213,7 @@ export default function CalendarDetailPage() {
               {event.registration_url ? (
                 <Button asChild>
                   <a href={event.registration_url} target="_blank" rel="noopener noreferrer">
-                    Zur Anmeldung
+                    {localize(locale as Locale, { de: 'Zur Anmeldung', cz: 'K registraci', en: 'Register', pl: 'Do rejestracji' })}
                     <ExternalLink className="ml-2 h-4 w-4" />
                   </a>
                 </Button>

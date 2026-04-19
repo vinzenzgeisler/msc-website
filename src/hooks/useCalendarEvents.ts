@@ -3,6 +3,30 @@ import { pb, CalendarEvent, buildSlug, listAllRecords, mapCalendarEventRecord } 
 import { useLanguage } from '@/i18n/LanguageContext';
 import { getSafeTimestamp } from '@/lib/date';
 
+function resolveLocalizedEvents(events: CalendarEvent[], locale: string) {
+  const grouped = new Map<string, CalendarEvent[]>();
+
+  for (const event of events) {
+    const key = event.slug || event.id;
+    const bucket = grouped.get(key);
+    if (bucket) {
+      bucket.push(event);
+    } else {
+      grouped.set(key, [event]);
+    }
+  }
+
+  return Array.from(grouped.values())
+    .map((variants) => {
+      return (
+        variants.find((event) => event.locale === locale)
+        || variants.find((event) => event.locale === 'de')
+        || variants[0]
+      );
+    })
+    .filter((event): event is CalendarEvent => Boolean(event));
+}
+
 export function useCalendarEvents(filterByLocale = true) {
   const { locale } = useLanguage();
 
@@ -12,8 +36,9 @@ export function useCalendarEvents(filterByLocale = true) {
       const data = await listAllRecords('calendarEvents');
       const events = data.map(mapCalendarEventRecord) as CalendarEvent[];
 
-      return events
-        .filter((event) => !filterByLocale || event.locale === locale)
+      const resolvedEvents = filterByLocale ? resolveLocalizedEvents(events, locale) : events;
+
+      return resolvedEvents
         .sort((a, b) => getSafeTimestamp(a.start_dt) - getSafeTimestamp(b.start_dt));
     },
   });

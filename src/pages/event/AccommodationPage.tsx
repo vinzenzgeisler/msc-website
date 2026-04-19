@@ -6,6 +6,7 @@ import { useContentWithFallback } from '@/hooks/usePageContent';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BedDouble, ExternalLink, Phone, Mail, MapPin, ArrowLeft, Globe } from 'lucide-react';
+import { localize } from '@/i18n/locale-utils';
 
 interface Accommodation {
   name: string;
@@ -116,12 +117,18 @@ export default function AccommodationPage() {
   const { locale } = useLanguage();
 
   const introContent = useContentWithFallback('event', 'accommodation_intro', {
-    title: locale === 'de' ? 'Übernachtungsmöglichkeiten' : locale === 'cz' ? 'Ubytování' : 'Accommodation',
-    content: locale === 'de'
-      ? 'Hier gibt es eine Übersicht von Übernachtungsmöglichkeiten im direkten Umfeld des Oberlausitzer Dreiecks.'
-      : locale === 'cz'
-        ? 'Přehled ubytovacích možností v okolí Horního Lužického trojúhelníku.'
-        : 'Here is an overview of accommodation options near the Oberlausitz Triangle.',
+    title: localize(locale, {
+      de: 'Übernachtungsmöglichkeiten',
+      cz: 'Ubytovani',
+      en: 'Accommodation',
+      pl: 'Noclegi',
+    }),
+    content: localize(locale, {
+      de: 'Hier gibt es eine Übersicht von Übernachtungsmöglichkeiten im direkten Umfeld des Oberlausitzer Dreiecks.',
+      cz: 'Prehled ubytovacich moznosti v okoli Horniho Luzickeho trojuhelniku.',
+      en: 'Here is an overview of accommodation options near the Oberlausitz Triangle.',
+      pl: 'Tutaj znajdziesz przeglad noclegow w bezposrednim otoczeniu Oberlausitzer Dreieck.',
+    }),
   });
 
   const listContent = useContentWithFallback('event', 'accommodation_list', {
@@ -150,7 +157,12 @@ export default function AccommodationPage() {
             <Button variant="outline" asChild>
               <Link to="/old">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                {locale === 'de' ? 'Zurück zur Veranstaltung' : locale === 'cz' ? 'Zpět na akci' : 'Back to Event'}
+                {localize(locale, {
+                  de: 'Zurück zur Veranstaltung',
+                  cz: 'Zpet na akci',
+                  en: 'Back to Event',
+                  pl: 'Powrot do wydarzenia',
+                })}
               </Link>
             </Button>
           </div>
@@ -206,10 +218,12 @@ export default function AccommodationPage() {
             <CardContent className="p-6 text-muted-foreground">
               <p>
                 {locale === 'de'
-                  ? <>Bei der Suche nach weiteren Unterkünften hilft die Website des <a href="http://www.zittauer-gebirge.com/cms/de/gastlichkeit" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">Naturparks Zittauer Gebirge<ExternalLink className="ml-1 inline h-3.5 w-3.5" /></a> oder <a href="https://www.dormino.de/" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">dormino.de<ExternalLink className="ml-1 inline h-3.5 w-3.5" /></a> (Ort: Großschönau).</>
+                  ? <>Bei der Suche nach weiteren Unterkuenften hilft die Website des <a href="http://www.zittauer-gebirge.com/cms/de/gastlichkeit" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">Naturparks Zittauer Gebirge<ExternalLink className="ml-1 inline h-3.5 w-3.5" /></a> oder <a href="https://www.dormino.de/" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">dormino.de<ExternalLink className="ml-1 inline h-3.5 w-3.5" /></a> (Ort: Grossschoenau).</>
                   : locale === 'cz'
-                    ? <>Další ubytování najdete na stránkách <a href="http://www.zittauer-gebirge.com/cms/de/gastlichkeit" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">Přírodního parku Žitavské hory<ExternalLink className="ml-1 inline h-3.5 w-3.5" /></a>.</>
-                    : <>For more accommodation options, visit the <a href="http://www.zittauer-gebirge.com/cms/de/gastlichkeit" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">Zittau Mountains Nature Park<ExternalLink className="ml-1 inline h-3.5 w-3.5" /></a> website.</>
+                    ? <>Dalsi ubytovani najdete na strankach <a href="http://www.zittauer-gebirge.com/cms/de/gastlichkeit" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">Prirodniho parku Zitavske hory<ExternalLink className="ml-1 inline h-3.5 w-3.5" /></a>.</>
+                    : locale === 'pl'
+                      ? <>Wiecej noclegow znajdziesz na stronie <a href="http://www.zittauer-gebirge.com/cms/de/gastlichkeit" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">Parku Przyrodniczego Gor Zytawskich<ExternalLink className="ml-1 inline h-3.5 w-3.5" /></a> lub <a href="https://www.dormino.de/" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">dormino.de<ExternalLink className="ml-1 inline h-3.5 w-3.5" /></a>.</>
+                      : <>For more accommodation options, visit the <a href="http://www.zittauer-gebirge.com/cms/de/gastlichkeit" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">Zittau Mountains Nature Park<ExternalLink className="ml-1 inline h-3.5 w-3.5" /></a> website.</>
                 }
               </p>
             </CardContent>

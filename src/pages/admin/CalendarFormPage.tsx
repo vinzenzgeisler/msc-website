@@ -66,7 +66,7 @@ export default function CalendarFormPage() {
   const updateEvent = useUpdateCalendarEvent();
   const upsertEventInfo = useUpsertEventInfo();
   const translate = useCmsTranslation();
-  const autoTranslationTargets: TranslationTarget[] = ['en', 'cz'];
+  const autoTranslationTargets: TranslationTarget[] = ['en', 'cz', 'pl'];
 
   const [formData, setFormData] = useState({
     title: '',
@@ -104,10 +104,11 @@ export default function CalendarFormPage() {
   );
 
   const translationStatus = useMemo(() => {
-    const map: Record<TranslationTarget, boolean> = { en: false, cz: false };
+    const map: Record<TranslationTarget, boolean> = { en: false, cz: false, pl: false };
     if (!allEvents || !deSlug) return map;
     map.en = Boolean(allEvents.find((event) => event.locale === 'en' && event.slug === deSlug));
     map.cz = Boolean(allEvents.find((event) => event.locale === 'cz' && event.slug === deSlug));
+    map.pl = Boolean(allEvents.find((event) => event.locale === 'pl' && event.slug === deSlug));
     return map;
   }, [allEvents, deSlug]);
 
@@ -716,7 +717,7 @@ export default function CalendarFormPage() {
                   className="font-mono text-sm"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Markdown/HTML ist erlaubt. Dieser Inhalt wird zusammen mit dem Termin automatisch nach EN/CZ übersetzt.
+                  Markdown/HTML ist erlaubt. Dieser Inhalt wird zusammen mit dem Termin automatisch nach EN/CZ/PL übersetzt.
                 </p>
               </div>
             </CardContent>
@@ -823,7 +824,7 @@ export default function CalendarFormPage() {
             </CardHeader>
             <CardContent>
               <LocaleTranslationBox
-                description="DE bleibt führend. EN/CZ werden separat erzeugt."
+                description="DE bleibt führend. EN/CZ/PL werden separat erzeugt."
                 status={translationStatus}
                 onTranslate={handleTranslateTo}
                 isTranslating={translate.isPending}

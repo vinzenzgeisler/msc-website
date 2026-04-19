@@ -1,4 +1,4 @@
-export type Locale = 'de' | 'cz' | 'en';
+export type Locale = 'de' | 'cz' | 'en' | 'pl';
 
 export const translations = {
   de: {
@@ -109,6 +109,7 @@ export const translations = {
     news: {
       title: 'Neuigkeiten',
       readMore: 'Weiterlesen',
+      publishedOn: 'Veröffentlicht am',
       categories: {
         club: 'Verein',
         event: 'Veranstaltung',
@@ -245,6 +246,7 @@ export const translations = {
     news: {
       title: 'Novinky',
       readMore: 'Číst dále',
+      publishedOn: 'Zverejneno',
       categories: {
         club: 'Klub',
         event: 'Akce',
@@ -381,6 +383,7 @@ export const translations = {
     news: {
       title: 'News',
       readMore: 'Read More',
+      publishedOn: 'Published on',
       categories: {
         club: 'Club',
         event: 'Event',
@@ -409,133 +412,143 @@ export const translations = {
       error: 'An error occurred',
     },
   },
+  pl: {
+    // Navigation
+    nav: {
+      home: 'Strona glowna',
+      event: 'Oberlausitzer Dreieck',
+      calendar: 'Kalendarz',
+      news: 'Aktualnosci',
+      club: 'Klub',
+      about: 'O nas',
+      board: 'Zarzad',
+      history: 'Historia',
+      membership: 'Zostan czlonkiem',
+      sections: 'Sekcje',
+      touring: 'Turystyka motocyklowa',
+      motocross: 'Motocross',
+      trial: 'Trial',
+      partners: 'Partnerzy',
+      mainSponsors: 'Glowni sponsorzy',
+      sponsors: 'Sponsorzy',
+      partnerClubs: 'Kluby partnerskie',
+      contact: 'Kontakt',
+      imprint: 'Nota prawna',
+      privacy: 'Polityka prywatnosci',
+    },
+    // Hero Section
+    hero: {
+      eventTitle: '12. Oberlausitzer Dreieck',
+      eventDate: '12-13 wrzesnia 2026',
+      countdown: 'Jeszcze',
+      days: 'dni',
+      hours: 'godzin',
+      minutes: 'minut',
+      seconds: 'sekund',
+      ctaEvent: 'Do wydarzenia',
+      ctaSchedule: 'Zobacz harmonogram',
+      ctaDiscover: 'Odkryj',
+    },
+    // Club Teaser
+    clubTeaser: {
+      title: 'MSC Oberlausitzer Dreilaendereck e.V.',
+      subtitle: 'Motorsport z pasja',
+      description: 'Od zalozenia zyjemy pasja do motorsportu w sercu trojstyku. Od wycieczek motocyklowych po legendarny przejazd pokazowy - u nas poznasz motorsport z bliska.',
+      cta: 'Dowiedz sie wiecej',
+      statOneLabel: 'Czlonkowie',
+      statTwoLabel: 'Lat tradycji',
+      statThreeLabel: 'Widzowie',
+    },
+    // Event
+    event: {
+      title: 'Oberlausitzer Dreieck',
+      subtitle: 'Historyczne wydarzenie wyscigowe na Gornych Luzycach.',
+      description: 'Poznaj historie motorsportu na trasie o dlugosci 5,9 km pomiedzy Saalendorfem, Jonsdorfem i Waltersdorfem.',
+      track: 'Trasa i region',
+      schedule: 'Harmonogram',
+      visitors: 'Informacje dla odwiedzajacych',
+      participants: 'Dla uczestnikow',
+      helpers: 'Szukamy pomocnikow',
+      downloads: 'Pliki do pobrania',
+      gallery: 'Galeria',
+      archive: 'Archiwum',
+      classes: {
+        title: 'Klasy',
+        motorcycles: 'Motocykle wyscigowe',
+        sidecars: 'Wozki boczne',
+        karts: 'Karty',
+        formula: 'Samochody formula',
+        touring: 'Samochody turystyczne',
+      },
+    },
+    // Calendar
+    calendar: {
+      title: 'Terminy',
+      subtitle: 'Wszystkie terminy MSC Oberlausitzer Dreilaendereck e.V.',
+      upcoming: 'Nadchodzace terminy',
+      upcomingAll: 'Nadchodzace terminy',
+      view: 'Widok',
+      viewList: 'Lista',
+      viewListFull: 'Nadchodzace',
+      viewMonth: 'Kalendarz',
+      viewMonthFull: 'Widok miesieczny',
+      category: 'Kategoria',
+      showAllMonth: 'Pokaz wszystkie terminy w miesiacu',
+      exportCalendar: 'Eksportuj kalendarz (ICS)',
+      noEvents: 'Nie znaleziono zadnych terminow.',
+      noEventsHint: 'Wybierz inny miesiac lub kategorie.',
+      until: 'do',
+      eventCount: 'termin',
+      eventCountPlural: 'terminy',
+      filter: {
+        all: 'Ogolne',
+        allgemein: 'Ogolne',
+        club: 'Klub',
+        verein: 'Klub',
+        event: 'Wydarzenie',
+        veranstaltung: 'Wydarzenie',
+        training: 'Trening',
+        orgTeam: 'Zespol organizacyjny',
+        orga: 'Zespol organizacyjny',
+        motocross: 'Motocross',
+        trial: 'Trial',
+        touring: 'Turystyka motocyklowa',
+      },
+      mainEvent: 'Wydarzenie glowne',
+    },
+    // News
+    news: {
+      title: 'Aktualnosci',
+      readMore: 'Czytaj dalej',
+      publishedOn: 'Opublikowano',
+      categories: {
+        club: 'Klub',
+        event: 'Wydarzenie',
+      },
+    },
+    // Contact
+    contact: {
+      title: 'Kontakt',
+      name: 'Imie',
+      email: 'E-mail',
+      subject: 'Temat',
+      message: 'Wiadomosc',
+      send: 'Wyslij',
+      success: 'Wiadomosc zostala pomyslnie wyslana!',
+    },
+    // Footer
+    footer: {
+      rights: 'Wszelkie prawa zastrzezone',
+      followUs: 'Obserwuj nas',
+    },
+    // Common
+    common: {
+      learnMore: 'Dowiedz sie wiecej',
+      backToTop: 'Do gory',
+      loading: 'Ladowanie...',
+      error: 'Wystapil blad',
+    },
+  },
 } as const;
 
-// Use a more flexible type that allows any translation values
-export type Translations = {
-  nav: {
-    home: string;
-    event: string;
-    calendar: string;
-    news: string;
-    club: string;
-    about: string;
-    board: string;
-    history: string;
-    membership: string;
-    sections: string;
-    touring: string;
-    motocross: string;
-    trial: string;
-    partners: string;
-    mainSponsors: string;
-    sponsors: string;
-    partnerClubs: string;
-    contact: string;
-    imprint: string;
-    privacy: string;
-  };
-  hero: {
-    eventTitle: string;
-    eventDate: string;
-    countdown: string;
-    days: string;
-    hours: string;
-    minutes: string;
-    seconds: string;
-    ctaEvent: string;
-    ctaSchedule: string;
-    ctaDiscover: string;
-  };
-  clubTeaser: {
-    title: string;
-    subtitle: string;
-    description: string;
-    cta: string;
-    statOneLabel: string;
-    statTwoLabel: string;
-    statThreeLabel: string;
-  };
-  event: {
-    title: string;
-    subtitle: string;
-    description: string;
-    track: string;
-    schedule: string;
-    visitors: string;
-    participants: string;
-    helpers: string;
-    downloads: string;
-    gallery: string;
-    archive: string;
-    classes: {
-      title: string;
-      motorcycles: string;
-      sidecars: string;
-      karts: string;
-      formula: string;
-      touring: string;
-    };
-  };
-  calendar: {
-    title: string;
-    subtitle: string;
-    upcoming: string;
-    upcomingAll: string;
-    view: string;
-    viewList: string;
-    viewListFull: string;
-    viewMonth: string;
-    viewMonthFull: string;
-    category: string;
-    showAllMonth: string;
-    exportCalendar: string;
-    noEvents: string;
-    noEventsHint: string;
-    until: string;
-    eventCount: string;
-    eventCountPlural: string;
-    filter: {
-      all: string;
-      allgemein: string;
-      club: string;
-      verein: string;
-      event: string;
-      veranstaltung: string;
-      training: string;
-      orgTeam: string;
-      orga: string;
-      motocross: string;
-      trial: string;
-      touring: string;
-    };
-    mainEvent: string;
-  };
-  news: {
-    title: string;
-    readMore: string;
-    categories: {
-      club: string;
-      event: string;
-    };
-  };
-  contact: {
-    title: string;
-    name: string;
-    email: string;
-    subject: string;
-    message: string;
-    send: string;
-    success: string;
-  };
-  footer: {
-    rights: string;
-    followUs: string;
-  };
-  common: {
-    learnMore: string;
-    backToTop: string;
-    loading: string;
-    error: string;
-  };
-};
+export type Translations = typeof translations.de;

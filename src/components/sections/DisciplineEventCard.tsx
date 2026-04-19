@@ -1,10 +1,10 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
-import { de, cs, enUS } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { getCalendarEventClickTarget } from '@/lib/calendar-event-links';
+import { getDateFnsLocale } from '@/i18n/locale-utils';
 
 interface CalendarEvent {
   id: string;
@@ -34,7 +34,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 export function DisciplineEventCard({ event }: DisciplineEventCardProps) {
   const navigate = useNavigate();
   const { locale } = useLanguage();
-  const dateLocale = locale === 'cz' ? cs : locale === 'en' ? enUS : de;
+  const dateLocale = getDateFnsLocale(locale);
   const clickTarget = getCalendarEventClickTarget(event);
 
   const formatEventDate = (startDt: string, endDt?: string | null) => {

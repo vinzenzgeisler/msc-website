@@ -167,6 +167,12 @@ export default function NewsAdminPage() {
                         >
                           CZ
                         </Badge>
+                        <Badge
+                          variant={allPosts.some((post) => post.slug === article.slug && post.locale === 'pl') ? 'default' : 'outline'}
+                          className="uppercase"
+                        >
+                          PL
+                        </Badge>
                       </div>
                     </TableCell>
                     <TableCell>

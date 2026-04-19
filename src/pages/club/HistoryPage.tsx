@@ -22,11 +22,16 @@ const fallbacks = {
     founding: { title: 'Founding of MSC Oberlausitzer Dreiländereck', subtitle: 'May 31, 2013 · Jonsdorf', content: '<p>30 members attended the inaugural event. By the first general assembly on June 13, 2013, 75 members had already registered.</p><p>The non-profit association places particular emphasis on enhancing the attractiveness and raising awareness of our region as well as cross-border cooperation with other motorsport clubs.</p>' },
     track: { title: 'The Upper Lusatian Triangle', content: 'The track runs as the "Oberlausitzer Dreieck" with a length of 5.9 kilometers between Saalendorf, Jonsdorf, and Waltersdorf.' },
   },
+  pl: {
+    intro: { title: 'Historia klubu', subtitle: 'Aktywni w motorsporcie od 2013 roku', content: '31.05.2013 w Jonsdorfie w hotelu Gondelfahrt zalozono klub motorsportowy "MSC Oberlausitzer-Dreilaendereck" e.V. MSC jest czlonkiem "Deutscher Motorsport Verband" (DMV).' },
+    founding: { title: 'Zalozenie MSC Oberlausitzer Dreilaendereck', subtitle: '31 maja 2013 · Jonsdorf', content: '<p>W wydarzeniu inauguracyjnym uczestniczylo 30 czlonkow. Na pierwszym walnym zgromadzeniu 13.06.2013 zapisanych bylo juz 75 czlonkow.</p><p>Stowarzyszenie non-profit kladzie szczegolny nacisk na atrakcyjnosc naszego regionu, zwiekszanie jego rozpoznawalnosci oraz wspolprace transgraniczna z innymi klubami motorsportowymi.</p>' },
+    track: { title: 'Gornoluzycki Trojkat', content: 'Trasa "Oberlausitzer Dreieck" ma dlugosc 5,9 kilometra i przebiega pomiedzy Saalendorfem, Jonsdorfem i Waltersdorfem.' },
+  },
 };
 
 export default function HistoryPage() {
   const { locale } = useLanguage();
-  const lang = (locale === 'cz' || locale === 'en') ? locale : 'de';
+  const lang = (locale === 'cz' || locale === 'en' || locale === 'pl') ? locale : 'de';
   const fb = fallbacks[lang];
 
   const intro = useContentWithFallback('history', 'intro', fb.intro);

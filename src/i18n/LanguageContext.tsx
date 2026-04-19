@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { translations, Locale, Translations } from './translations';
+import { getHtmlLang } from './locale-utils';
 
 interface LanguageContextType {
   locale: Locale;
@@ -15,7 +16,7 @@ function getInitialLocale(): Locale {
   // Check localStorage first
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored && (stored === 'de' || stored === 'cz' || stored === 'en')) {
+    if (stored && (stored === 'de' || stored === 'cz' || stored === 'en' || stored === 'pl')) {
       return stored;
     }
     
@@ -24,6 +25,7 @@ function getInitialLocale(): Locale {
     if (browserLang.startsWith('de')) return 'de';
     if (browserLang.startsWith('cs') || browserLang.startsWith('cz')) return 'cz';
     if (browserLang.startsWith('en')) return 'en';
+    if (browserLang.startsWith('pl')) return 'pl';
   }
   
   return 'de'; // Default to German
@@ -43,7 +45,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
   useEffect(() => {
     // Update HTML lang attribute
-    document.documentElement.lang = locale === 'cz' ? 'cs' : locale;
+    document.documentElement.lang = getHtmlLang(locale);
   }, [locale]);
 
   const value: LanguageContextType = {

@@ -23,6 +23,7 @@ const languages: { code: Locale; label: string; flag: string }[] = [
   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
   { code: 'cz', label: 'Čeština', flag: '🇨🇿' },
   { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'pl', label: 'Polski', flag: '🇵🇱' },
 ];
 
 export function Header() {

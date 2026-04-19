@@ -41,7 +41,7 @@ import { useContentWithFallback, useSectionContent } from '@/hooks/usePageConten
 import { useSettings } from '@/hooks/useSettings';
 import { parseSelectedDownloadIds } from '@/lib/download-selection';
 import { format } from 'date-fns';
-import { de, cs, enUS } from 'date-fns/locale';
+import { getDateFnsLocale, localize } from '@/i18n/locale-utils';
 
 const iconMap = {
   bike: Bike,
@@ -60,17 +60,23 @@ export default function EventPage() {
   const { data: selectedDownloadsContent } = useSectionContent('event', 'downloads');
   const { data: albums } = useMediaAlbums();
   const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
+  const l = <T,>(values: { de: T; cz: T; en: T; pl: T }) => localize(locale, values);
   const eventIntro = useContentWithFallback('event', 'intro', {
-    title: locale === 'de' ? 'Das Oberlausitzer Dreieck' : locale === 'cz' ? 'Oberlausitzer Dreieck' : 'The Oberlausitzer Dreieck',
-    content:
-      locale === 'de'
-        ? 'Erleben Sie mitten im Zittauer Gebirge eine spannende Motorshow auf der legendären 5,9 km langen Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf.'
-        : locale === 'cz'
-          ? 'Zažijte napínavou motoristickou show uprostřed Žitavských hor na legendární 5,9 km dlouhé trati mezi Saalendorfem, Jonsdorfem a Waltersdorfem.'
-          : 'Experience an exciting motor show in the heart of the Zittau Mountains on the legendary 5.9 km track between Saalendorf, Jonsdorf and Waltersdorf.',
+    title: l({
+      de: 'Das Oberlausitzer Dreieck',
+      cz: 'Oberlausitzer Dreieck',
+      en: 'The Oberlausitzer Dreieck',
+      pl: 'Oberlausitzer Dreieck',
+    }),
+    content: l({
+      de: 'Erleben Sie mitten im Zittauer Gebirge eine spannende Motorshow auf der legendaeren 5,9 km langen Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf.',
+      cz: 'Zazijte napinavou motoristickou show uprostred Zitavskych hor na legendarni 5,9 km dlouhe trati mezi Saalendorfem, Jonsdorfem a Waltersdorfem.',
+      en: 'Experience an exciting motor show in the heart of the Zittau Mountains on the legendary 5.9 km track between Saalendorf, Jonsdorf and Waltersdorf.',
+      pl: 'Poznaj emocjonujace show motorsportowe w samym sercu Gor Zytawskich na legendarnej trasie 5,9 km pomiedzy Saalendorfem, Jonsdorfem i Waltersdorfem.',
+    }),
   });
   const trackMapContent = useContentWithFallback('event', 'track_map', {
-    title: locale === 'de' ? 'Streckenkarte' : locale === 'cz' ? 'Mapa tratě' : 'Track map',
+    title: l({ de: 'Streckenkarte', cz: 'Mapa trate', en: 'Track map', pl: 'Mapa trasy' }),
     content: '',
   });
   const locationMapContent = useContentWithFallback('event', 'location_map', {
@@ -78,90 +84,99 @@ export default function EventPage() {
     content: '',
   });
   const registrationContent = useContentWithFallback('event', 'registration_info', {
-    title: locale === 'de' ? 'Sei dabei!' : locale === 'cz' ? 'Buď u toho!' : 'Join Us!',
-    content:
-      locale === 'de'
-        ? 'Du willst nicht nur zuschauen, sondern selbst Gas geben? Dann melde dich jetzt an und werde Teil des Oberlausitzer Dreiecks! Wir freuen uns auf dich und deine Maschine.'
-        : locale === 'cz'
-          ? 'Nechceš jen přihlížet, ale sám přidat plyn? Přihlas se a staň se součástí Horního Lužického trojúhelníku! Těšíme se na tebe a tvůj stroj.'
-          : 'Don\'t just watch – get behind the handlebars! Register now and become part of the Oberlausitz Triangle. We look forward to seeing you and your machine on the track!',
+    title: l({ de: 'Sei dabei!', cz: 'Bud u toho!', en: 'Join Us!', pl: 'Dolacz do nas!' }),
+    content: l({
+      de: 'Du willst nicht nur zuschauen, sondern selbst Gas geben? Dann melde dich jetzt an und werde Teil des Oberlausitzer Dreiecks! Wir freuen uns auf dich und deine Maschine.',
+      cz: 'Nechces jen prihlizet, ale sam pridat plyn? Prihlas se a stan se soucasti Horniho Luzickeho trojuhelniku! Tesime se na tebe a tvuj stroj.',
+      en: 'Don\'t just watch - get behind the handlebars! Register now and become part of the Oberlausitz Triangle. We look forward to seeing you and your machine on the track!',
+      pl: 'Nie chcesz tylko patrzec, ale sam dodac gazu? Zarejestruj sie i zostan czescia Oberlausitzer Dreieck! Czekamy na ciebie i twoja maszyne.',
+    }),
   });
   const admissionContent = useContentWithFallback('event', 'visitors_admission', {
-    title: locale === 'de' ? 'Eintrittspreise' : locale === 'cz' ? 'Vstupné' : 'Admission',
-    content: locale === 'de'
-      ? 'Tagesticket: 10 € | Wochenendticket: 15 € — Kinder und Jugendliche unter 14 Jahren haben freien Eintritt.'
-      : locale === 'cz' ? 'Denní vstupenka: 10 € | Víkendová vstupenka: 15 € — Děti do 14 let mají vstup zdarma.' : 'Day ticket: €10 | Weekend ticket: €15 — Children under 14 get free admission.',
+    title: l({ de: 'Eintrittspreise', cz: 'Vstupne', en: 'Admission', pl: 'Cennik' }),
+    content: l({
+      de: 'Tagesticket: 10 EUR | Wochenendticket: 15 EUR - Kinder und Jugendliche unter 14 Jahren haben freien Eintritt.',
+      cz: 'Denni vstupenka: 10 EUR | Vikendova vstupenka: 15 EUR - Deti do 14 let maji vstup zdarma.',
+      en: 'Day ticket: EUR10 | Weekend ticket: EUR15 - Children under 14 get free admission.',
+      pl: 'Bilet jednodniowy: 10 EUR | Bilet weekendowy: 15 EUR - Dzieci do 14 lat wchodza za darmo.',
+    }),
   });
   const scheduleOverviewContent = useContentWithFallback('event', 'visitors_schedule', {
-    title: locale === 'de' ? 'Ablauf' : locale === 'cz' ? 'Průběh' : 'Schedule Overview',
-    content: locale === 'de'
-      ? 'Samstag: 8:00–ca. 18:00 Uhr Trainingsläufe, 20:00 Uhr Abendveranstaltung mit Livemusik. Sonntag: 8:00–ca. 18:00 Uhr Demoläufe.'
-      : locale === 'cz'
-        ? 'Sobota: 8:00–cca 18:00 tréninky, 20:00 večerní akce s živou hudbou. Neděle: 8:00–cca 18:00 ukázkové jízdy.'
-        : 'Saturday: 8:00 AM–approx. 6:00 PM practice runs, 8:00 PM evening event with live music. Sunday: 8:00 AM–approx. 6:00 PM demo runs.',
+    title: l({ de: 'Ablauf', cz: 'Prubeh', en: 'Schedule Overview', pl: 'Przebieg wydarzenia' }),
+    content: l({
+      de: 'Samstag: 8:00-ca. 18:00 Uhr Trainingslaeufe, 20:00 Uhr Abendveranstaltung mit Livemusik. Sonntag: 8:00-ca. 18:00 Uhr Demolaeufe.',
+      cz: 'Sobota: 8:00-cca 18:00 treninky, 20:00 vecerni akce s zivou hudbou. Nedele: 8:00-cca 18:00 ukazkove jizdy.',
+      en: 'Saturday: 8:00 AM-approx. 6:00 PM practice runs, 8:00 PM evening event with live music. Sunday: 8:00 AM-approx. 6:00 PM demo runs.',
+      pl: 'Sobota: 8:00-ok. 18:00 treningi, 20:00 wieczorne wydarzenie z muzyka na zywo. Niedziela: 8:00-ok. 18:00 przejazdy pokazowe.',
+    }),
   });
   const parkingContent = useContentWithFallback('event', 'visitors_parking', {
-    title: locale === 'de' ? 'Parkplätze & Shuttle' : locale === 'cz' ? 'Parkování a shuttle' : 'Parking & Shuttle',
-    content: locale === 'de'
-      ? 'Parkplätze sind ausgeschildert und kostenlos. An der Strecke gibt es kostenlose Shuttlebusse, welche die Besucher zu den Zuschauerbereichen fahren.'
-      : locale === 'cz'
-        ? 'Parkoviště jsou označena a zdarma. Na trati jsou k dispozici bezplatné autobusy, které návštěvníky zavezou k diváckým zónám.'
-        : 'Parking areas are signposted and free of charge. Free shuttle buses run along the track to take spectators to viewing areas.',
+    title: l({ de: 'Parkplaetze & Shuttle', cz: 'Parkovani a shuttle', en: 'Parking & Shuttle', pl: 'Parking i shuttle' }),
+    content: l({
+      de: 'Parkplaetze sind ausgeschildert und kostenlos. An der Strecke gibt es kostenlose Shuttlebusse, welche die Besucher zu den Zuschauerbereichen fahren.',
+      cz: 'Parkoviste jsou oznacena a zdarma. Na trati jsou k dispozici bezplatne autobusy, ktere navstevniky zavezou k divackym zonam.',
+      en: 'Parking areas are signposted and free of charge. Free shuttle buses run along the track to take spectators to viewing areas.',
+      pl: 'Parkingi sa oznaczone i bezplatne. Wzdluz trasy kursuja bezplatne busy shuttle dowozace widzow do stref kibica.',
+    }),
   });
   const paddockContent = useContentWithFallback('event', 'visitors_paddock', {
-    title: locale === 'de' ? 'Fahrerlager' : locale === 'cz' ? 'Depo' : 'Paddock',
-    content: locale === 'de'
-      ? 'Die beiden Fahrerlager sind auch für die Zuschauer zugänglich.'
-      : locale === 'cz'
-        ? 'Obě depa jsou přístupná i pro diváky.'
-        : 'Both paddock areas are open to spectators.',
+    title: l({ de: 'Fahrerlager', cz: 'Depo', en: 'Paddock', pl: 'Padok' }),
+    content: l({
+      de: 'Die beiden Fahrerlager sind auch fuer die Zuschauer zugaenglich.',
+      cz: 'Obe depa jsou pristupna i pro divaky.',
+      en: 'Both paddock areas are open to spectators.',
+      pl: 'Obie strefy padoku sa dostepne rowniez dla widzow.',
+    }),
   });
   const photographerContent = useContentWithFallback('event', 'visitors_photographers', {
-    title: locale === 'de' ? 'Fotografen' : locale === 'cz' ? 'Fotografové' : 'Photographers',
-    content: locale === 'de'
-      ? 'Die Fotografenbereiche sind farblich gekennzeichnet und dürfen nur von akkreditierten Fotografen betreten werden. Die Absperrungen dürfen nicht überschritten werden!'
-      : locale === 'cz'
-        ? 'Fotografické zóny jsou barevně označeny a přístupné pouze akreditovaným fotografům. Zábrany se nesmí překračovat!'
-        : 'Photographer zones are color-coded and may only be entered by accredited photographers. Barriers must not be crossed!',
+    title: l({ de: 'Fotografen', cz: 'Fotografove', en: 'Photographers', pl: 'Fotografowie' }),
+    content: l({
+      de: 'Die Fotografenbereiche sind farblich gekennzeichnet und dürfen nur von akkreditierten Fotografen betreten werden. Die Absperrungen dürfen nicht überschritten werden!',
+      cz: 'Fotograficke zony jsou barevne oznaceny a pristupne pouze akreditovanym fotografum. Zabrany se nesmi prekracovat!',
+      en: 'Photographer zones are color-coded and may only be entered by accredited photographers. Barriers must not be crossed!',
+      pl: 'Strefy dla fotografow sa oznaczone kolorami i dostepne tylko dla akredytowanych fotografow. Nie wolno przekraczac barierek!',
+    }),
   });
   const privacyNoticeContent = useContentWithFallback('event', 'visitors_privacy', {
-    title: locale === 'de' ? 'Datenschutzhinweis' : locale === 'cz' ? 'Ochrana osobních údajů' : 'Privacy Notice',
-    content: locale === 'de'
-      ? 'Im Rahmen unserer Veranstaltungen behalten wir uns vor, Bild- und Tonaufnahmen von Beteiligten und Gästen zu Zwecken der PR- und Öffentlichkeitsarbeit zu erstellen, zu verarbeiten und zu verbreiten, soweit diese nicht im Einzelfall widersprechen. Mit der Anmeldung/Nennung erklären sich die Teilnehmer damit einverstanden, dass Aufnahmen während der Veranstaltung gemacht werden, die ohne Vergütungsanspruch für diese Zwecke verwendet werden dürfen.'
-      : locale === 'cz'
-        ? 'V rámci našich akcí si vyhrazujeme právo pořizovat obrazové a zvukové záznamy účastníků a hostů pro účely PR a veřejné komunikace.'
-        : 'During our events, we reserve the right to create, process, and distribute photo and audio recordings of participants and guests for PR and public relations purposes, unless individually objected to.',
+    title: l({ de: 'Datenschutzhinweis', cz: 'Ochrana osobnich udaju', en: 'Privacy Notice', pl: 'Informacja o ochronie danych' }),
+    content: l({
+      de: 'Im Rahmen unserer Veranstaltungen behalten wir uns vor, Bild- und Tonaufnahmen von Beteiligten und Gaesten zu Zwecken der PR- und Oeffentlichkeitsarbeit zu erstellen, zu verarbeiten und zu verbreiten, soweit diese nicht im Einzelfall widersprechen. Mit der Anmeldung/Nennung erklaeren sich die Teilnehmer damit einverstanden, dass Aufnahmen waehrend der Veranstaltung gemacht werden, die ohne Verguetungsanspruch fuer diese Zwecke verwendet werden duerfen.',
+      cz: 'V ramci nasich akci si vyhrazujeme pravo porizovat obrazove a zvukove zaznamy ucastniku a hostu pro ucely PR a verejne komunikace.',
+      en: 'During our events, we reserve the right to create, process, and distribute photo and audio recordings of participants and guests for PR and public relations purposes, unless individually objected to.',
+      pl: 'W ramach naszych wydarzen zastrzegamy sobie prawo do tworzenia, przetwarzania i publikowania zdjec oraz nagran audio uczestnikow i gosci do celow PR i komunikacji publicznej, o ile nie zloza oni indywidualnego sprzeciwu.',
+    }),
   });
   const transportContent = useContentWithFallback('event', 'visitors_transport', {
-    title: locale === 'de' ? 'Öffentliche Verkehrsmittel' : locale === 'cz' ? 'Veřejná doprava' : 'Public Transport',
-    content: locale === 'de'
-      ? 'Änderungen der Fahrpläne der öffentlichen Verkehrsmittel werden rechtzeitig aktualisiert.'
-      : locale === 'cz'
-        ? 'Změny jízdních řádů veřejné dopravy budou včas aktualizovány.'
-        : 'Public transport schedule changes will be updated in a timely manner.',
+    title: l({ de: 'Oeffentliche Verkehrsmittel', cz: 'Verejna doprava', en: 'Public Transport', pl: 'Transport publiczny' }),
+    content: l({
+      de: 'Aenderungen der Fahrplaene der oeffentlichen Verkehrsmittel werden rechtzeitig aktualisiert.',
+      cz: 'Zmeny jizdnich radu verejne dopravy budou vcas aktualizovany.',
+      en: 'Public transport schedule changes will be updated in a timely manner.',
+      pl: 'Zmiany w rozkladach jazdy transportu publicznego beda aktualizowane na biezaco.',
+    }),
   });
   const siteMapContent = useContentWithFallback('event', 'visitors_site_map', {
-    title: locale === 'de' ? 'Lageplan' : locale === 'cz' ? 'Plán areálu' : 'Site Map',
+    title: l({ de: 'Lageplan', cz: 'Plan arealu', en: 'Site Map', pl: 'Plan terenu' }),
     content: '',
   });
   const galleryContent = useContentWithFallback('event', 'gallery', {
-    content:
-      locale === 'de'
-        ? 'Noch keine Galerie hinterlegt.'
-        : locale === 'cz'
-          ? 'Zatím není k dispozici žádná galerie.'
-          : 'No gallery has been added yet.',
+    content: l({
+      de: 'Noch keine Galerie hinterlegt.',
+      cz: 'Zatim neni k dispozici zadna galerie.',
+      en: 'No gallery has been added yet.',
+      pl: 'Galeria nie zostala jeszcze dodana.',
+    }),
   });
   const archiveContent = useContentWithFallback('event', 'archive', {
-    content:
-      locale === 'de'
-        ? 'Noch keine Archivdaten hinterlegt.'
-        : locale === 'cz'
-          ? 'Zatím nejsou k dispozici žádná archivní data.'
-          : 'No archive data has been added yet.',
+    content: l({
+      de: 'Noch keine Archivdaten hinterlegt.',
+      cz: 'Zatim nejsou k dispozici zadna archivni data.',
+      en: 'No archive data has been added yet.',
+      pl: 'Nie dodano jeszcze zadnych danych archiwalnych.',
+    }),
   });
 
-  const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
+  const dateLocale = getDateFnsLocale(locale);
   const germanMainEvent = (allEvents || []).find((event) => event.locale === 'de' && event.is_main_event && event.published);
   const galleryAlbumSlug = germanMainEvent?.slug ? `event-${germanMainEvent.slug}` : mainEvent?.slug ? `event-${mainEvent.slug}` : null;
   const galleryAlbum = galleryAlbumSlug ? albums?.find((album) => album.slug === galleryAlbumSlug) : null;
@@ -272,13 +287,13 @@ export default function EventPage() {
                     {mainEvent.registration_url ? (
                       <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
                         <ClipboardList className="h-5 w-5" />
-                        {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'Přihlásit se' : 'Register Now'}
+                        {l({ de: 'Zur Anmeldung', cz: 'Prihlasit se', en: 'Register Now', pl: 'Do rejestracji' })}
                         <ExternalLink className="h-4 w-4" />
                       </a>
                     ) : (
                       <a href="#registration">
                         <ClipboardList className="h-5 w-5" />
-                        {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'Přihlásit se' : 'Register Now'}
+                        {l({ de: 'Zur Anmeldung', cz: 'Prihlasit se', en: 'Register Now', pl: 'Do rejestracji' })}
                       </a>
                     )}
                   </Button>
@@ -297,7 +312,7 @@ export default function EventPage() {
                         <Download className="h-5 w-5" />
                         {registrationContent.secondary_button_label
                           || registrationContent.attachment_name
-                          || (locale === 'de' ? 'Download Ausschreibung' : locale === 'cz' ? 'Stáhnout propozice' : 'Download Regulations')}
+                          || l({ de: 'Download Ausschreibung', cz: 'Stahnout propozice', en: 'Download Regulations', pl: 'Pobierz regulamin' })}
                       </a>
                     </Button>
                   )}
@@ -306,7 +321,7 @@ export default function EventPage() {
             ) : (
               <>
                 <Badge className="mb-4 bg-accent text-accent-foreground">
-                  {locale === 'de' ? 'Keine Veranstaltung hinterlegt' : locale === 'cz' ? 'Žádná akce není nastavena' : 'No event configured'}
+                  {l({ de: 'Keine Veranstaltung hinterlegt', cz: 'Zadna akce neni nastavena', en: 'No event configured', pl: 'Nie skonfigurowano zadnego wydarzenia' })}
                 </Badge>
                 <h1 className="mb-4 text-5xl font-black uppercase md:text-6xl">
                   {eventIntro.title}
@@ -327,10 +342,10 @@ export default function EventPage() {
                 { href: '#track', label: t.event.track, icon: MapPin },
                 { href: '#schedule', label: t.event.schedule, icon: Clock },
                 { href: '#classes', label: t.event.classes.title, icon: Users },
-                { href: '#registration', label: locale === 'de' ? 'Anmeldung' : locale === 'cz' ? 'Přihláška' : 'Registration', icon: ClipboardList },
+                { href: '#registration', label: l({ de: 'Anmeldung', cz: 'Prihlaska', en: 'Registration', pl: 'Rejestracja' }), icon: ClipboardList },
                 { href: '#visitors', label: t.event.visitors, icon: Info },
                 { href: '#downloads', label: t.event.downloads, icon: Download },
-                { href: '/old/accommodation', label: locale === 'de' ? 'Übernachtung' : locale === 'cz' ? 'Ubytování' : 'Accommodation', icon: BedDouble, isLink: true },
+                { href: '/old/accommodation', label: l({ de: 'Übernachtung', cz: 'Ubytovani', en: 'Accommodation', pl: 'Noclegi' }), icon: BedDouble, isLink: true },
               ].map((item) => {
                 if ('isLink' in item && item.isLink) {
                   return (
@@ -364,11 +379,12 @@ export default function EventPage() {
                 <p className="mb-4 text-lg text-muted-foreground">
                   {trackInfo?.content ||
                     trackMapContent.content ||
-                    (locale === 'de'
-                      ? 'Die legendäre 5,9 km lange Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf bietet Motorsport-Fans ein unvergessliches Erlebnis mitten im Zittauer Gebirge.'
-                      : locale === 'cz'
-                        ? 'Legendární 5,9 km dlouhá trať mezi Saalendorfem, Jonsdorfem a Waltersdorfem nabízí fanouškům motorsportu nezapomenutelný zážitek uprostřed Žitavských hor.'
-                        : 'The legendary 5.9 km track between Saalendorf, Jonsdorf and Waltersdorf offers motorsport fans an unforgettable experience in the heart of the Zittau Mountains.')}
+                    l({
+                      de: 'Die legendaere 5,9 km lange Strecke zwischen Saalendorf, Jonsdorf und Waltersdorf bietet Motorsport-Fans ein unvergessliches Erlebnis mitten im Zittauer Gebirge.',
+                      cz: 'Legendarni 5,9 km dlouha trat mezi Saalendorfem, Jonsdorfem a Waltersdorfem nabizi fanouskum motorsportu nezapomenutelny zazitek uprostred Zitavskych hor.',
+                      en: 'The legendary 5.9 km track between Saalendorf, Jonsdorf and Waltersdorf offers motorsport fans an unforgettable experience in the heart of the Zittau Mountains.',
+                      pl: 'Legendarna trasa 5,9 km pomiedzy Saalendorfem, Jonsdorfem i Waltersdorfem oferuje fanom motorsportu niezapomniane wrazenia w samym sercu Gor Zytawskich.',
+                    })}
                 </p>
                 {mainEvent?.location && (
                   <ul className="mb-6 space-y-2">
@@ -383,7 +399,7 @@ export default function EventPage() {
                     <a href={googleMapsLink} target="_blank" rel="noopener noreferrer">
                       <MapPin className="mr-2 h-4 w-4" />
                       {locationMapContent.primary_button_label
-                        || (locale === 'de' ? 'In Google Maps öffnen' : locale === 'cz' ? 'Otevřít v Google Maps' : 'Open in Google Maps')}
+                        || l({ de: 'In Google Maps oeffnen', cz: 'Otevrit v Google Maps', en: 'Open in Google Maps', pl: 'Otworz w Google Maps' })}
                       <ExternalLink className="ml-1 h-3.5 w-3.5" />
                     </a>
                   </Button>
@@ -398,7 +414,7 @@ export default function EventPage() {
                   />
                 ) : (
                   <iframe
-                    title={locale === 'de' ? 'Streckenkarte' : 'Track Map'}
+                    title={l({ de: 'Streckenkarte', cz: 'Mapa trate', en: 'Track Map', pl: 'Mapa trasy' })}
                     src={mapEmbedUrl || 'https://umap.openstreetmap.de/de/map/oberlausitzer-dreieck_132460?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=false&editMode=disabled&moreControl=false&searchControl=false&tilelayersControl=false&embedControl=false&datalayersControl=false&onLoadPanel=none&captionBar=false&captionMenus=false&homeControl=false&fullscreenControl=false&captionControl=false'}
                     className="h-80 w-full border border-border rounded-md"
                     loading="lazy"
@@ -415,11 +431,12 @@ export default function EventPage() {
           <div className="container">
             <h2 className="mb-8">{t.event.classes.title}</h2>
             <p className="mb-6 text-muted-foreground">
-              {locale === 'de'
-                ? 'In diesen Klassen wird beim Oberlausitzer Dreieck gestartet:'
-                : locale === 'cz'
-                  ? 'V těchto třídách se na Horním Lužickém trojúhelníku závodí:'
-                  : 'These are the classes competing at the Oberlausitz Triangle:'}
+              {l({
+                de: 'In diesen Klassen wird beim Oberlausitzer Dreieck gestartet:',
+                cz: 'V techto tridach se na Hornim Luzickem trojuhelniku zavodi:',
+                en: 'These are the classes competing at the Oberlausitz Triangle:',
+                pl: 'W tych klasach startuja uczestnicy Oberlausitzer Dreieck:',
+              })}
             </p>
             {participantClasses.length > 0 ? (
               <Carousel opts={{ align: 'start', loop: true }} className="w-full">
@@ -444,11 +461,12 @@ export default function EventPage() {
             ) : (
               <Card>
                 <CardContent className="p-6 text-muted-foreground">
-                  {locale === 'de'
-                    ? 'Die Klassen werden rechtzeitig vor der Veranstaltung veröffentlicht.'
-                    : locale === 'cz'
-                      ? 'Třídy budou zveřejněny včas před akcí.'
-                      : 'Classes will be published in time before the event.'}
+                  {l({
+                    de: 'Die Klassen werden rechtzeitig vor der Veranstaltung veröffentlicht.',
+                    cz: 'Tridy budou zverejneny vcas pred akci.',
+                    en: 'Classes will be published in time before the event.',
+                    pl: 'Klasy zostana opublikowane odpowiednio wczesnie przed wydarzeniem.',
+                  })}
                 </CardContent>
               </Card>
             )}
@@ -468,13 +486,13 @@ export default function EventPage() {
                 <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold" asChild>
                   <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
                     <ClipboardList className="h-5 w-5" />
-                    {locale === 'de' ? 'Zur Anmeldung' : locale === 'cz' ? 'K registračnímu portálu' : 'Go to Registration Portal'}
+                    {l({ de: 'Zur Anmeldung', cz: 'K registracnimu portalu', en: 'Go to Registration Portal', pl: 'Przejdz do portalu rejestracji' })}
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 </Button>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  {locale === 'de' ? 'Das Anmeldeportal wird rechtzeitig vor der Veranstaltung freigeschaltet.' : locale === 'cz' ? 'Registrační portál bude otevřen včas před akcí.' : 'The registration portal will be opened in time before the event.'}
+                  {l({ de: 'Das Anmeldeportal wird rechtzeitig vor der Veranstaltung freigeschaltet.', cz: 'Registracni portal bude otevren vcas pred akci.', en: 'The registration portal will be opened in time before the event.', pl: 'Portal rejestracyjny zostanie uruchomiony odpowiednio wczesnie przed wydarzeniem.' })}
                 </p>
               )}
             </div>
@@ -511,7 +529,7 @@ export default function EventPage() {
             ) : (
               <Card>
                 <CardContent className="p-6 text-muted-foreground">
-                  {locale === 'de' ? 'Der Zeitplan wurde noch nicht veröffentlicht.' : locale === 'cz' ? 'Harmonogram ještě nebyl zveřejněn.' : 'The schedule has not been published yet.'}
+                  {l({ de: 'Der Zeitplan wurde noch nicht veröffentlicht.', cz: 'Harmonogram jeste nebyl zverejnen.', en: 'The schedule has not been published yet.', pl: 'Harmonogram nie zostal jeszcze opublikowany.' })}
                 </CardContent>
               </Card>
             )}
@@ -525,10 +543,10 @@ export default function EventPage() {
 
             <div className="mb-10 grid grid-cols-2 gap-4 md:grid-cols-4">
               {[
-                { icon: Ticket, title: locale === 'de' ? 'Tagesticket' : 'Day Ticket', value: '10 €' },
-                { icon: Ticket, title: locale === 'de' ? 'Wochenende' : 'Weekend', value: '15 €' },
-                { icon: Users, title: locale === 'de' ? 'Kinder < 14' : 'Kids < 14', value: locale === 'de' ? 'Frei' : 'Free' },
-                { icon: ParkingCircle, title: locale === 'de' ? 'Parkplätze' : 'Parking', value: locale === 'de' ? 'Kostenlos' : 'Free' },
+                { icon: Ticket, title: l({ de: 'Tagesticket', cz: 'Denni vstupenka', en: 'Day Ticket', pl: 'Bilet jednodniowy' }), value: '10 €' },
+                { icon: Ticket, title: l({ de: 'Wochenende', cz: 'Vikend', en: 'Weekend', pl: 'Weekend' }), value: '15 €' },
+                { icon: Users, title: l({ de: 'Kinder < 14', cz: 'Deti < 14', en: 'Kids < 14', pl: 'Dzieci < 14' }), value: l({ de: 'Frei', cz: 'Zdarma', en: 'Free', pl: 'Gratis' }) },
+                { icon: ParkingCircle, title: l({ de: 'Parkplaetze', cz: 'Parkovani', en: 'Parking', pl: 'Parking' }), value: l({ de: 'Kostenlos', cz: 'Zdarma', en: 'Free', pl: 'Gratis' }) },
               ].map((fact) => (
                 <div key={fact.title} className="flex flex-col items-center border border-border bg-card p-4 text-center">
                   <fact.icon className="mb-2 h-6 w-6 text-primary" />
@@ -572,7 +590,7 @@ export default function EventPage() {
                   {siteMapContent.image_url ? (
                     <img src={siteMapContent.image_url} alt={siteMapContent.image_alt || siteMapContent.title} className="w-full border border-border" />
                   ) : (
-                    <p className="text-sm text-muted-foreground">{locale === 'de' ? 'Lageplan wird noch aktualisiert.' : locale === 'cz' ? 'Plán areálu bude aktualizován.' : 'Site map will be updated.'}</p>
+                    <p className="text-sm text-muted-foreground">{l({ de: 'Lageplan wird noch aktualisiert.', cz: 'Plan arealu bude aktualizovan.', en: 'Site map will be updated.', pl: 'Plan terenu zostanie jeszcze zaktualizowany.' })}</p>
                   )}
                 </CardContent>
               </Card>
@@ -592,8 +610,8 @@ export default function EventPage() {
             <Link to="/old/accommodation" className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6 transition-colors hover:border-primary">
               <BedDouble className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div className="min-w-0">
-                <h3 className="mb-1 text-base font-bold">{locale === 'de' ? 'Übernachtungsmöglichkeiten' : locale === 'cz' ? 'Ubytování' : 'Accommodation'}</h3>
-                <p className="text-sm text-muted-foreground">{locale === 'de' ? 'Hotels, Pensionen und Ferienwohnungen in der Nähe der Rennstrecke.' : locale === 'cz' ? 'Hotely, penziony a apartmány v blízkosti závodní dráhy.' : 'Hotels, guesthouses and holiday apartments near the track.'}</p>
+                <h3 className="mb-1 text-base font-bold">{l({ de: 'Übernachtungsmöglichkeiten', cz: 'Ubytovani', en: 'Accommodation', pl: 'Noclegi' })}</h3>
+                <p className="text-sm text-muted-foreground">{l({ de: 'Hotels, Pensionen und Ferienwohnungen in der Naehe der Rennstrecke.', cz: 'Hotely, penziony a apartmany v blizkosti zavodni drahy.', en: 'Hotels, guesthouses and holiday apartments near the track.', pl: 'Hotele, pensjonaty i apartamenty wakacyjne w poblizu trasy.' })}</p>
               </div>
               <ExternalLink className="mt-0.5 ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
             </Link>
@@ -627,7 +645,7 @@ export default function EventPage() {
               )) : (
                 <Card className="lg:col-span-4">
                   <CardContent className="p-6 text-muted-foreground">
-                    {locale === 'de' ? 'Noch keine Downloads verfügbar.' : locale === 'cz' ? 'Zatím nejsou k dispozici žádné soubory.' : 'No downloads available yet.'}
+                    {l({ de: 'Noch keine Downloads verfuegbar.', cz: 'Zatim nejsou k dispozici zadne soubory.', en: 'No downloads available yet.', pl: 'Brak plikow do pobrania.' })}
                   </CardContent>
                 </Card>
               )}

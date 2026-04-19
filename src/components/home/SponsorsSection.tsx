@@ -6,19 +6,25 @@ import { ChevronRight, Building2 } from 'lucide-react';
 import { useSponsors } from '@/hooks/useSponsors';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { localize } from '@/i18n/locale-utils';
 
 export function SponsorsSection() {
   const t = useTranslation();
   const { locale } = useLanguage();
   const { data: sponsors, isLoading, error } = useSponsors();
   const sectionContent = useContentWithFallback('home', 'sponsors', {
-    title: locale === 'de' ? 'Partner & Sponsoren' : locale === 'cz' ? 'Partneři a sponzoři' : 'Partners & Sponsors',
-    subtitle:
-      locale === 'de'
-        ? 'Danke an alle, die unseren Verein unterstützen'
-        : locale === 'cz'
-          ? 'Děkujeme všem, kteří podporují náš klub'
-          : 'Thanks to everyone supporting our club',
+    title: localize(locale, {
+      de: 'Partner & Sponsoren',
+      cz: 'Partneri a sponzori',
+      en: 'Partners & Sponsors',
+      pl: 'Partnerzy i sponsorzy',
+    }),
+    subtitle: localize(locale, {
+      de: 'Danke an alle, die unseren Verein unterstützen',
+      cz: 'Dekuji vsem, kdo podporuji nas klub',
+      en: 'Thanks to everyone supporting our club',
+      pl: 'Dziekujemy wszystkim, ktorzy wspieraja nasz klub',
+    }),
   });
 
   const mainSponsors = (sponsors || []).filter(s => s.tier === 'main' && s.active);
@@ -66,7 +72,12 @@ export function SponsorsSection() {
 
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Noch keine Sponsoren eingetragen</p>
+            <p className="text-muted-foreground">{localize(locale, {
+              de: 'Noch keine Sponsoren eingetragen',
+              cz: 'Zatim nebyli zadani zadni sponzori',
+              en: 'No sponsors added yet',
+              pl: 'Nie dodano jeszcze sponsorow',
+            })}</p>
           </div>
         </div>
       </section>
@@ -94,14 +105,14 @@ export function SponsorsSection() {
             <p className="mb-6 text-center text-sm font-bold uppercase tracking-widest text-primary">
               {t.nav.mainSponsors}
             </p>
-            <div className="flex flex-wrap justify-center gap-8">
+            <div className="grid grid-cols-2 gap-4 sm:mx-auto sm:max-w-3xl sm:grid-cols-2 lg:grid-cols-3">
               {mainSponsors.map((sponsor) => (
                 <a
                   key={sponsor.id}
                   href={sponsor.website || '#'}
                   target={sponsor.website ? '_blank' : undefined}
                   rel="noopener noreferrer"
-                  className="group relative flex h-48 w-80 items-center justify-center overflow-hidden rounded-none border-2 border-primary/20 bg-card p-10 transition-all hover:border-primary hover:shadow-lg"
+                  className="group relative flex h-28 w-full items-center justify-center overflow-hidden rounded-none border-2 border-primary/20 bg-card p-4 transition-all hover:border-primary hover:shadow-lg sm:h-36 sm:p-6 lg:h-48 lg:p-10"
                 >
                   {/* Diagonal accent on hover */}
                   <div className="absolute -right-8 -top-8 h-16 w-16 rotate-45 bg-primary/0 transition-all group-hover:bg-primary/10" />
@@ -161,14 +172,14 @@ export function SponsorsSection() {
             <p className="mb-6 text-center text-sm font-bold uppercase tracking-widest text-muted-foreground">
               Unterstützer
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {supporters.map((sponsor) => (
                 <a
                   key={sponsor.id}
                   href={sponsor.website || '#'}
                   target={sponsor.website ? '_blank' : undefined}
                   rel="noopener noreferrer"
-                  className="rounded-none border border-border bg-card px-4 py-2 text-sm font-medium text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground hover:shadow-sm"
+                  className="flex min-h-12 items-center justify-center rounded-none border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground hover:shadow-sm"
                 >
                   {sponsor.name}
                 </a>

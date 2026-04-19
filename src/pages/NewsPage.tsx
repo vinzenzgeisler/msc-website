@@ -10,9 +10,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Filter, Newspaper, Pin } from 'lucide-react';
 import { usePosts } from '@/hooks/usePosts';
 import { useContentWithFallback } from '@/hooks/usePageContent';
-import { de, cs, enUS } from 'date-fns/locale';
 import { formatDateSafe, getSafeTimestamp } from '@/lib/date';
 import { useSettings } from '@/hooks/useSettings';
+import { getDateFnsLocale, localize } from '@/i18n/locale-utils';
 
 // Map database categories to display categories
 const dbCategoryMap: Record<string, string> = {
@@ -34,24 +34,24 @@ export default function NewsPage() {
   const { data: settings } = useSettings(); // ← neu
   const intro = useContentWithFallback('news', 'intro', {
     title: t.news.title,
-    subtitle:
-      locale === 'de'
-        ? 'Neuigkeiten aus dem Verein und rund um die Veranstaltung'
-        : locale === 'cz'
-          ? 'Novinky z klubu a kolem akce'
-          : 'News from the club and around the event',
+    subtitle: localize(locale, {
+      de: 'Neuigkeiten aus dem Verein und rund um die Veranstaltung',
+      cz: 'Novinky z klubu a kolem akce',
+      en: 'News from the club and around the event',
+      pl: 'Aktualnosci z klubu i z wydarzenia',
+    }),
   });
 
   const categoryConfig: Record<NewsCategory, { label: string; color: string }> = {
-    all: { label: locale === 'de' ? 'Alle' : locale === 'cz' ? 'Vše' : 'All', color: 'bg-muted/50 text-foreground border-l-4 border-muted-foreground' },
+    all: { label: localize(locale, { de: 'Alle', cz: 'Vse', en: 'All', pl: 'Wszystkie' }), color: 'bg-muted/50 text-foreground border-l-4 border-muted-foreground' },
     club: { label: t.news.categories.club, color: 'border-l-4 border-primary bg-primary/15 text-primary dark:text-primary-foreground dark:bg-primary/30' },
-    allgemein: { label: locale === 'de' ? 'Allgemein' : locale === 'cz' ? 'Obecné' : 'General', color: 'border-l-4 border-secondary bg-secondary/15 text-secondary-foreground' },
+    allgemein: { label: localize(locale, { de: 'Allgemein', cz: 'Obecne', en: 'General', pl: 'Ogolne' }), color: 'border-l-4 border-secondary bg-secondary/15 text-secondary-foreground' },
     motocross: { label: 'Motocross', color: 'border-l-4 border-accent bg-accent/15 text-accent dark:text-accent' },
     trial: { label: 'Trial', color: 'border-l-4 border-accent bg-accent/15 text-accent dark:text-accent' },
     touring: { label: t.nav.touring, color: 'border-l-4 border-accent bg-accent/15 text-accent dark:text-accent' },
   };
 
-  const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
+  const dateLocale = getDateFnsLocale(locale);
 
   // Get only published posts - sorted by is_pinned first, then by date
   const publishedPosts = (posts || [])
@@ -219,7 +219,7 @@ export default function NewsPage() {
                           {featuredArticle.is_pinned && (
                             <Badge className="absolute top-4 left-4 gap-1 bg-accent">
                               <Pin className="h-3 w-3" />
-                              {locale === 'de' ? 'Angeheftet' : locale === 'cz' ? 'Připnuto' : 'Pinned'}
+                              {localize(locale, { de: 'Angeheftet', cz: 'Pripnuto', en: 'Pinned', pl: 'Przypiete' })}
                             </Badge>
                           )}
                         </div>
@@ -231,7 +231,7 @@ export default function NewsPage() {
                               {getCategoryLabel(featuredArticle.category)}
                             </span>
                             <span className="text-sm text-muted-foreground">
-                              {formatDate(featuredArticle.display_date)}
+                              {t.news.publishedOn} {formatDate(featuredArticle.display_date)}
                             </span>
                           </div>
                           
@@ -283,7 +283,7 @@ export default function NewsPage() {
                               {getCategoryLabel(article.category)}
                             </span>
                             <span className="text-xs text-muted-foreground">
-                              {formatDate(article.display_date, true)}
+                              {t.news.publishedOn} {formatDate(article.display_date, true)}
                             </span>
                           </div>
                           
@@ -313,7 +313,7 @@ export default function NewsPage() {
                         onClick={() => setPage(Math.max(1, currentPage - 1))}
                         disabled={currentPage === 1}
                       >
-                        {locale === 'de' ? 'Zurück' : locale === 'cz' ? 'Zpět' : 'Previous'}
+                        {localize(locale, { de: 'Zurück', cz: 'Zpet', en: 'Previous', pl: 'Wstecz' })}
                       </Button>
 
                       {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
@@ -331,7 +331,7 @@ export default function NewsPage() {
                         onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
                         disabled={currentPage === totalPages}
                       >
-                        {locale === 'de' ? 'Weiter' : locale === 'cz' ? 'Další' : 'Next'}
+                        {localize(locale, { de: 'Weiter', cz: 'Dalsi', en: 'Next', pl: 'Dalej' })}
                       </Button>
                     </div>
                   )}
@@ -340,9 +340,12 @@ export default function NewsPage() {
                     <div className="rounded-lg border-2 border-dashed border-border py-12 text-center text-muted-foreground">
                       <Newspaper className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                       <p>
-                        {locale === 'de' && 'Keine Artikel gefunden.'}
-                        {locale === 'cz' && 'Žádné články nenalezeny.'}
-                        {locale === 'en' && 'No articles found.'}
+                        {localize(locale, {
+                          de: 'Keine Artikel gefunden.',
+                          cz: 'Zadne clanky nenalezeny.',
+                          en: 'No articles found.',
+                          pl: 'Nie znaleziono artykulow.',
+                        })}
                       </p>
                     </div>
                   )}

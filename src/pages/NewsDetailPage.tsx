@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Share2, Facebook, Twitter, Newspaper } from 'lucide-react';
 import { usePostBySlug } from '@/hooks/usePosts';
-import { de, cs, enUS } from 'date-fns/locale';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { formatDateSafe } from '@/lib/date';
 import { RichContent } from '@/components/content/RichContent';
 import { toast } from 'sonner';
 import { useSettings } from '@/hooks/useSettings';
+import { getDateFnsLocale, localize } from '@/i18n/locale-utils';
 
 export default function NewsDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -51,14 +51,14 @@ export default function NewsDetailPage() {
         <section className="py-20">
           <div className="container text-center">
             <Newspaper className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h1 className="mb-4">Artikel nicht gefunden</h1>
+            <h1 className="mb-4">{localize(locale, { de: 'Artikel nicht gefunden', cz: 'Clanek nebyl nalezen', en: 'Article not found', pl: 'Nie znaleziono artykulu' })}</h1>
             <p className="mb-8 text-muted-foreground">
-              Der gesuchte Artikel existiert nicht oder wurde entfernt.
+              {localize(locale, { de: 'Der gesuchte Artikel existiert nicht oder wurde entfernt.', cz: 'Pozadovany clanek neexistuje nebo byl odstranen.', en: 'The requested article does not exist or has been removed.', pl: 'Szukany artykul nie istnieje lub zostal usuniety.' })}
             </p>
             <Button asChild>
               <Link to="/news">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Zurück zur Übersicht
+                {localize(locale, { de: 'Zurück zur Übersicht', cz: 'Zpet na prehled', en: 'Back to overview', pl: 'Powrot do przegladu' })}
               </Link>
             </Button>
           </div>
@@ -67,7 +67,7 @@ export default function NewsDetailPage() {
     );
   }
 
-  const dateLocale = locale === 'de' ? de : locale === 'cz' ? cs : enUS;
+  const dateLocale = getDateFnsLocale(locale);
 
   const categoryLabel =
     article.category === 'event' ? 'Veranstaltung'
@@ -79,9 +79,12 @@ export default function NewsDetailPage() {
   const displayDate = formatDateSafe(article.display_date, 'd. MMMM yyyy', dateLocale, '');
 
   const publishedLabel =
-    locale === 'de' ? 'Veröffentlicht am'
-    : locale === 'cz' ? 'Publikováno'
-    : 'Published on';
+    localize(locale, {
+      de: 'Veröffentlicht am',
+      cz: 'Publikovano',
+      en: 'Published on',
+      pl: 'Opublikowano',
+    });
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
   const encodedUrl = encodeURIComponent(shareUrl);
@@ -100,9 +103,12 @@ export default function NewsDetailPage() {
     } else {
       navigator.clipboard.writeText(shareUrl);
       toast.success(
-        locale === 'de' ? 'Link kopiert!'
-        : locale === 'cz' ? 'Odkaz byl zkopírován!'
-        : 'Link copied!'
+        localize(locale, {
+          de: 'Link kopiert!',
+          cz: 'Odkaz byl zkopirovan!',
+          en: 'Link copied!',
+          pl: 'Link skopiowany!',
+        })
       );
     }
   };
@@ -130,7 +136,7 @@ export default function NewsDetailPage() {
             >
               <Link to="/news">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Zurück zur Übersicht
+                {localize(locale, { de: 'Zurück zur Übersicht', cz: 'Zpet na prehled', en: 'Back to overview', pl: 'Powrot do przegladu' })}
               </Link>
             </Button>
 
@@ -180,7 +186,7 @@ export default function NewsDetailPage() {
               {/* Share */}
               <div className="mt-12 border-t border-border pt-8">
                 <div className="flex items-center gap-4">
-                  <span className="font-semibold">Teilen:</span>
+                  <span className="font-semibold">{localize(locale, { de: 'Teilen:', cz: 'Sdilet:', en: 'Share:', pl: 'Udostepnij:' })}</span>
                   <Button
                     variant="outline"
                     size="icon"
@@ -197,7 +203,7 @@ export default function NewsDetailPage() {
                   >
                     <Twitter className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="icon" onClick={handleShare} title="Link kopieren / Teilen">
+                  <Button variant="outline" size="icon" onClick={handleShare} title={localize(locale, { de: 'Link kopieren / Teilen', cz: 'Kopirovat odkaz / sdilet', en: 'Copy link / share', pl: 'Kopiuj link / udostepnij' })}>
                     <Share2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -208,7 +214,7 @@ export default function NewsDetailPage() {
                 <Button variant="outline" asChild>
                   <Link to="/news">
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Alle News anzeigen
+                    {localize(locale, { de: 'Alle News anzeigen', cz: 'Zobrazit vsechny novinky', en: 'Show all news', pl: 'Pokaz wszystkie aktualnosci' })}
                   </Link>
                 </Button>
               </div>
