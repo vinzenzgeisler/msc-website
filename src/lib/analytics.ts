@@ -10,6 +10,7 @@ declare global {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
     __MSC_ANALYTICS_ENABLED__?: boolean;
+    __MSC_GA_READY__?: boolean;
     [key: `ga-disable-${string}`]: boolean | undefined;
   }
 }
@@ -31,6 +32,7 @@ export function analyticsConfigured() {
 export function trackEvent(eventName: string, props: AnalyticsEventProps = {}) {
   if (typeof window === 'undefined') return;
   if (!window.__MSC_ANALYTICS_ENABLED__) return;
+  if (!window.__MSC_GA_READY__) return;
   if (typeof window.gtag !== 'function') return;
   const sanitizedProps = sanitizeProps(props);
   window.gtag('event', eventName, sanitizedProps);
@@ -39,6 +41,7 @@ export function trackEvent(eventName: string, props: AnalyticsEventProps = {}) {
 export function trackPageView(pathname?: string) {
   if (typeof window === 'undefined') return;
   if (!window.__MSC_ANALYTICS_ENABLED__) return;
+  if (!window.__MSC_GA_READY__) return;
   if (typeof window.gtag !== 'function') return;
   const absoluteUrl = pathname
     ? new URL(pathname, window.location.origin).toString()
