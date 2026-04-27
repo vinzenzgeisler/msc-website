@@ -1,9 +1,16 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { useTranslation } from '@/i18n/LanguageContext';
+import { useLanguage, useTranslation } from '@/i18n/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { RichContent } from '@/components/content/RichContent';
+
+const FUNDING_TITLE: Record<string, string> = {
+  de: 'Förderhinweis',
+  en: 'Funding Notice',
+  cz: 'Informace o financování',
+  pl: 'Informacja o dofinansowaniu',
+};
 
 const DEFAULT_IMPRINT_CONTENT = `
 <h2>Angaben gemäß § 5 TMG</h2>
@@ -51,14 +58,19 @@ const DEFAULT_FUNDING_CONTENT = `
 
 export default function ImprintPage() {
   const t = useTranslation();
+  const { locale } = useLanguage();
+  const fundingTitle = FUNDING_TITLE[locale] || FUNDING_TITLE.de;
   const imprint = useContentWithFallback('imprint', 'content', {
     title: 'Impressum',
     content: DEFAULT_IMPRINT_CONTENT,
   });
   const funding = useContentWithFallback('imprint', 'funding', {
-    title: 'Förderhinweis',
+    title: fundingTitle,
     content: DEFAULT_FUNDING_CONTENT,
   });
+  // Section can be deactivated in CMS by clearing the content field.
+  const fundingContent = funding.hasDbContent ? funding.content : DEFAULT_FUNDING_CONTENT;
+  const showFunding = !funding.isLoading && fundingContent.trim().length > 0;
 
   return (
     <MainLayout>
@@ -79,12 +91,12 @@ export default function ImprintPage() {
               </div>
             )}
 
-            {!funding.isLoading && (
+            {showFunding && (
               <div className="rounded-xl border border-border/60 bg-card p-6 md:p-8 shadow-sm">
                 <h2 className="mb-4 font-heading text-2xl font-bold uppercase tracking-wider">
-                  {funding.title || 'Förderhinweis'}
+                  {funding.title || fundingTitle}
                 </h2>
-                <RichContent content={funding.content} className="prose-lg prose-p:text-muted-foreground prose-li:text-muted-foreground" />
+                <RichContent content={fundingContent} className="prose-lg prose-p:text-muted-foreground prose-li:text-muted-foreground" />
               </div>
             )}
           </div>
