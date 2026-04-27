@@ -297,7 +297,9 @@ export default function EventPage() {
                       </a>
                     )}
                   </Button>
-                  {(registrationContent.attachment_url || registrationContent.secondary_button_url) && (
+                  {registrationContent.isLoading ? (
+                    <Skeleton className="h-12 w-64 bg-primary-foreground/20" />
+                  ) : (registrationContent.attachment_url || registrationContent.secondary_button_url) && (
                     <Button
                       size="lg"
                       variant="outline"
