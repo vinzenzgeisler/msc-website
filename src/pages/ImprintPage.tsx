@@ -1,9 +1,16 @@
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { useTranslation } from '@/i18n/LanguageContext';
+import { useLanguage, useTranslation } from '@/i18n/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { RichContent } from '@/components/content/RichContent';
+
+const FUNDING_TITLE: Record<string, string> = {
+  de: 'Förderhinweis',
+  en: 'Funding Notice',
+  cz: 'Informace o financování',
+  pl: 'Informacja o dofinansowaniu',
+};
 
 const DEFAULT_IMPRINT_CONTENT = `
 <h2>Angaben gemäß § 5 TMG</h2>
