@@ -177,31 +177,8 @@ export default function MembershipPage() {
         </section>
       )}
 
-      {/* Fee Table */}
-      <section className="border-t border-border py-16">
-        <div className="container">
-          <h2 className="mb-8 text-3xl font-bold">{fees.title}</h2>
-          <div className="max-w-2xl">
-            <Card>
-              <CardContent className="p-0">
-                <div className="divide-y">
-                  {fees.categories.map((cat, i) => (
-                    <div key={i} className="flex items-center justify-between px-6 py-4">
-                      <span className="font-medium">{cat.label}</span>
-                      <span className="text-lg font-bold text-primary">
-                        {cat.fee} {cat.fee !== 'kostenlos' && cat.fee !== 'zdarma' && cat.fee !== 'free' && cat.fee !== 'bezplatnie' ? fees.perYear : ''}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
       {/* How to Join */}
-      <section className="border-t border-border bg-muted/30 py-16">
+      <section className="border-t border-border py-16">
         <div className="container">
           <div className="max-w-2xl">
             <h2 className="mb-10 text-3xl font-bold">{join.title}</h2>
@@ -245,6 +222,29 @@ export default function MembershipPage() {
             </div>
 
             <p className="mt-6 text-sm text-muted-foreground italic">{join.cancelNote}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Fee Table */}
+      <section className="border-t border-border bg-muted/30 py-16">
+        <div className="container">
+          <h2 className="mb-8 text-3xl font-bold">{fees.title}</h2>
+          <div className="max-w-2xl">
+            <Card>
+              <CardContent className="p-0">
+                <div className="divide-y">
+                  {fees.categories.map((cat, i) => (
+                    <div key={i} className="flex items-center justify-between px-6 py-4">
+                      <span className="font-medium">{cat.label}</span>
+                      <span className="text-lg font-bold text-primary">
+                        {cat.fee} {cat.fee !== 'kostenlos' && cat.fee !== 'zdarma' && cat.fee !== 'free' && cat.fee !== 'bezplatnie' ? fees.perYear : ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
