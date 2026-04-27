@@ -47,7 +47,7 @@ export const PAGE_SECTIONS = {
   contact: ['intro', 'info', 'map'],
   sponsors: ['intro', 'cta'],
   partner_clubs: ['intro'],
-  imprint: ['content'],
+  imprint: ['content', 'funding'],
   privacy: ['content'],
 } as const;
 
