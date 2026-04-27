@@ -13,22 +13,14 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const STORAGE_KEY = 'msc-language';
 
 function getInitialLocale(): Locale {
-  // Check localStorage first
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored && (stored === 'de' || stored === 'cz' || stored === 'en' || stored === 'pl')) {
       return stored;
     }
-    
-    // Check browser language
-    const browserLang = navigator.language.toLowerCase();
-    if (browserLang.startsWith('de')) return 'de';
-    if (browserLang.startsWith('cs') || browserLang.startsWith('cz')) return 'cz';
-    if (browserLang.startsWith('en')) return 'en';
-    if (browserLang.startsWith('pl')) return 'pl';
   }
-  
-  return 'de'; // Default to German
+
+  return 'de';
 }
 
 interface LanguageProviderProps {
