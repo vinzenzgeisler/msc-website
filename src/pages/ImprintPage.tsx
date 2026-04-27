@@ -58,14 +58,19 @@ const DEFAULT_FUNDING_CONTENT = `
 
 export default function ImprintPage() {
   const t = useTranslation();
+  const { locale } = useLanguage();
+  const fundingTitle = FUNDING_TITLE[locale] || FUNDING_TITLE.de;
   const imprint = useContentWithFallback('imprint', 'content', {
     title: 'Impressum',
     content: DEFAULT_IMPRINT_CONTENT,
   });
   const funding = useContentWithFallback('imprint', 'funding', {
-    title: 'Förderhinweis',
+    title: fundingTitle,
     content: DEFAULT_FUNDING_CONTENT,
   });
+  // Section can be deactivated in CMS by clearing the content field.
+  const fundingContent = funding.hasDbContent ? funding.content : DEFAULT_FUNDING_CONTENT;
+  const showFunding = !funding.isLoading && fundingContent.trim().length > 0;
 
   return (
     <MainLayout>
