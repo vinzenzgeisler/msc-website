@@ -85,8 +85,13 @@ export function Header() {
               {(settings?.site_short_name || 'MSC').slice(0, 3)}
             </div>
           )}
-          <span className="hidden max-w-[14rem] whitespace-normal font-heading font-bold uppercase leading-tight tracking-wider text-foreground xl:inline-block 2xl:max-w-[15rem]">
-            {settings?.site_name || 'MSC Oberlausitzer Dreiländereck'}
+          <span className="hidden whitespace-nowrap font-heading font-bold uppercase leading-none tracking-wider text-foreground xl:inline-block">
+            <span className="2xl:hidden">
+              {settings?.site_short_name || 'MSC Oberlausitzer Dreiländereck'}
+            </span>
+            <span className="hidden 2xl:inline">
+              {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}
+            </span>
           </span>
         </Link>
 
