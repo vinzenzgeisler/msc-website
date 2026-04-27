@@ -43,11 +43,21 @@ const DEFAULT_IMPRINT_CONTENT = `
 </p>
 `;
 
+const DEFAULT_FUNDING_CONTENT = `
+<p>
+  Das zugrunde liegende Vorhaben wurde im Rahmen einer Förderung aus dem Europäischen Landwirtschaftsfonds für die Entwicklung des ländlichen Raums (ELER) unterstützt. Zuständig für die Durchführung der ELER-Förderung im Freistaat Sachsen ist das Sächsische Staatsministerium für Energie, Klimaschutz, Umwelt und Landwirtschaft, Referat Förderstrategie, ELER-Verwaltungsbehörde.
+</p>
+`;
+
 export default function ImprintPage() {
   const t = useTranslation();
   const imprint = useContentWithFallback('imprint', 'content', {
     title: 'Impressum',
     content: DEFAULT_IMPRINT_CONTENT,
+  });
+  const funding = useContentWithFallback('imprint', 'funding', {
+    title: 'Förderhinweis',
+    content: DEFAULT_FUNDING_CONTENT,
   });
 
   return (
@@ -56,7 +66,7 @@ export default function ImprintPage() {
 
       <section className="py-16">
         <div className="container">
-          <div className="mx-auto max-w-3xl">
+          <div className="mx-auto max-w-3xl space-y-8">
             {imprint.isLoading ? (
               <div className="space-y-4">
                 <Skeleton className="h-6 w-full" />
@@ -66,6 +76,15 @@ export default function ImprintPage() {
             ) : (
               <div className="rounded-xl border border-border/60 bg-card p-6 md:p-8 shadow-sm">
                 <RichContent content={imprint.content} className="prose-lg prose-p:text-muted-foreground prose-li:text-muted-foreground" />
+              </div>
+            )}
+
+            {!funding.isLoading && (
+              <div className="rounded-xl border border-border/60 bg-card p-6 md:p-8 shadow-sm">
+                <h2 className="mb-4 font-heading text-2xl font-bold uppercase tracking-wider">
+                  {funding.title || 'Förderhinweis'}
+                </h2>
+                <RichContent content={funding.content} className="prose-lg prose-p:text-muted-foreground prose-li:text-muted-foreground" />
               </div>
             )}
           </div>
