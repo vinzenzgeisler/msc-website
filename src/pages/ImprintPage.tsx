@@ -91,12 +91,12 @@ export default function ImprintPage() {
               </div>
             )}
 
-            {!funding.isLoading && (
+            {showFunding && (
               <div className="rounded-xl border border-border/60 bg-card p-6 md:p-8 shadow-sm">
                 <h2 className="mb-4 font-heading text-2xl font-bold uppercase tracking-wider">
-                  {funding.title || 'Förderhinweis'}
+                  {funding.title || fundingTitle}
                 </h2>
-                <RichContent content={funding.content} className="prose-lg prose-p:text-muted-foreground prose-li:text-muted-foreground" />
+                <RichContent content={fundingContent} className="prose-lg prose-p:text-muted-foreground prose-li:text-muted-foreground" />
               </div>
             )}
           </div>
