@@ -1,5 +1,25 @@
 {
+  "redirects": [
+    {
+      "source": "/old",
+      "destination": "/event",
+      "permanent": true
+    },
+    {
+      "source": "/old/accommodation",
+      "destination": "/event/accommodation",
+      "permanent": true
+    }
+  ],
   "rewrites": [
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap.xml"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

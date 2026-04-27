@@ -9,7 +9,7 @@ export function getCalendarEventClickTarget(
   event: Pick<CalendarEvent, 'is_main_event' | 'detail_url' | 'slug'>,
 ) {
   if (event.is_main_event) {
-    return '/old';
+    return '/event';
   }
 
   const manualTarget = String(event.detail_url || '').trim();

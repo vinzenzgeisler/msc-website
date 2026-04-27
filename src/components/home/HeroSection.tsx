@@ -128,9 +128,9 @@ export function HeroSection() {
     ? (mainEvent?.description || heroContent.subtitle || settings?.description || t.clubTeaser.subtitle)
     : (heroContent.subtitle || settings?.description || t.clubTeaser.subtitle);
   const primaryButtonLabel = heroContent.primary_button_label || (hasMainEvent ? t.hero.ctaEvent : t.hero.ctaDiscover);
-  const primaryButtonUrl = heroContent.primary_button_url || (hasMainEvent ? '/old' : '/club/about');
+  const primaryButtonUrl = heroContent.primary_button_url || (hasMainEvent ? '/event' : '/club/about');
   const secondaryButtonLabel = heroContent.secondary_button_label || (hasMainEvent ? t.hero.ctaDiscover: t.nav.calendar);
-  const secondaryButtonUrl = heroContent.secondary_button_url || (hasMainEvent ? '/old#schedule' : '/calendar');
+  const secondaryButtonUrl = heroContent.secondary_button_url || (hasMainEvent ? '/event#schedule' : '/calendar');
 
   // JS Typewriter effect for smooth multi-line wrapping
   useEffect(() => {

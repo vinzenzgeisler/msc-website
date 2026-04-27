@@ -12,7 +12,7 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <MainLayout>
+    <MainLayout noindex title="Seite nicht gefunden">
       <section className="flex min-h-[60vh] items-center justify-center py-16">
         <div className="container text-center">
           <h1 className="mb-4 text-8xl font-black text-primary">404</h1>

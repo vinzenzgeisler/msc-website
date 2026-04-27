@@ -25,6 +25,7 @@ import PartnerClubsPage from "./pages/partners/PartnerClubsPage";
 import ContactPage from "./pages/ContactPage";
 import ImprintPage from "./pages/ImprintPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import NotFound from "./pages/NotFound";
 
 // Admin Pages
 import LoginPage from "./pages/admin/LoginPage";
@@ -64,10 +65,10 @@ const App = () => (
             <Routes>
               {/* Main Pages */}
               <Route path="/" element={<Index />} />
-              <Route path="/old" element={<EventPage />} />
-              <Route path="/old/accommodation" element={<AccommodationPage />} />
-              <Route path="/event" element={<Navigate to="/old" replace />} />
-              <Route path="/event/accommodation" element={<Navigate to="/old/accommodation" replace />} />
+              <Route path="/event" element={<EventPage />} />
+              <Route path="/event/accommodation" element={<AccommodationPage />} />
+              <Route path="/old" element={<Navigate to="/event" replace />} />
+              <Route path="/old/accommodation" element={<Navigate to="/event/accommodation" replace />} />
               <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/calendar/:slug" element={<CalendarDetailPage />} />
               <Route path="/news" element={<NewsPage />} />
@@ -121,7 +122,7 @@ const App = () => (
               <Route path="/admin/settings" element={<AdminLayout><SettingsAdminPage /></AdminLayout>} />
               
               {/* Catch-all */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>

@@ -87,12 +87,12 @@ export function Footer() {
             <h3 className="mb-4 font-semibold">{t.nav.event}</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/old" className="text-muted-foreground transition-colors hover:text-foreground">
+                <Link to="/event" className="text-muted-foreground transition-colors hover:text-foreground">
                   Oberlausitzer Dreieck
                 </Link>
               </li>
               <li>
-                <Link to="/old#schedule" className="text-muted-foreground transition-colors hover:text-foreground">
+                <Link to="/event#schedule" className="text-muted-foreground transition-colors hover:text-foreground">
                   {t.event.schedule}
                 </Link>
               </li>

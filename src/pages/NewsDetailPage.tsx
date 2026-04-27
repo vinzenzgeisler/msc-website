@@ -1,5 +1,4 @@
 import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -19,10 +18,14 @@ export default function NewsDetailPage() {
   const { locale } = useLanguage();
   const { data: article, isLoading, error } = usePostBySlug(slug || '');
   const { data: settings } = useSettings();
+  const canonicalPath = slug ? `/news/${slug}` : '/news';
 
   if (isLoading) {
     return (
-      <MainLayout>
+      <MainLayout
+        noindex
+        title={localize(locale, { de: 'Artikel lädt', cz: 'Clanek se nacita', en: 'Loading article', pl: 'Ladowanie artykulu' })}
+      >
         <section className="bg-primary py-12 text-primary-foreground">
           <div className="container">
             <Skeleton className="h-6 w-32 mb-6 bg-primary-foreground/20" />
@@ -47,7 +50,10 @@ export default function NewsDetailPage() {
 
   if (error || !article) {
     return (
-      <MainLayout>
+      <MainLayout
+        noindex
+        title={localize(locale, { de: 'Artikel nicht gefunden', cz: 'Clanek nebyl nalezen', en: 'Article not found', pl: 'Nie znaleziono artykulu' })}
+      >
         <section className="py-20">
           <div className="container text-center">
             <Newspaper className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
@@ -92,6 +98,28 @@ export default function NewsDetailPage() {
 
   const facebookShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodedUrl;
   const twitterShareUrl = 'https://twitter.com/intent/tweet?url=' + encodedUrl + '&text=' + encodedTitle;
+  const articleStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    description: article.excerpt || undefined,
+    image: article.image_url ? [article.image_url] : settings?.default_og_image_url ? [settings.default_og_image_url] : undefined,
+    datePublished: article.published_at || article.display_date || article.created_at,
+    dateModified: article.updated_at,
+    mainEntityOfPage: `https://www.msc-oberlausitz.de${canonicalPath}`,
+    author: {
+      '@type': 'Organization',
+      name: settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.',
+      logo: settings?.logo_url ? {
+        '@type': 'ImageObject',
+        url: settings.logo_url,
+      } : undefined,
+    },
+  };
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -114,17 +142,14 @@ export default function NewsDetailPage() {
   };
 
   return (
-    <>
-      <Helmet>
-        <title>{article.title} – {settings?.site_name || 'MSC'}</title>
-        <meta name="description" content={article.excerpt || ''} />
-        <meta property="og:title" content={article.title} />
-        <meta property="og:description" content={article.excerpt || ''} />
-        <meta property="og:image" content={article.image_url || settings?.default_og_image_url || ''} />
-        <meta property="og:type" content="article" />
-      </Helmet>
-
-      <MainLayout title={article.title} description={article.excerpt || undefined}>
+      <MainLayout
+        title={article.title}
+        description={article.excerpt || undefined}
+        canonicalPath={canonicalPath}
+        ogType="article"
+        imageUrl={article.image_url || settings?.default_og_image_url || undefined}
+        structuredData={articleStructuredData}
+      >
         {/* Header */}
         <section className="bg-primary py-12 text-primary-foreground">
           <div className="container">
@@ -222,6 +247,5 @@ export default function NewsDetailPage() {
           </div>
         </section>
       </MainLayout>
-    </>
   );
 }

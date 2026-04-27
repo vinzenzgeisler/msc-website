@@ -628,7 +628,7 @@ export default function CalendarFormPage() {
                   type="text"
                   value={formData.detail_url}
                   onChange={(e) => updateField('detail_url', e.target.value)}
-                  placeholder="/old/accommodation oder https://..."
+                  placeholder="/event/accommodation oder https://..."
                 />
                 <p className="text-xs text-muted-foreground">
                   Optional: Nur falls dieser Termin statt der automatischen internen Unterseite auf eine andere Seite oder externe URL zeigen soll.

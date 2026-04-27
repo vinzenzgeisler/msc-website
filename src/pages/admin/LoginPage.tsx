@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { SEO } from '@/components/layout/SEO';
 import { Loader2, Lock, Mail, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
@@ -32,8 +33,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
-      <div className="w-full max-w-md">
+    <>
+      <SEO title="Admin Login" noindex />
+      <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+        <div className="w-full max-w-md">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground mb-4">
@@ -116,7 +119,8 @@ export default function LoginPage() {
             ← Zurück zur Website
           </a>
         </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

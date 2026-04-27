@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { SEO } from '@/components/layout/SEO';
 import { Loader2, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function ResetPasswordPage() {
@@ -56,16 +57,21 @@ export default function ResetPasswordPage() {
 
   if (isValidSession === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <>
+        <SEO title="Passwort zurücksetzen" noindex />
+        <div className="min-h-screen flex items-center justify-center bg-muted/30">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </>
     );
   }
 
   if (!isValidSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
-        <div className="w-full max-w-md">
+      <>
+        <SEO title="Ungültiger Reset-Link" noindex />
+        <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+          <div className="w-full max-w-md">
           <Card>
             <CardHeader className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 text-destructive mb-4 mx-auto">
@@ -86,15 +92,18 @@ export default function ResetPasswordPage() {
               </Button>
             </CardContent>
           </Card>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
-        <div className="w-full max-w-md">
+      <>
+        <SEO title="Passwort geändert" noindex />
+        <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+          <div className="w-full max-w-md">
           <Card>
             <CardHeader className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-4 mx-auto">
@@ -114,14 +123,17 @@ export default function ResetPasswordPage() {
               </Button>
             </CardContent>
           </Card>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
-      <div className="w-full max-w-md">
+    <>
+      <SEO title="Passwort zurücksetzen" noindex />
+      <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+        <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground mb-4">
             <Lock className="w-8 h-8" />
@@ -193,7 +205,8 @@ export default function ResetPasswordPage() {
             </form>
           </CardContent>
         </Card>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

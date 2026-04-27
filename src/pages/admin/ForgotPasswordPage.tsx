@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { SEO } from '@/components/layout/SEO';
 import { Loader2, Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
@@ -30,8 +31,10 @@ export default function ForgotPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
-        <div className="w-full max-w-md">
+      <>
+        <SEO title="Passwort vergessen" noindex />
+        <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+          <div className="w-full max-w-md">
           <Card>
             <CardHeader className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-4 mx-auto">
@@ -55,14 +58,17 @@ export default function ForgotPasswordPage() {
               </Link>
             </CardContent>
           </Card>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
-      <div className="w-full max-w-md">
+    <>
+      <SEO title="Passwort vergessen" noindex />
+      <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+        <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground mb-4">
             <Mail className="w-8 h-8" />
@@ -123,7 +129,8 @@ export default function ForgotPasswordPage() {
             Zurück zum Login
           </Link>
         </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

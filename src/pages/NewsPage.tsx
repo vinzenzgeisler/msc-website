@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation, useLanguage } from '@/i18n/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,7 +10,6 @@ import { ArrowRight, Filter, Newspaper, Pin } from 'lucide-react';
 import { usePosts } from '@/hooks/usePosts';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { formatDateSafe, getSafeTimestamp } from '@/lib/date';
-import { useSettings } from '@/hooks/useSettings';
 import { getDateFnsLocale, localize } from '@/i18n/locale-utils';
 
 // Map database categories to display categories
@@ -31,7 +29,6 @@ export default function NewsPage() {
   const [activeFilter, setActiveFilter] = useState<NewsCategory>('all');
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: posts, isLoading } = usePosts();
-  const { data: settings } = useSettings(); // ← neu
   const intro = useContentWithFallback('news', 'intro', {
     title: t.news.title,
     subtitle: localize(locale, {
@@ -125,19 +122,7 @@ export default function NewsPage() {
   };
 
   return (
-      <>
-        <Helmet>
-          <title>{intro.title} – {settings?.site_name || 'MSC'}</title>
-          <meta name="description" content={intro.subtitle || ''} />
-          <meta property="og:title" content={`${intro.title} – ${settings?.site_name || 'MSC'}`} />
-          <meta property="og:description" content={intro.subtitle || ''} />
-          {settings?.default_og_image_url && (
-            <meta property="og:image" content={settings.default_og_image_url} />
-          )}
-          <meta property="og:type" content="website" />
-        </Helmet>
-        
-        <MainLayout title={intro.title} description={intro.subtitle || undefined}>
+        <MainLayout title={intro.title} description={intro.subtitle || undefined} canonicalPath="/news">
           {/* Header */}
           <section className="bg-primary py-16 text-primary-foreground">
             <div className="container">
@@ -354,6 +339,5 @@ export default function NewsPage() {
             </div>
           </section>
         </MainLayout>
-    </>
   );
 }

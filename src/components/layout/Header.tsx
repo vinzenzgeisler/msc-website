@@ -39,7 +39,7 @@ export function Header() {
 
   const navItems = [
     { path: '/', label: t.nav.home },
-    { path: '/old', label: t.nav.event },
+    { path: '/event', label: t.nav.event },
     { path: '/calendar', label: t.nav.calendar },
     { path: '/news', label: t.nav.news },
     {

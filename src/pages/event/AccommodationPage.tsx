@@ -145,7 +145,11 @@ export default function AccommodationPage() {
   }
 
   return (
-    <MainLayout>
+    <MainLayout
+      title={introContent.title}
+      description={introContent.content}
+      canonicalPath="/event/accommodation"
+    >
       <PageHeader
         title={introContent.title}
         subtitle={introContent.content}
@@ -155,7 +159,7 @@ export default function AccommodationPage() {
         <div className="container">
           <div className="mb-8">
             <Button variant="outline" asChild>
-              <Link to="/old">
+              <Link to="/event">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {localize(locale, {
                   de: 'Zurück zur Veranstaltung',

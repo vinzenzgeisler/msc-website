@@ -47,7 +47,10 @@ export default function CalendarDetailPage() {
 
   if (isLoading) {
     return (
-      <MainLayout>
+      <MainLayout
+        noindex
+        title={localize(locale as Locale, { de: 'Termin lädt', cz: 'Termin se nacita', en: 'Loading event', pl: 'Ladowanie terminu' })}
+      >
         <section className="py-16">
           <div className="container space-y-6">
             <Skeleton className="h-10 w-48" />
@@ -61,7 +64,10 @@ export default function CalendarDetailPage() {
 
   if (!event || event.published === false) {
     return (
-      <MainLayout>
+      <MainLayout
+        noindex
+        title={localize(locale as Locale, { de: 'Termin nicht gefunden', cz: 'Termin nebyl nalezen.', en: 'Event not found', pl: 'Nie znaleziono terminu.' })}
+      >
         <section className="py-16">
           <div className="container">
             <Card>
@@ -78,7 +84,10 @@ export default function CalendarDetailPage() {
   const internalDetailPath = getCalendarEventDetailPath(event.slug);
   if (!event.is_main_event && event.detail_url !== internalDetailPath) {
     return (
-      <MainLayout>
+      <MainLayout
+        noindex
+        title={localize(locale as Locale, { de: 'Termin-Unterseite nicht aktiviert', cz: 'Podstranka terminu neni aktivovana', en: 'Event subpage not enabled', pl: 'Podstrona wydarzenia nie jest aktywna' })}
+      >
         <section className="py-16">
           <div className="container">
             <Card>
@@ -96,9 +105,35 @@ export default function CalendarDetailPage() {
   const categoryLabel = event.category
     ? t.calendar.filter[event.category as keyof typeof t.calendar.filter] || event.category
     : null;
+  const eventStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: event.title,
+    description: event.description || detailContent?.content || undefined,
+    startDate: event.start_dt,
+    endDate: event.end_dt || undefined,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    location: event.location ? {
+      '@type': 'Place',
+      name: event.location,
+      address: event.location,
+    } : undefined,
+    organizer: {
+      '@type': 'Organization',
+      name: 'MSC Oberlausitzer Dreiländereck e.V.',
+      url: 'https://www.msc-oberlausitz.de',
+    },
+    url: `https://www.msc-oberlausitz.de${internalDetailPath}`,
+  };
 
   return (
-    <MainLayout title={event.title} description={event.description || undefined}>
+    <MainLayout
+      title={event.title}
+      description={event.description || undefined}
+      canonicalPath={internalDetailPath}
+      structuredData={eventStructuredData}
+    >
       <PageHeader
         title={detailContent?.title || event.title}
         subtitle={formattedDate}

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { useTranslation, useLanguage } from '@/i18n/LanguageContext';
@@ -245,18 +244,36 @@ export default function EventPage() {
       ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mainEvent.location)}`
       : 'https://maps.app.goo.gl/8ynVfs7AgjRU1Qem6');
 
-  return (
-    <>
-      <Helmet>
-        <title>{mainEvent?.title || eventIntro.title} – {settings?.site_name || 'MSC'}</title>
-        <meta name="description" content={mainEvent?.description || eventIntro.content || ''} />
-        <meta property="og:title" content={mainEvent?.title || eventIntro.title} />
-        <meta property="og:description" content={mainEvent?.description || eventIntro.content || ''} />
-        <meta property="og:image" content={settings?.default_og_image_url || ''} />
-        <meta property="og:type" content="website" />
-      </Helmet>
+  const eventStructuredData = mainEvent ? {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: mainEvent.title,
+    description: mainEvent.description || eventIntro.content || undefined,
+    startDate: mainEvent.start_dt,
+    endDate: mainEvent.end_dt || undefined,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    location: mainEvent.location ? {
+      '@type': 'Place',
+      name: mainEvent.location,
+      address: mainEvent.location,
+    } : undefined,
+    organizer: {
+      '@type': 'Organization',
+      name: settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.',
+      url: 'https://www.msc-oberlausitz.de',
+    },
+    image: settings?.default_og_image_url ? [settings.default_og_image_url] : undefined,
+    url: 'https://www.msc-oberlausitz.de/event',
+  } : undefined;
 
-      <MainLayout title={mainEvent?.title || eventIntro.title} description={mainEvent?.description || undefined}>
+  return (
+      <MainLayout
+        title={mainEvent?.title || eventIntro.title}
+        description={mainEvent?.description || eventIntro.content || undefined}
+        canonicalPath="/event"
+        structuredData={eventStructuredData}
+      >
         {/* Hero */}
         <section className="relative overflow-hidden bg-primary py-20 text-primary-foreground">
           <div className="absolute inset-0">
@@ -347,7 +364,7 @@ export default function EventPage() {
                 { href: '#registration', label: l({ de: 'Anmeldung', cz: 'Prihlaska', en: 'Registration', pl: 'Rejestracja' }), icon: ClipboardList },
                 { href: '#visitors', label: t.event.visitors, icon: Info },
                 { href: '#downloads', label: t.event.downloads, icon: Download },
-                { href: '/old/accommodation', label: l({ de: 'Übernachtung', cz: 'Ubytovani', en: 'Accommodation', pl: 'Noclegi' }), icon: BedDouble, isLink: true },
+                { href: '/event/accommodation', label: l({ de: 'Übernachtung', cz: 'Ubytovani', en: 'Accommodation', pl: 'Noclegi' }), icon: BedDouble, isLink: true },
               ].map((item) => {
                 if ('isLink' in item && item.isLink) {
                   return (
@@ -609,7 +626,7 @@ export default function EventPage() {
               </div>
             </details>
 
-            <Link to="/old/accommodation" className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6 transition-colors hover:border-primary">
+            <Link to="/event/accommodation" className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6 transition-colors hover:border-primary">
               <BedDouble className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div className="min-w-0">
                 <h3 className="mb-1 text-base font-bold">{l({ de: 'Übernachtungsmöglichkeiten', cz: 'Ubytovani', en: 'Accommodation', pl: 'Noclegi' })}</h3>
@@ -758,6 +775,5 @@ export default function EventPage() {
           </div>
         </section>
       </MainLayout>
-    </>
   );
 }

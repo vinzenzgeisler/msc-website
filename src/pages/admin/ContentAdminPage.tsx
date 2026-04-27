@@ -515,7 +515,7 @@ function ContentEditor({
       {supportsEventRegistrationSecondaryButton ? (
         <div className="space-y-3">
           <p className="text-xs text-muted-foreground">
-            Dieser Button erscheint oben im Hero auf `/old` als zweiter Button. Wenn ein Dokument hochgeladen ist, wird dieses bevorzugt verlinkt. Das URL-Feld dient dann als Fallback.
+            Dieser Button erscheint oben im Hero auf `/event` als zweiter Button. Wenn ein Dokument hochgeladen ist, wird dieses bevorzugt verlinkt. Das URL-Feld dient dann als Fallback.
           </p>
           <div className="rounded-lg border p-4 space-y-4">
             <p className="font-medium">Hero Download-Button</p>
@@ -565,7 +565,7 @@ function ContentEditor({
         <div className="space-y-4 rounded-lg border p-4">
           <div className="space-y-1">
             <p className="font-medium">
-              {pageKey === 'event' ? 'Downloads unten auf `/old`' : 'Downloads in der Motocross-Sektion'}
+              {pageKey === 'event' ? 'Downloads unten auf `/event`' : 'Downloads in der Motocross-Sektion'}
             </p>
             <p className="text-xs text-muted-foreground">
               {pageKey === 'event'
@@ -768,7 +768,7 @@ function ContentEditor({
           />
           {pageKey === 'event' && sectionKey === 'registration_info' ? (
             <p className="text-xs text-muted-foreground">
-              Dieses Dokument wird auf `/old` automatisch als Hero-Button "Download Ausschreibung" verlinkt.
+              Dieses Dokument wird auf `/event` automatisch als Hero-Button "Download Ausschreibung" verlinkt.
             </p>
           ) : null}
           {(attachmentFile || (initialData?.attachment_name && !clearAttachment)) && (

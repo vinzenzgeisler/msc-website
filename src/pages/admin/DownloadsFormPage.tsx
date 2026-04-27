@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 
 const categories = [
-  { value: 'event', label: 'Event / /old Downloads' },
+  { value: 'event', label: 'Event / /event Downloads' },
   { value: 'verein', label: 'Verein' },
   { value: 'allgemein', label: 'Allgemein' },
 ] as const;
@@ -129,7 +129,7 @@ export default function DownloadsFormPage() {
         <div>
           <h1 className="text-2xl font-bold">{isEditing ? 'Datei bearbeiten' : 'Neue Datei'}</h1>
           <p className="text-sm text-muted-foreground">
-            Dateien mit Kategorie `event` erscheinen automatisch unten auf `/old` in der Sektion Downloads.
+            Dateien mit Kategorie `event` erscheinen automatisch unten auf `/event` in der Sektion Downloads.
           </p>
         </div>
       </div>
@@ -246,7 +246,7 @@ export default function DownloadsFormPage() {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                `event` blendet das Dokument automatisch in der Download-Sektion auf `/old` ein.
+                `event` blendet das Dokument automatisch in der Download-Sektion auf `/event` ein.
               </p>
             </CardContent>
           </Card>

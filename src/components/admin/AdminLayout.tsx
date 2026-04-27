@@ -25,6 +25,7 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { AdminHealthBanner } from '@/components/admin/AdminHealthBanner';
+import { SEO } from '@/components/layout/SEO';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -168,6 +169,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Admin" noindex />
       {/* Mobile header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-background border-b z-40 flex items-center px-4">
         <Button
