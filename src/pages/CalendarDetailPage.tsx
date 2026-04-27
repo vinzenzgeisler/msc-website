@@ -20,6 +20,7 @@ import {
   MapPin,
   ChevronLeft,
 } from 'lucide-react';
+import { trackEvent } from '@/lib/analytics';
 
 function formatEventDateRange(startDt: string, endDt: string | null, locale: Locale) {
   const dateLocale = getDateFnsLocale(locale);
@@ -236,7 +237,11 @@ export default function CalendarDetailPage() {
                 {event.contact_email ? (
                   <div className="flex items-start gap-3 text-sm text-muted-foreground">
                     <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    <a href={`mailto:${event.contact_email}`} className="hover:text-primary">
+                    <a
+                      href={`mailto:${event.contact_email}`}
+                      onClick={() => trackEvent('contact_click', { category: 'engagement', label: `calendar_detail:${event.slug}` })}
+                      className="hover:text-primary"
+                    >
                       {event.contact_email}
                     </a>
                   </div>
@@ -247,7 +252,12 @@ export default function CalendarDetailPage() {
             <div className="flex flex-col gap-3">
               {event.registration_url ? (
                 <Button asChild>
-                  <a href={event.registration_url} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={event.registration_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('event_registration_click', { category: 'conversion', label: `calendar_detail:${event.slug}` })}
+                  >
                     {localize(locale as Locale, { de: 'Zur Anmeldung', cz: 'K registraci', en: 'Register', pl: 'Do rejestracji' })}
                     <ExternalLink className="ml-2 h-4 w-4" />
                   </a>

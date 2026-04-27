@@ -41,6 +41,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { parseSelectedDownloadIds } from '@/lib/download-selection';
 import { format } from 'date-fns';
 import { getDateFnsLocale, localize } from '@/i18n/locale-utils';
+import { trackEvent } from '@/lib/analytics';
 
 const iconMap = {
   bike: Bike,
@@ -302,7 +303,12 @@ export default function EventPage() {
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold" asChild>
                     {mainEvent.registration_url ? (
-                      <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
+                      <a
+                        href={mainEvent.registration_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => trackEvent('event_registration_click', { category: 'conversion', label: 'event_hero' })}
+                      >
                         <ClipboardList className="h-5 w-5" />
                         {l({ de: 'Zur Anmeldung', cz: 'Prihlasit se', en: 'Register Now', pl: 'Do rejestracji' })}
                         <ExternalLink className="h-4 w-4" />
@@ -327,6 +333,7 @@ export default function EventPage() {
                         href={registrationContent.attachment_url || registrationContent.secondary_button_url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => trackEvent('event_download', { category: 'engagement', label: 'event_page:registration_document' })}
                       >
                         <Download className="h-5 w-5" />
                         {registrationContent.secondary_button_label
@@ -415,7 +422,12 @@ export default function EventPage() {
                 )}
                 {googleMapsLink && (
                   <Button className="mt-2" asChild>
-                    <a href={googleMapsLink} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={googleMapsLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackEvent('map_click', { category: 'outbound', label: 'event_page:google_maps' })}
+                    >
                       <MapPin className="mr-2 h-4 w-4" />
                       {locationMapContent.primary_button_label
                         || l({ de: 'In Google Maps oeffnen', cz: 'Otevrit v Google Maps', en: 'Open in Google Maps', pl: 'Otworz w Google Maps' })}
@@ -503,7 +515,12 @@ export default function EventPage() {
               </p>
               {mainEvent?.registration_url ? (
                 <Button size="lg" className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold" asChild>
-                  <a href={mainEvent.registration_url} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={mainEvent.registration_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('event_registration_click', { category: 'conversion', label: 'event_registration_section' })}
+                  >
                     <ClipboardList className="h-5 w-5" />
                     {l({ de: 'Zur Anmeldung', cz: 'K registracnimu portalu', en: 'Go to Registration Portal', pl: 'Przejdz do portalu rejestracji' })}
                     <ExternalLink className="h-4 w-4" />
@@ -626,7 +643,11 @@ export default function EventPage() {
               </div>
             </details>
 
-            <Link to="/event/accommodation" className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6 transition-colors hover:border-primary">
+            <Link
+              to="/event/accommodation"
+              onClick={() => trackEvent('event_navigation_click', { category: 'navigation', label: 'event_page:accommodation' })}
+              className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6 transition-colors hover:border-primary"
+            >
               <BedDouble className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div className="min-w-0">
                 <h3 className="mb-1 text-base font-bold">{l({ de: 'Übernachtungsmöglichkeiten', cz: 'Ubytovani', en: 'Accommodation', pl: 'Noclegi' })}</h3>
@@ -648,6 +669,7 @@ export default function EventPage() {
                   href={download.file_url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackEvent('event_download', { category: 'engagement', label: `event_page:${download.title}` })}
                   className="group block"
                 >
                   <Card className="h-full transition-shadow hover:shadow-lg hover:border-primary">

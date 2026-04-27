@@ -7,6 +7,7 @@ import { ExternalLink, Building2 } from 'lucide-react';
 import { useSponsors } from '@/hooks/useSponsors';
 import { useSettings } from '@/hooks/useSettings';
 import { useContentWithFallback } from '@/hooks/usePageContent';
+import { trackEvent } from '@/lib/analytics';
 
 export default function SponsorsPage() {
   const t = useTranslation();
@@ -41,7 +42,14 @@ export default function SponsorsPage() {
         <h2 className="mb-6">{title}</h2>
         <div className={`grid gap-4 ${gridClasses[size]}`}>
           {items.map((sponsor) => (
-            <a key={sponsor.id} href={sponsor.website || '#'} target={sponsor.website ? '_blank' : undefined} rel="noopener noreferrer" className="group">
+            <a
+              key={sponsor.id}
+              href={sponsor.website || '#'}
+              target={sponsor.website ? '_blank' : undefined}
+              rel="noopener noreferrer"
+              onClick={() => sponsor.website && trackEvent('sponsor_click', { category: 'outbound', label: `sponsors_page:${sponsor.name}` })}
+              className="group"
+            >
               <Card className="transition-shadow hover:shadow-lg">
                 <CardContent className={`flex items-center justify-center ${sizeClasses[size]} p-4`}>
                   {sponsor.logo_url ? (
@@ -90,7 +98,11 @@ export default function SponsorsPage() {
         <div className="container text-center">
           <h2 className="mb-4">{cta.title}</h2>
           <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">{cta.content}</p>
-          <a href={`mailto:${settings?.sponsoring_email || settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`} className="text-primary hover:underline">
+          <a
+            href={`mailto:${settings?.sponsoring_email || settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`}
+            onClick={() => trackEvent('contact_click', { category: 'engagement', label: 'sponsoring_email' })}
+            className="text-primary hover:underline"
+          >
             {settings?.sponsoring_email || settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}
           </a>
         </div>

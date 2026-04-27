@@ -74,6 +74,11 @@ export default {
 				'system-ui',
 				'sans-serif'
 			],
+			heading: [
+				'Barlow Condensed',
+				'system-ui',
+				'sans-serif'
+			],
 			condensed: [
 				'Barlow Condensed',
 				'system-ui',

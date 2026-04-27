@@ -5,7 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ConsentProvider } from "@/contexts/ConsentContext";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
+import { CookieBanner } from "@/components/layout/CookieBanner";
+import { AnalyticsManager } from "@/components/analytics/AnalyticsManager";
 import Index from "./pages/Index";
 import EventPage from "./pages/EventPage";
 import AccommodationPage from "./pages/event/AccommodationPage";
@@ -56,13 +59,15 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
-            <Routes>
+      <ConsentProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ScrollToTop />
+              <AnalyticsManager />
+              <Routes>
               {/* Main Pages */}
               <Route path="/" element={<Index />} />
               <Route path="/event" element={<EventPage />} />
@@ -123,10 +128,12 @@ const App = () => (
               
               {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+              </Routes>
+              <CookieBanner />
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </ConsentProvider>
     </LanguageProvider>
   </QueryClientProvider>
 );

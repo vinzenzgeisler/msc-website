@@ -26,13 +26,20 @@ Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen, z.B. 
 <h2>3. Kontaktformular</h2>
 <p>Wenn Sie uns per Kontaktformular Anfragen zukommen lassen, werden Ihre Angaben aus dem Formular inklusive der von Ihnen dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage und für den Fall von Anschlussfragen bei uns gespeichert. Diese Daten geben wir nicht ohne Ihre Einwilligung weiter. Die Verarbeitung dieser Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO.</p>
 
-<h2>4. Cookies</h2>
-<p>Unsere Website verwendet technisch notwendige Cookies, die für den Betrieb der Website erforderlich sind. Eine Einwilligung ist hierfür nicht erforderlich. Darüber hinaus setzen wir keine Tracking- oder Analyse-Cookies ein.</p>
+<h2>4. Einwilligungsverwaltung</h2>
+<p>Wir speichern Ihre Auswahl zu Datenschutz- und Statistik-Einstellungen lokal in Ihrem Browser, damit wir Ihre Entscheidung bei späteren Besuchen berücksichtigen können. Diese Speicherung ist technisch erforderlich, um die gewählte Einwilligung zuverlässig umzusetzen.</p>
 
-<h2>5. Ihre Rechte</h2>
+<h2>5. Statistik mit Google Analytics</h2>
+<p>Sofern Sie ausdrücklich einwilligen, verwenden wir Google Analytics 4, einen Webanalysedienst von Google, um die Nutzung unserer Website auszuwerten. Dabei messen wir beispielsweise Seitenaufrufe sowie Interaktionen wie Kontaktanfragen, Download-Klicks, Sponsor-Klicks oder Event-Anmeldungen. Ohne Ihre Einwilligung wird Google Analytics nicht geladen.</p>
+<p>Anbieter ist Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland. Es kann nicht ausgeschlossen werden, dass Daten auch an Google LLC in den USA übermittelt werden. Weitere Informationen finden Sie in den Datenschutzhinweisen von Google.</p>
+
+<h2>6. Lokale Schriftarten</h2>
+<p>Die auf dieser Website verwendeten Schriftarten werden lokal von unserem eigenen Server geladen. Es werden keine Schriftarten von externen Drittanbietern wie Google Fonts nachgeladen.</p>
+
+<h2>7. Ihre Rechte</h2>
 <p>Sie haben jederzeit das Recht auf unentgeltliche Auskunft über Ihre gespeicherten personenbezogenen Daten, deren Herkunft und Empfänger sowie den Zweck der Datenverarbeitung und ggf. ein Recht auf Berichtigung, Sperrung oder Löschung dieser Daten. Hierzu sowie zu weiteren Fragen zum Thema personenbezogene Daten können Sie sich jederzeit an uns wenden.</p>
 
-<h2>6. Widerspruch gegen Werbe-E-Mails</h2>
+<h2>8. Widerspruch gegen Werbe-E-Mails</h2>
 <p>Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten zur Übersendung von nicht ausdrücklich angeforderter Werbung und Informationsmaterialien wird hiermit widersprochen. Die Betreiber der Seiten behalten sich ausdrücklich rechtliche Schritte im Falle der unverlangten Zusendung von Werbeinformationen vor.</p>
 `;
 

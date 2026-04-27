@@ -15,6 +15,7 @@ import { downloadIcs } from '@/lib/ics-export';
 import { toast } from 'sonner';
 import { getCalendarEventClickTarget, hasCalendarEventTime } from '@/lib/calendar-event-links';
 import { getDateFnsLocale, isEnglishLocale } from '@/i18n/locale-utils';
+import { trackEvent } from '@/lib/analytics';
 
 type ViewMode = "month" | "upcoming";
 
@@ -219,6 +220,7 @@ export default function CalendarPage() {
                     toast.error('Keine Termine zum Exportieren');
                     return;
                   }
+                  trackEvent('calendar_export', { category: 'engagement', label: activeFilter, value: filteredEvents.length });
                   downloadIcs(filteredEvents, `msc-kalender-${new Date().toISOString().slice(0, 10)}.ics`);
                   toast.success(`${filteredEvents.length} Termin(e) exportiert`);
                 }}
@@ -276,6 +278,10 @@ export default function CalendarPage() {
                           event.is_main_event ? "border-2 border-accent" : ""
                         } ${clickTarget ? "cursor-pointer" : ""}`}
                         onClick={clickTarget ? () => {
+                          trackEvent('calendar_event_click', {
+                            category: clickTarget.startsWith('http') ? 'outbound' : 'navigation',
+                            label: event.slug,
+                          });
                           if (clickTarget.startsWith('http')) {
                             window.open(clickTarget, '_blank');
                           } else {

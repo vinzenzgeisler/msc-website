@@ -7,6 +7,7 @@ import { useSponsors } from '@/hooks/useSponsors';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { localize } from '@/i18n/locale-utils';
+import { trackEvent } from '@/lib/analytics';
 
 export function SponsorsSection() {
   const t = useTranslation();
@@ -112,6 +113,7 @@ export function SponsorsSection() {
                   href={sponsor.website || '#'}
                   target={sponsor.website ? '_blank' : undefined}
                   rel="noopener noreferrer"
+                  onClick={() => sponsor.website && trackEvent('sponsor_click', { category: 'outbound', label: `home_main:${sponsor.name}` })}
                   className="group relative flex h-28 w-full items-center justify-center overflow-hidden rounded-none border-2 border-primary/20 bg-card p-4 transition-all hover:border-primary hover:shadow-lg sm:h-36 sm:p-6 lg:h-48 lg:p-10"
                 >
                   {/* Diagonal accent on hover */}
@@ -147,6 +149,7 @@ export function SponsorsSection() {
                   href={sponsor.website || '#'}
                   target={sponsor.website ? '_blank' : undefined}
                   rel="noopener noreferrer"
+                  onClick={() => sponsor.website && trackEvent('sponsor_click', { category: 'outbound', label: `home_partner:${sponsor.name}` })}
                   className="group flex h-32 items-center justify-center rounded-none border border-border bg-card px-6 transition-all hover:border-primary/50 hover:shadow-md"
                 >
                   {sponsor.logo_url ? (
@@ -179,6 +182,7 @@ export function SponsorsSection() {
                   href={sponsor.website || '#'}
                   target={sponsor.website ? '_blank' : undefined}
                   rel="noopener noreferrer"
+                  onClick={() => sponsor.website && trackEvent('sponsor_click', { category: 'outbound', label: `home_supporter:${sponsor.name}` })}
                   className="flex min-h-12 items-center justify-center rounded-none border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground hover:shadow-sm"
                 >
                   {sponsor.name}

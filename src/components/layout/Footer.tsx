@@ -2,10 +2,13 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import { useSettings } from '@/hooks/useSettings';
+import { useConsent } from '@/contexts/ConsentContext';
+import { trackEvent } from '@/lib/analytics';
 
 export function Footer() {
   const t = useTranslation();
   const { data: settings } = useSettings();
+  const { openPreferences } = useConsent();
 
   const currentYear = new Date().getFullYear();
 
@@ -38,6 +41,7 @@ export function Footer() {
                 href={settings?.facebook_url || 'https://www.facebook.com/'}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent('social_click', { category: 'outbound', label: 'footer_facebook' })}
                 className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 aria-label="Facebook"
               >
@@ -47,6 +51,7 @@ export function Footer() {
                 href={settings?.instagram_url || 'https://www.instagram.com/'}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent('social_click', { category: 'outbound', label: 'footer_instagram' })}
                 className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 aria-label="Instagram"
               >
@@ -130,6 +135,7 @@ export function Footer() {
               <li>
                 <a
                   href={`mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.eu'}`}
+                  onClick={() => trackEvent('contact_click', { category: 'engagement', label: 'footer_email' })}
                   className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <Mail className="h-4 w-4" />
@@ -152,6 +158,9 @@ export function Footer() {
             <Link to="/privacy" className="transition-colors hover:text-foreground">
               {t.nav.privacy}
             </Link>
+            <button type="button" onClick={openPreferences} className="transition-colors hover:text-foreground">
+              Cookie-Einstellungen
+            </button>
           </div>
         </div>
       </div>

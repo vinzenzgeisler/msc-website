@@ -14,6 +14,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { RichContent } from '@/components/content/RichContent';
 import { localize } from '@/i18n/locale-utils';
+import { trackEvent } from '@/lib/analytics';
 
 export default function ContactPage() {
   const t = useTranslation();
@@ -61,6 +62,10 @@ export default function ContactPage() {
     setIsSubmitting(true);
     try {
       await pb.send('/api/cms/contact', { method: 'POST', body: formData });
+      trackEvent('contact_form_submit', {
+        category: 'engagement',
+        label: 'contact_page',
+      });
       setIsSuccess(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
       toast.success(t.contact.success);
@@ -200,6 +205,7 @@ export default function ContactPage() {
                           rel="noopener noreferrer"
                           className="text-muted-foreground hover:text-primary"
                           aria-label="Facebook"
+                          onClick={() => trackEvent('social_click', { category: 'outbound', label: 'facebook_contact' })}
                         >
                           <Facebook className="h-5 w-5" />
                         </a>
@@ -211,6 +217,7 @@ export default function ContactPage() {
                           rel="noopener noreferrer"
                           className="text-muted-foreground hover:text-primary"
                           aria-label="Instagram"
+                          onClick={() => trackEvent('social_click', { category: 'outbound', label: 'instagram_contact' })}
                         >
                           <Instagram className="h-5 w-5" />
                         </a>
