@@ -316,7 +316,7 @@ export default function EventPage() {
                           || registrationContent.attachment_name
                           || l({ de: 'Download Ausschreibung', cz: 'Stahnout propozice', en: 'Download Regulations', pl: 'Pobierz regulamin' })}
                       </a>
-                    </Button>)}
+                    </Button>
                   )}
                 </div>
               </>
