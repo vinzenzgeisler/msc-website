@@ -307,7 +307,12 @@ export default function EventPage() {
                         href={mainEvent.registration_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={() => trackEvent('event_registration_click', { category: 'conversion', label: 'event_hero' })}
+                        onClick={() => trackEvent('event_registration_click', {
+                          category: 'conversion',
+                          label: 'event_hero',
+                          event_slug: mainEvent.slug,
+                          cta_position: 'hero_primary',
+                        })}
                       >
                         <ClipboardList className="h-5 w-5" />
                         {l({ de: 'Zur Anmeldung', cz: 'Prihlasit se', en: 'Register Now', pl: 'Do rejestracji' })}
@@ -333,7 +338,12 @@ export default function EventPage() {
                         href={registrationContent.attachment_url || registrationContent.secondary_button_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={() => trackEvent('event_download', { category: 'engagement', label: 'event_page:registration_document' })}
+                        onClick={() => trackEvent('event_download', {
+                          category: 'engagement',
+                          label: 'event_page:registration_document',
+                          event_slug: mainEvent?.slug,
+                          cta_position: 'hero_secondary',
+                        })}
                       >
                         <Download className="h-5 w-5" />
                         {registrationContent.secondary_button_label
@@ -426,7 +436,12 @@ export default function EventPage() {
                       href={googleMapsLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={() => trackEvent('map_click', { category: 'outbound', label: 'event_page:google_maps' })}
+                      onClick={() => trackEvent('map_click', {
+                        category: 'outbound',
+                        label: 'event_page:google_maps',
+                        event_slug: mainEvent?.slug,
+                        cta_position: 'location_map',
+                      })}
                     >
                       <MapPin className="mr-2 h-4 w-4" />
                       {locationMapContent.primary_button_label
@@ -519,7 +534,12 @@ export default function EventPage() {
                     href={mainEvent.registration_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => trackEvent('event_registration_click', { category: 'conversion', label: 'event_registration_section' })}
+                    onClick={() => trackEvent('event_registration_click', {
+                      category: 'conversion',
+                      label: 'event_registration_section',
+                      event_slug: mainEvent.slug,
+                      cta_position: 'registration_section',
+                    })}
                   >
                     <ClipboardList className="h-5 w-5" />
                     {l({ de: 'Zur Anmeldung', cz: 'K registracnimu portalu', en: 'Go to Registration Portal', pl: 'Przejdz do portalu rejestracji' })}
@@ -645,7 +665,12 @@ export default function EventPage() {
 
             <Link
               to="/event/accommodation"
-              onClick={() => trackEvent('event_navigation_click', { category: 'navigation', label: 'event_page:accommodation' })}
+              onClick={() => trackEvent('event_navigation_click', {
+                category: 'navigation',
+                label: 'event_page:accommodation',
+                event_slug: mainEvent?.slug,
+                cta_position: 'visitors_section',
+              })}
               className="accent-stripe flex gap-4 border border-border bg-card p-5 pl-6 transition-colors hover:border-primary"
             >
               <BedDouble className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
@@ -669,7 +694,12 @@ export default function EventPage() {
                   href={download.file_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => trackEvent('event_download', { category: 'engagement', label: `event_page:${download.title}` })}
+                  onClick={() => trackEvent('event_download', {
+                    category: 'engagement',
+                    label: `event_page:${download.title}`,
+                    event_slug: mainEvent?.slug,
+                    cta_position: 'downloads_grid',
+                  })}
                   className="group block"
                 >
                   <Card className="h-full transition-shadow hover:shadow-lg hover:border-primary">

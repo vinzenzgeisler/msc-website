@@ -204,7 +204,11 @@ export default function MembershipPage() {
                   href={declarationDoc.attachment_url || declarationDoc.primary_button_url || declarationDoc.image_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => trackEvent('membership_download', { category: 'conversion', label: 'application_form' })}
+                  onClick={() => trackEvent('membership_download', {
+                    category: 'conversion',
+                    label: 'application_form',
+                    cta_position: 'documents_primary',
+                  })}
                 >
                   <Download className="mr-2 h-5 w-5" />
                   {declarationDoc.title || localize(lang, { de: 'Beitrittserklaerung herunterladen', cz: 'Stahnout prihlasku', en: 'Download application form', pl: 'Pobierz deklaracje czlonkowska' })}
@@ -216,7 +220,11 @@ export default function MembershipPage() {
                   href={statuteDoc.attachment_url || statuteDoc.primary_button_url || statuteDoc.image_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => trackEvent('membership_download', { category: 'engagement', label: 'club_statutes' })}
+                  onClick={() => trackEvent('membership_download', {
+                    category: 'engagement',
+                    label: 'club_statutes',
+                    cta_position: 'documents_secondary',
+                  })}
                 >
                   <FileText className="mr-2 h-5 w-5" />
                   {statuteDoc.title || localize(lang, { de: 'Vereinssatzung', cz: 'Stanovy spolku', en: 'Club statutes', pl: 'Statut klubu' })}
@@ -260,7 +268,7 @@ export default function MembershipPage() {
             <p className="mx-auto mb-8 max-w-lg text-primary-foreground/80">{cta.content}</p>
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold" asChild>
-                <Link to="/contact" onClick={() => trackEvent('membership_cta_click', { category: 'conversion', label: 'contact' })}>
+                <Link to="/contact" onClick={() => trackEvent('membership_cta_click', { category: 'conversion', label: 'contact', cta_position: 'cta_primary' })}>
                   <Mail className="mr-2 h-5 w-5" />
                   {cta.contactLabel}
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -272,7 +280,7 @@ export default function MembershipPage() {
                 className="border-primary-foreground/35 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
                 asChild
               >
-                <Link to="/calendar" onClick={() => trackEvent('membership_cta_click', { category: 'navigation', label: 'calendar' })}>
+                <Link to="/calendar" onClick={() => trackEvent('membership_cta_click', { category: 'navigation', label: 'calendar', cta_position: 'cta_secondary' })}>
                   <Calendar className="mr-2 h-4 w-4" />
                   {cta.calendarLabel}
                 </Link>

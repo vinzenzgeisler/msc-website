@@ -113,7 +113,12 @@ export function SponsorsSection() {
                   href={sponsor.website || '#'}
                   target={sponsor.website ? '_blank' : undefined}
                   rel="noopener noreferrer"
-                  onClick={() => sponsor.website && trackEvent('sponsor_click', { category: 'outbound', label: `home_main:${sponsor.name}` })}
+                  onClick={() => sponsor.website && trackEvent('sponsor_click', {
+                    category: 'outbound',
+                    label: `home_main:${sponsor.name}`,
+                    sponsor_tier: sponsor.tier,
+                    cta_position: 'home_main_grid',
+                  })}
                   className="group relative flex h-28 w-full items-center justify-center overflow-hidden rounded-none border-2 border-primary/20 bg-card p-4 transition-all hover:border-primary hover:shadow-lg sm:h-36 sm:p-6 lg:h-48 lg:p-10"
                 >
                   {/* Diagonal accent on hover */}
@@ -149,7 +154,12 @@ export function SponsorsSection() {
                   href={sponsor.website || '#'}
                   target={sponsor.website ? '_blank' : undefined}
                   rel="noopener noreferrer"
-                  onClick={() => sponsor.website && trackEvent('sponsor_click', { category: 'outbound', label: `home_partner:${sponsor.name}` })}
+                  onClick={() => sponsor.website && trackEvent('sponsor_click', {
+                    category: 'outbound',
+                    label: `home_partner:${sponsor.name}`,
+                    sponsor_tier: sponsor.tier,
+                    cta_position: 'home_partner_grid',
+                  })}
                   className="group flex h-32 items-center justify-center rounded-none border border-border bg-card px-6 transition-all hover:border-primary/50 hover:shadow-md"
                 >
                   {sponsor.logo_url ? (
@@ -182,7 +192,12 @@ export function SponsorsSection() {
                   href={sponsor.website || '#'}
                   target={sponsor.website ? '_blank' : undefined}
                   rel="noopener noreferrer"
-                  onClick={() => sponsor.website && trackEvent('sponsor_click', { category: 'outbound', label: `home_supporter:${sponsor.name}` })}
+                  onClick={() => sponsor.website && trackEvent('sponsor_click', {
+                    category: 'outbound',
+                    label: `home_supporter:${sponsor.name}`,
+                    sponsor_tier: sponsor.tier,
+                    cta_position: 'home_supporter_grid',
+                  })}
                   className="flex min-h-12 items-center justify-center rounded-none border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground hover:shadow-sm"
                 >
                   {sponsor.name}

@@ -65,6 +65,7 @@ export default function ContactPage() {
       trackEvent('contact_form_submit', {
         category: 'engagement',
         label: 'contact_page',
+        cta_position: 'contact_form',
       });
       setIsSuccess(true);
       setFormData({ name: '', email: '', subject: '', message: '' });

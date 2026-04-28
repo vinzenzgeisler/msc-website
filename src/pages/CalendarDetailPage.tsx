@@ -239,7 +239,12 @@ export default function CalendarDetailPage() {
                     <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                     <a
                       href={`mailto:${event.contact_email}`}
-                      onClick={() => trackEvent('contact_click', { category: 'engagement', label: `calendar_detail:${event.slug}` })}
+                      onClick={() => trackEvent('contact_click', {
+                        category: 'engagement',
+                        label: `calendar_detail:${event.slug}`,
+                        event_slug: event.slug,
+                        cta_position: 'event_info',
+                      })}
                       className="hover:text-primary"
                     >
                       {event.contact_email}
@@ -256,7 +261,12 @@ export default function CalendarDetailPage() {
                     href={event.registration_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => trackEvent('event_registration_click', { category: 'conversion', label: `calendar_detail:${event.slug}` })}
+                    onClick={() => trackEvent('event_registration_click', {
+                      category: 'conversion',
+                      label: `calendar_detail:${event.slug}`,
+                      event_slug: event.slug,
+                      cta_position: 'sidebar_primary',
+                    })}
                   >
                     {localize(locale as Locale, { de: 'Zur Anmeldung', cz: 'K registraci', en: 'Register', pl: 'Do rejestracji' })}
                     <ExternalLink className="ml-2 h-4 w-4" />

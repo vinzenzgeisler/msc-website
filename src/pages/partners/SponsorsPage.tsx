@@ -47,7 +47,12 @@ export default function SponsorsPage() {
               href={sponsor.website || '#'}
               target={sponsor.website ? '_blank' : undefined}
               rel="noopener noreferrer"
-              onClick={() => sponsor.website && trackEvent('sponsor_click', { category: 'outbound', label: `sponsors_page:${sponsor.name}` })}
+              onClick={() => sponsor.website && trackEvent('sponsor_click', {
+                category: 'outbound',
+                label: `sponsors_page:${sponsor.name}`,
+                sponsor_tier: sponsor.tier,
+                cta_position: 'sponsors_grid',
+              })}
               className="group"
             >
               <Card className="transition-shadow hover:shadow-lg">
@@ -100,7 +105,7 @@ export default function SponsorsPage() {
           <p className="mx-auto mb-6 max-w-2xl text-muted-foreground">{cta.content}</p>
           <a
             href={`mailto:${settings?.sponsoring_email || settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}`}
-            onClick={() => trackEvent('contact_click', { category: 'engagement', label: 'sponsoring_email' })}
+            onClick={() => trackEvent('contact_click', { category: 'engagement', label: 'sponsoring_email', cta_position: 'sponsors_cta' })}
             className="text-primary hover:underline"
           >
             {settings?.sponsoring_email || settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.de'}
