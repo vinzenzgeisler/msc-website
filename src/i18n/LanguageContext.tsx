@@ -43,7 +43,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
   const value: LanguageContextType = {
     locale,
     setLocale,
-    t: translations[locale],
+    t: translations[locale] as typeof translations.de,
   };
 
   return (
