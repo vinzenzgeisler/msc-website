@@ -87,7 +87,7 @@ export function Header() {
           )}
           <span className="hidden whitespace-nowrap font-heading font-bold uppercase leading-none tracking-wider text-foreground 2xl:inline-block">
             <span className="hidden 2xl:inline [@media(min-width:1700px)]:hidden">
-              {settings?.site_short_name || 'MSC Dreiländereck'}
+              MSC Dreiländereck
             </span>
             <span className="hidden [@media(min-width:1700px)]:inline">
               {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}
