@@ -231,6 +231,7 @@ function MainEventForm({
         location: formData.location.trim() || null,
         contact_email: formData.contact_email.trim() || null,
         registration_url: formData.registration_url.trim() || null,
+        detail_url: null,
         is_main_event: true,
         published: formData.published,
         locale: targetLocale,
