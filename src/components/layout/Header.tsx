@@ -85,18 +85,13 @@ export function Header() {
               {(settings?.site_short_name || 'MSC').slice(0, 3)}
             </div>
           )}
-          <span className="hidden whitespace-nowrap font-heading font-bold uppercase leading-none tracking-wider text-foreground 2xl:inline-block">
-            <span className="hidden 2xl:inline [@media(min-width:1700px)]:hidden">
-              MSC Dreiländereck
-            </span>
-            <span className="hidden [@media(min-width:1700px)]:inline">
-              {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}
-            </span>
+          <span className="hidden whitespace-nowrap font-heading font-bold uppercase leading-none tracking-wider text-foreground [@media(min-width:1700px)]:inline-block">
+            {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-1 xl:ml-4 xl:mr-4 xl:flex 2xl:ml-8 2xl:mr-8">
+        <nav className="hidden items-center gap-1 xl:ml-8 xl:mr-4 xl:flex 2xl:ml-12 2xl:mr-8">
           {navItems.map((item) =>
             item.children ? (
               <DropdownMenu key={item.label}>
