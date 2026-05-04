@@ -17,7 +17,7 @@ export function getCalendarEventClickTarget(
     return manualTarget;
   }
 
-  return getCalendarEventDetailPath(event.slug);
+  return null;
 }
 
 export function hasCalendarEventTime(value?: string | null) {
