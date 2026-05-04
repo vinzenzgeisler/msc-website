@@ -73,25 +73,20 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex min-w-0 shrink items-center gap-2">
           {settings?.logo_url ? (
             <img
               src={settings.logo_url}
               alt={settings.logo_alt || settings.site_short_name || settings.site_name || 'Logo'}
-              className="h-12 w-12 object-contain"
+              className="h-12 w-12 shrink-0 object-contain"
             />
           ) : (
-            <div className="flex h-12 w-12 items-center justify-center bg-primary text-primary-foreground font-bold text-lg">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-primary text-primary-foreground font-bold text-lg">
               {(settings?.site_short_name || 'MSC').slice(0, 3)}
             </div>
           )}
-          <span className="hidden whitespace-nowrap font-heading font-bold uppercase leading-none tracking-wider text-foreground xl:inline-block">
-            <span className="2xl:hidden">
-              {settings?.site_short_name || 'MSC Oberlausitzer Dreiländereck'}
-            </span>
-            <span className="hidden 2xl:inline">
-              {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}
-            </span>
+          <span className="hidden min-w-0 truncate font-heading font-bold uppercase leading-none tracking-wider text-foreground 2xl:inline-block">
+            {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}
           </span>
         </Link>
 
