@@ -96,7 +96,7 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-1 xl:ml-4 xl:mr-4 xl:flex 2xl:ml-8 2xl:mr-8">
+        <nav className="hidden items-center gap-1 xl:ml-8 xl:mr-8 xl:flex 2xl:ml-12 2xl:mr-12">
           {navItems.map((item) =>
             item.children ? (
               <DropdownMenu key={item.label}>
