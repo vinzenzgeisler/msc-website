@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { buildSlug } from '@/integrations/pocketbase/client';
 import { LocaleTranslationBox, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
 import { getCalendarEventDetailPath, hasCalendarEventTime } from '@/lib/calendar-event-links';
 
@@ -705,19 +706,16 @@ export default function CalendarFormPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="detail-page-content">Zusätzlicher Seiteninhalt</Label>
-                <Textarea
-                  id="detail-page-content"
-                  value={detailPageContent}
-                  onChange={(e) => {
-                    setDetailPageContent(e.target.value);
+                <RichTextEditor
+                  content={detailPageContent}
+                  onChange={(html) => {
+                    setDetailPageContent(html);
                     setIsDirty(true);
                   }}
                   placeholder="Zusätzliche Informationen, Ablauf, Hinweise oder Textblöcke für diese Termin-Unterseite..."
-                  rows={10}
-                  className="font-mono text-sm"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Markdown/HTML ist erlaubt. Dieser Inhalt wird zusammen mit dem Termin automatisch nach EN/CZ/PL übersetzt.
+                  Markdown/HTML ist erlaubt. Bilder können hochgeladen, aus den Medien gewählt oder als HTML-img-Tag eingefügt werden. Dieser Inhalt wird zusammen mit dem Termin automatisch nach EN/CZ/PL übersetzt.
                 </p>
               </div>
             </CardContent>

@@ -332,7 +332,7 @@ Archiv aller bisherigen Oberlausitzer Dreieck Veranstaltungen. Jeder Eintrag kan
 | PB-Feld | Typ | Beschreibung |
 |---|---|---|
 | `event` | relation | → `calendarEvents.id` |
-| `section` | select | `track`, `visitors_arrival`, `visitors_admission`, `visitors_paddock`, `registration` |
+| `section` | select | `track`, `visitors_arrival`, `visitors_admission`, `visitors_paddock`, `registration`, `detail_content` |
 | `title` | text | Titel |
 | `content` | text | Inhalt |
 | `sortOrder` | number | Sortierung |
@@ -350,6 +350,8 @@ Archiv aller bisherigen Oberlausitzer Dreieck Veranstaltungen. Jeder Eintrag kan
 | `locale` | text | `de`/`en`/`cz` |
 
 **Frontend-Nutzung:** `useEventContent(eventId)` → Event-Seite (Zeitplan, Klassen, Besucher)
+
+`detail_content` wird für den zusätzlichen Inhalt auf internen Kalendertermin-Unterseiten verwendet. Dieser Select-Wert muss in PocketBase in der Collection `eventInfos` vorhanden sein, sonst schlägt das Speichern im Kalenderformular mit `Invalid value detail_content` fehl.
 
 ---
 

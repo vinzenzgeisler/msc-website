@@ -103,6 +103,8 @@ export default function CalendarDetailPage() {
   }
 
   const formattedDate = formatEventDateRange(event.start_dt, event.end_dt, locale as Locale);
+  const pageTitle = detailContent?.title || event.title;
+  const headerSubtitle = event.description ? `${formattedDate} · ${event.description}` : formattedDate;
   const categoryLabel = event.category
     ? t.calendar.filter[event.category as keyof typeof t.calendar.filter] || event.category
     : null;
@@ -130,14 +132,14 @@ export default function CalendarDetailPage() {
 
   return (
     <MainLayout
-      title={event.title}
+      title={pageTitle}
       description={event.description || undefined}
       canonicalPath={internalDetailPath}
       structuredData={eventStructuredData}
     >
       <PageHeader
-        title={detailContent?.title || event.title}
-        subtitle={formattedDate}
+        title={pageTitle}
+        subtitle={headerSubtitle}
       />
 
       <section className="py-10">
@@ -154,23 +156,13 @@ export default function CalendarDetailPage() {
       <section className="pb-16">
         <div className="container grid gap-8 lg:grid-cols-[1fr_320px]">
           <div className="space-y-8">
-            {event.description ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle>{event.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">{event.description}</p>
-                </CardContent>
-              </Card>
-            ) : null}
-
             {detailContent?.content ? (
-              <Card>
-                <CardContent className="p-6">
-                  <RichContent content={detailContent.content} className="text-muted-foreground" />
-                </CardContent>
-              </Card>
+              <article className="max-w-3xl">
+                <RichContent
+                  content={detailContent.content}
+                  className="prose-lg prose-headings:tracking-tight prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:text-muted-foreground prose-li:text-muted-foreground"
+                />
+              </article>
             ) : null}
 
             {infoBlocks.length > 0 ? (
