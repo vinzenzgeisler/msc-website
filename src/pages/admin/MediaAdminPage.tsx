@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Plus, Search, FolderOpen, Image, Upload, Trash2, MoreHorizontal,
   Grid, List, Loader2, ArrowLeft, Save, Link as LinkIcon, FileText,
@@ -27,6 +28,32 @@ import {
 import type { MediaAlbum, MediaFile } from '@/integrations/pocketbase/client';
 import { toast } from 'sonner';
 import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
+import { getSafeTimestamp } from '@/lib/date';
+
+type MediaSortMode = 'created_desc' | 'created_asc' | 'name_asc' | 'name_desc' | 'type_asc';
+
+function sortMediaFiles(files: MediaFile[], sortMode: MediaSortMode) {
+  return [...files].sort((a, b) => {
+    if (sortMode === 'created_asc') {
+      return getSafeTimestamp(a.created_at) - getSafeTimestamp(b.created_at);
+    }
+
+    if (sortMode === 'name_asc') {
+      return a.file_name.localeCompare(b.file_name, 'de', { sensitivity: 'base' });
+    }
+
+    if (sortMode === 'name_desc') {
+      return b.file_name.localeCompare(a.file_name, 'de', { sensitivity: 'base' });
+    }
+
+    if (sortMode === 'type_asc') {
+      const typeCompare = String(a.file_type || '').localeCompare(String(b.file_type || ''), 'de', { sensitivity: 'base' });
+      return typeCompare || a.file_name.localeCompare(b.file_name, 'de', { sensitivity: 'base' });
+    }
+
+    return getSafeTimestamp(b.created_at) - getSafeTimestamp(a.created_at);
+  });
+}
 
 export default function MediaAdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,6 +65,7 @@ export default function MediaAdminPage() {
   const [newAlbumTitle, setNewAlbumTitle] = useState('');
   const [newAlbumSlug, setNewAlbumSlug] = useState('');
   const [newAlbumDescription, setNewAlbumDescription] = useState('');
+  const [fileSortMode, setFileSortMode] = useState<MediaSortMode>('created_desc');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const albumFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -145,9 +173,12 @@ export default function MediaAdminPage() {
     a.title.toLowerCase().includes(searchQuery.toLowerCase()),
   ) || [];
 
-  const filteredFiles = files?.filter((f) =>
-    f.file_name.toLowerCase().includes(searchQuery.toLowerCase()),
-  ) || [];
+  const filteredFiles = sortMediaFiles(
+    files?.filter((f) =>
+      f.file_name.toLowerCase().includes(searchQuery.toLowerCase()),
+    ) || [],
+    fileSortMode,
+  );
 
   // ── Album Detail View ──
   if (selectedAlbumId && selectedAlbum) {
@@ -423,8 +454,27 @@ export default function MediaAdminPage() {
         <TabsContent value="all">
           <Card>
             <CardHeader>
-              <CardTitle>Alle Dateien</CardTitle>
-              <CardDescription>Alle hochgeladenen Medien</CardDescription>
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <CardTitle>Alle Dateien</CardTitle>
+                  <CardDescription>Alle hochgeladenen Medien, standardmäßig neueste zuerst</CardDescription>
+                </div>
+                <div className="w-full md:w-56">
+                  <Label className="sr-only" htmlFor="media-sort">Sortierung</Label>
+                  <Select value={fileSortMode} onValueChange={(value) => setFileSortMode(value as MediaSortMode)}>
+                    <SelectTrigger id="media-sort">
+                      <SelectValue placeholder="Sortierung" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="created_desc">Neueste zuerst</SelectItem>
+                      <SelectItem value="created_asc">Älteste zuerst</SelectItem>
+                      <SelectItem value="name_asc">Name A-Z</SelectItem>
+                      <SelectItem value="name_desc">Name Z-A</SelectItem>
+                      <SelectItem value="type_asc">Dateityp</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               {filesLoading ? (
