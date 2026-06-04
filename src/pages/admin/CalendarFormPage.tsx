@@ -200,20 +200,23 @@ export default function CalendarFormPage() {
       ) => {
         const sourceTitle = detailPageTitle.trim();
         const sourceContent = detailPageContent.trim();
+        const sourceEventTitle = formData.title.trim();
+        const sourceDetailTitle = sourceTitle || sourceEventTitle;
+        const hasDetailContent = detailPageEnabled && Boolean(sourceTitle || sourceContent);
 
         if (targetLocale === 'de') {
           await upsertEventInfo.mutateAsync({
             event: eventId,
             section: 'detail_content',
             locale: 'de',
-            title: detailPageEnabled ? sourceTitle || null : null,
-            content: detailPageEnabled ? sourceContent || null : null,
+            title: hasDetailContent ? sourceDetailTitle : null,
+            content: hasDetailContent ? sourceContent || null : null,
             sort_order: 0,
           });
           return detailPageEnabled;
         }
 
-        if (!detailPageEnabled || (!sourceTitle && !sourceContent)) {
+        if (!hasDetailContent) {
           await upsertEventInfo.mutateAsync({
             event: eventId,
             section: 'detail_content',
@@ -230,7 +233,7 @@ export default function CalendarFormPage() {
           targetLocale,
           context: 'Termin-Unterseite für die Vereinswebsite',
           fields: {
-            title: sourceTitle,
+            title: sourceDetailTitle,
             content: sourceContent,
           },
         });
@@ -242,7 +245,7 @@ export default function CalendarFormPage() {
           event: eventId,
           section: 'detail_content',
           locale: targetLocale,
-          title: translatedTitle || sourceTitle || null,
+          title: translatedTitle || sourceDetailTitle,
           content: translatedContent || sourceContent || null,
           sort_order: 0,
         });
@@ -416,13 +419,14 @@ export default function CalendarFormPage() {
 
       const subpageTitle = detailPageTitle.trim();
       const subpageContent = detailPageContent.trim();
+      const subpageFallbackTitle = subpageTitle || payload.title;
       if (detailPageEnabled && (subpageTitle || subpageContent)) {
         const translatedDetail = await translate.mutateAsync({
           sourceLocale: 'de',
           targetLocale,
           context: 'Termin-Unterseite für die Vereinswebsite',
           fields: {
-            title: subpageTitle,
+            title: subpageFallbackTitle,
             content: subpageContent,
           },
         });
@@ -431,7 +435,7 @@ export default function CalendarFormPage() {
           event: savedTranslation.id,
           section: 'detail_content',
           locale: targetLocale,
-          title: String(translatedDetail.title || '').trim() || subpageTitle || null,
+          title: String(translatedDetail.title || '').trim() || subpageFallbackTitle,
           content: String(translatedDetail.content || '').trim() || subpageContent || null,
           sort_order: 0,
         });
