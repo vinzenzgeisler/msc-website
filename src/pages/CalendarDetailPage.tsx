@@ -155,7 +155,7 @@ export default function CalendarDetailPage() {
 
       <section className="pb-16">
         <div className="container grid gap-8 lg:grid-cols-[1fr_320px]">
-          <div className="space-y-8">
+          <div className="order-2 space-y-8 lg:order-1">
             {detailContent?.content ? (
               <article className="max-w-3xl">
                 <RichContent
@@ -204,7 +204,7 @@ export default function CalendarDetailPage() {
             ) : null}
           </div>
 
-          <div className="space-y-6">
+          <div className="order-1 space-y-6 lg:order-2">
             <Card>
               <CardHeader>
                 <CardTitle>{localize(locale as Locale, { de: 'Termininfos', cz: 'Informace o terminu', en: 'Event info', pl: 'Informacje o terminie' })}</CardTitle>
