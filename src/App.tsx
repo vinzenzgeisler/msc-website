@@ -9,6 +9,7 @@ import { ConsentProvider } from "@/contexts/ConsentContext";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { CookieBanner } from "@/components/layout/CookieBanner";
 import { AnalyticsManager } from "@/components/analytics/AnalyticsManager";
+import { Analytics } from "@vercel/analytics/react";
 import Index from "./pages/Index";
 import EventPage from "./pages/EventPage";
 import AccommodationPage from "./pages/event/AccommodationPage";
@@ -67,6 +68,7 @@ const App = () => (
             <BrowserRouter>
               <ScrollToTop />
               <AnalyticsManager />
+              <Analytics />
               <Routes>
               {/* Main Pages */}
               <Route path="/" element={<Index />} />
