@@ -34,6 +34,7 @@ import {
 import { useMainEvent } from '@/hooks/useMainEvent';
 import { useEventContent } from '@/hooks/useEventContent';
 import { useDownloads } from '@/hooks/useDownloads';
+import { useSponsors } from '@/hooks/useSponsors';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useMediaAlbums, useMediaFiles } from '@/hooks/useMedia';
 import { useContentWithFallback, useSectionContent } from '@/hooks/usePageContent';
@@ -42,6 +43,7 @@ import { parseSelectedDownloadIds } from '@/lib/download-selection';
 import { format } from 'date-fns';
 import { getDateFnsLocale, localize } from '@/i18n/locale-utils';
 import { trackEvent } from '@/lib/analytics';
+import { MainSponsorCarousel } from '@/components/sponsors/SponsorDisplays';
 
 const iconMap = {
   bike: Bike,
@@ -57,6 +59,7 @@ export default function EventPage() {
   const { data: allEvents } = useCalendarEvents(false);
   const { data: eventContent } = useEventContent(mainEvent?.id);
   const { data: downloads } = useDownloads();
+  const { data: sponsors } = useSponsors();
   const { data: selectedDownloadsContent } = useSectionContent('event', 'downloads');
   const { data: albums } = useMediaAlbums();
   const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
@@ -238,6 +241,7 @@ export default function EventPage() {
   const eventDownloads = selectedEventDownloads.length > 0
     ? selectedEventDownloads
     : (downloads || []).filter((item) => item.category === 'event');
+  const mainSponsors = (sponsors || []).filter((sponsor) => sponsor.active && sponsor.tier === 'main');
 
   const mapEmbedUrl = locationMapContent.content || null;
   const googleMapsLink = locationMapContent.primary_button_url
@@ -369,6 +373,24 @@ export default function EventPage() {
             )}
           </div>
         </section>
+
+        {mainSponsors.length > 0 && (
+          <section className="border-b border-border bg-background py-10">
+            <div className="container">
+              <MainSponsorCarousel
+                sponsors={mainSponsors}
+                title={l({ de: 'Hauptsponsoren', cz: 'Hlavni sponzori', en: 'Main sponsors', pl: 'Glowni sponsorzy' })}
+                subtitle={l({
+                  de: 'Partner, die das Oberlausitzer Dreieck besonders unterstuetzen.',
+                  cz: 'Partneri, kteri vyrazne podporuji Oberlausitzer Dreieck.',
+                  en: 'Partners providing special support for the Oberlausitz Triangle.',
+                  pl: 'Partnerzy szczegolnie wspierajacy Oberlausitzer Dreieck.',
+                })}
+                ctaPosition="event_main_sponsor_carousel"
+              />
+            </div>
+          </section>
+        )}
 
         {/* Navigation bar */}
         <section className="border-b border-border bg-muted/50 py-4">
