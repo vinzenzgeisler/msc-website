@@ -1,6 +1,7 @@
-import PocketBase, { RecordModel } from 'pocketbase';
+import PocketBase, { RecordModel } from "pocketbase";
 
-const pocketbaseUrl = import.meta.env.VITE_POCKETBASE_URL || 'https://backend.msc-oberlausitz.de';
+const pocketbaseUrl =
+  import.meta.env.VITE_POCKETBASE_URL || "https://backend.msc-oberlausitz.de";
 
 export const pb = new PocketBase(pocketbaseUrl);
 pb.autoCancellation(false);
@@ -10,34 +11,38 @@ export async function ensureCmsSession() {
   const record = pb.authStore.record;
 
   if (!token || !record) {
-    throw new Error('CMS-Sitzung fehlt. Bitte erneut anmelden.');
+    throw new Error("CMS-Sitzung fehlt. Bitte erneut anmelden.");
   }
 
   try {
-    const authData = await pb.collection('cms_users').authRefresh();
+    const authData = await pb.collection("cms_users").authRefresh();
 
     if (authData?.token && authData?.record) {
       pb.authStore.save(authData.token, authData.record);
     }
 
-    const role = String(authData?.record?.role || '');
-    if (role !== 'super_admin' && role !== 'admin' && role !== 'editor') {
+    const role = String(authData?.record?.role || "");
+    if (role !== "super_admin" && role !== "admin" && role !== "editor") {
       pb.authStore.clear();
-      throw new Error('Keine Berechtigung für den Admin-Bereich.');
+      throw new Error("Keine Berechtigung für den Admin-Bereich.");
     }
   } catch {
     pb.authStore.clear();
-    throw new Error('CMS-Sitzung abgelaufen. Bitte erneut anmelden.');
+    throw new Error("CMS-Sitzung abgelaufen. Bitte erneut anmelden.");
   }
 }
 
-export async function listAllRecords<T = RecordModel>(collectionName: string): Promise<T[]> {
+export async function listAllRecords<T = RecordModel>(
+  collectionName: string,
+): Promise<T[]> {
   const perPage = 200;
   let page = 1;
   let items: T[] = [];
 
   while (true) {
-    const result = await pb.collection(collectionName).getList<T>(page, perPage);
+    const result = await pb
+      .collection(collectionName)
+      .getList<T>(page, perPage);
     items = items.concat(result.items);
 
     if (page >= result.totalPages || result.items.length === 0) {
@@ -50,7 +55,7 @@ export async function listAllRecords<T = RecordModel>(collectionName: string): P
   return items;
 }
 
-export type UserRole = 'super_admin' | 'admin' | 'editor';
+export type UserRole = "super_admin" | "admin" | "editor";
 
 export interface Profile {
   user_id: string;
@@ -70,7 +75,7 @@ export interface Post {
   excerpt: string | null;
   category: string | null;
   image_url: string | null;
-  status: 'draft' | 'published';
+  status: "draft" | "published";
   author_id: string | null;
   published_at: string | null;
   display_date: string | null;
@@ -95,6 +100,15 @@ export interface CalendarEvent {
   registration_url: string | null;
   detail_url: string | null;
   published: boolean;
+  phase_override?: "auto" | "pre" | "live" | "post";
+  live_start_dt?: string | null;
+  day_ticket_price?: number | null;
+  weekend_ticket_price?: number | null;
+  children_free_under?: number | null;
+  parking_free?: boolean;
+  show_drivers?: boolean;
+  show_voting?: boolean;
+  event_page_mode?: "classic" | "hub";
   created_at: string;
   updated_at: string;
 }
@@ -104,7 +118,7 @@ export interface Sponsor {
   name: string;
   logo_url: string | null;
   website: string | null;
-  tier: 'main' | 'partner' | 'supporter';
+  tier: "main" | "partner" | "supporter";
   active: boolean;
   sort_order: number;
   created_at: string;
@@ -132,6 +146,7 @@ export interface Download {
   file_type: string | null;
   file_size: number | null;
   category: string | null;
+  audience: "participant" | "press" | "visitor" | "general";
   created_at: string;
 }
 
@@ -162,6 +177,10 @@ export interface EventScheduleEntry {
   time: string;
   title: string;
   category?: string;
+  start_dt?: string | null;
+  end_dt?: string | null;
+  subtitle?: string | null;
+  entry_type?: "program" | "pause" | "highlight";
 }
 
 export interface EventSchedule {
@@ -171,6 +190,8 @@ export interface EventSchedule {
   day_number: number;
   entries: EventScheduleEntry[];
   locale: string;
+  date: string | null;
+  after_program_note: string | null;
 }
 
 export interface StructuredEventScheduleEntry {
@@ -179,6 +200,23 @@ export interface StructuredEventScheduleEntry {
   schedule_day: string;
   time_label: string;
   title: string;
+  sort_order: number;
+  locale: string;
+  start_dt: string | null;
+  end_dt: string | null;
+  subtitle: string | null;
+  entry_type: "program" | "pause" | "highlight";
+}
+
+export interface EventLiveNotice {
+  id: string;
+  event: string;
+  title: string;
+  message: string | null;
+  severity: "info" | "important" | "warning";
+  starts_at: string | null;
+  ends_at: string | null;
+  active: boolean;
   sort_order: number;
   locale: string;
 }
@@ -198,7 +236,7 @@ export interface ParticipantClass {
   event: string;
   name: string;
   description: string | null;
-  icon: 'bike' | 'car' | 'users';
+  icon: "bike" | "car" | "users";
   sort_order: number;
   locale: string;
 }
@@ -222,7 +260,7 @@ export function mapEventArchiveRecord(record: RecordModel): EventArchive {
     description: record.description || null,
     album_id: record.albumId || null,
     sort_order: Number(record.sortOrder || 0),
-    locale: record.locale || 'de',
+    locale: record.locale || "de",
     created_at: record.created,
   };
 }
@@ -256,7 +294,7 @@ export interface MembershipStep {
 
 export interface DisciplineHighlight {
   id: string;
-  discipline_key: 'motocross' | 'trial' | 'touring';
+  discipline_key: "motocross" | "trial" | "touring";
   title: string;
   description: string | null;
   icon: string;
@@ -294,17 +332,21 @@ export interface SiteSettings {
 export function buildSlug(value: string): string {
   return value
     .toLowerCase()
-    .replace(/ä/g, 'ae')
-    .replace(/ö/g, 'oe')
-    .replace(/ü/g, 'ue')
-    .replace(/ß/g, 'ss')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replace(/ä/g, "ae")
+    .replace(/ö/g, "oe")
+    .replace(/ü/g, "ue")
+    .replace(/ß/g, "ss")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
-export function getFileUrl(record: RecordModel, fieldName: string, fileName?: string | null) {
+export function getFileUrl(
+  record: RecordModel,
+  fieldName: string,
+  fileName?: string | null,
+) {
   const candidate = fileName ?? record[fieldName];
-  if (!candidate || typeof candidate !== 'string') return null;
+  if (!candidate || typeof candidate !== "string") return null;
   return pb.files.getURL(record, candidate);
 }
 
@@ -321,8 +363,10 @@ export function mapProfileRecord(record: RecordModel): Profile {
 }
 
 export function mapPostRecord(record: RecordModel): Post {
-  const createdAt = record.created || record.createdAt || record.created_at || null;
-  const updatedAt = record.updated || record.updatedAt || record.updated_at || null;
+  const createdAt =
+    record.created || record.createdAt || record.created_at || null;
+  const updatedAt =
+    record.updated || record.updatedAt || record.updated_at || null;
   const publishedAt = record.publishedAt || record.published_at || null;
   const displayDate = publishedAt || createdAt || updatedAt || null;
 
@@ -333,8 +377,8 @@ export function mapPostRecord(record: RecordModel): Post {
     content: record.content || null,
     excerpt: record.excerpt || null,
     category: record.category || null,
-    image_url: getFileUrl(record, 'image'),
-    status: record.published ? 'published' : 'draft',
+    image_url: getFileUrl(record, "image"),
+    status: record.published ? "published" : "draft",
     author_id: null,
     published_at: publishedAt,
     display_date: displayDate,
@@ -361,6 +405,26 @@ export function mapCalendarEventRecord(record: RecordModel): CalendarEvent {
     registration_url: record.registrationUrl || null,
     detail_url: record.detailUrl || null,
     published: Boolean(record.published),
+    phase_override: record.phaseOverride || "auto",
+    live_start_dt: record.liveStartDt || null,
+    day_ticket_price:
+      record.dayTicketPrice === null || record.dayTicketPrice === undefined
+        ? null
+        : Number(record.dayTicketPrice),
+    weekend_ticket_price:
+      record.weekendTicketPrice === null ||
+      record.weekendTicketPrice === undefined
+        ? null
+        : Number(record.weekendTicketPrice),
+    children_free_under:
+      record.childrenFreeUnder === null ||
+      record.childrenFreeUnder === undefined
+        ? null
+        : Number(record.childrenFreeUnder),
+    parking_free: record.parkingFree !== false,
+    show_drivers: record.showDrivers !== false,
+    show_voting: record.showVoting !== false,
+    event_page_mode: record.eventPageMode || "hub",
     created_at: record.created,
     updated_at: record.updated,
   };
@@ -370,7 +434,7 @@ export function mapSponsorRecord(record: RecordModel): Sponsor {
   return {
     id: record.id,
     name: record.name,
-    logo_url: getFileUrl(record, 'logo'),
+    logo_url: getFileUrl(record, "logo"),
     website: record.website || null,
     tier: record.tier,
     active: Boolean(record.active),
@@ -386,10 +450,10 @@ export function mapPartnerClubRecord(record: RecordModel): PartnerClub {
     description: record.description || null,
     location: record.location || null,
     website: record.website || null,
-    logo_url: getFileUrl(record, 'logo'),
+    logo_url: getFileUrl(record, "logo"),
     active: Boolean(record.active),
     sort_order: Number(record.sortOrder || 0),
-    locale: record.locale || 'de',
+    locale: record.locale || "de",
     created_at: record.created,
   };
 }
@@ -401,11 +465,15 @@ export function mapDownloadRecord(record: RecordModel): Download {
     id: record.id,
     title: record.title,
     description: record.description || null,
-    file_url: getFileUrl(record, 'file') || '',
+    file_url: getFileUrl(record, "file") || "",
     file_name: fileName,
-    file_type: typeof fileName === 'string' && fileName.includes('.') ? fileName.split('.').pop() || null : null,
+    file_type:
+      typeof fileName === "string" && fileName.includes(".")
+        ? fileName.split(".").pop() || null
+        : null,
     file_size: null,
     category: record.category || null,
+    audience: record.audience || "general",
     created_at: record.created,
   };
 }
@@ -416,9 +484,9 @@ export function mapMediaAlbumRecord(record: RecordModel): MediaAlbum {
     title: record.title,
     slug: record.slug,
     description: record.description || null,
-    cover_image_url: getFileUrl(record, 'coverImage'),
+    cover_image_url: getFileUrl(record, "coverImage"),
     images: Array.isArray(record.images) ? record.images : [],
-    locale: record.locale || 'de',
+    locale: record.locale || "de",
     created_at: record.created,
   };
 }
@@ -431,7 +499,9 @@ export function flattenMediaFiles(record: RecordModel): MediaFile[] {
     album_id: record.id,
     file_url: pb.files.getURL(record, fileName),
     file_name: fileName,
-    file_type: fileName.includes('.') ? fileName.split('.').pop() || null : null,
+    file_type: fileName.includes(".")
+      ? fileName.split(".").pop() || null
+      : null,
     file_size: null,
     alt_text: record.title || null,
     created_at: record.created,
@@ -446,10 +516,14 @@ export function mapEventScheduleRecord(record: RecordModel): EventSchedule {
     day_number: Number(record.dayNumber || 0),
     entries: Array.isArray(record.entries) ? record.entries : [],
     locale: record.locale,
+    date: record.date || null,
+    after_program_note: record.afterProgramNote || null,
   };
 }
 
-export function mapStructuredEventScheduleEntryRecord(record: RecordModel): StructuredEventScheduleEntry {
+export function mapStructuredEventScheduleEntryRecord(
+  record: RecordModel,
+): StructuredEventScheduleEntry {
   return {
     id: record.id,
     event: record.event,
@@ -457,7 +531,26 @@ export function mapStructuredEventScheduleEntryRecord(record: RecordModel): Stru
     time_label: record.timeLabel,
     title: record.title,
     sort_order: Number(record.sortOrder || 0),
-    locale: record.locale || 'de',
+    locale: record.locale || "de",
+    start_dt: record.startDt || null,
+    end_dt: record.endDt || null,
+    subtitle: record.subtitle || null,
+    entry_type: record.entryType || "program",
+  };
+}
+
+export function mapEventLiveNoticeRecord(record: RecordModel): EventLiveNotice {
+  return {
+    id: record.id,
+    event: record.event,
+    title: record.title,
+    message: record.message || null,
+    severity: record.severity || "info",
+    starts_at: record.startsAt || null,
+    ends_at: record.endsAt || null,
+    active: record.active !== false,
+    sort_order: Number(record.sortOrder || 0),
+    locale: record.locale || "de",
   };
 }
 
@@ -473,7 +566,9 @@ export function mapEventInfoRecord(record: RecordModel): EventInfo {
   };
 }
 
-export function mapParticipantClassRecord(record: RecordModel): ParticipantClass {
+export function mapParticipantClassRecord(
+  record: RecordModel,
+): ParticipantClass {
   return {
     id: record.id,
     event: record.event,
@@ -485,26 +580,30 @@ export function mapParticipantClassRecord(record: RecordModel): ParticipantClass
   };
 }
 
-export function mapHistoryTimelineEntryRecord(record: RecordModel): HistoryTimelineEntry {
+export function mapHistoryTimelineEntryRecord(
+  record: RecordModel,
+): HistoryTimelineEntry {
   return {
     id: record.id,
     year_label: record.yearLabel,
     title: record.title,
     description: record.description || null,
-    image_url: getFileUrl(record, 'image'),
+    image_url: getFileUrl(record, "image"),
     sort_order: Number(record.sortOrder || 0),
-    locale: record.locale || 'de',
+    locale: record.locale || "de",
   };
 }
 
-export function mapMembershipBenefitRecord(record: RecordModel): MembershipBenefit {
+export function mapMembershipBenefitRecord(
+  record: RecordModel,
+): MembershipBenefit {
   return {
     id: record.id,
     title: record.title,
     description: record.description || null,
     icon: record.icon,
     sort_order: Number(record.sortOrder || 0),
-    locale: record.locale || 'de',
+    locale: record.locale || "de",
   };
 }
 
@@ -514,11 +613,13 @@ export function mapMembershipStepRecord(record: RecordModel): MembershipStep {
     title: record.title,
     description: record.description || null,
     sort_order: Number(record.sortOrder || 0),
-    locale: record.locale || 'de',
+    locale: record.locale || "de",
   };
 }
 
-export function mapDisciplineHighlightRecord(record: RecordModel): DisciplineHighlight {
+export function mapDisciplineHighlightRecord(
+  record: RecordModel,
+): DisciplineHighlight {
   return {
     id: record.id,
     discipline_key: record.disciplineKey,
@@ -526,35 +627,40 @@ export function mapDisciplineHighlightRecord(record: RecordModel): DisciplineHig
     description: record.description || null,
     icon: record.icon,
     sort_order: Number(record.sortOrder || 0),
-    locale: record.locale || 'de',
+    locale: record.locale || "de",
   };
 }
 
 export function mapSiteSettingsRecord(record: RecordModel): SiteSettings {
   return {
     id: record.id,
-    site_name: record.siteName || '',
-    site_short_name: record.siteShortName || '',
-    description: record.description || '',
-    contact_email: record.contactEmail || '',
-    contact_phone: record.contactPhone || '',
-    address: record.address || '',
-    facebook_url: record.facebookUrl || '',
-    instagram_url: record.instagramUrl || '',
-    contact_map_embed_url: record.contactMapEmbedUrl || '',
-    contact_map_link: record.contactMapLink || '',
-    contact_map_label: record.contactMapLabel || '',
-    sponsoring_email: record.sponsoringEmail || '',
-    meta_title: record.metaTitle || '',
-    meta_description: record.metaDescription || '',
-    logo_url: getFileUrl(record, 'logo'),
-    logo_alt: record.logoAlt || '',
-    default_og_image_url: getFileUrl(record, 'defaultOgImage'),
-    founding_year: typeof record.foundingYear === 'number' ? record.foundingYear : record.foundingYear ? Number(record.foundingYear) : null,
-    member_count: record.memberCount || '',
-    section_count: record.sectionCount || '',
-    member_count_label: record.memberCountLabel || '',
-    tradition_years_label: record.traditionYearsLabel || '',
-    section_count_label: record.sectionCountLabel || '',
+    site_name: record.siteName || "",
+    site_short_name: record.siteShortName || "",
+    description: record.description || "",
+    contact_email: record.contactEmail || "",
+    contact_phone: record.contactPhone || "",
+    address: record.address || "",
+    facebook_url: record.facebookUrl || "",
+    instagram_url: record.instagramUrl || "",
+    contact_map_embed_url: record.contactMapEmbedUrl || "",
+    contact_map_link: record.contactMapLink || "",
+    contact_map_label: record.contactMapLabel || "",
+    sponsoring_email: record.sponsoringEmail || "",
+    meta_title: record.metaTitle || "",
+    meta_description: record.metaDescription || "",
+    logo_url: getFileUrl(record, "logo"),
+    logo_alt: record.logoAlt || "",
+    default_og_image_url: getFileUrl(record, "defaultOgImage"),
+    founding_year:
+      typeof record.foundingYear === "number"
+        ? record.foundingYear
+        : record.foundingYear
+          ? Number(record.foundingYear)
+          : null,
+    member_count: record.memberCount || "",
+    section_count: record.sectionCount || "",
+    member_count_label: record.memberCountLabel || "",
+    tradition_years_label: record.traditionYearsLabel || "",
+    section_count_label: record.sectionCountLabel || "",
   };
 }

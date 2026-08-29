@@ -1,12 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Eye,
   Star,
@@ -22,22 +28,31 @@ import {
   FileText,
   Images,
   Archive,
-} from 'lucide-react';
-import { useCalendarEvents, useCreateCalendarEvent, useUpdateCalendarEvent } from '@/hooks/useCalendarEvents';
-import { useCmsTranslation } from '@/hooks/useCmsTranslation';
-import { LocaleTranslationBox, TranslationTarget } from '@/components/admin/LocaleTranslationBox';
-import type { CalendarEvent } from '@/integrations/pocketbase/client';
-import { buildSlug } from '@/integrations/pocketbase/client';
-import { de } from 'date-fns/locale';
-import { format } from 'date-fns';
-import { toast } from 'sonner';
-import { getPocketBaseErrorMessage } from '@/lib/pocketbase-errors';
-import { formatDateSafe } from '@/lib/date';
+  Clock3,
+} from "lucide-react";
+import {
+  useCalendarEvents,
+  useCreateCalendarEvent,
+  useUpdateCalendarEvent,
+} from "@/hooks/useCalendarEvents";
+import { useCmsTranslation } from "@/hooks/useCmsTranslation";
+import {
+  LocaleTranslationBox,
+  TranslationTarget,
+} from "@/components/admin/LocaleTranslationBox";
+import type { CalendarEvent } from "@/integrations/pocketbase/client";
+import { buildSlug } from "@/integrations/pocketbase/client";
+import { de } from "date-fns/locale";
+import { format } from "date-fns";
+import { toast } from "sonner";
+import { getPocketBaseErrorMessage } from "@/lib/pocketbase-errors";
+import { formatDateSafe } from "@/lib/date";
+import { EventHubOperationsAdmin } from "@/components/admin/EventHubOperationsAdmin";
 
 function toDateTimeInputValue(value?: string | null) {
-  if (!value) return '';
+  if (!value) return "";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
+  if (Number.isNaN(date.getTime())) return "";
   return format(date, "yyyy-MM-dd'T'HH:mm");
 }
 
@@ -47,7 +62,7 @@ export default function EventsAdminPage() {
   const updateEvent = useUpdateCalendarEvent();
   const translate = useCmsTranslation();
 
-  const germanEvents = (events || []).filter((event) => event.locale === 'de');
+  const germanEvents = (events || []).filter((event) => event.locale === "de");
   const mainEvent = germanEvents.find((event) => event.is_main_event);
 
   return (
@@ -55,13 +70,16 @@ export default function EventsAdminPage() {
       {isLoading ? (
         <Skeleton className="h-48 w-full" />
       ) : mainEvent ? (
-        <MainEventForm
-          event={mainEvent}
-          allEvents={events || []}
-          createMutation={createEvent}
-          updateMutation={updateEvent}
-          translate={translate}
-        />
+        <>
+          <MainEventForm
+            event={mainEvent}
+            allEvents={events || []}
+            createMutation={createEvent}
+            updateMutation={updateEvent}
+            translate={translate}
+          />
+          <EventHubOperationsAdmin eventId={mainEvent.id} />
+        </>
       ) : (
         <EmptyState />
       )}
@@ -78,7 +96,9 @@ function EmptyState() {
     <>
       <div>
         <h1 className="text-3xl font-bold">Oberlausitzer Dreieck</h1>
-        <p className="text-muted-foreground">Verwalten Sie die Hauptveranstaltung des Vereins</p>
+        <p className="text-muted-foreground">
+          Verwalten Sie die Hauptveranstaltung des Vereins
+        </p>
       </div>
       <Card className="border-dashed">
         <CardContent className="pt-6">
@@ -87,12 +107,17 @@ function EmptyState() {
               <AlertTriangle className="h-8 w-8 text-muted-foreground" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold">Kein Hauptevent ausgewählt</h3>
+              <h3 className="text-lg font-semibold">
+                Kein Hauptevent ausgewählt
+              </h3>
               <p className="text-muted-foreground mt-1 max-w-md">
-                Markieren Sie einen Termin im{' '}
-                <Link to="/admin/calendar" className="text-primary underline font-medium">
+                Markieren Sie einen Termin im{" "}
+                <Link
+                  to="/admin/calendar"
+                  className="text-primary underline font-medium"
+                >
                   Terminkalender
-                </Link>{' '}
+                </Link>{" "}
                 als Hauptevent, damit er hier bearbeitet werden kann.
               </p>
             </div>
@@ -127,54 +152,85 @@ function MainEventForm({
   translate: ReturnType<typeof useCmsTranslation>;
 }) {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    start_dt: '',
-    end_dt: '',
-    location: '',
-    contact_email: '',
-    registration_url: '',
+    title: "",
+    description: "",
+    start_dt: "",
+    end_dt: "",
+    location: "",
+    contact_email: "",
+    registration_url: "",
     published: true,
+    phase_override: "auto" as "auto" | "pre" | "live" | "post",
+    live_start_dt: "",
+    day_ticket_price: "10",
+    weekend_ticket_price: "15",
+    children_free_under: "14",
+    parking_free: true,
+    show_drivers: true,
+    show_voting: true,
+    event_page_mode: "hub" as "classic" | "hub",
   });
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     setFormData({
-      title: event.title || '',
-      description: event.description || '',
+      title: event.title || "",
+      description: event.description || "",
       start_dt: toDateTimeInputValue(event.start_dt),
       end_dt: toDateTimeInputValue(event.end_dt),
-      location: event.location || '',
-      contact_email: event.contact_email || '',
-      registration_url: event.registration_url || '',
+      location: event.location || "",
+      contact_email: event.contact_email || "",
+      registration_url: event.registration_url || "",
       published: event.published !== false,
+      phase_override: event.phase_override || "auto",
+      live_start_dt: toDateTimeInputValue(event.live_start_dt),
+      day_ticket_price: String(event.day_ticket_price ?? 10),
+      weekend_ticket_price: String(event.weekend_ticket_price ?? 15),
+      children_free_under: String(event.children_free_under ?? 14),
+      parking_free: event.parking_free !== false,
+      show_drivers: event.show_drivers !== false,
+      show_voting: event.show_voting !== false,
+      event_page_mode: event.event_page_mode || "hub",
     });
     setIsDirty(false);
   }, [event]);
 
-  const updateField = <K extends keyof typeof formData>(key: K, value: (typeof formData)[K]) => {
+  const updateField = <K extends keyof typeof formData>(
+    key: K,
+    value: (typeof formData)[K],
+  ) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
     setIsDirty(true);
   };
 
   const deSlug = useMemo(
-    () => buildSlug(formData.title || event.title || ''),
+    () => buildSlug(formData.title || event.title || ""),
     [formData.title, event.title],
   );
 
   const translationStatus = useMemo(() => {
-    const map: Record<TranslationTarget, boolean> = { en: false, cz: false, pl: false };
+    const map: Record<TranslationTarget, boolean> = {
+      en: false,
+      cz: false,
+      pl: false,
+    };
     if (!deSlug) return map;
-    map.en = Boolean(allEvents.find((e) => e.locale === 'en' && e.slug === deSlug));
-    map.cz = Boolean(allEvents.find((e) => e.locale === 'cz' && e.slug === deSlug));
-    map.pl = Boolean(allEvents.find((e) => e.locale === 'pl' && e.slug === deSlug));
+    map.en = Boolean(
+      allEvents.find((e) => e.locale === "en" && e.slug === deSlug),
+    );
+    map.cz = Boolean(
+      allEvents.find((e) => e.locale === "cz" && e.slug === deSlug),
+    );
+    map.pl = Boolean(
+      allEvents.find((e) => e.locale === "pl" && e.slug === deSlug),
+    );
     return map;
   }, [allEvents, deSlug]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.start_dt) {
-      toast.error('Bitte Titel und Startdatum ausfüllen');
+      toast.error("Bitte Titel und Startdatum ausfüllen");
       return;
     }
 
@@ -185,13 +241,26 @@ function MainEventForm({
         slug: buildSlug(formData.title),
         description: formData.description.trim() || null,
         start_dt: new Date(formData.start_dt).toISOString(),
-        end_dt: formData.end_dt ? new Date(formData.end_dt).toISOString() : null,
+        end_dt: formData.end_dt
+          ? new Date(formData.end_dt).toISOString()
+          : null,
         location: formData.location.trim() || null,
         contact_email: formData.contact_email.trim() || null,
         registration_url: formData.registration_url.trim() || null,
         published: formData.published,
+        phase_override: formData.phase_override,
+        live_start_dt: formData.live_start_dt
+          ? new Date(formData.live_start_dt).toISOString()
+          : null,
+        day_ticket_price: Number(formData.day_ticket_price),
+        weekend_ticket_price: Number(formData.weekend_ticket_price),
+        children_free_under: Number(formData.children_free_under),
+        parking_free: formData.parking_free,
+        show_drivers: formData.show_drivers,
+        show_voting: formData.show_voting,
+        event_page_mode: formData.event_page_mode,
       });
-      toast.success('Änderungen gespeichert');
+      toast.success("Änderungen gespeichert");
       setIsDirty(false);
     } catch (error) {
       toast.error(getPocketBaseErrorMessage(error));
@@ -202,20 +271,21 @@ function MainEventForm({
     const sourceTitle = formData.title.trim();
     const sourceDescription = formData.description.trim();
     if (!sourceTitle) {
-      toast.error('Bitte zuerst den deutschen Titel ausfüllen.');
+      toast.error("Bitte zuerst den deutschen Titel ausfüllen.");
       return;
     }
 
     try {
       const translated = await translate.mutateAsync({
-        sourceLocale: 'de',
+        sourceLocale: "de",
         targetLocale,
-        context: 'Hauptveranstaltung (Oberlausitzer Dreieck) für die Vereinswebsite',
+        context:
+          "Hauptveranstaltung (Oberlausitzer Dreieck) für die Vereinswebsite",
         fields: { title: sourceTitle, description: sourceDescription },
       });
 
-      const translatedTitle = String(translated.title || '').trim();
-      const translatedDescription = String(translated.description || '').trim();
+      const translatedTitle = String(translated.title || "").trim();
+      const translatedDescription = String(translated.description || "").trim();
 
       const existingTranslation = allEvents.find(
         (e) => e.locale === targetLocale && e.slug === deSlug,
@@ -227,7 +297,9 @@ function MainEventForm({
         description: translatedDescription || sourceDescription || null,
         category: event.category || null,
         start_dt: new Date(formData.start_dt).toISOString(),
-        end_dt: formData.end_dt ? new Date(formData.end_dt).toISOString() : null,
+        end_dt: formData.end_dt
+          ? new Date(formData.end_dt).toISOString()
+          : null,
         location: formData.location.trim() || null,
         contact_email: formData.contact_email.trim() || null,
         registration_url: formData.registration_url.trim() || null,
@@ -235,16 +307,32 @@ function MainEventForm({
         is_main_event: true,
         published: formData.published,
         locale: targetLocale,
+        phase_override: formData.phase_override,
+        live_start_dt: formData.live_start_dt
+          ? new Date(formData.live_start_dt).toISOString()
+          : null,
+        day_ticket_price: Number(formData.day_ticket_price),
+        weekend_ticket_price: Number(formData.weekend_ticket_price),
+        children_free_under: Number(formData.children_free_under),
+        parking_free: formData.parking_free,
+        show_drivers: formData.show_drivers,
+        show_voting: formData.show_voting,
+        event_page_mode: formData.event_page_mode,
       };
 
       if (existingTranslation) {
-        await updateMutation.mutateAsync({ id: existingTranslation.id, ...payload });
+        await updateMutation.mutateAsync({
+          id: existingTranslation.id,
+          ...payload,
+        });
       } else {
         await createMutation.mutateAsync(payload);
       }
       toast.success(`Übersetzung ${targetLocale.toUpperCase()} gespeichert`);
     } catch (error) {
-      toast.error(getPocketBaseErrorMessage(error, 'Übersetzung fehlgeschlagen'));
+      toast.error(
+        getPocketBaseErrorMessage(error, "Übersetzung fehlgeschlagen"),
+      );
     }
   };
 
@@ -261,8 +349,9 @@ function MainEventForm({
           <div>
             <h1 className="text-2xl font-bold">{event.title}</h1>
             <p className="text-muted-foreground text-sm mt-0.5">
-              {formatDateSafe(event.start_dt, 'dd. MMMM yyyy', de)}
-              {event.end_dt && ` – ${formatDateSafe(event.end_dt, 'dd. MMMM yyyy', de)}`}
+              {formatDateSafe(event.start_dt, "dd. MMMM yyyy", de)}
+              {event.end_dt &&
+                ` – ${formatDateSafe(event.end_dt, "dd. MMMM yyyy", de)}`}
               {event.location && ` · ${event.location}`}
             </p>
           </div>
@@ -294,7 +383,9 @@ function MainEventForm({
       {/* ── Sticky save bar ── */}
       {isDirty && (
         <div className="sticky top-0 z-30 bg-accent/10 border border-accent/30 rounded-lg px-4 py-3 flex items-center justify-between gap-4">
-          <p className="text-sm font-medium text-accent-foreground">Ungespeicherte Änderungen</p>
+          <p className="text-sm font-medium text-accent-foreground">
+            Ungespeicherte Änderungen
+          </p>
           <Button type="submit" size="sm" disabled={isSubmitting}>
             {isSubmitting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -324,7 +415,7 @@ function MainEventForm({
                 <Input
                   id="title"
                   value={formData.title}
-                  onChange={(e) => updateField('title', e.target.value)}
+                  onChange={(e) => updateField("title", e.target.value)}
                   placeholder="z.B. 12. Oberlausitzer Dreieck"
                   required
                 />
@@ -335,11 +426,145 @@ function MainEventForm({
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => updateField('description', e.target.value)}
+                  onChange={(e) => updateField("description", e.target.value)}
                   placeholder="Weitere Informationen zur Veranstaltung..."
                   rows={4}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Clock3 className="h-4 w-4 text-muted-foreground" />
+                Event-Hub
+              </CardTitle>
+              <CardDescription>
+                Live-Phase, Besucherpreise und kommende Module
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="event_page_mode">Seitenmodus</Label>
+                <select
+                  id="event_page_mode"
+                  className="h-10 w-full border border-input bg-background px-3 text-sm"
+                  value={formData.event_page_mode}
+                  onChange={(e) =>
+                    updateField(
+                      "event_page_mode",
+                      e.target.value as typeof formData.event_page_mode,
+                    )
+                  }
+                >
+                  <option value="classic">Klassische Jahresansicht</option>
+                  <option value="hub">Dynamischer Event-Hub</option>
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  Der Event-Hub wechselt anhand der Eventzeiten automatisch
+                  zwischen Vor dem Event, Live und Rückblick. Die klassische
+                  Jahresansicht bleibt dauerhaft verfügbar.
+                </p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="phase_override">Darstellungsphase</Label>
+                  <select
+                    id="phase_override"
+                    className="h-10 w-full border border-input bg-background px-3 text-sm"
+                    value={formData.phase_override}
+                    onChange={(e) =>
+                      updateField(
+                        "phase_override",
+                        e.target.value as typeof formData.phase_override,
+                      )
+                    }
+                  >
+                    <option value="auto">Automatisch</option>
+                    <option value="pre">Vor dem Event</option>
+                    <option value="live">Live</option>
+                    <option value="post">Rückblick</option>
+                  </select>
+                  <p className="text-xs text-muted-foreground">
+                    Automatisch: Vor dem Live-Start = PRE, bis zum Event-Ende =
+                    LIVE, danach = POST. Ein manueller Wert überschreibt diese
+                    Logik sofort.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="live_start_dt">Live ab</Label>
+                  <Input
+                    id="live_start_dt"
+                    type="datetime-local"
+                    value={formData.live_start_dt}
+                    onChange={(e) =>
+                      updateField("live_start_dt", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="day_ticket_price">Tag (EUR)</Label>
+                  <Input
+                    id="day_ticket_price"
+                    type="number"
+                    min="0"
+                    value={formData.day_ticket_price}
+                    onChange={(e) =>
+                      updateField("day_ticket_price", e.target.value)
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="weekend_ticket_price">Wochenende</Label>
+                  <Input
+                    id="weekend_ticket_price"
+                    type="number"
+                    min="0"
+                    value={formData.weekend_ticket_price}
+                    onChange={(e) =>
+                      updateField("weekend_ticket_price", e.target.value)
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="children_free_under">Kinder frei &lt;</Label>
+                  <Input
+                    id="children_free_under"
+                    type="number"
+                    min="0"
+                    value={formData.children_free_under}
+                    onChange={(e) =>
+                      updateField("children_free_under", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+              {[
+                ["parking_free", "Parken kostenlos"],
+                ["show_drivers", "Fahrer & Fahrzeuge anzeigen"],
+                ["show_voting", "Voting anzeigen"],
+              ].map(([key, label]) => (
+                <div key={key} className="flex items-center justify-between">
+                  <Label htmlFor={key}>{label}</Label>
+                  <Switch
+                    id={key}
+                    checked={
+                      formData[
+                        key as "parking_free" | "show_drivers" | "show_voting"
+                      ]
+                    }
+                    onCheckedChange={(checked) =>
+                      updateField(
+                        key as "parking_free" | "show_drivers" | "show_voting",
+                        checked,
+                      )
+                    }
+                  />
+                </div>
+              ))}
             </CardContent>
           </Card>
 
@@ -359,7 +584,7 @@ function MainEventForm({
                     id="start_dt"
                     type="datetime-local"
                     value={formData.start_dt}
-                    onChange={(e) => updateField('start_dt', e.target.value)}
+                    onChange={(e) => updateField("start_dt", e.target.value)}
                     required
                   />
                 </div>
@@ -369,7 +594,7 @@ function MainEventForm({
                     id="end_dt"
                     type="datetime-local"
                     value={formData.end_dt}
-                    onChange={(e) => updateField('end_dt', e.target.value)}
+                    onChange={(e) => updateField("end_dt", e.target.value)}
                   />
                 </div>
               </div>
@@ -382,7 +607,7 @@ function MainEventForm({
                 <Input
                   id="location"
                   value={formData.location}
-                  onChange={(e) => updateField('location', e.target.value)}
+                  onChange={(e) => updateField("location", e.target.value)}
                   placeholder="z.B. Saalendorf - Jonsdorf - Waltersdorf"
                 />
               </div>
@@ -405,13 +630,24 @@ function MainEventForm({
                     id="registration_url"
                     type="url"
                     value={formData.registration_url}
-                    onChange={(e) => updateField('registration_url', e.target.value)}
+                    onChange={(e) =>
+                      updateField("registration_url", e.target.value)
+                    }
                     placeholder="https://anmeldung.example.de"
                     className="flex-1"
                   />
                   {formData.registration_url && (
-                    <Button variant="outline" size="icon" asChild className="flex-shrink-0">
-                      <a href={formData.registration_url} target="_blank" rel="noopener noreferrer">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      asChild
+                      className="flex-shrink-0"
+                    >
+                      <a
+                        href={formData.registration_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <ExternalLink className="h-4 w-4" />
                       </a>
                     </Button>
@@ -423,7 +659,10 @@ function MainEventForm({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contact_email" className="flex items-center gap-1.5">
+                <Label
+                  htmlFor="contact_email"
+                  className="flex items-center gap-1.5"
+                >
                   <Mail className="h-3.5 w-3.5" />
                   Kontakt-E-Mail
                 </Label>
@@ -431,7 +670,7 @@ function MainEventForm({
                   id="contact_email"
                   type="email"
                   value={formData.contact_email}
-                  onChange={(e) => updateField('contact_email', e.target.value)}
+                  onChange={(e) => updateField("contact_email", e.target.value)}
                   placeholder="info@msc-dreilaendereck.de"
                 />
               </div>
@@ -449,18 +688,28 @@ function MainEventForm({
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="published" className="font-medium">Veröffentlicht</Label>
-                  <p className="text-xs text-muted-foreground">Auf der Website sichtbar</p>
+                  <Label htmlFor="published" className="font-medium">
+                    Veröffentlicht
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Auf der Website sichtbar
+                  </p>
                 </div>
                 <Switch
                   id="published"
                   checked={formData.published}
-                  onCheckedChange={(checked) => updateField('published', checked)}
+                  onCheckedChange={(checked) =>
+                    updateField("published", checked)
+                  }
                 />
               </div>
 
               <div className="pt-2">
-                <Button type="submit" className="w-full" disabled={isSubmitting || !isDirty}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSubmitting || !isDirty}
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -502,19 +751,34 @@ function MainEventForm({
               <CardTitle className="text-base">Schnellzugriff</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                size="sm"
+                asChild
+              >
                 <Link to="/admin/events/gallery-archive">
                   <Images className="mr-2 h-4 w-4" />
                   Fotogalerie verwalten
                 </Link>
               </Button>
-              <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                size="sm"
+                asChild
+              >
                 <Link to="/admin/events/gallery-archive">
                   <Archive className="mr-2 h-4 w-4" />
                   Vergangene Events (Archiv)
                 </Link>
               </Button>
-              <Button variant="ghost" className="w-full justify-start" size="sm" asChild>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                size="sm"
+                asChild
+              >
                 <Link to="/event" target="_blank">
                   <Eye className="mr-2 h-4 w-4" />
                   Eventseite ansehen

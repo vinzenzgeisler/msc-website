@@ -1,10 +1,16 @@
-import type { Sponsor } from '@/integrations/pocketbase/client';
-import { cn } from '@/lib/utils';
-import { trackEvent } from '@/lib/analytics';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { ExternalLink, Handshake, HeartHandshake, Star } from 'lucide-react';
+import type { Sponsor } from "@/integrations/pocketbase/client";
+import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/analytics";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { ExternalLink, Handshake, HeartHandshake, Star } from "lucide-react";
 
-type SponsorTileSize = 'hero' | 'logo' | 'compact';
+type SponsorTileSize = "hero" | "logo" | "compact";
 
 interface SponsorTileProps {
   sponsor: Sponsor;
@@ -14,14 +20,20 @@ interface SponsorTileProps {
 }
 
 const sponsorsWithDarkLogoSurface = new Set([
-  'Autopflege Langer Großschönau',
-  'Pro-Carline Lahwalde',
-  'Rumpf und Schuppe Zittau',
+  "Autopflege Langer Großschönau",
+  "Pro-Carline Lahwalde",
+  "Rumpf und Schuppe Zittau",
 ]);
 
-function SponsorTile({ sponsor, size = 'logo', ctaPosition, className }: SponsorTileProps) {
+function SponsorTile({
+  sponsor,
+  size = "logo",
+  ctaPosition,
+  className,
+}: SponsorTileProps) {
   const linked = Boolean(sponsor.website);
-  const usesDarkLogoSurface = Boolean(sponsor.logo_url) && sponsorsWithDarkLogoSurface.has(sponsor.name);
+  const usesDarkLogoSurface =
+    Boolean(sponsor.logo_url) && sponsorsWithDarkLogoSurface.has(sponsor.name);
   const content = (
     <>
       <div className="absolute -right-10 -top-10 h-20 w-20 rotate-45 bg-accent/0 transition-colors group-hover:bg-accent/20" />
@@ -32,19 +44,19 @@ function SponsorTile({ sponsor, size = 'logo', ctaPosition, className }: Sponsor
             alt={sponsor.name}
             loading="lazy"
             className={cn(
-              'max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.03]',
-              size === 'hero' && 'max-h-24 sm:max-h-28',
-              size === 'logo' && 'max-h-16',
-              size === 'compact' && 'max-h-10',
+              "max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.03]",
+              size === "hero" && "max-h-24 sm:max-h-28",
+              size === "logo" && "max-h-16",
+              size === "compact" && "max-h-10",
             )}
           />
         ) : (
           <span
             className={cn(
-              'line-clamp-3 text-balance font-semibold leading-tight text-foreground transition-colors group-hover:text-primary',
-              size === 'hero' && 'text-lg sm:text-xl',
-              size === 'logo' && 'text-sm sm:text-base',
-              size === 'compact' && 'text-xs sm:text-sm',
+              "line-clamp-3 text-balance font-semibold leading-tight text-foreground transition-colors group-hover:text-primary",
+              size === "hero" && "text-lg sm:text-xl",
+              size === "logo" && "text-sm sm:text-base",
+              size === "compact" && "text-xs sm:text-sm",
             )}
           >
             {sponsor.name}
@@ -53,8 +65,8 @@ function SponsorTile({ sponsor, size = 'logo', ctaPosition, className }: Sponsor
         {linked && (
           <ExternalLink
             className={cn(
-              'h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100',
-              usesDarkLogoSurface ? 'text-white/70' : 'text-muted-foreground',
+              "h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100",
+              usesDarkLogoSurface ? "text-white/70" : "text-muted-foreground",
             )}
           />
         )}
@@ -63,11 +75,12 @@ function SponsorTile({ sponsor, size = 'logo', ctaPosition, className }: Sponsor
   );
 
   const baseClassName = cn(
-    'group relative flex w-full overflow-hidden border bg-card p-3 transition-all hover:border-primary hover:shadow-md',
-    size === 'hero' && 'h-36 border-2 border-primary/25 sm:h-44 sm:p-6',
-    size === 'logo' && 'h-28 border-border sm:h-32 sm:p-5',
-    size === 'compact' && 'h-20 border-border sm:h-24',
-    usesDarkLogoSurface && 'border-neutral-700 bg-neutral-900 hover:border-primary hover:bg-neutral-900',
+    "group relative flex w-full overflow-hidden border bg-card p-3 transition-all hover:border-primary hover:shadow-md",
+    size === "hero" && "h-36 border-2 border-primary/25 sm:h-44 sm:p-6",
+    size === "logo" && "h-28 border-border sm:h-32 sm:p-5",
+    size === "compact" && "h-20 border-border sm:h-24",
+    usesDarkLogoSurface &&
+      "border-neutral-700 bg-neutral-900 hover:border-primary hover:bg-neutral-900",
     className,
   );
 
@@ -80,12 +93,14 @@ function SponsorTile({ sponsor, size = 'logo', ctaPosition, className }: Sponsor
       href={sponsor.website || undefined}
       target="_blank"
       rel="noopener noreferrer"
-      onClick={() => trackEvent('sponsor_click', {
-        category: 'outbound',
-        label: `${ctaPosition}:${sponsor.name}`,
-        sponsor_tier: sponsor.tier,
-        cta_position: ctaPosition,
-      })}
+      onClick={() =>
+        trackEvent("sponsor_click", {
+          category: "outbound",
+          label: `${ctaPosition}:${sponsor.name}`,
+          sponsor_tier: sponsor.tier,
+          cta_position: ctaPosition,
+        })
+      }
       className={baseClassName}
       aria-label={`${sponsor.name} Website oeffnen`}
     >
@@ -102,7 +117,13 @@ interface SponsorGroupProps {
   icon: typeof Star;
 }
 
-export function SponsorGroup({ title, sponsors, size, ctaPosition, icon: Icon }: SponsorGroupProps) {
+export function SponsorGroup({
+  title,
+  sponsors,
+  size,
+  ctaPosition,
+  icon: Icon,
+}: SponsorGroupProps) {
   if (sponsors.length === 0) return null;
 
   return (
@@ -113,20 +134,29 @@ export function SponsorGroup({ title, sponsors, size, ctaPosition, icon: Icon }:
         </div>
         <div>
           <h2 className="text-2xl md:text-3xl">{title}</h2>
-          <p className="text-sm text-muted-foreground">{sponsors.length} Eintraege</p>
+          <p className="text-sm text-muted-foreground">
+            {sponsors.length} Eintraege
+          </p>
         </div>
       </div>
 
       <div
         className={cn(
-          'grid gap-3',
-          size === 'hero' && 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-          size === 'logo' && 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
-          size === 'compact' && 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6',
+          "grid gap-3",
+          size === "hero" && "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+          size === "logo" &&
+            "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
+          size === "compact" &&
+            "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
         )}
       >
         {sponsors.map((sponsor) => (
-          <SponsorTile key={sponsor.id} sponsor={sponsor} size={size} ctaPosition={ctaPosition} />
+          <SponsorTile
+            key={sponsor.id}
+            sponsor={sponsor}
+            size={size}
+            ctaPosition={ctaPosition}
+          />
         ))}
       </div>
     </section>
@@ -174,25 +204,48 @@ interface MainSponsorCarouselProps {
   title: string;
   subtitle?: string;
   ctaPosition: string;
+  large?: boolean;
 }
 
-export function MainSponsorCarousel({ sponsors, title, subtitle, ctaPosition }: MainSponsorCarouselProps) {
+export function MainSponsorCarousel({
+  sponsors,
+  title,
+  subtitle,
+  ctaPosition,
+}: MainSponsorCarouselProps) {
   if (sponsors.length === 0) return null;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">{title}</p>
-          {subtitle && <p className="max-w-2xl text-sm text-muted-foreground">{subtitle}</p>}
+          <p className="mb-1 text-sm font-bold uppercase tracking-widest text-primary">
+            {title}
+          </p>
+          {subtitle && (
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              {subtitle}
+            </p>
+          )}
         </div>
       </div>
 
-      <Carousel opts={{ align: 'start', loop: sponsors.length > 3 }} className="w-full px-10 sm:px-12">
+      <Carousel
+        opts={{ align: "start", loop: sponsors.length > 3 }}
+        className="w-full px-10 sm:px-12"
+      >
         <CarouselContent className="-ml-3">
           {sponsors.map((sponsor) => (
-            <CarouselItem key={sponsor.id} className="pl-3 basis-full sm:basis-1/2 lg:basis-1/3">
-              <SponsorTile sponsor={sponsor} size="logo" ctaPosition={ctaPosition} className="h-28 sm:h-32" />
+            <CarouselItem
+              key={sponsor.id}
+              className="pl-3 basis-full sm:basis-1/2 lg:basis-1/3"
+            >
+              <SponsorTile
+                sponsor={sponsor}
+                size="logo"
+                ctaPosition={ctaPosition}
+                className="h-28 sm:h-32"
+              />
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -203,6 +256,57 @@ export function MainSponsorCarousel({ sponsors, title, subtitle, ctaPosition }: 
           </>
         )}
       </Carousel>
+    </div>
+  );
+}
+
+export function MainSponsorMarquee({
+  sponsors,
+  title,
+  subtitle,
+  ctaPosition,
+  large = false,
+}: MainSponsorCarouselProps) {
+  if (sponsors.length === 0) return null;
+
+  const sponsorRow = (duplicate: boolean) => (
+    <div
+      className="flex shrink-0 gap-4 pr-4"
+      aria-hidden={duplicate || undefined}
+    >
+      {sponsors.map((sponsor) => (
+        <div
+          key={`${duplicate ? "duplicate" : "primary"}-${sponsor.id}`}
+          className={cn(
+            "shrink-0",
+            large ? "w-72 sm:w-80" : "w-56 sm:w-64",
+          )}
+        >
+          <SponsorTile
+            sponsor={sponsor}
+            size="logo"
+            ctaPosition={ctaPosition}
+            className={large ? "h-32 sm:h-36" : "h-24 sm:h-28"}
+          />
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="mb-1 text-sm font-bold uppercase text-primary">{title}</p>
+        {subtitle && (
+          <p className="max-w-2xl text-sm text-muted-foreground">{subtitle}</p>
+        )}
+      </div>
+      <div className="sponsor-marquee overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
+        <div className="sponsor-marquee-track flex w-max hover:[animation-play-state:paused]">
+          {sponsorRow(false)}
+          {sponsorRow(true)}
+        </div>
+      </div>
     </div>
   );
 }

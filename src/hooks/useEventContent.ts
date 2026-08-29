@@ -66,6 +66,10 @@ export function useEventContent(eventId?: string) {
                       id: entry.id,
                       time: entry.time_label,
                       title: entry.title,
+                      start_dt: entry.start_dt,
+                      end_dt: entry.end_dt,
+                      subtitle: entry.subtitle,
+                      entry_type: entry.entry_type,
                     }))
                   : legacyEntries,
             };
