@@ -70,6 +70,8 @@ export function useEventContent(eventId?: string) {
                       end_dt: entry.end_dt,
                       subtitle: entry.subtitle,
                       entry_type: entry.entry_type,
+                      program_block: entry.program_block,
+                      backend_class_ids: entry.backend_class_ids,
                     }))
                   : legacyEntries,
             };

@@ -11,6 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMainEvent } from "@/hooks/useMainEvent";
 import { useEventContent } from "@/hooks/useEventContent";
 import { useEventLiveNotices } from "@/hooks/useEventHub";
+import { useEventHubVoting } from "@/hooks/useEventHubVoting";
+import { VotingSection, VotingStickyButton } from "@/components/event/voting/VotingSection";
+import { HighlightsSection } from "@/components/event/highlights/HighlightsSection";
+import { DayScheduleBlocks } from "@/components/event/schedule/DayScheduleBlocks";
 import { useDownloads } from "@/hooks/useDownloads";
 import { useSponsors } from "@/hooks/useSponsors";
 import { MainSponsorMarquee } from "@/components/sponsors/SponsorDisplays";
@@ -46,7 +50,6 @@ import {
   Info,
   Map,
   MapPin,
-  Music2,
   Route,
   ShieldCheck,
   Sparkles,
@@ -140,6 +143,7 @@ export default function EventHubPage() {
   const { data: sponsors } = useSponsors();
   const { data: settings } = useSettings();
   const { data: albums } = useMediaAlbums();
+  const { votingEnabled } = useEventHubVoting();
   const { data: selectedDownloadsContent } = useSectionContent(
     "event",
     "downloads",
@@ -245,44 +249,7 @@ export default function EventHubPage() {
           {schedules.map((day) => (
             <TabsContent key={day.id} value={day.id} className="m-0">
               <div className="bg-background px-5 py-2 md:px-8">
-                {day.entries.map((entry) => {
-                  const active =
-                    phase === "live" && live.current?.id === entry.id;
-                  return (
-                    <div
-                      key={entry.id}
-                      className={`grid grid-cols-[5.25rem_1fr] gap-4 border-b border-border py-4 last:border-0 md:grid-cols-[8rem_1fr_auto] ${active ? "-mx-5 bg-primary px-5 text-primary-foreground md:-mx-8 md:px-8" : entry.entry_type === "pause" ? "text-muted-foreground" : ""}`}
-                    >
-                      <time className="font-mono text-sm font-bold">
-                        {entry.time}
-                        {entry.end_dt
-                          ? `–${format(new Date(entry.end_dt), "HH:mm")}`
-                          : ""}
-                      </time>
-                      <div>
-                        <p className="font-semibold">{entry.title}</p>
-                        {entry.subtitle && (
-                          <p
-                            className={`text-sm ${active ? "text-primary-foreground/75" : "text-muted-foreground"}`}
-                          >
-                            {entry.subtitle}
-                          </p>
-                        )}
-                      </div>
-                      {active && (
-                        <span className="hidden self-center text-xs font-bold uppercase md:inline">
-                          Jetzt
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-                {day.after_program_note && (
-                  <div className="-mx-5 flex items-center gap-3 bg-[#111827] px-5 py-5 text-white md:-mx-8 md:px-8">
-                    <Music2 className="h-5 w-5 text-accent" />
-                    <strong>{day.after_program_note}</strong>
-                  </div>
-                )}
+                <DayScheduleBlocks day={day} isLive={phase === "live"} currentEntryId={live.current?.id} />
               </div>
             </TabsContent>
           ))}
@@ -504,8 +471,16 @@ export default function EventHubPage() {
           ))}
         </div>
       </nav>
+      {phase !== "post" && event?.show_voting !== false && votingEnabled && (
+        <section className="py-20 md:py-24">
+          <div className="container max-w-5xl">
+            {event?.show_drivers !== false && <HighlightsSection />}
+            <VotingSection priorityClassIds={phase === "live" ? live.current?.backend_class_ids ?? [] : []} />
+          </div>
+        </section>
+      )}
       {phase !== "post" && scheduleSection}
-      {(event?.show_drivers !== false || event?.show_voting !== false) && (
+      {(event?.show_drivers !== false || event?.show_voting !== false) && !votingEnabled && (
         <section className="py-20 md:py-24">
           <div className="container grid max-w-5xl border-y border-border md:grid-cols-2 md:divide-x md:divide-border">
             {event?.show_drivers !== false && (
@@ -525,6 +500,14 @@ export default function EventHubPage() {
           </div>
         </section>
       )}
+      {phase === "post" && event?.show_voting !== false && votingEnabled && (
+        <section className="py-20 md:py-24">
+          <div className="container max-w-5xl">
+            <VotingSection />
+          </div>
+        </section>
+      )}
+      <VotingStickyButton />
       {mainSponsors.length > 0 && (
         <section className="bg-muted/40 py-16">
           <div className="container max-w-5xl">

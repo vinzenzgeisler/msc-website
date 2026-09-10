@@ -181,6 +181,8 @@ export interface EventScheduleEntry {
   end_dt?: string | null;
   subtitle?: string | null;
   entry_type?: "program" | "pause" | "highlight";
+  program_block?: "run_1" | "run_2" | "other";
+  backend_class_ids?: string[];
 }
 
 export interface EventSchedule {
@@ -206,6 +208,8 @@ export interface StructuredEventScheduleEntry {
   end_dt: string | null;
   subtitle: string | null;
   entry_type: "program" | "pause" | "highlight";
+  program_block: "run_1" | "run_2" | "other";
+  backend_class_ids: string[];
 }
 
 export interface EventLiveNotice {
@@ -536,6 +540,8 @@ export function mapStructuredEventScheduleEntryRecord(
     end_dt: record.endDt || null,
     subtitle: record.subtitle || null,
     entry_type: record.entryType || "program",
+    program_block: record.programBlock || "other",
+    backend_class_ids: Array.isArray(record.backendClassIds) ? record.backendClassIds : [],
   };
 }
 

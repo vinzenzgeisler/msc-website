@@ -324,6 +324,11 @@ Archiv aller bisherigen Oberlausitzer Dreieck Veranstaltungen. Jeder Eintrag kan
 | `scheduleDay` | relation | → `eventSchedules.id` |
 | `timeLabel` | text | Uhrzeit (z.B. „09:00") |
 | `title` | text | Programmpunkt |
+| `subtitle` | text | Optionaler Untertitel |
+| `startDt` / `endDt` | date | Start-/Endzeitpunkt (ISO, für Live-Hervorhebung) |
+| `entryType` | select | `program`, `pause`, `highlight` |
+| `programBlock` | select | `run_1`, `run_2`, `other` – gruppiert den mobilen Zeitplan in zwei Durchgänge |
+| `backendClassIds` | json | Array von Klassen-IDs aus dem Event-Backend (`GET /public/events/current/event-hub` → `classes`), für die Zuordnung Programmpunkt ↔ Voting-Klasse |
 | `sortOrder` | number | Sortierung |
 | `locale` | text | `de`/`en`/`cz` |
 
