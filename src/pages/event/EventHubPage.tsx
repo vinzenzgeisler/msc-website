@@ -478,39 +478,42 @@ export default function EventHubPage() {
         const showVotingPlaceholder =
           phase !== "post" && event?.show_voting !== false && (phase === "pre" || !votingEnabled);
 
+        const showPlaceholders = showDriversPlaceholder || showVotingPlaceholder;
+        const bothPlaceholders = showDriversPlaceholder && showVotingPlaceholder;
+
         return (
           <>
-            {(showHighlights || showVotingLive) && (
+            {(showHighlights || showVotingLive || showPlaceholders) && (
               <section className="py-20 md:py-24">
-                <div className="container max-w-5xl">
+                <div className="container max-w-5xl space-y-8">
                   {showHighlights && <HighlightsSection />}
                   {showVotingLive && (
                     <VotingSection priorityClassIds={live.current?.backend_class_ids ?? []} />
+                  )}
+                  {showPlaceholders && (
+                    <div
+                      className={`grid border-y border-border ${bothPlaceholders ? "md:grid-cols-2 md:divide-x md:divide-border" : ""}`}
+                    >
+                      {showDriversPlaceholder && (
+                        <UpcomingPanel
+                          icon={Users}
+                          title="Fahrer & Fahrzeuge"
+                          text="Teilnehmerfeld und Fahrzeuge werden nach Freigabe veröffentlicht."
+                        />
+                      )}
+                      {showVotingPlaceholder && (
+                        <UpcomingPanel
+                          icon={Sparkles}
+                          title="Publikumsvoting"
+                          text="Das Voting wird zum passenden Zeitpunkt hier freigeschaltet."
+                        />
+                      )}
+                    </div>
                   )}
                 </div>
               </section>
             )}
             {phase !== "post" && scheduleSection}
-            {(showDriversPlaceholder || showVotingPlaceholder) && (
-              <section className="py-20 md:py-24">
-                <div className="container grid max-w-5xl border-y border-border md:grid-cols-2 md:divide-x md:divide-border">
-                  {showDriversPlaceholder && (
-                    <UpcomingPanel
-                      icon={Users}
-                      title="Fahrer & Fahrzeuge"
-                      text="Teilnehmerfeld und Fahrzeuge werden nach Freigabe veröffentlicht."
-                    />
-                  )}
-                  {showVotingPlaceholder && (
-                    <UpcomingPanel
-                      icon={Sparkles}
-                      title="Publikumsvoting"
-                      text="Das Voting wird zum passenden Zeitpunkt hier freigeschaltet."
-                    />
-                  )}
-                </div>
-              </section>
-            )}
           </>
         );
       })()}
