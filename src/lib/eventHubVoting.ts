@@ -56,6 +56,20 @@ export interface EventHubResponse {
   results: EventHubClassResult[] | null;
 }
 
+export interface EventHubSummaryResponse {
+  event: EventHubResponse['event'];
+  votingStatus: VotingStatus;
+  classes: EventHubClass[];
+  highlights: EventHubCandidate[];
+}
+
+export interface EventHubClassResponse {
+  eventClass: EventHubClass;
+  votingStatus: VotingStatus;
+  candidates: EventHubCandidate[];
+  result: EventHubClassResult | null;
+}
+
 export function groupCandidatesByClass(candidates: EventHubCandidate[]): Map<string, EventHubCandidate[]> {
   const map = new Map<string, EventHubCandidate[]>();
   for (const candidate of candidates) {

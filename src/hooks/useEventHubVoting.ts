@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchDeviceVoteStatus, fetchPublicEventHub, isEventBackendConfigured, requestVoteChallenge, submitVote } from '@/integrations/event-backend/client';
-import { matchesActiveEvent, type EventHubResponse } from '@/lib/eventHubVoting';
+import { fetchDeviceVoteStatus, fetchPublicEventHubClass, fetchPublicEventHubSummary, isEventBackendConfigured, requestVoteChallenge, submitVote } from '@/integrations/event-backend/client';
+import { matchesActiveEvent, type EventHubSummaryResponse } from '@/lib/eventHubVoting';
 import { generateClientSubmissionKey, getVoterPublicKeyBase64, isVoterIdentityAvailable, signVoterMessage } from '@/lib/voterIdentity';
 import { useMainEvent } from '@/hooks/useMainEvent';
 
 interface UseEventHubVotingResult {
-  data: EventHubResponse | undefined;
+  data: EventHubSummaryResponse | undefined;
   isLoading: boolean;
   /** false when the backend isn't configured, unreachable, or the CMS/backend "current" events have drifted apart. */
   votingEnabled: boolean;
@@ -42,7 +42,7 @@ export function useEventHubVoting(): UseEventHubVotingResult {
 
   const query = useQuery({
     queryKey: ['event_hub_voting'],
-    queryFn: fetchPublicEventHub,
+    queryFn: fetchPublicEventHubSummary,
     enabled: isEventBackendConfigured(),
     staleTime: 30_000,
     refetchInterval: 60_000
@@ -58,6 +58,16 @@ export function useEventHubVoting(): UseEventHubVotingResult {
     votingEnabled: isEventBackendConfigured() && Boolean(query.data) && eventMatches,
     votingPreview
   };
+}
+
+export function useEventHubClass(classId: string | undefined) {
+  return useQuery({
+    queryKey: ['event_hub_class', classId],
+    queryFn: () => fetchPublicEventHubClass(classId as string),
+    enabled: Boolean(classId) && isEventBackendConfigured(),
+    staleTime: 30_000,
+    refetchInterval: 60_000
+  });
 }
 
 export function useDeviceVoteStatus(eventId: string | undefined) {
@@ -108,6 +118,7 @@ export function useCastVote(eventId: string | undefined) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['event_hub_device_status', eventId] });
       void queryClient.invalidateQueries({ queryKey: ['event_hub_voting'] });
+      void queryClient.invalidateQueries({ queryKey: ['event_hub_class'] });
     }
   });
 }

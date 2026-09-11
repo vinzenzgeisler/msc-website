@@ -1,4 +1,4 @@
-import type { EventHubResponse } from '@/lib/eventHubVoting';
+import type { EventHubClassResponse, EventHubResponse, EventHubSummaryResponse } from '@/lib/eventHubVoting';
 
 const configuredEventApiBaseUrl = (import.meta.env.VITE_EVENT_API_BASE_URL || '').replace(/\/$/, '');
 // The event API only allows the production origin. Vite proxies local requests
@@ -27,8 +27,38 @@ export async function fetchPublicEventHub(): Promise<EventHubResponse> {
   return requestJson<EventHubResponse>('/public/events/current/event-hub');
 }
 
-export async function fetchPublicEventHubSummary(): Promise<Pick<EventHubResponse, 'event' | 'votingStatus' | 'classes'>> {
-  return requestJson('/public/events/current/event-hub/summary');
+export async function fetchPublicEventHubSummary(): Promise<EventHubSummaryResponse> {
+  try {
+    return await requestJson('/public/events/current/event-hub/summary');
+  } catch (error) {
+    if (!(error instanceof Error) || (error.message !== 'HTTP_404' && error.message !== 'HTTP_403')) throw error;
+    const legacy = await fetchPublicEventHub();
+    const withImages = legacy.candidates.filter((candidate) => candidate.vehicleImageUrl);
+    const featured = withImages.filter((candidate) => candidate.featured);
+    return {
+      event: legacy.event,
+      votingStatus: legacy.votingStatus,
+      classes: legacy.classes,
+      highlights: [...featured, ...withImages.filter((candidate) => !candidate.featured)].slice(0, 10)
+    };
+  }
+}
+
+export async function fetchPublicEventHubClass(classId: string): Promise<EventHubClassResponse> {
+  try {
+    return await requestJson(`/public/events/current/event-hub/classes/${encodeURIComponent(classId)}`);
+  } catch (error) {
+    if (!(error instanceof Error) || (error.message !== 'HTTP_404' && error.message !== 'HTTP_403')) throw error;
+    const legacy = await fetchPublicEventHub();
+    const eventClass = legacy.classes.find((item) => item.id === classId);
+    if (!eventClass) throw new Error('EVENT_CLASS_NOT_FOUND');
+    return {
+      eventClass,
+      votingStatus: legacy.votingStatus,
+      candidates: legacy.candidates.filter((candidate) => candidate.classId === classId),
+      result: legacy.results?.find((result) => result.classId === classId) ?? null
+    };
+  }
 }
 
 export interface VoteChallenge {
