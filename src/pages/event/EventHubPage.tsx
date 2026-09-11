@@ -471,37 +471,49 @@ export default function EventHubPage() {
           ))}
         </div>
       </nav>
-      {phase === "live" && event?.show_voting !== false && votingEnabled && (
-        <section className="py-20 md:py-24">
-          <div className="container max-w-5xl">
-            {event?.show_drivers !== false && <HighlightsSection />}
-            <VotingSection priorityClassIds={live.current?.backend_class_ids ?? []} />
-          </div>
-        </section>
-      )}
-      {phase !== "post" && scheduleSection}
-      {phase !== "post" &&
-        (event?.show_drivers !== false || event?.show_voting !== false) &&
-        (phase === "pre" || !votingEnabled) && (
-        <section className="py-20 md:py-24">
-          <div className="container grid max-w-5xl border-y border-border md:grid-cols-2 md:divide-x md:divide-border">
-            {event?.show_drivers !== false && (
-              <UpcomingPanel
-                icon={Users}
-                title="Fahrer & Fahrzeuge"
-                text="Teilnehmerfeld und Fahrzeuge werden nach Freigabe veröffentlicht."
-              />
+      {(() => {
+        const showHighlights = phase !== "post" && event?.show_drivers !== false && votingEnabled;
+        const showVotingLive = phase === "live" && event?.show_voting !== false && votingEnabled;
+        const showDriversPlaceholder = phase !== "post" && event?.show_drivers !== false && !votingEnabled;
+        const showVotingPlaceholder =
+          phase !== "post" && event?.show_voting !== false && (phase === "pre" || !votingEnabled);
+
+        return (
+          <>
+            {(showHighlights || showVotingLive) && (
+              <section className="py-20 md:py-24">
+                <div className="container max-w-5xl">
+                  {showHighlights && <HighlightsSection />}
+                  {showVotingLive && (
+                    <VotingSection priorityClassIds={live.current?.backend_class_ids ?? []} />
+                  )}
+                </div>
+              </section>
             )}
-            {event?.show_voting !== false && (
-              <UpcomingPanel
-                icon={Sparkles}
-                title="Publikumsvoting"
-                text="Das Voting wird zum passenden Zeitpunkt hier freigeschaltet."
-              />
+            {phase !== "post" && scheduleSection}
+            {(showDriversPlaceholder || showVotingPlaceholder) && (
+              <section className="py-20 md:py-24">
+                <div className="container grid max-w-5xl border-y border-border md:grid-cols-2 md:divide-x md:divide-border">
+                  {showDriversPlaceholder && (
+                    <UpcomingPanel
+                      icon={Users}
+                      title="Fahrer & Fahrzeuge"
+                      text="Teilnehmerfeld und Fahrzeuge werden nach Freigabe veröffentlicht."
+                    />
+                  )}
+                  {showVotingPlaceholder && (
+                    <UpcomingPanel
+                      icon={Sparkles}
+                      title="Publikumsvoting"
+                      text="Das Voting wird zum passenden Zeitpunkt hier freigeschaltet."
+                    />
+                  )}
+                </div>
+              </section>
             )}
-          </div>
-        </section>
-      )}
+          </>
+        );
+      })()}
       {phase === "post" && event?.show_voting !== false && votingEnabled && (
         <section className="py-20 md:py-24">
           <div className="container max-w-5xl">
