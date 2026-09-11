@@ -1,8 +1,11 @@
 import type { EventHubResponse } from '@/lib/eventHubVoting';
 
-const eventApiBaseUrl = (import.meta.env.VITE_EVENT_API_BASE_URL || '').replace(/\/$/, '');
+const configuredEventApiBaseUrl = (import.meta.env.VITE_EVENT_API_BASE_URL || '').replace(/\/$/, '');
+// The event API only allows the production origin. Vite proxies local requests
+// so the real data can still be exercised during development without weakening CORS.
+const eventApiBaseUrl = import.meta.env.DEV && configuredEventApiBaseUrl ? '/event-api' : configuredEventApiBaseUrl;
 
-export const isEventBackendConfigured = (): boolean => eventApiBaseUrl.length > 0;
+export const isEventBackendConfigured = (): boolean => configuredEventApiBaseUrl.length > 0;
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   if (!isEventBackendConfigured()) {
@@ -22,6 +25,10 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
 
 export async function fetchPublicEventHub(): Promise<EventHubResponse> {
   return requestJson<EventHubResponse>('/public/events/current/event-hub');
+}
+
+export async function fetchPublicEventHubSummary(): Promise<Pick<EventHubResponse, 'event' | 'votingStatus' | 'classes'>> {
+  return requestJson('/public/events/current/event-hub/summary');
 }
 
 export interface VoteChallenge {
@@ -59,4 +66,44 @@ export async function fetchDeviceVoteStatus(eventId: string, publicKey: string):
     method: 'POST',
     body: JSON.stringify({ publicKey })
   });
+}
+
+export interface PublicAuction {
+  eventId: string;
+  status: 'open' | 'closed';
+  titleI18n: Record<string, string>;
+  descriptionI18n: Record<string, string>;
+  termsI18n: Record<string, string>;
+  imageUrl: string | null;
+  videoUrl: string | null;
+  startingBidCents: number;
+  minIncrementCents: number;
+  currentHighestCents: number | null;
+  nextMinimumCents: number;
+  termsVersion: string;
+}
+
+export async function fetchPublicAuction(): Promise<PublicAuction | null> {
+  try {
+    const payload = await requestJson<{ auction: PublicAuction }>('/public/events/current/auction');
+    return payload.auction;
+  } catch (error) {
+    if (error instanceof Error && (error.message === 'AUCTION_NOT_FOUND' || error.message === 'HTTP_404')) return null;
+    throw error;
+  }
+}
+
+export interface AuctionBidPayload {
+  bidderName: string;
+  contactType: 'email' | 'phone';
+  contactValue: string;
+  amountCents: number;
+  acceptedBinding: true;
+  termsVersion: string;
+  clientSubmissionKey: string;
+  website: string;
+}
+
+export async function submitAuctionBid(eventId: string, payload: AuctionBidPayload) {
+  return requestJson<{ bidId: string; amountCents: number; alreadySubmitted: boolean }>(`/public/events/${eventId}/auction/bids`, { method: 'POST', body: JSON.stringify(payload) });
 }

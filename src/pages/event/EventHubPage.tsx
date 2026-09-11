@@ -11,9 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMainEvent } from "@/hooks/useMainEvent";
 import { useEventContent } from "@/hooks/useEventContent";
 import { useEventLiveNotices } from "@/hooks/useEventHub";
-import { useEventHubVoting } from "@/hooks/useEventHubVoting";
-import { VotingSection, VotingStickyButton } from "@/components/event/voting/VotingSection";
-import { HighlightsSection } from "@/components/event/highlights/HighlightsSection";
+import { EventSubnav } from "@/components/event/EventSubnav";
+import { EventFeatureNudge, EventFeatureTeasers } from "@/components/event/EventFeatureTeasers";
 import { DayScheduleBlocks } from "@/components/event/schedule/DayScheduleBlocks";
 import { useDownloads } from "@/hooks/useDownloads";
 import { useSponsors } from "@/hooks/useSponsors";
@@ -143,7 +142,6 @@ export default function EventHubPage() {
   const { data: sponsors } = useSponsors();
   const { data: settings } = useSettings();
   const { data: albums } = useMediaAlbums();
-  const { votingEnabled } = useEventHubVoting();
   const { data: selectedDownloadsContent } = useSectionContent(
     "event",
     "downloads",
@@ -226,9 +224,9 @@ export default function EventHubPage() {
     : undefined;
 
   const scheduleSection = (
-    <section id="schedule" className="bg-muted/40 py-20 md:py-28">
+    <section id="schedule" className="bg-muted/40 py-12 md:py-20">
       <div className="container max-w-5xl">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+        <div className="mb-7 flex flex-wrap items-end justify-between gap-3 md:mb-9 md:gap-4">
           <SectionHeading kicker="Programm 2026" title="Zeitplan" />
           <p className="max-w-lg text-sm text-muted-foreground">
             Kurzfristige Änderungen werden hier und im Live-Status angezeigt.
@@ -313,7 +311,7 @@ export default function EventHubPage() {
         <div className="absolute inset-0 bg-black/45 md:bg-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/5" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/20" />
-        <div className="container relative flex min-h-[460px] max-w-5xl flex-col justify-start pb-10 pt-24 md:min-h-[500px] md:pt-28">
+        <div className="container relative flex min-h-[420px] max-w-5xl flex-col justify-start pb-8 pt-20 md:min-h-[480px] md:pb-10 md:pt-24">
           {isLoading ? (
             <Skeleton className="h-40 w-full max-w-3xl bg-white/20" />
           ) : (
@@ -400,7 +398,7 @@ export default function EventHubPage() {
         </div>
       </section>
       {phase === "live" && (
-        <section id="live" className="bg-[#111827] py-10 text-white">
+        <section id="live" className="bg-[#111827] py-8 text-white md:py-10">
           <div className="container max-w-5xl">
             <div className="grid border-y border-white/20 md:grid-cols-[1.5fr_1fr]">
               <div className="py-6 md:border-r md:border-white/20 md:pr-8">
@@ -453,7 +451,7 @@ export default function EventHubPage() {
       <nav
         className={`z-30 border-b border-border bg-background/95 backdrop-blur ${phase === "live" ? "sticky top-0" : ""}`}
       >
-        <div className="container flex max-w-5xl gap-7 overflow-x-auto py-4">
+        <div className="container flex max-w-5xl gap-5 overflow-x-auto py-3 md:gap-7 md:py-4">
           {[
             ["#schedule", "Zeitplan"],
             ["#visitors", "Besucher"],
@@ -471,62 +469,12 @@ export default function EventHubPage() {
           ))}
         </div>
       </nav>
-      {(() => {
-        const showHighlights = phase !== "post" && event?.show_drivers !== false && votingEnabled;
-        const showVotingLive = phase === "live" && event?.show_voting !== false && votingEnabled;
-        const showDriversPlaceholder = phase !== "post" && event?.show_drivers !== false && !votingEnabled;
-        const showVotingPlaceholder =
-          phase !== "post" && event?.show_voting !== false && (phase === "pre" || !votingEnabled);
-
-        const showPlaceholders = showDriversPlaceholder || showVotingPlaceholder;
-        const bothPlaceholders = showDriversPlaceholder && showVotingPlaceholder;
-
-        return (
-          <>
-            {(showHighlights || showVotingLive || showPlaceholders) && (
-              <section className="py-20 md:py-24">
-                <div className="container max-w-5xl space-y-8">
-                  {showHighlights && <HighlightsSection />}
-                  {showVotingLive && (
-                    <VotingSection priorityClassIds={live.current?.backend_class_ids ?? []} />
-                  )}
-                  {showPlaceholders && (
-                    <div
-                      className={`grid border-y border-border ${bothPlaceholders ? "md:grid-cols-2 md:divide-x md:divide-border" : ""}`}
-                    >
-                      {showDriversPlaceholder && (
-                        <UpcomingPanel
-                          icon={Users}
-                          title="Fahrer & Fahrzeuge"
-                          text="Teilnehmerfeld und Fahrzeuge werden nach Freigabe veröffentlicht."
-                        />
-                      )}
-                      {showVotingPlaceholder && (
-                        <UpcomingPanel
-                          icon={Sparkles}
-                          title="Publikumsvoting"
-                          text="Das Voting wird zum passenden Zeitpunkt hier freigeschaltet."
-                        />
-                      )}
-                    </div>
-                  )}
-                </div>
-              </section>
-            )}
-            {phase !== "post" && scheduleSection}
-          </>
-        );
-      })()}
-      {phase === "post" && event?.show_voting !== false && votingEnabled && (
-        <section className="py-20 md:py-24">
-          <div className="container max-w-5xl">
-            <VotingSection />
-          </div>
-        </section>
-      )}
-      <VotingStickyButton />
+      <EventSubnav />
+      <EventFeatureTeasers />
+      {phase !== "post" && scheduleSection}
+      <EventFeatureNudge />
       {mainSponsors.length > 0 && (
-        <section className="bg-muted/40 py-16">
+        <section className="bg-muted/40 py-10 md:py-14">
           <div className="container max-w-5xl">
             <MainSponsorMarquee
               sponsors={mainSponsors}
@@ -538,7 +486,7 @@ export default function EventHubPage() {
           </div>
         </section>
       )}
-      <section id="visitors" className="py-20 md:py-28">
+      <section id="visitors" className="py-12 md:py-20">
         <div className="container max-w-5xl">
           <SectionHeading kicker="Vor Ort" title="Besucherinformationen" />
           <div className="grid border-t border-border md:grid-cols-2 md:gap-x-12">
@@ -597,7 +545,7 @@ export default function EventHubPage() {
           </Link>
         </div>
       </section>
-      <section id="downloads" className="bg-muted/40 py-20 md:py-28">
+      <section id="downloads" className="bg-muted/40 py-12 md:py-20">
         <div className="container max-w-5xl">
           <SectionHeading kicker="Dokumente" title="Downloads" />
           <div className="grid border-t border-border sm:grid-cols-2 sm:gap-x-10">
@@ -627,10 +575,10 @@ export default function EventHubPage() {
           </div>
         </div>
       </section>
-      <section id="track" className="py-20 md:py-28">
+      <section id="track" className="py-12 md:py-20">
         <div className="container max-w-5xl">
           <SectionHeading kicker="5,9 Kilometer" title="Strecke & Anreise" />
-          <div className="grid gap-12 lg:grid-cols-2">
+          <div className="grid gap-8 md:gap-10 lg:grid-cols-2">
             <div className="border-t border-border">
               <InfoRow icon={Route} title="Oberlausitzer Dreieck">
                 Die historische Strecke verbindet Saalendorf, Jonsdorf und
@@ -663,7 +611,7 @@ export default function EventHubPage() {
           </div>
         </div>
       </section>
-      <section id="gallery" className="py-20 md:py-28">
+      <section id="gallery" className="py-12 md:py-20">
         <div className="container max-w-5xl">
           <SectionHeading
             kicker={phase === "post" ? "Rückblick" : "Impressionen"}
@@ -754,7 +702,7 @@ function Fact({
   value: string;
 }) {
   return (
-    <div className="flex min-h-28 items-center gap-3 border-r border-border px-4 even:border-r-0 md:px-6 md:even:border-r md:last:border-r-0">
+    <div className="flex min-h-24 items-center gap-2.5 border-r border-border px-3 even:border-r-0 md:min-h-28 md:gap-3 md:px-6 md:even:border-r md:last:border-r-0">
       <Icon className="h-5 w-5 shrink-0 text-primary" />
       <div>
         <p className="text-xs font-semibold text-muted-foreground">{label}</p>
@@ -773,9 +721,9 @@ function SectionHeading({
   invert?: boolean;
 }) {
   return (
-    <div className="mb-10">
+    <div className="mb-7 md:mb-10">
       <p
-        className={`mb-3 text-sm font-semibold ${invert ? "text-accent" : "text-primary"}`}
+        className={`mb-2 text-sm font-semibold md:mb-3 ${invert ? "text-accent" : "text-primary"}`}
       >
         {kicker}
       </p>

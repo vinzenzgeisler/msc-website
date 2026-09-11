@@ -1,136 +1,26 @@
-import { Sparkles, MapPin, Baby, UserRound, Clock3, Gauge, Zap, Cog } from 'lucide-react';
-import { useLanguage } from '@/i18n/LanguageContext';
+import { useEffect, useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight, Expand, Sparkles } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { useEventHubVoting } from '@/hooks/useEventHubVoting';
-import type { EventHubCandidate, EventHubFactEntry, EventHubFacts } from '@/lib/eventHubVoting';
 
-type FactKey = keyof EventHubFacts;
-
-const FACT_UNITS: Partial<Record<FactKey, string>> = {
-  farthestTravelKm: 'km',
-  youngestDriver: 'J.',
-  oldestDriver: 'J.',
-  oldestVehicle: '',
-  largestDisplacementCcm: 'ccm',
-  highestPowerPs: 'PS',
-  mostCylinders: ''
-};
-
-const FACT_ICONS: Record<FactKey, typeof MapPin> = {
-  farthestTravelKm: MapPin,
-  youngestDriver: Baby,
-  oldestDriver: UserRound,
-  oldestVehicle: Clock3,
-  largestDisplacementCcm: Gauge,
-  highestPowerPs: Zap,
-  mostCylinders: Cog
-};
-
-/**
- * Multiple entries can be tied for a fact (e.g. same age), including a driver who
- * registered more than one vehicle — dedupe by driver name so they aren't listed twice.
- */
-function dedupeEntries(entries: EventHubFactEntry[]): EventHubFactEntry[] {
-  const seen = new Set<string>();
-  return entries.filter((entry) => {
-    const key = entry.driverName.trim().toLowerCase();
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-function FactCard({
-  entries,
-  label,
-  unit,
-  Icon,
-  candidatesById
-}: {
-  entries: EventHubFactEntry[];
-  label: string;
-  unit: string;
-  Icon: typeof MapPin;
-  candidatesById: Map<string, EventHubCandidate>;
-}) {
-  return (
-    <div className="rounded-xl border bg-card p-4 shadow-sm transition hover:shadow-md">
-      <div className="mb-3 flex items-center gap-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
-          <Icon className="h-4 w-4" aria-hidden />
-        </span>
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-      </div>
-      <ul className="space-y-2">
-        {entries.map((entry) => {
-          const image = candidatesById.get(entry.entryId)?.vehicleImageUrl;
-          return (
-            <li key={entry.entryId} className="flex items-center gap-3">
-              {image ? (
-                <img src={image} alt="" className="h-9 w-9 rounded-full object-cover shrink-0 ring-1 ring-border" />
-              ) : (
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0" aria-hidden>
-                  <UserRound className="h-4 w-4" />
-                </span>
-              )}
-              <span className="min-w-0 text-sm">
-                <span className="block truncate font-semibold">{entry.driverName}</span>
-                <span className="block text-muted-foreground">
-                  {entry.value}
-                  {unit ? ` ${unit}` : ''}
-                </span>
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
-
-export function HighlightsSection() {
-  const { t } = useLanguage();
+export function HighlightsSection({ classIds = [] }: { classIds?: string[] }) {
   const { data, votingEnabled } = useEventHubVoting();
-
-  if (!votingEnabled || !data || data.votingStatus === 'closed') {
-    return null;
-  }
-
-  const factLabels: Record<FactKey, string> = {
-    farthestTravelKm: t.voting.factFarthestTravel,
-    youngestDriver: t.voting.factYoungestDriver,
-    oldestDriver: t.voting.factOldestDriver,
-    oldestVehicle: t.voting.factOldestVehicle,
-    largestDisplacementCcm: t.voting.factLargestDisplacement,
-    highestPowerPs: t.voting.factHighestPower,
-    mostCylinders: t.voting.factMostCylinders
-  };
-
-  const candidatesById = new Map(data.candidates.map((candidate) => [candidate.entryId, candidate]));
-
-  const visibleFacts = (Object.keys(factLabels) as FactKey[])
-    .map((key) => ({ key, entries: dedupeEntries(data.facts[key] ?? []) }))
-    .filter((item): item is { key: FactKey; entries: EventHubFactEntry[] } => item.entries.length > 0);
-
-  if (visibleFacts.length === 0) return null;
-
-  return (
-    <section className="mb-8">
-      <h2 className="flex items-center gap-2 mb-4 text-2xl font-bold">
-        <Sparkles className="h-6 w-6 text-primary" aria-hidden />
-        {t.voting.factsTitle}
-      </h2>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {visibleFacts.map(({ key, entries }) => (
-          <FactCard
-            key={key}
-            entries={entries}
-            label={factLabels[key]}
-            unit={FACT_UNITS[key] ?? ''}
-            Icon={FACT_ICONS[key]}
-            candidatesById={candidatesById}
-          />
-        ))}
-      </div>
-    </section>
-  );
+  const [index, setIndex] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+  const candidates = useMemo(() => {
+    const eligible = (data?.candidates ?? []).filter((item) => item.vehicleImageUrl && (!classIds.length || classIds.includes(item.classId)));
+    const featured = eligible.filter((item) => item.featured || item.pinned);
+    return [...featured, ...eligible.filter((item) => !featured.includes(item))].slice(0, 10);
+  }, [classIds, data?.candidates]);
+  useEffect(() => setIndex(0), [classIds.join('|')]);
+  useEffect(() => {
+    if (candidates.length < 2 || expanded || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const timer = window.setInterval(() => setIndex((value) => (value + 1) % candidates.length), 6000);
+    return () => clearInterval(timer);
+  }, [candidates.length, expanded]);
+  if (!votingEnabled || !data || !candidates.length) return null;
+  const candidate = candidates[index % candidates.length];
+  const move = (step: number) => setIndex((value) => (value + step + candidates.length) % candidates.length);
+  return <section aria-label="Fahrer im Fokus"><div className="mb-3 flex items-center justify-between"><h2 className="flex items-center gap-2 text-xl font-bold sm:text-2xl"><Sparkles className="h-5 w-5 text-primary"/>Fahrer im Fokus</h2><span className="text-xs text-muted-foreground">{index + 1}/{candidates.length}</span></div><article className="relative overflow-hidden rounded-xl bg-slate-950 text-white"><img src={candidate.vehicleImageUrl!} alt={`${candidate.driverName}, ${[candidate.vehicleMake, candidate.vehicleModel].filter(Boolean).join(' ')}`} className="aspect-[4/3] w-full object-cover sm:aspect-[16/8]" loading="eager" decoding="async"/><div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent"/><div className="absolute inset-x-0 bottom-0 p-4 sm:p-6"><p className="text-xs font-bold uppercase tracking-wider text-white/70">{candidate.startNumberNorm ? `Startnummer ${candidate.startNumberNorm}` : 'Teilnehmer'}</p><h3 className="mt-1 text-2xl font-black sm:text-3xl">{candidate.driverName}</h3><p className="text-sm text-white/75">{[candidate.vehicleMake, candidate.vehicleModel, candidate.vehicleYear].filter(Boolean).join(' · ')}</p></div><Button size="icon" variant="secondary" aria-label="Bild vergrößern" className="absolute right-3 top-3" onClick={() => setExpanded(true)}><Expand/></Button>{candidates.length > 1 && <><Button size="icon" variant="secondary" aria-label="Vorheriger Fahrer" className="absolute left-3 top-1/2 -translate-y-1/2" onClick={() => move(-1)}><ChevronLeft/></Button><Button size="icon" variant="secondary" aria-label="Nächster Fahrer" className="absolute right-3 top-1/2 -translate-y-1/2" onClick={() => move(1)}><ChevronRight/></Button></>}</article><Dialog open={expanded} onOpenChange={setExpanded}><DialogContent className="max-w-5xl border-0 bg-black p-2"><img src={candidate.vehicleImageUrl!} alt={candidate.driverName} className="max-h-[88vh] w-full object-contain"/></DialogContent></Dialog></section>;
 }

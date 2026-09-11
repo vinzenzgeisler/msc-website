@@ -16,6 +16,7 @@ export interface EventHubCandidate {
   vehicleModel: string | null;
   vehicleYear: number | null;
   pinned: boolean;
+  featured?: boolean;
 }
 
 export interface EventHubFactEntry {

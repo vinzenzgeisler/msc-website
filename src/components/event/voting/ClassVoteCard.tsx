@@ -29,8 +29,8 @@ export function ClassVoteCard({ eventClass, candidates, votingStatus, votedClass
   if (votingStatus === 'closed' && result) {
     const sorted = [...result.entries].sort((a, b) => b.voteCount - a.voteCount);
     return (
-      <div className="rounded-lg border bg-card p-4">
-        <div className="flex items-center justify-between mb-3">
+      <div className="rounded-lg border bg-card p-3 sm:p-4">
+        <div className="mb-2 flex items-center justify-between sm:mb-3">
           <h3 className="font-semibold">{eventClass.name}</h3>
           <Badge variant="secondary">{t.voting.resultsTitle}</Badge>
         </div>
@@ -52,8 +52,8 @@ export function ClassVoteCard({ eventClass, candidates, votingStatus, votedClass
   }
 
   return (
-    <div className="rounded-lg border bg-card p-4">
-      <div className="flex items-center justify-between mb-3 gap-2">
+    <div className="rounded-lg border bg-card p-3 sm:p-4">
+      <div className="mb-2 flex items-center justify-between gap-2 sm:mb-3">
         <h3 className="font-semibold">{eventClass.name}</h3>
         {hasVoted && <Badge variant="secondary">{t.voting.votedBadge}</Badge>}
       </div>
@@ -62,7 +62,7 @@ export function ClassVoteCard({ eventClass, candidates, votingStatus, votedClass
         <p className="text-sm text-muted-foreground">{t.voting.loadError}</p>
       )}
       {votingStatus === 'open' && candidates.length > 0 && (
-        <div role="radiogroup" aria-label={eventClass.name} className="grid gap-2 sm:grid-cols-2">
+        <div role="radiogroup" aria-label={eventClass.name} className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3 xl:gap-2">
           {candidates.map((candidate) => (
             <button
               key={candidate.entryId}
@@ -71,10 +71,10 @@ export function ClassVoteCard({ eventClass, candidates, votingStatus, votedClass
               aria-checked={false}
               disabled={!votable || submitting}
               onClick={() => votable && setPendingCandidate(candidate)}
-              className="flex min-h-[44px] items-center gap-3 rounded-md border p-3 text-left text-sm transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex min-h-[44px] items-center gap-2.5 rounded-md border p-2.5 text-left text-sm transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-3 sm:p-3"
             >
               {candidate.vehicleImageUrl ? (
-                <img src={candidate.vehicleImageUrl} alt="" className="h-10 w-10 rounded object-cover shrink-0" />
+                <img src={candidate.vehicleImageUrl} alt="" loading="lazy" decoding="async" className="h-12 w-12 rounded object-cover shrink-0" />
               ) : (
                 <span className="h-10 w-10 rounded bg-muted shrink-0" aria-hidden />
               )}

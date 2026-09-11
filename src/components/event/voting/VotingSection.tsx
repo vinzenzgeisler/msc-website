@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Vote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useCastVote, useDeviceVoteStatus, useEventHubVoting } from '@/hooks/useEventHubVoting';
 import { computeVotingProgress, groupCandidatesByClass, sortClassesWithPriority } from '@/lib/eventHubVoting';
 import { ClassVoteCard } from './ClassVoteCard';
-import { VoteHintSheet } from './VoteHintSheet';
 
 interface VotingSectionProps {
   /** Classes to surface first (e.g. the class currently running), from the schedule. */
@@ -14,12 +13,19 @@ interface VotingSectionProps {
 
 export function VotingSection({ priorityClassIds = [] }: VotingSectionProps) {
   const { t } = useLanguage();
-  const { data, isLoading, votingEnabled } = useEventHubVoting();
+  const { data, isLoading, votingEnabled, votingPreview } = useEventHubVoting();
   const eventId = data?.event.id;
   const deviceStatus = useDeviceVoteStatus(votingEnabled ? eventId : undefined);
   const castVote = useCastVote(eventId);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [voteError, setVoteError] = useState<string | null>(null);
+  const [activeClassId, setActiveClassId] = useState('');
+
+  useEffect(() => {
+    const preferred = priorityClassIds.find((id) => data?.classes.some((item) => item.id === id));
+    if (preferred) setActiveClassId(preferred);
+    else if (!activeClassId && data?.classes[0]) setActiveClassId(data.classes[0].id);
+  }, [activeClassId, data?.classes, priorityClassIds]);
 
   if (!votingEnabled || !data) {
     return null;
@@ -30,6 +36,7 @@ export function VotingSection({ priorityClassIds = [] }: VotingSectionProps) {
   const candidatesByClass = groupCandidatesByClass(data.candidates);
   const resultsByClass = new Map((data.results ?? []).map((r) => [r.classId, r]));
   const progress = computeVotingProgress(data.classes, votedClassIds);
+  const activeClass = classes.find((item) => item.id === activeClassId) ?? classes[0];
 
   const handleVote = async (classId: string, entryId: string) => {
     setHasInteracted(true);
@@ -43,10 +50,14 @@ export function VotingSection({ priorityClassIds = [] }: VotingSectionProps) {
 
   return (
     <section id="publikumsvoting" className="scroll-mt-24">
-      <VoteHintSheet eventId={data.event.id} hasInteracted={hasInteracted} />
+      {votingPreview && (
+        <p className="mb-4 border border-amber-500/50 bg-amber-500/10 px-4 py-3 text-sm font-medium">
+          Lokale Voting-Vorschau – Teststimmen werden nicht an den Server gesendet.
+        </p>
+      )}
 
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <h2 className="flex items-center gap-2 text-2xl font-bold">
+      <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
+        <h2 className="flex items-center gap-2 text-xl font-bold sm:text-2xl">
           <Vote className="h-6 w-6 text-primary" aria-hidden />
           {t.voting.sectionTitle}
         </h2>
@@ -60,19 +71,22 @@ export function VotingSection({ priorityClassIds = [] }: VotingSectionProps) {
       {isLoading && <p className="text-sm text-muted-foreground">{t.common.loading}</p>}
       {voteError && <p className="mb-3 text-sm text-destructive">{voteError}</p>}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {classes.map((eventClass) => (
+      <div className="-mx-4 mb-3 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+        {classes.map((eventClass) => <Button key={eventClass.id} type="button" size="sm" variant={eventClass.id === activeClass?.id ? 'default' : 'outline'} className="shrink-0" onClick={() => { setHasInteracted(true); setActiveClassId(eventClass.id); }}>{eventClass.name}{votedClassIds.includes(eventClass.id) ? ' ✓' : ''}</Button>)}
+      </div>
+      <div>
+        {activeClass && (
           <ClassVoteCard
-            key={eventClass.id}
-            eventClass={eventClass}
-            candidates={candidatesByClass.get(eventClass.id) ?? []}
+            key={activeClass.id}
+            eventClass={activeClass}
+            candidates={candidatesByClass.get(activeClass.id) ?? []}
             votingStatus={data.votingStatus}
             votedClassIds={votedClassIds}
             result={resultsByClass.get(eventClass.id)}
             submitting={castVote.isPending}
             onVote={handleVote}
           />
-        ))}
+        )}
       </div>
     </section>
   );

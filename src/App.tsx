@@ -12,6 +12,8 @@ import { AnalyticsManager } from "@/components/analytics/AnalyticsManager";
 import Index from "./pages/Index";
 import EventPage from "./pages/EventPage";
 import AccommodationPage from "./pages/event/AccommodationPage";
+import DriversVotingPage from "./pages/event/DriversVotingPage";
+import HelmetAuctionPage from "./pages/event/HelmetAuctionPage";
 import CalendarPage from "./pages/CalendarPage";
 import CalendarDetailPage from "./pages/CalendarDetailPage";
 import NewsPage from "./pages/NewsPage";
@@ -71,6 +73,8 @@ const App = () => (
               {/* Main Pages */}
               <Route path="/" element={<Index />} />
               <Route path="/event" element={<EventPage />} />
+              <Route path="/event/fahrer" element={<DriversVotingPage />} />
+              <Route path="/event/helm-versteigerung" element={<HelmetAuctionPage />} />
               <Route path="/event/accommodation" element={<AccommodationPage />} />
               <Route path="/old" element={<Navigate to="/event" replace />} />
               <Route path="/old/accommodation" element={<Navigate to="/event/accommodation" replace />} />

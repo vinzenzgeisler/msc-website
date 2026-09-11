@@ -9,10 +9,36 @@ interface UseEventHubVotingResult {
   isLoading: boolean;
   /** false when the backend isn't configured, unreachable, or the CMS/backend "current" events have drifted apart. */
   votingEnabled: boolean;
+  /** Development-only mode for trying the complete voting flow without sending votes. */
+  votingPreview: boolean;
+}
+
+const PREVIEW_STORAGE_PREFIX = 'msc_event_hub_vote_preview_';
+
+function isVotingPreviewOpen(): boolean {
+  return import.meta.env.DEV
+    && typeof window !== 'undefined'
+    && new URLSearchParams(window.location.search).get('previewVoting') === 'open';
+}
+
+function readPreviewVotes(eventId: string): string[] {
+  try {
+    const stored = window.sessionStorage.getItem(`${PREVIEW_STORAGE_PREFIX}${eventId}`);
+    return stored ? JSON.parse(stored) as string[] : [];
+  } catch {
+    return [];
+  }
+}
+
+function storePreviewVote(eventId: string, classId: string): void {
+  const votedClassIds = new Set(readPreviewVotes(eventId));
+  votedClassIds.add(classId);
+  window.sessionStorage.setItem(`${PREVIEW_STORAGE_PREFIX}${eventId}`, JSON.stringify([...votedClassIds]));
 }
 
 export function useEventHubVoting(): UseEventHubVotingResult {
   const { data: mainEvent } = useMainEvent();
+  const votingPreview = isVotingPreviewOpen();
 
   const query = useQuery({
     queryKey: ['event_hub_voting'],
@@ -27,16 +53,20 @@ export function useEventHubVoting(): UseEventHubVotingResult {
   );
 
   return {
-    data: query.data,
+    data: query.data && votingPreview ? { ...query.data, votingStatus: 'open' } : query.data,
     isLoading: query.isLoading,
-    votingEnabled: isEventBackendConfigured() && Boolean(query.data) && eventMatches
+    votingEnabled: isEventBackendConfigured() && Boolean(query.data) && eventMatches,
+    votingPreview
   };
 }
 
 export function useDeviceVoteStatus(eventId: string | undefined) {
+  const votingPreview = isVotingPreviewOpen();
+
   return useQuery({
-    queryKey: ['event_hub_device_status', eventId],
+    queryKey: ['event_hub_device_status', eventId, votingPreview ? 'preview' : 'live'],
     queryFn: async () => {
+      if (votingPreview) return { votedClassIds: readPreviewVotes(eventId as string) };
       const publicKey = await getVoterPublicKeyBase64();
       return fetchDeviceVoteStatus(eventId as string, publicKey);
     },
@@ -47,10 +77,15 @@ export function useDeviceVoteStatus(eventId: string | undefined) {
 
 export function useCastVote(eventId: string | undefined) {
   const queryClient = useQueryClient();
+  const votingPreview = isVotingPreviewOpen();
 
   return useMutation({
     mutationFn: async ({ classId, entryId }: { classId: string; entryId: string }) => {
       if (!eventId) throw new Error('EVENT_NOT_READY');
+      if (votingPreview) {
+        storePreviewVote(eventId, classId);
+        return { alreadySubmitted: false };
+      }
       const available = await isVoterIdentityAvailable();
       if (!available) throw new Error('VOTER_IDENTITY_UNAVAILABLE');
 
