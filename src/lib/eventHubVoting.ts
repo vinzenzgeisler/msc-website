@@ -11,7 +11,7 @@ export interface EventHubCandidate {
   classId: string;
   startNumberNorm: string | null;
   driverName: string;
-  vehicleImageS3Key: string | null;
+  vehicleImageUrl: string | null;
   vehicleMake: string | null;
   vehicleModel: string | null;
   vehicleYear: number | null;

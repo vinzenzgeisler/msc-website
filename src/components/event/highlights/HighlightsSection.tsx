@@ -25,12 +25,16 @@ const FACT_ICONS: Record<FactKey, typeof MapPin> = {
   mostCylinders: Cog
 };
 
-/** Multiple candidates can be tied for a fact (e.g. same age); dedupe entries referring to the same driver/vehicle entry. */
+/**
+ * Multiple entries can be tied for a fact (e.g. same age), including a driver who
+ * registered more than one vehicle — dedupe by driver name so they aren't listed twice.
+ */
 function dedupeEntries(entries: EventHubFactEntry[]): EventHubFactEntry[] {
   const seen = new Set<string>();
   return entries.filter((entry) => {
-    if (seen.has(entry.entryId)) return false;
-    seen.add(entry.entryId);
+    const key = entry.driverName.trim().toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
     return true;
   });
 }
@@ -58,7 +62,7 @@ function FactCard({
       </div>
       <ul className="space-y-2">
         {entries.map((entry) => {
-          const image = candidatesById.get(entry.entryId)?.vehicleImageS3Key;
+          const image = candidatesById.get(entry.entryId)?.vehicleImageUrl;
           return (
             <li key={entry.entryId} className="flex items-center gap-3">
               {image ? (

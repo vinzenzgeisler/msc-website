@@ -20,7 +20,7 @@ const candidate = (entryId: string, classId: string, pinned = false): EventHubCa
   classId,
   startNumberNorm: null,
   driverName: 'Fahrer',
-  vehicleImageS3Key: null,
+  vehicleImageUrl: null,
   vehicleMake: null,
   vehicleModel: null,
   vehicleYear: null,

@@ -73,8 +73,8 @@ export function ClassVoteCard({ eventClass, candidates, votingStatus, votedClass
               onClick={() => votable && setPendingCandidate(candidate)}
               className="flex min-h-[44px] items-center gap-3 rounded-md border p-3 text-left text-sm transition hover:border-primary disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              {candidate.vehicleImageS3Key ? (
-                <img src={candidate.vehicleImageS3Key} alt="" className="h-10 w-10 rounded object-cover shrink-0" />
+              {candidate.vehicleImageUrl ? (
+                <img src={candidate.vehicleImageUrl} alt="" className="h-10 w-10 rounded object-cover shrink-0" />
               ) : (
                 <span className="h-10 w-10 rounded bg-muted shrink-0" aria-hidden />
               )}
