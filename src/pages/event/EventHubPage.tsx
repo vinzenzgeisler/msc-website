@@ -471,16 +471,18 @@ export default function EventHubPage() {
           ))}
         </div>
       </nav>
-      {phase !== "post" && event?.show_voting !== false && votingEnabled && (
+      {phase === "live" && event?.show_voting !== false && votingEnabled && (
         <section className="py-20 md:py-24">
           <div className="container max-w-5xl">
             {event?.show_drivers !== false && <HighlightsSection />}
-            <VotingSection priorityClassIds={phase === "live" ? live.current?.backend_class_ids ?? [] : []} />
+            <VotingSection priorityClassIds={live.current?.backend_class_ids ?? []} />
           </div>
         </section>
       )}
       {phase !== "post" && scheduleSection}
-      {(event?.show_drivers !== false || event?.show_voting !== false) && !votingEnabled && (
+      {phase !== "post" &&
+        (event?.show_drivers !== false || event?.show_voting !== false) &&
+        (phase === "pre" || !votingEnabled) && (
         <section className="py-20 md:py-24">
           <div className="container grid max-w-5xl border-y border-border md:grid-cols-2 md:divide-x md:divide-border">
             {event?.show_drivers !== false && (
