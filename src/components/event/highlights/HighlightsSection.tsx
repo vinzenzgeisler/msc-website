@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Expand, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useEventHubClass, useEventHubVoting } from '@/hooks/useEventHubVoting';
+import { useEventHubClasses, useEventHubVoting } from '@/hooks/useEventHubVoting';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 const copy = {
@@ -16,15 +16,15 @@ export function HighlightsSection({ classIds = [] }: { classIds?: string[] }) {
   const { locale } = useLanguage();
   const c = copy[locale];
   const { data, votingEnabled } = useEventHubVoting();
-  const activeClass = useEventHubClass(votingEnabled && classIds.length ? classIds[0] : undefined);
+  const activeClasses = useEventHubClasses(votingEnabled ? classIds : []);
   const [index, setIndex] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const candidates = useMemo(() => {
-    const source = classIds.length ? (activeClass.data?.candidates ?? []) : (data?.highlights ?? []);
+    const source = classIds.length ? activeClasses.flatMap((query) => query.data?.candidates ?? []) : (data?.highlights ?? []);
     const eligible = source.filter((item) => item.vehicleImageUrl);
     const featured = eligible.filter((item) => item.featured || item.pinned);
     return [...featured, ...eligible.filter((item) => !featured.includes(item))].slice(0, 10);
-  }, [activeClass.data?.candidates, classIds, data?.highlights]);
+  }, [activeClasses, classIds, data?.highlights]);
   useEffect(() => setIndex(0), [classIds.join('|')]);
   useEffect(() => {
     if (candidates.length < 2 || expanded || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;

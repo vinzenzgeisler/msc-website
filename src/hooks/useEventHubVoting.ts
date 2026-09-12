@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueries, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchDeviceVoteStatus, fetchPublicEventHubClass, fetchPublicEventHubSummary, isEventBackendConfigured, requestVoteChallenge, submitVote } from '@/integrations/event-backend/client';
 import { matchesActiveEvent, type EventHubSummaryResponse } from '@/lib/eventHubVoting';
 import { generateClientSubmissionKey, getVoterPublicKeyBase64, isVoterIdentityAvailable, signVoterMessage } from '@/lib/voterIdentity';
@@ -67,6 +67,18 @@ export function useEventHubClass(classId: string | undefined) {
     enabled: Boolean(classId) && isEventBackendConfigured(),
     staleTime: 30_000,
     refetchInterval: 60_000
+  });
+}
+
+export function useEventHubClasses(classIds: string[]) {
+  return useQueries({
+    queries: [...new Set(classIds)].map((classId) => ({
+      queryKey: ['event_hub_class', classId],
+      queryFn: () => fetchPublicEventHubClass(classId),
+      enabled: isEventBackendConfigured(),
+      staleTime: 30_000,
+      refetchInterval: 60_000
+    }))
   });
 }
 

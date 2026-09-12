@@ -13,6 +13,7 @@ import { useEventContent } from "@/hooks/useEventContent";
 import { useEventLiveNotices } from "@/hooks/useEventHub";
 import { EventSubnav } from "@/components/event/EventSubnav";
 import { EventFeatureNudge, EventFeatureTeasers } from "@/components/event/EventFeatureTeasers";
+import { HighlightsSection } from "@/components/event/highlights/HighlightsSection";
 import { DayScheduleBlocks } from "@/components/event/schedule/DayScheduleBlocks";
 import { useDownloads } from "@/hooks/useDownloads";
 import { useSponsors } from "@/hooks/useSponsors";
@@ -471,6 +472,9 @@ export default function EventHubPage() {
       </nav>
       <EventSubnav />
       <EventFeatureTeasers />
+      <div className="container max-w-5xl py-6 md:py-8">
+        <HighlightsSection classIds={phase === "live" ? live.current?.backend_class_ids ?? [] : []} />
+      </div>
       {phase !== "post" && scheduleSection}
       <EventFeatureNudge />
       {mainSponsors.length > 0 && (
