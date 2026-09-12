@@ -21,9 +21,10 @@ export function VotingSection({ priorityClassIds = [] }: VotingSectionProps) {
   const [activeClassId, setActiveClassId] = useState('');
 
   useEffect(() => {
+    if (activeClassId) return;
     const preferred = priorityClassIds.find((id) => data?.classes.some((item) => item.id === id));
     if (preferred) setActiveClassId(preferred);
-    else if (!activeClassId && data?.classes[0]) setActiveClassId(data.classes[0].id);
+    else if (data?.classes[0]) setActiveClassId(data.classes[0].id);
   }, [activeClassId, data?.classes, priorityClassIds]);
 
   const classes = sortClassesWithPriority(data?.classes ?? [], priorityClassIds);

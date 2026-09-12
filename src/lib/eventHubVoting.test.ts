@@ -4,6 +4,7 @@ import {
   groupCandidatesByClass,
   isClassVotable,
   matchesActiveEvent,
+  sortClassesNaturally,
   sortClassesWithPriority,
   type EventHubCandidate,
   type EventHubClass
@@ -41,6 +42,18 @@ describe('sortClassesWithPriority', () => {
   });
   it('moves the current class group to the front', () => {
     expect(sortClassesWithPriority(classes, ['c3']).map((c) => c.id)).toEqual(['c3', 'c1', 'c2']);
+  });
+});
+
+describe('sortClassesNaturally', () => {
+  it('sorts by number instead of string order', () => {
+    const unordered: EventHubClass[] = [
+      { id: 'c1', name: 'Klasse 1', vehicleType: 'auto' },
+      { id: 'c10', name: 'Klasse 10', vehicleType: 'auto' },
+      { id: 'c2', name: 'Klasse 2', vehicleType: 'auto' },
+      { id: 'c11', name: 'Klasse 11', vehicleType: 'auto' }
+    ];
+    expect(sortClassesNaturally(unordered).map((c) => c.id)).toEqual(['c1', 'c2', 'c10', 'c11']);
   });
 });
 

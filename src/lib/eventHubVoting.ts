@@ -80,11 +80,21 @@ export function groupCandidatesByClass(candidates: EventHubCandidate[]): Map<str
   return map;
 }
 
-/** Priority classes (e.g. the class currently running) are sorted first; order among them and the rest is preserved otherwise. */
+/** Natural-order compare so "Klasse 2" sorts before "Klasse 10" instead of by plain string comparison. */
+export function compareClassNames(a: string, b: string): number {
+  return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+}
+
+export function sortClassesNaturally<T extends { name: string }>(classes: T[]): T[] {
+  return [...classes].sort((a, b) => compareClassNames(a.name, b.name));
+}
+
+/** Priority classes (e.g. the class currently running) are sorted first; order among them and the rest follows natural class-name order. */
 export function sortClassesWithPriority(classes: EventHubClass[], priorityClassIds: string[]): EventHubClass[] {
-  if (priorityClassIds.length === 0) return classes;
+  const sorted = sortClassesNaturally(classes);
+  if (priorityClassIds.length === 0) return sorted;
   const priority = new Set(priorityClassIds);
-  return [...classes].sort((a, b) => {
+  return [...sorted].sort((a, b) => {
     const aPriority = priority.has(a.id) ? 0 : 1;
     const bPriority = priority.has(b.id) ? 0 : 1;
     return aPriority - bPriority;
