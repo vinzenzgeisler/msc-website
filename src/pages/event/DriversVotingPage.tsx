@@ -15,6 +15,13 @@ const copy = {
   pl: { title: 'Kierowcy i głosowanie publiczności', description: 'Poznaj kierowców i pojazdy oraz głosuj w każdej klasie.' }
 } as const;
 
+const jumpCopy = {
+  de: 'Direkt zum Voting',
+  en: 'Jump to voting',
+  cz: 'Přejít přímo na hlasování',
+  pl: 'Przejdź do głosowania'
+} as const;
+
 export default function DriversVotingPage() {
   const { locale } = useLanguage();
   const { data: event } = useMainEvent();
@@ -23,5 +30,5 @@ export default function DriversVotingPage() {
   const phase = event ? resolveEventPhase(now, event) : 'pre';
   const live = useMemo(() => resolveLiveScheduleState(now, content?.schedules ?? []), [content?.schedules]);
   const activeClassIds = phase === 'live' ? live.current?.backend_class_ids ?? [] : [];
-  return <MainLayout title={copy[locale].title} description={copy[locale].description} canonicalPath="/event/fahrer"><EventSubnav/><div className="container max-w-5xl space-y-10 py-8 md:space-y-14 md:py-12"><HighlightsSection classIds={activeClassIds}/><VotingSection priorityClassIds={activeClassIds}/></div></MainLayout>;
+  return <MainLayout title={copy[locale].title} description={copy[locale].description} canonicalPath="/event/fahrer"><EventSubnav/><div className="container max-w-5xl space-y-6 py-8 md:space-y-10 md:py-12"><div className="flex justify-end"><a href="#publikumsvoting" className="text-sm font-semibold text-primary hover:underline">{jumpCopy[locale]} →</a></div><HighlightsSection classIds={activeClassIds}/><VotingSection priorityClassIds={activeClassIds}/></div></MainLayout>;
 }

@@ -355,6 +355,22 @@ export default function EventHubPage() {
                     {phase === "live" ? "Live-Status" : "Programm ansehen"}
                   </a>
                 </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/60 bg-black/20 text-white hover:bg-white hover:text-black"
+                  asChild
+                >
+                  <Link to="/event/fahrer">Voting</Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/60 bg-black/20 text-white hover:bg-white hover:text-black"
+                  asChild
+                >
+                  <Link to="/event/helm-versteigerung">Didier-Auktion</Link>
+                </Button>
               </div>
             </>
           )}
