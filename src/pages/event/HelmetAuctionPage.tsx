@@ -18,10 +18,11 @@ const copy = {
 } as const;
 
 const localeTags = { de: 'de-DE', en: 'en-GB', cz: 'cs-CZ', pl: 'pl-PL' } as const;
+const pageTitles = { de: 'Didier-Grams-Helmauktion', en: 'Didier Grams helmet auction', cz: 'Aukce helmy Didiera Gramse', pl: 'Aukcja kasku Didiera Gramsa' } as const;
 
 export default function HelmetAuctionPage() {
   const { locale } = useLanguage();
-  const c = copy[locale];
+  const c = { ...copy[locale], pageTitle: pageTitles[locale] };
   const money = (cents: number) => new Intl.NumberFormat(localeTags[locale], { style: 'currency', currency: 'EUR' }).format(cents / 100);
   const queryClient = useQueryClient();
   const auction = useQuery({ queryKey: ['public-auction'], queryFn: fetchPublicAuction, retry: false });

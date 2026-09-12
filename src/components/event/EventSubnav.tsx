@@ -4,10 +4,10 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 const labels = {
-  de: { nav: 'Eventbereiche', event: 'Event', drivers: 'Fahrer & Voting', auction: 'Helm-Auktion' },
-  en: { nav: 'Event sections', event: 'Event', drivers: 'Drivers & voting', auction: 'Helmet auction' },
-  cz: { nav: 'Sekce akce', event: 'Akce', drivers: 'Jezdci a hlasování', auction: 'Aukce helmy' },
-  pl: { nav: 'Sekcje wydarzenia', event: 'Wydarzenie', drivers: 'Kierowcy i głosowanie', auction: 'Aukcja kasku' }
+  de: { nav: 'Eventbereiche', event: 'Event', drivers: 'Fahrer & Voting', auction: 'Didier-Grams-Auktion' },
+  en: { nav: 'Event sections', event: 'Event', drivers: 'Drivers & voting', auction: 'Didier Grams auction' },
+  cz: { nav: 'Sekce akce', event: 'Akce', drivers: 'Jezdci a hlasování', auction: 'Aukce Didiera Gramse' },
+  pl: { nav: 'Sekcje wydarzenia', event: 'Wydarzenie', drivers: 'Kierowcy i głosowanie', auction: 'Aukcja Didiera Gramsa' }
 } as const;
 
 export function EventSubnav() {

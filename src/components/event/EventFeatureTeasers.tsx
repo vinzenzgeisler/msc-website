@@ -13,6 +13,7 @@ const copy = {
   pl: { drivers: 'Kierowcy i głosowanie publiczności', vote: 'Wybierz swoich faworytów', discover: 'Poznaj kierowców i pojazdy', helmet: 'Kask Didiera Gramsa', highest: 'Najwyższa oferta', viewAuction: 'Zobacz aukcję', noBid: 'Brak ofert', close: 'Zamknij', voteTitle: 'Twój faworyt ma znaczenie', auctionTitle: 'Wyjątkowy kask szuka nowego właściciela', voteText: 'Głosuj na kierowców i pojazdy w każdej klasie.', auctionText: 'Złóż ofertę na kask Didiera Gramsa.', voteCta: 'Głosuj teraz', auctionCta: 'Przejdź do aukcji', auctionShort: 'Aukcja kasku', driversShort: 'Zobacz kierowców' }
 } as const;
 const localeTags = { de: 'de-DE', en: 'en-GB', cz: 'cs-CZ', pl: 'pl-PL' } as const;
+const auctionLabels = { de: 'Didier-Grams-Auktion', en: 'Didier Grams auction', cz: 'Aukce Didiera Gramse', pl: 'Aukcja Didiera Gramsa' } as const;
 
 export function EventFeatureTeasers() {
   const { locale } = useLanguage();
@@ -46,5 +47,5 @@ export function EventFeatureNudge() {
   if (!open || !eventId) return null;
   const votingFirst = votingAvailable;
   const dismiss = () => { localStorage.setItem(`event-feature-nudge-v1-${eventId}`, '1'); setOpen(false); };
-  return <div className="fixed inset-x-3 bottom-3 z-[80] mx-auto max-w-md rounded-xl border bg-background p-4 shadow-2xl"><button onClick={dismiss} aria-label={c.close} className="absolute right-3 top-3 p-2"><X className="h-4 w-4"/></button><p className="pr-8 text-lg font-bold">{votingFirst ? c.voteTitle : c.auctionTitle}</p><p className="mt-1 text-sm text-muted-foreground">{votingFirst ? c.voteText : c.auctionText}</p><div className="mt-4 flex gap-2"><Button asChild onClick={dismiss}><Link to={votingFirst ? '/event/fahrer' : '/event/helm-versteigerung'}>{votingFirst ? c.voteCta : c.auctionCta}</Link></Button><Button variant="ghost" asChild onClick={dismiss}><Link to={votingFirst ? '/event/helm-versteigerung' : '/event/fahrer'}>{votingFirst ? c.auctionShort : c.driversShort}</Link></Button></div></div>;
+  return <div className="fixed inset-x-3 bottom-3 z-[80] mx-auto max-w-md rounded-xl border bg-background p-4 shadow-2xl"><button onClick={dismiss} aria-label={c.close} className="absolute right-3 top-3 p-2"><X className="h-4 w-4"/></button><p className="pr-8 text-lg font-bold">{votingFirst ? c.voteTitle : c.auctionTitle}</p><p className="mt-1 text-sm text-muted-foreground">{votingFirst ? c.voteText : c.auctionText}</p><div className="mt-4 flex gap-2"><Button asChild onClick={dismiss}><Link to={votingFirst ? '/event/fahrer' : '/event/helm-versteigerung'}>{votingFirst ? c.voteCta : c.auctionCta}</Link></Button><Button variant="ghost" asChild onClick={dismiss}><Link to={votingFirst ? '/event/helm-versteigerung' : '/event/fahrer'}>{votingFirst ? auctionLabels[locale] : c.driversShort}</Link></Button></div></div>;
 }
