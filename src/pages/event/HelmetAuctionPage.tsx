@@ -1,4 +1,4 @@
-import { FormEvent, useRef, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, Expand, Gavel } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -40,6 +40,22 @@ export default function HelmetAuctionPage() {
   const [success, setSuccess] = useState<number | null>(null);
   const [imageOpen, setImageOpen] = useState(false);
   const submissionKey = useRef(crypto.randomUUID());
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoUrl = auction.data?.videoUrl;
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !videoUrl) return;
+    const showPreviewFrame = () => {
+      if (Number.isFinite(video.duration)) video.currentTime = Math.min(2.5, video.duration / 2);
+    };
+    video.addEventListener('loadedmetadata', showPreviewFrame);
+    video.muted = false;
+    video.play().catch(() => {
+      video.muted = true;
+      video.play().catch(() => {});
+    });
+    return () => video.removeEventListener('loadedmetadata', showPreviewFrame);
+  }, [videoUrl]);
   const bid = useMutation({
     mutationFn: ({ eventId, payload }: { eventId: string; payload: Parameters<typeof submitAuctionBid>[1] }) => submitAuctionBid(eventId, payload),
     onSuccess: async (_, variables) => {
@@ -66,7 +82,7 @@ export default function HelmetAuctionPage() {
 
   return <MainLayout title={c.pageTitle} description={c.meta} canonicalPath="/event/helm-versteigerung"><EventSubnav/><div className="container max-w-5xl py-8 md:py-12">
     {!data ? <div className="rounded-xl border p-8 text-center"><Gavel className="mx-auto h-10 w-10 text-muted-foreground"/><h1 className="mt-4 text-2xl font-bold">{c.pageTitle}</h1><p className="mt-2 text-muted-foreground">{c.preparing}</p></div> : <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
-      <section><p className="text-sm font-bold text-primary">{c.kicker}</p><h1 className="mt-2 text-3xl font-black sm:text-5xl">{text(data.titleI18n, c.fallbackTitle)}</h1><p className="mt-4 text-muted-foreground">{text(data.descriptionI18n, c.fallbackDescription)}</p><div className="relative mt-6">{data.videoUrl ? <video src={data.videoUrl} muted loop playsInline controls preload="metadata" className="mx-auto aspect-[9/16] max-h-[70vh] w-auto rounded-xl bg-black object-cover"/> : data.imageUrl && <img src={data.imageUrl} alt={c.imageAlt} className="mx-auto aspect-[9/16] max-h-[70vh] w-auto rounded-xl object-cover" loading="lazy" decoding="async"/>}{data.videoUrl && data.imageUrl && <button type="button" onClick={() => setImageOpen(true)} className="absolute bottom-3 right-3 flex items-center gap-2 rounded-xl bg-black/80 py-1.5 pl-1.5 pr-3 text-xs font-semibold text-white shadow-lg ring-1 ring-white/40 backdrop-blur transition hover:bg-black/90"><img src={data.imageUrl} alt="" className="h-10 w-10 rounded-lg object-cover"/><span className="flex items-center gap-1"><Expand className="h-3.5 w-3.5"/>{c.expand}</span></button>}</div></section>
+      <section><p className="text-sm font-bold text-primary">{c.kicker}</p><h1 className="mt-2 text-3xl font-black sm:text-5xl">{text(data.titleI18n, c.fallbackTitle)}</h1><p className="mt-4 text-muted-foreground">{text(data.descriptionI18n, c.fallbackDescription)}</p><div className="relative mt-6">{data.videoUrl ? <video ref={videoRef} src={data.videoUrl} autoPlay loop playsInline controls preload="auto" className="mx-auto aspect-[9/16] max-h-[70vh] w-auto rounded-xl bg-black object-cover"/> : data.imageUrl && <img src={data.imageUrl} alt={c.imageAlt} className="mx-auto aspect-[9/16] max-h-[70vh] w-auto rounded-xl object-cover" loading="lazy" decoding="async"/>}{data.videoUrl && data.imageUrl && <button type="button" onClick={() => setImageOpen(true)} className="absolute bottom-3 right-3 flex items-center gap-2 rounded-xl bg-black/80 py-1.5 pl-1.5 pr-3 text-xs font-semibold text-white shadow-lg ring-1 ring-white/40 backdrop-blur transition hover:bg-black/90"><img src={data.imageUrl} alt="" className="h-10 w-10 rounded-lg object-cover"/><span className="flex items-center gap-1"><Expand className="h-3.5 w-3.5"/>{c.expand}</span></button>}</div></section>
       <aside className="lg:sticky lg:top-32 lg:self-start"><div className="rounded-xl border bg-card p-4 shadow-sm sm:p-6"><p className="text-sm text-muted-foreground">{c.highest}</p><p className="mt-1 text-4xl font-black">{data.currentHighestCents == null ? '–' : money(data.currentHighestCents)}</p><p className="mt-1 text-sm text-muted-foreground">{c.next} {money(data.nextMinimumCents)}</p>{data.status === 'closed' ? <p className="mt-6 rounded-lg bg-muted p-4 font-semibold">{c.ended}</p> : success !== null ? <div className="mt-6 rounded-lg bg-green-50 p-4 text-green-800"><CheckCircle2 className="h-6 w-6"/><strong className="mt-2 block">{c.success}</strong><p className="text-sm">{c.bindingBid} {money(success)}</p></div> : <form onSubmit={submit} className="mt-6 space-y-4"><label className="block space-y-1"><Label>{c.name}</Label><Input required minLength={2} value={name} onChange={(e) => setName(e.target.value)}/></label><fieldset><legend className="text-sm font-medium">{c.contact}</legend><div className="mt-2 flex gap-4 text-sm"><label><input type="radio" checked={contactType === 'email'} onChange={() => setContactType('email')}/> {c.email}</label><label><input type="radio" checked={contactType === 'phone'} onChange={() => setContactType('phone')}/> {c.phone}</label></div><Input className="mt-2" required type={contactType === 'email' ? 'email' : 'tel'} value={contact} onChange={(e) => setContact(e.target.value)}/></fieldset><label className="block space-y-1"><Label>{c.amount}</Label><Input required type="number" min={data.nextMinimumCents / 100} step={data.minIncrementCents / 100} value={amount} onChange={(e) => setAmount(e.target.value)}/></label><label className="flex items-start gap-3 text-sm"><input className="mt-1 h-4 w-4" type="checkbox" required checked={accepted} onChange={(e) => setAccepted(e.target.checked)}/><span>{c.confirmStart} {amount ? money(amountCents) : c.enteredAmount} {c.confirmEnd}</span></label>{text(data.termsI18n, '') && <details className="text-sm text-muted-foreground"><summary className="cursor-pointer font-medium">{c.terms}</summary><p className="mt-2 whitespace-pre-line">{text(data.termsI18n, '')}</p></details>}{bid.isError && <p className="text-sm text-destructive">{errorMessage}</p>}<Button className="h-12 w-full text-base" disabled={bid.isPending || !accepted}>{bid.isPending ? c.pending : amount ? `${c.submitAmount} ${money(amountCents)}` : c.submit}</Button></form>}</div></aside>
     </div>}
     <Dialog open={imageOpen} onOpenChange={setImageOpen}><DialogContent className="max-w-5xl border-0 bg-black p-2">{data?.imageUrl && <img src={data.imageUrl} alt={c.imageAlt} className="max-h-[88vh] w-full object-contain"/>}</DialogContent></Dialog>
