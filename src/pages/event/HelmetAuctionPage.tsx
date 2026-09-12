@@ -19,10 +19,16 @@ const copy = {
 
 const localeTags = { de: 'de-DE', en: 'en-GB', cz: 'cs-CZ', pl: 'pl-PL' } as const;
 const pageTitles = { de: 'Didier-Grams-Helmauktion', en: 'Didier Grams helmet auction', cz: 'Aukce helmy Didiera Gramse', pl: 'Aukcja kasku Didiera Gramsa' } as const;
+const fallbackDescriptions = {
+  de: 'Ein besonderer Helm, ein bekannter Name und die Chance auf ein echtes Erinnerungsstück: Gib dein verbindliches Gebot für den Helm von Didier Grams ab.',
+  en: "A special helmet, a well-known name and the chance to own a genuine keepsake: place your binding bid on Didier Grams' helmet.",
+  cz: 'Výjimečná helma, známé jméno a možnost získat skutečnou památku: podejte závaznou nabídku na helmu Didiera Gramse.',
+  pl: 'Wyjątkowy kask, znane nazwisko i szansa na prawdziwą pamiątkę: złóż wiążącą ofertę na kask Didiera Gramsa.'
+} as const;
 
 export default function HelmetAuctionPage() {
   const { locale } = useLanguage();
-  const c = { ...copy[locale], pageTitle: pageTitles[locale] };
+  const c = { ...copy[locale], pageTitle: pageTitles[locale], fallbackDescription: fallbackDescriptions[locale] };
   const money = (cents: number) => new Intl.NumberFormat(localeTags[locale], { style: 'currency', currency: 'EUR' }).format(cents / 100);
   const queryClient = useQueryClient();
   const auction = useQuery({ queryKey: ['public-auction'], queryFn: fetchPublicAuction, retry: false });
