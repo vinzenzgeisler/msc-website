@@ -5,6 +5,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { useCastVote, useDeviceVoteStatus, useEventHubClass, useEventHubVoting } from '@/hooks/useEventHubVoting';
 import { computeVotingProgress, sortClassesWithPriority } from '@/lib/eventHubVoting';
 import { ClassVoteCard } from './ClassVoteCard';
+import { VotingResultsList } from './VotingResultsList';
 
 interface VotingSectionProps {
   /** Classes to surface first (e.g. the class currently running), from the schedule. */
@@ -29,7 +30,7 @@ export function VotingSection({ priorityClassIds = [] }: VotingSectionProps) {
 
   const classes = sortClassesWithPriority(data?.classes ?? [], priorityClassIds);
   const activeClass = classes.find((item) => item.id === activeClassId) ?? classes[0];
-  const classQuery = useEventHubClass(votingEnabled ? activeClass?.id : undefined);
+  const classQuery = useEventHubClass(votingEnabled && data?.votingStatus !== 'closed' ? activeClass?.id : undefined);
 
   if (!votingEnabled || !data) {
     return null;
@@ -70,25 +71,31 @@ export function VotingSection({ priorityClassIds = [] }: VotingSectionProps) {
       {isLoading && <p className="text-sm text-muted-foreground">{t.common.loading}</p>}
       {voteError && <p className="mb-3 text-sm text-destructive">{voteError}</p>}
 
-      <div className="-mx-4 mb-3 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
-        {classes.map((eventClass) => <Button key={eventClass.id} type="button" size="sm" variant={eventClass.id === activeClass?.id ? 'default' : 'outline'} className="shrink-0" onClick={() => setActiveClassId(eventClass.id)}>{eventClass.name}{votedClassIds.includes(eventClass.id) ? ' ✓' : ''}</Button>)}
-      </div>
-      <div>
-        {classQuery.isLoading && <div className="h-64 animate-pulse rounded-xl bg-muted" aria-label={t.common.loading} />}
-        {classQuery.isError && <p className="rounded-xl border border-destructive/30 p-4 text-sm text-destructive">{t.voting.votingError}</p>}
-        {activeClass && !classQuery.isLoading && !classQuery.isError && (
-          <ClassVoteCard
-            key={activeClass.id}
-            eventClass={activeClass}
-            candidates={classQuery.data?.candidates ?? []}
-            votingStatus={data.votingStatus}
-            votedClassIds={votedClassIds}
-            result={classQuery.data?.result ?? undefined}
-            submitting={castVote.isPending}
-            onVote={handleVote}
-          />
-        )}
-      </div>
+      {data.votingStatus === 'closed' ? (
+        <VotingResultsList classes={classes} />
+      ) : (
+        <>
+          <div className="-mx-4 mb-3 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+            {classes.map((eventClass) => <Button key={eventClass.id} type="button" size="sm" variant={eventClass.id === activeClass?.id ? 'default' : 'outline'} className="shrink-0" onClick={() => setActiveClassId(eventClass.id)}>{eventClass.name}{votedClassIds.includes(eventClass.id) ? ' ✓' : ''}</Button>)}
+          </div>
+          <div>
+            {classQuery.isLoading && <div className="h-64 animate-pulse rounded-xl bg-muted" aria-label={t.common.loading} />}
+            {classQuery.isError && <p className="rounded-xl border border-destructive/30 p-4 text-sm text-destructive">{t.voting.votingError}</p>}
+            {activeClass && !classQuery.isLoading && !classQuery.isError && (
+              <ClassVoteCard
+                key={activeClass.id}
+                eventClass={activeClass}
+                candidates={classQuery.data?.candidates ?? []}
+                votingStatus={data.votingStatus}
+                votedClassIds={votedClassIds}
+                result={classQuery.data?.result ?? undefined}
+                submitting={castVote.isPending}
+                onVote={handleVote}
+              />
+            )}
+          </div>
+        </>
+      )}
     </section>
   );
 }

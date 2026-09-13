@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   computeVotingProgress,
+  collectVotingWinners,
   groupCandidatesByClass,
   isClassVotable,
   matchesActiveEvent,
@@ -63,6 +64,25 @@ describe('computeVotingProgress', () => {
   });
   it('reports zero of n when nothing was voted yet', () => {
     expect(computeVotingProgress(classes, [])).toEqual({ votedCount: 0, totalCount: 3 });
+  });
+});
+
+describe('collectVotingWinners', () => {
+  it('combines all class results and sorts them by natural class name', () => {
+    expect(collectVotingWinners(
+      [
+        { id: 'c10', name: 'Klasse 10', vehicleType: 'auto' },
+        { id: 'c2', name: 'Klasse 2', vehicleType: 'moto' }
+      ],
+      [
+        { classId: 'c10', entries: [{ entryId: 'e10', driverName: 'Alex' }] },
+        { classId: 'c2', entries: [{ entryId: 'e2a', driverName: 'Bea' }, { entryId: 'e2b', driverName: 'Chris' }] }
+      ]
+    )).toEqual([
+      { classId: 'c2', className: 'Klasse 2', entryId: 'e2a', driverName: 'Bea' },
+      { classId: 'c2', className: 'Klasse 2', entryId: 'e2b', driverName: 'Chris' },
+      { classId: 'c10', className: 'Klasse 10', entryId: 'e10', driverName: 'Alex' }
+    ]);
   });
 });
 

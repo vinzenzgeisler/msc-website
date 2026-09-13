@@ -45,6 +45,11 @@ export interface EventHubClassResult {
   entries: EventHubResultEntry[];
 }
 
+export interface EventHubWinner extends EventHubResultEntry {
+  classId: string;
+  className: string;
+}
+
 export interface EventHubResponse {
   event: { id: string; name: string; startsAt: string; endsAt: string };
   votingStatus: VotingStatus;
@@ -97,6 +102,24 @@ export function sortClassesWithPriority(classes: EventHubClass[], priorityClassI
     const bPriority = priority.has(b.id) ? 0 : 1;
     return aPriority - bPriority;
   });
+}
+
+/** Combines the per-class API results into one naturally class-sorted winner list. */
+export function collectVotingWinners(
+  classes: EventHubClass[],
+  results: Array<EventHubClassResult | null | undefined>
+): EventHubWinner[] {
+  const resultsByClass = new Map(
+    results.filter((result): result is EventHubClassResult => Boolean(result)).map((result) => [result.classId, result])
+  );
+
+  return sortClassesNaturally(classes).flatMap((eventClass) =>
+    (resultsByClass.get(eventClass.id)?.entries ?? []).map((entry) => ({
+      ...entry,
+      classId: eventClass.id,
+      className: eventClass.name
+    }))
+  );
 }
 
 export interface VotingProgress {
