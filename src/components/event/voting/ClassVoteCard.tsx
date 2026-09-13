@@ -27,7 +27,6 @@ export function ClassVoteCard({ eventClass, candidates, votingStatus, votedClass
   };
 
   if (votingStatus === 'closed' && result) {
-    const sorted = [...result.entries].sort((a, b) => b.voteCount - a.voteCount);
     return (
       <div className="rounded-lg border bg-card p-3 sm:p-4">
         <div className="mb-2 flex items-center justify-between sm:mb-3">
@@ -35,14 +34,11 @@ export function ClassVoteCard({ eventClass, candidates, votingStatus, votedClass
           <Badge variant="secondary">{t.voting.resultsTitle}</Badge>
         </div>
         <ul className="space-y-2">
-          {sorted.map((entry, index) => (
+          {result.entries.map((entry) => (
             <li key={entry.entryId} className="flex items-center justify-between gap-3 text-sm">
               <span className="flex items-center gap-2 min-w-0">
-                {index === 0 && <span aria-hidden>🏆</span>}
+                <span aria-hidden>🏆</span>
                 <span className="truncate">{entry.driverName}</span>
-              </span>
-              <span className="text-muted-foreground shrink-0">
-                {entry.voteCount} · {entry.percent}%
               </span>
             </li>
           ))}

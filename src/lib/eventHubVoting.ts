@@ -38,8 +38,6 @@ export interface EventHubFacts {
 export interface EventHubResultEntry {
   entryId: string;
   driverName: string;
-  voteCount: number;
-  percent: number;
 }
 
 export interface EventHubClassResult {
