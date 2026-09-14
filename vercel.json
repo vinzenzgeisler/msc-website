@@ -21,6 +21,10 @@
       "destination": "/sitemap.xml"
     },
     {
+      "source": "/news/:slug",
+      "destination": "/news/:slug/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

@@ -13,6 +13,9 @@ interface MainLayoutProps {
   noindex?: boolean;
   ogType?: 'website' | 'article';
   imageUrl?: string | null;
+  imageAlt?: string;
+  articlePublishedTime?: string | null;
+  articleModifiedTime?: string | null;
   structuredData?: StructuredDataValue;
 }
 
@@ -24,6 +27,9 @@ export function MainLayout({
   noindex,
   ogType,
   imageUrl,
+  imageAlt,
+  articlePublishedTime,
+  articleModifiedTime,
   structuredData,
 }: MainLayoutProps) {
   return (
@@ -35,6 +41,9 @@ export function MainLayout({
         noindex={noindex}
         ogType={ogType}
         imageUrl={imageUrl}
+        imageAlt={imageAlt}
+        articlePublishedTime={articlePublishedTime}
+        articleModifiedTime={articleModifiedTime}
         structuredData={structuredData}
       />
       <Header />

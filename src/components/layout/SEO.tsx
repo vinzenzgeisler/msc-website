@@ -14,6 +14,9 @@ interface SEOProps {
   noindex?: boolean;
   ogType?: 'website' | 'article';
   imageUrl?: string | null;
+  imageAlt?: string;
+  articlePublishedTime?: string | null;
+  articleModifiedTime?: string | null;
   structuredData?: StructuredDataValue;
 }
 
@@ -163,6 +166,9 @@ export function SEO({
   noindex = false,
   ogType = 'website',
   imageUrl,
+  imageAlt,
+  articlePublishedTime,
+  articleModifiedTime,
   structuredData,
 }: SEOProps) {
   const { data: settings } = useSettings();
@@ -178,6 +184,8 @@ export function SEO({
   const metaDescription = description || settings?.meta_description || settings?.description || '';
   const canonicalUrl = toAbsoluteUrl(pathname);
   const ogImage = imageUrl || settings?.default_og_image_url || undefined;
+  const socialTitle = pageTitle || fullTitle;
+  const ogImageType = ogImage?.split(/[?#]/, 1)[0].toLowerCase().endsWith('.png') ? 'image/png' : undefined;
   const effectiveNoindex = noindex || (!pathname.startsWith('/admin') && locale !== 'de');
   const robotsContent = effectiveNoindex
     ? 'noindex, nofollow'
@@ -227,14 +235,20 @@ export function SEO({
       />
       <meta property="og:site_name" content={settings?.site_name || baseTitle} />
       <meta property="og:type" content={ogType} />
-      <meta property="og:title" content={fullTitle} />
+      <meta property="og:title" content={socialTitle} />
       {metaDescription ? <meta property="og:description" content={metaDescription} /> : null}
       <meta property="og:url" content={canonicalUrl} />
       {ogImage ? <meta property="og:image" content={ogImage} /> : null}
+      {ogImage?.startsWith('https://') ? <meta property="og:image:secure_url" content={ogImage} /> : null}
+      {ogImageType ? <meta property="og:image:type" content={ogImageType} /> : null}
+      {ogImage && imageAlt ? <meta property="og:image:alt" content={imageAlt} /> : null}
+      {ogType === 'article' && articlePublishedTime ? <meta property="article:published_time" content={articlePublishedTime} /> : null}
+      {ogType === 'article' && articleModifiedTime ? <meta property="article:modified_time" content={articleModifiedTime} /> : null}
       <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
-      <meta name="twitter:title" content={fullTitle} />
+      <meta name="twitter:title" content={socialTitle} />
       {metaDescription ? <meta name="twitter:description" content={metaDescription} /> : null}
       {ogImage ? <meta name="twitter:image" content={ogImage} /> : null}
+      {ogImage && imageAlt ? <meta name="twitter:image:alt" content={imageAlt} /> : null}
       {structuredDataEntries.map((entry, index) => (
         <script key={index} type="application/ld+json">
           {JSON.stringify(entry)}

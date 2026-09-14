@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Share2, Facebook, Twitter, Newspaper } from 'lucide-react';
 import { usePostBySlug } from '@/hooks/usePosts';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { formatDateSafe } from '@/lib/date';
+import { formatDateSafe, toValidDate } from '@/lib/date';
 import { RichContent } from '@/components/content/RichContent';
 import { toast } from 'sonner';
 import { useSettings } from '@/hooks/useSettings';
@@ -83,6 +83,8 @@ export default function NewsDetailPage() {
     : 'Verein';
 
   const displayDate = formatDateSafe(article.display_date, 'd. MMMM yyyy', dateLocale, '');
+  const publishedTime = toValidDate(article.published_at || article.created_at)?.toISOString();
+  const modifiedTime = toValidDate(article.updated_at)?.toISOString();
 
   const publishedLabel =
     localize(locale, {
@@ -104,8 +106,8 @@ export default function NewsDetailPage() {
     headline: article.title,
     description: article.excerpt || undefined,
     image: article.image_url ? [article.image_url] : settings?.default_og_image_url ? [settings.default_og_image_url] : undefined,
-    datePublished: article.published_at || article.display_date || article.created_at,
-    dateModified: article.updated_at,
+    datePublished: publishedTime,
+    dateModified: modifiedTime,
     mainEntityOfPage: `https://www.msc-oberlausitz.de${canonicalPath}`,
     author: {
       '@type': 'Organization',
@@ -148,6 +150,9 @@ export default function NewsDetailPage() {
         canonicalPath={canonicalPath}
         ogType="article"
         imageUrl={article.image_url || settings?.default_og_image_url || undefined}
+        imageAlt={article.title}
+        articlePublishedTime={publishedTime}
+        articleModifiedTime={modifiedTime}
         structuredData={articleStructuredData}
       >
         {/* Header */}
