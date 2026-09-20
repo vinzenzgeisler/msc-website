@@ -4,6 +4,7 @@ import {
   ClubTeaserSection,
   UpcomingEventsSection,
   NewsSection,
+  NewsletterSection,
   SponsorsSection,
 } from '@/components/home';
 
@@ -14,6 +15,7 @@ const Index = () => {
       <ClubTeaserSection />
       <UpcomingEventsSection />
       <NewsSection />
+      <NewsletterSection />
       <SponsorsSection />
     </MainLayout>
   );

@@ -33,7 +33,7 @@ export interface PageContent {
 }
 
 export const PAGE_SECTIONS = {
-  home: ['hero', 'club_teaser', 'upcoming_events', 'news', 'sponsors'],
+  home: ['hero', 'club_teaser', 'upcoming_events', 'news', 'newsletter', 'sponsors'],
   about: ['intro', 'mission', 'values'],
   board: ['intro'],
   history: ['intro', 'founding', 'track'],
@@ -49,6 +49,7 @@ export const PAGE_SECTIONS = {
   partner_clubs: ['intro'],
   imprint: ['content', 'funding'],
   privacy: ['content'],
+  newsletter: ['intro'],
 } as const;
 
 export type PageKey = keyof typeof PAGE_SECTIONS;

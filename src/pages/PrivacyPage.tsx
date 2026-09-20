@@ -102,7 +102,13 @@ E-Mail: info@msc-oberlausitzer-dreilaendereck.eu</p>
 <p>Wir treffen technische und organisatorische Maßnahmen, um Ihre personenbezogenen Daten vor Verlust, unbefugtem Zugriff, Manipulation und sonstigen unberechtigten Eingriffen zu schützen.</p>
 <p>Unsere Sicherheitsmaßnahmen werden entsprechend der technologischen Entwicklung fortlaufend verbessert.</p>
 
-<h3>15. Aktualität und Änderung dieser Datenschutzerklärung</h3>
+<h3>15. Newsletter</h3>
+<p>Wenn Sie unseren Newsletter abonnieren, verarbeiten wir Ihre E-Mail-Adresse, die gewählte Sprache, den Zeitpunkt der Anmeldung und Bestätigung sowie die dabei verwendete Fassung des Einwilligungstextes. Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO.</p>
+<p>Zur rechtssicheren Anmeldung verwenden wir das Double-Opt-in-Verfahren. Nach der Anmeldung erhalten Sie eine E-Mail mit einem persönlichen Bestätigungslink. Erst durch dessen Aufruf wird das Abonnement aktiviert. Nicht bestätigte Anmeldungen werden nach 14 Tagen gelöscht.</p>
+<p>Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft über den Abmeldelink in jeder Newsletter-E-Mail oder über unsere Abmeldeseite widerrufen. Nach der Abmeldung speichern wir die erforderlichen Nachweisdaten längstens drei Jahre zur Abwehr möglicher Rechtsansprüche und löschen sie anschließend.</p>
+<p>Der Versand erfolgt über Amazon Simple Email Service (Amazon SES), einen Dienst von Amazon Web Services EMEA SARL. Dabei wird Ihre E-Mail-Adresse zum Versand verarbeitet.</p>
+
+<h3>16. Aktualität und Änderung dieser Datenschutzerklärung</h3>
 <p>Wir behalten uns vor, diese Datenschutzerklärung bei Bedarf anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht oder Änderungen unserer Website und damit verbundenen Verarbeitungen abbildet.</p>
 <p>Es gilt jeweils die auf dieser Website veröffentlichte aktuelle Fassung.</p>
 `;

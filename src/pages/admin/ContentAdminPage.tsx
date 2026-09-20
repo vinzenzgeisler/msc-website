@@ -76,6 +76,7 @@ const PAGE_LABELS: Record<PageKey, string> = {
   partner_clubs: 'Partnervereine',
   imprint: 'Impressum',
   privacy: 'Datenschutz',
+  newsletter: 'Newsletter',
 };
 
 const SECTION_LABELS: Record<string, string> = {
@@ -83,6 +84,7 @@ const SECTION_LABELS: Record<string, string> = {
   club_teaser: 'Club-Teaser',
   upcoming_events: 'Kommende Termine',
   news: 'News-Bereich',
+  newsletter: 'Newsletter-Bereich',
   sponsors: 'Sponsoren-Bereich',
   intro: 'Einleitung',
   mission: 'Mission',

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useTranslation } from '@/i18n/LanguageContext';
+import { useLanguage, useTranslation } from '@/i18n/LanguageContext';
+import { localize } from '@/i18n/locale-utils';
 import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import { useSettings } from '@/hooks/useSettings';
 import { useConsent } from '@/contexts/ConsentContext';
@@ -7,6 +8,7 @@ import { trackEvent } from '@/lib/analytics';
 
 export function Footer() {
   const t = useTranslation();
+  const { locale } = useLanguage();
   const { data: settings } = useSettings();
   const { openPreferences } = useConsent();
 
@@ -145,19 +147,29 @@ export function Footer() {
             </ul>
           </div>
         </div>
+        <div className="mt-10 flex flex-col items-start justify-between gap-4 rounded-xl border border-border bg-background p-5 sm:flex-row sm:items-center">
+          <div>
+            <p className="font-heading font-bold uppercase">MSC Newsletter</p>
+            <p className="text-sm text-muted-foreground">{localize(locale, { de: 'Neuigkeiten und Termine direkt ins Postfach.', en: 'News and dates delivered to your inbox.', cz: 'Novinky a termíny přímo do vaší schránky.', pl: 'Aktualności i terminy prosto do skrzynki.' })}</p>
+          </div>
+          <Link to="/newsletter" className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+            <Mail className="mr-2 h-4 w-4" />{localize(locale, { de: 'Newsletter abonnieren', en: 'Subscribe', cz: 'Přihlásit k odběru', pl: 'Zapisz się' })}
+          </Link>
+        </div>
       </div>
 
       {/* Bottom Bar */}
       <div className="border-t border-border bg-muted">
         <div className="container flex flex-col items-center justify-between gap-4 py-4 text-sm text-muted-foreground sm:flex-row">
           <p>© {currentYear} {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'} {t.footer.rights}</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             <Link to="/imprint" className="transition-colors hover:text-foreground">
               {t.nav.imprint}
             </Link>
             <Link to="/privacy" className="transition-colors hover:text-foreground">
               {t.nav.privacy}
             </Link>
+            <Link to="/newsletter/unsubscribe" className="transition-colors hover:text-foreground">{localize(locale, { de: 'Newsletter abbestellen', en: 'Unsubscribe', cz: 'Odhlásit newsletter', pl: 'Wypisz się' })}</Link>
             <button type="button" onClick={openPreferences} className="transition-colors hover:text-foreground">
               Cookie-Einstellungen
             </button>

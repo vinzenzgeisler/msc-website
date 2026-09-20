@@ -23,6 +23,7 @@ const staticPaths = [
   '/contact',
   '/imprint',
   '/privacy',
+  '/newsletter',
 ];
 
 function normalizePath(pathname) {

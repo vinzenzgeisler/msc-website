@@ -137,3 +137,52 @@ export interface AuctionBidPayload {
 export async function submitAuctionBid(eventId: string, payload: AuctionBidPayload) {
   return requestJson<{ bidId: string; amountCents: number; alreadySubmitted: boolean }>(`/public/events/${eventId}/auction/bids`, { method: 'POST', body: JSON.stringify(payload) });
 }
+
+export type NewsletterLocale = 'de' | 'en' | 'cs' | 'pl';
+export type NewsletterActionStatus = 'confirmed' | 'already_confirmed' | 'unsubscribed' | 'already_unsubscribed' | 'expired' | 'invalid';
+
+export interface NewsletterConfig {
+  enabled: boolean;
+  locale: NewsletterLocale;
+  consentVersion: string;
+  consentText: string;
+  privacyUrl: string;
+}
+
+export function fetchNewsletterConfig(locale: NewsletterLocale) {
+  return requestJson<NewsletterConfig>(`/public/newsletter/config?locale=${encodeURIComponent(locale)}`);
+}
+
+export function subscribeToNewsletter(input: {
+  email: string;
+  locale: NewsletterLocale;
+  consentVersion: string;
+  consentAccepted: true;
+  website: string;
+}) {
+  return requestJson<{ accepted: true }>('/public/newsletter/subscriptions', {
+    method: 'POST',
+    body: JSON.stringify(input)
+  });
+}
+
+export function confirmNewsletterSubscription(token: string) {
+  return requestJson<{ status: NewsletterActionStatus }>('/public/newsletter/confirm', {
+    method: 'POST',
+    body: JSON.stringify({ token })
+  });
+}
+
+export function requestNewsletterUnsubscribe(input: { email: string; locale: NewsletterLocale; website: string }) {
+  return requestJson<{ accepted: true }>('/public/newsletter/unsubscribe-request', {
+    method: 'POST',
+    body: JSON.stringify(input)
+  });
+}
+
+export function unsubscribeFromNewsletter(token: string) {
+  return requestJson<{ status: NewsletterActionStatus }>('/public/newsletter/unsubscribe', {
+    method: 'POST',
+    body: JSON.stringify({ token })
+  });
+}

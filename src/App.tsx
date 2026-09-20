@@ -30,6 +30,9 @@ import PartnerClubsPage from "./pages/partners/PartnerClubsPage";
 import ContactPage from "./pages/ContactPage";
 import ImprintPage from "./pages/ImprintPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import NewsletterPage from "./pages/NewsletterPage";
+import NewsletterConfirmPage from "./pages/NewsletterConfirmPage";
+import NewsletterUnsubscribePage from "./pages/NewsletterUnsubscribePage";
 import NotFound from "./pages/NotFound";
 
 // Admin Pages
@@ -102,6 +105,9 @@ const App = () => (
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/imprint" element={<ImprintPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/newsletter" element={<NewsletterPage />} />
+              <Route path="/newsletter/confirm" element={<NewsletterConfirmPage />} />
+              <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
               
               {/* Admin Pages */}
               <Route path="/admin/login" element={<LoginPage />} />
