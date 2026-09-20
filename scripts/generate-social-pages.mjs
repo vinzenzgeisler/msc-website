@@ -138,7 +138,6 @@ async function generateSocialPages() {
 }
 
 generateSocialPages().catch((error) => {
-  console.error('[social-pages] generation failed');
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
+  console.warn('[social-pages] generation skipped (CMS unreachable at build time)');
+  console.warn(error instanceof Error ? error.message : error);
 });
