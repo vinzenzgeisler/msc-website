@@ -47,10 +47,10 @@ export function NewsletterSignupForm({ compact = false }: { compact?: boolean })
   };
 
   if (state === 'success') return (
-    <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center" role="status">
-      <CheckCircle2 className="mx-auto mb-3 h-10 w-10 text-emerald-600" />
+    <div className="animate-in fade-in zoom-in-95 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center duration-300" role="status">
+      <CheckCircle2 className="mx-auto mb-3 h-10 w-10 animate-in zoom-in spin-in-90 text-emerald-600 duration-500" />
       <h3 className="font-heading text-xl font-bold">{copy.successTitle}</h3>
-      <p className="mt-2 text-sm text-muted-foreground">{copy.success}</p>
+      <p className="mt-2 animate-in fade-in slide-in-from-bottom-1 text-sm text-muted-foreground duration-500 fill-mode-both delay-150">{copy.success}</p>
     </div>
   );
 
