@@ -26,8 +26,8 @@ async function generateNewsletterPage(distDir, shell) {
   const socialTitle = 'MSC Newsletter';
   const description = 'Termine, Neuigkeiten und Vereinsleben des MSC Oberlausitzer Dreiländereck direkt in dein Postfach.';
   const canonicalUrl = `${SITE_URL}/newsletter`;
-  const imageUrl = `${SITE_URL}/social/newsletter.png`;
-  const imageAlt = 'Newsletter des MSC Oberlausitzer Dreiländereck e.V.';
+  const imageUrl = `${SITE_URL}/MSC-logo-clean-transparent.png`;
+  const imageAlt = 'Logo des MSC Oberlausitzer Dreiländereck e.V.';
   const tags = [
     `<title>${escapeHtml(title)}</title>`,
     `<meta name="description" content="${escapeHtml(description)}" />`,
@@ -42,8 +42,8 @@ async function generateNewsletterPage(distDir, shell) {
     `<meta property="og:image" content="${imageUrl}" />`,
     `<meta property="og:image:secure_url" content="${imageUrl}" />`,
     '<meta property="og:image:type" content="image/png" />',
-    '<meta property="og:image:width" content="1200" />',
-    '<meta property="og:image:height" content="630" />',
+    '<meta property="og:image:width" content="1254" />',
+    '<meta property="og:image:height" content="1254" />',
     `<meta property="og:image:alt" content="${escapeHtml(imageAlt)}" />`,
     '<meta name="twitter:card" content="summary_large_image" />',
     `<meta name="twitter:title" content="${escapeHtml(socialTitle)}" />`,

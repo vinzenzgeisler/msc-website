@@ -14,8 +14,8 @@ export default function NewsletterPage() {
     title={`${content.title} | MSC Newsletter`}
     description={content.subtitle || copy.subtitle}
     canonicalPath="/newsletter"
-    imageUrl="https://www.msc-oberlausitz.de/social/newsletter.png"
-    imageAlt="Newsletter des MSC Oberlausitzer Dreiländereck e.V."
+    imageUrl="https://www.msc-oberlausitz.de/MSC-logo-clean-transparent.png"
+    imageAlt="Logo des MSC Oberlausitzer Dreiländereck e.V."
   >
     <PageHeader title={content.title} subtitle={content.subtitle || copy.subtitle} imageUrl={content.header_image_url} imageAlt={content.header_image_alt || content.title} />
     <section className="py-16"><div className="container max-w-xl">
