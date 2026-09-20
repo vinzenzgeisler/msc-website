@@ -25,6 +25,10 @@
       "destination": "/news/:slug/index.html"
     },
     {
+      "source": "/newsletter",
+      "destination": "/newsletter/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
