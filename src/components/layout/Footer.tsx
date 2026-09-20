@@ -169,7 +169,6 @@ export function Footer() {
             <Link to="/privacy" className="transition-colors hover:text-foreground">
               {t.nav.privacy}
             </Link>
-            <Link to="/newsletter/unsubscribe" className="transition-colors hover:text-foreground">{localize(locale, { de: 'Newsletter abbestellen', en: 'Unsubscribe', cz: 'Odhlásit newsletter', pl: 'Wypisz się' })}</Link>
             <button type="button" onClick={openPreferences} className="transition-colors hover:text-foreground">
               Cookie-Einstellungen
             </button>

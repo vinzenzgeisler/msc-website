@@ -4,6 +4,7 @@ import { NewsletterSignupForm } from '@/components/newsletter/NewsletterSignupFo
 import { newsletterCopy } from '@/components/newsletter/copy';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { Link } from 'react-router-dom';
 
 export default function NewsletterPage() {
   const { locale } = useLanguage();
@@ -12,7 +13,15 @@ export default function NewsletterPage() {
   return <MainLayout title={`${content.title} | MSC Newsletter`} description={content.subtitle || copy.subtitle}>
     <PageHeader title={content.title} subtitle={content.subtitle || copy.subtitle} imageUrl={content.header_image_url} imageAlt={content.header_image_alt || content.title} />
     <section className="py-16"><div className="container max-w-xl">
-      <div className="rounded-2xl border bg-card p-6 shadow-sm md:p-8"><NewsletterSignupForm /></div>
+      <div className="rounded-2xl border bg-card p-6 shadow-sm md:p-8">
+        <NewsletterSignupForm />
+        <div className="mt-6 border-t pt-5 text-sm text-muted-foreground">
+          <span>{copy.unsubscribeHint} </span>
+          <Link to="/newsletter/unsubscribe" className="font-medium text-foreground underline underline-offset-4 hover:text-accent">
+            {copy.unsubscribe}
+          </Link>
+        </div>
+      </div>
     </div></section>
   </MainLayout>;
 }
