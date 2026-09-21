@@ -42,6 +42,7 @@ export function Header() {
     { path: '/event', label: t.nav.event },
     { path: '/calendar', label: t.nav.calendar },
     { path: '/news', label: t.nav.news },
+    { path: '/racepic', label: t.nav.racePic },
     {
       label: t.nav.club,
       children: [

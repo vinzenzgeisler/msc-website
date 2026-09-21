@@ -39,6 +39,10 @@ import NotFound from "./pages/NotFound";
 import StudioInvitationPage from "./pages/racepic/StudioInvitationPage";
 import StudioLoginPage from "./pages/racepic/StudioLoginPage";
 import StudioPage from "./pages/racepic/StudioPage";
+// RacePic (Paket 8: Oeffentliche Galerie)
+import RacePicHomePage from "./pages/racepic/RacePicHomePage";
+import RacePicEventPage from "./pages/racepic/RacePicEventPage";
+import RacePicParticipantPage from "./pages/racepic/RacePicParticipantPage";
 
 // Admin Pages
 import LoginPage from "./pages/admin/LoginPage";
@@ -114,8 +118,15 @@ const App = () => (
               <Route path="/newsletter/confirm" element={<NewsletterConfirmPage />} />
               <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
 
+              {/* RacePic – öffentliche Galerie (Paket 8) */}
+              <Route path="/racepic" element={<RacePicHomePage />} />
+              <Route path="/racepic/:eventSlug" element={<RacePicEventPage />} />
+              <Route path="/racepic/:eventSlug/:participantKey" element={<RacePicParticipantPage />} />
+
               {/* RacePic Studio (Fotograf:innen, Paket 2b) - bewusst nicht in der Hauptnavigation
-                  und nicht in der Sitemap, siehe docs/memory-bank/racepic-progress.md */}
+                  und nicht in der Sitemap, siehe docs/memory-bank/racepic-progress.md. React
+                  Router v6 bevorzugt statische vor dynamischen Segmenten, daher kollidiert
+                  "/racepic/studio" nicht mit "/racepic/:eventSlug" oben. */}
               <Route path="/racepic/studio/einladung/:token" element={<StudioInvitationPage />} />
               <Route path="/racepic/studio/login" element={<StudioLoginPage />} />
               <Route path="/racepic/studio" element={<StudioPage />} />

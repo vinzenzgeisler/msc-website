@@ -24,6 +24,10 @@ const staticPaths = [
   '/imprint',
   '/privacy',
   '/newsletter',
+  // RacePic (Paket 8): nur der statische Einstieg. Pro Event/Teilnehmer wuerde eine
+  // dynamische Sitemap-Erzeugung gegen das RacePic-CDN-Manifest brauchen - offener Punkt,
+  // siehe docs/memory-bank/racepic-progress.md.
+  '/racepic',
 ];
 
 function normalizePath(pathname) {
