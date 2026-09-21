@@ -84,3 +84,112 @@ export const updateMyProfile = (patch: Partial<Omit<PhotographerProfile, 'id' | 
     auth: true,
     body: JSON.stringify(patch)
   });
+
+export type PhotographerEventAccess = {
+  eventId: string;
+  eventName: string;
+  uploadOpensAt: string | null;
+  uploadClosesAt: string | null;
+  quotaImages: number | null;
+};
+
+export const fetchMyEventAccess = () => requestJson<{ ok: true; events: PhotographerEventAccess[] }>('/photographer/events', { auth: true });
+
+export type LicenseOption = {
+  id: string;
+  code: string;
+  title: Record<string, string>;
+  summary: Record<string, string>;
+  attributionRequired: boolean;
+};
+
+export const fetchLicenses = () => requestJson<{ ok: true; licenses: LicenseOption[] }>('/photographer/licenses', { auth: true });
+
+// --- Paket 3b: Upload --------------------------------------------------------------------------
+// Spiegelt api/src/racepic/handler.ts (MSC-Event-Backend-Repo) 1:1 - siehe dort fuer die
+// serverseitigen Regeln (Groessenlimits, Event-Berechtigung, Upload-Fenster, Quota).
+
+export type UploadBatch = {
+  id: string;
+  eventId: string;
+  licenseId: string;
+  fileCount: number;
+  completedCount: number;
+  failedCount: number;
+};
+
+export const createUploadBatch = (eventId: string, licenseId: string) =>
+  requestJson<{ ok: true; batch: UploadBatch }>(`/photographer/events/${encodeURIComponent(eventId)}/batches`, {
+    method: 'POST',
+    auth: true,
+    body: JSON.stringify({ licenseId })
+  });
+
+export type CreatedUpload = {
+  upload: { id: string; status: string; fileName: string | null; declaredSizeBytes: number; expiresAt: string };
+  uploadUrl: string | null;
+  s3UploadId: string | null;
+  requiredHeaders: Record<string, string>;
+};
+
+export const createUpload = (batchId: string, file: { name: string; type: 'image/jpeg'; size: number; fingerprint?: string }) =>
+  requestJson<{ ok: true } & CreatedUpload>(`/photographer/batches/${encodeURIComponent(batchId)}/uploads`, {
+    method: 'POST',
+    auth: true,
+    body: JSON.stringify(file)
+  });
+
+export const presignUploadParts = (uploadId: string, partNumbers: number[]) =>
+  requestJson<{ ok: true; parts: { partNumber: number; url: string }[] }>(`/photographer/uploads/${encodeURIComponent(uploadId)}/parts`, {
+    method: 'POST',
+    auth: true,
+    body: JSON.stringify({ partNumbers })
+  });
+
+export const listUploadedParts = (uploadId: string) =>
+  requestJson<{ ok: true; parts: { partNumber: number; eTag: string; size: number }[] }>(
+    `/photographer/uploads/${encodeURIComponent(uploadId)}/parts`,
+    { auth: true }
+  );
+
+export type UploadedImage = { id: string; eventId: string; processingStatus: string; visibility: string; bytes: number | null; createdAt: string };
+
+export const completeUpload = (uploadId: string, parts?: { partNumber: number; eTag: string }[]) =>
+  requestJson<{ ok: true; image: UploadedImage | null; alreadyCompleted: boolean }>(`/photographer/uploads/${encodeURIComponent(uploadId)}/complete`, {
+    method: 'POST',
+    auth: true,
+    body: JSON.stringify({ parts })
+  });
+
+export const abortUpload = (uploadId: string) =>
+  requestJson<{ ok: true }>(`/photographer/uploads/${encodeURIComponent(uploadId)}`, { method: 'DELETE', auth: true });
+
+export const listMyImages = (params: { eventId?: string; status?: string; limit?: number } = {}) => {
+  const search = new URLSearchParams();
+  if (params.eventId) search.set('eventId', params.eventId);
+  if (params.status) search.set('status', params.status);
+  if (params.limit) search.set('limit', String(params.limit));
+  const query = search.toString();
+  return requestJson<{ ok: true; images: UploadedImage[] }>(`/photographer/images${query ? `?${query}` : ''}`, { auth: true });
+};
+
+/** Fuer eine Rohdatei signierte PUT-Anfrage mit Fortschrittsanzeige (XHR statt fetch, da fetch
+ * keinen Upload-Fortschritt liefert - siehe Architekturplan Abschnitt D "kein Fortschritt"). */
+export const putWithProgress = (url: string, file: Blob, contentType: string, onProgress: (loaded: number, total: number) => void): Promise<string | null> =>
+  new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', url, true);
+    xhr.setRequestHeader('content-type', contentType);
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress(event.loaded, event.total);
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.getResponseHeader('ETag'));
+      } else {
+        reject(new Error(`HTTP_${xhr.status}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error('NETWORK_ERROR'));
+    xhr.send(file);
+  });
