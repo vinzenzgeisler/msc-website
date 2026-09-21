@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useSettings } from '@/hooks/useSettings';
 import { useTranslation, useLanguage } from '@/i18n/LanguageContext';
 import { localize } from '@/i18n/locale-utils';
-import { normalizeCanonicalPath, SITE_URL, toAbsoluteUrl } from '@/lib/seo';
+import { normalizeCanonicalPath, SITE_URL, SOCIAL_LOGO_ALT, SOCIAL_LOGO_URL, toAbsoluteUrl } from '@/lib/seo';
 
 type StructuredDataValue = Record<string, unknown> | Array<Record<string, unknown>>;
 
@@ -165,8 +165,6 @@ export function SEO({
   canonicalPath,
   noindex = false,
   ogType = 'website',
-  imageUrl,
-  imageAlt,
   articlePublishedTime,
   articleModifiedTime,
   structuredData,
@@ -183,7 +181,7 @@ export function SEO({
   const fullTitle = normalizeTitle(pageTitle, siteTitle);
   const metaDescription = description || settings?.meta_description || settings?.description || '';
   const canonicalUrl = toAbsoluteUrl(pathname);
-  const ogImage = imageUrl || settings?.default_og_image_url || undefined;
+  const ogImage = SOCIAL_LOGO_URL;
   const socialTitle = pageTitle || fullTitle;
   const ogImageType = ogImage?.split(/[?#]/, 1)[0].toLowerCase().endsWith('.png') ? 'image/png' : undefined;
   const effectiveNoindex = noindex || (!pathname.startsWith('/admin') && locale !== 'de');
@@ -241,14 +239,16 @@ export function SEO({
       {ogImage ? <meta property="og:image" content={ogImage} /> : null}
       {ogImage?.startsWith('https://') ? <meta property="og:image:secure_url" content={ogImage} /> : null}
       {ogImageType ? <meta property="og:image:type" content={ogImageType} /> : null}
-      {ogImage && imageAlt ? <meta property="og:image:alt" content={imageAlt} /> : null}
+      <meta property="og:image:width" content="1254" />
+      <meta property="og:image:height" content="1254" />
+      <meta property="og:image:alt" content={SOCIAL_LOGO_ALT} />
       {ogType === 'article' && articlePublishedTime ? <meta property="article:published_time" content={articlePublishedTime} /> : null}
       {ogType === 'article' && articleModifiedTime ? <meta property="article:modified_time" content={articleModifiedTime} /> : null}
       <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
       <meta name="twitter:title" content={socialTitle} />
       {metaDescription ? <meta name="twitter:description" content={metaDescription} /> : null}
       {ogImage ? <meta name="twitter:image" content={ogImage} /> : null}
-      {ogImage && imageAlt ? <meta name="twitter:image:alt" content={imageAlt} /> : null}
+      <meta name="twitter:image:alt" content={SOCIAL_LOGO_ALT} />
       {structuredDataEntries.map((entry, index) => (
         <script key={index} type="application/ld+json">
           {JSON.stringify(entry)}

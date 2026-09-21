@@ -1,4 +1,6 @@
 export const SITE_URL = 'https://www.msc-oberlausitz.de';
+export const SOCIAL_LOGO_URL = `${SITE_URL}/MSC-logo-clean-transparent.png`;
+export const SOCIAL_LOGO_ALT = 'Logo des MSC Oberlausitzer Dreiländereck e.V.';
 
 export function normalizePath(pathname?: string | null) {
   if (!pathname) return '/';

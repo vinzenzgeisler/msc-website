@@ -1,9 +1,11 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SITE_URL = 'https://www.msc-oberlausitz.de';
 const SITE_NAME = 'MSC Oberlausitzer Dreiländereck e.V.';
+const SOCIAL_LOGO_URL = `${SITE_URL}/MSC-logo-clean-transparent.png`;
+const SOCIAL_LOGO_ALT = 'Logo des MSC Oberlausitzer Dreiländereck e.V.';
 
 function escapeHtml(value) {
   return String(value)
@@ -26,8 +28,8 @@ async function generateNewsletterPage(distDir, shell) {
   const socialTitle = 'MSC Newsletter';
   const description = 'Termine, Neuigkeiten und Vereinsleben des MSC Oberlausitzer Dreiländereck direkt in dein Postfach.';
   const canonicalUrl = `${SITE_URL}/newsletter`;
-  const imageUrl = `${SITE_URL}/MSC-logo-clean-transparent.png`;
-  const imageAlt = 'Logo des MSC Oberlausitzer Dreiländereck e.V.';
+  const imageUrl = SOCIAL_LOGO_URL;
+  const imageAlt = SOCIAL_LOGO_ALT;
   const tags = [
     `<title>${escapeHtml(title)}</title>`,
     `<meta name="description" content="${escapeHtml(description)}" />`,
@@ -57,8 +59,50 @@ async function generateNewsletterPage(distDir, shell) {
   await writeFile(path.join(outputDir, 'index.html'), injectHead(shell, tags), 'utf8');
 }
 
+function setMetaTag(html, attribute, name, content) {
+  const pattern = new RegExp(`<meta\\s+${attribute}=["']${name}["'][^>]*>`, 'i');
+  const tag = `<meta ${attribute}="${name}" content="${escapeHtml(content)}" />`;
+  return pattern.test(html) ? html.replace(pattern, tag) : html.replace('</head>', `    ${tag}\n  </head>`);
+}
+
+function useClubLogoForSocialPreview(html) {
+  const tags = [
+    ['property', 'og:image', SOCIAL_LOGO_URL],
+    ['property', 'og:image:secure_url', SOCIAL_LOGO_URL],
+    ['property', 'og:image:type', 'image/png'],
+    ['property', 'og:image:width', '1254'],
+    ['property', 'og:image:height', '1254'],
+    ['property', 'og:image:alt', SOCIAL_LOGO_ALT],
+    ['name', 'twitter:card', 'summary_large_image'],
+    ['name', 'twitter:image', SOCIAL_LOGO_URL],
+    ['name', 'twitter:image:alt', SOCIAL_LOGO_ALT],
+  ];
+
+  return tags.reduce((result, [attribute, name, content]) => setMetaTag(result, attribute, name, content), html);
+}
+
+async function findHtmlFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const nested = await Promise.all(entries.map(async (entry) => {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) return findHtmlFiles(entryPath);
+    return entry.isFile() && entry.name.endsWith('.html') ? [entryPath] : [];
+  }));
+  return nested.flat();
+}
+
+async function normalizeSocialPreviewImages(distDir) {
+  const htmlFiles = await findHtmlFiles(distDir);
+  await Promise.all(htmlFiles.map(async (htmlPath) => {
+    const html = await readFile(htmlPath, 'utf8');
+    await writeFile(htmlPath, useClubLogoForSocialPreview(html), 'utf8');
+  }));
+  return htmlFiles.length;
+}
+
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(scriptDir, '..', 'dist');
 const shell = await readFile(path.join(distDir, 'index.html'), 'utf8');
 await generateNewsletterPage(distDir, shell);
-console.log('[static-social-pages] wrote /newsletter with crawler-visible metadata');
+const normalizedPages = await normalizeSocialPreviewImages(distDir);
+console.log(`[static-social-pages] wrote /newsletter and applied the club logo to ${normalizedPages} HTML pages`);
