@@ -49,7 +49,7 @@ const errorMessage = (error: unknown): string => {
       case 'RACEPIC_UPLOAD_DUPLICATE_IN_BATCH':
         return 'Diese Datei wurde in diesem Batch bereits hochgeladen.';
       case 'RACEPIC_UPLOAD_CONTENT_TYPE_UNSUPPORTED':
-        return 'Nur JPEG-Dateien werden aktuell unterstützt.';
+        return 'Nur JPEG- oder PNG-Dateien werden aktuell unterstützt.';
       case 'RACEPIC_UPLOAD_SIZE_INVALID':
         return 'Datei ist zu groß oder ungültig.';
       case 'RACEPIC_UPLOAD_QUOTA_EXCEEDED':
@@ -72,7 +72,7 @@ export function useStudioUploader(eventId: string, licenseId: string) {
 
   const addFiles = useCallback((files: FileList | File[]) => {
     const next: UploadItem[] = Array.from(files)
-      .filter((file) => file.type === 'image/jpeg')
+      .filter((file) => file.type === 'image/jpeg' || file.type === 'image/png')
       .map((file) => ({ id: `${fileFingerprint(file)}-${crypto.randomUUID()}`, file, status: 'queued', progress: 0, error: null, uploadId: null }));
     setItems((prev) => [...prev, ...next]);
   }, []);
@@ -85,7 +85,7 @@ export function useStudioUploader(eventId: string, licenseId: string) {
   }, [eventId, licenseId]);
 
   const uploadSingle = async (item: UploadItem, uploadUrl: string) => {
-    await putWithProgress(uploadUrl, item.file, 'image/jpeg', (loaded, total) => updateItem(item.id, { progress: Math.round((loaded / total) * 100) }));
+    await putWithProgress(uploadUrl, item.file, item.file.type, (loaded, total) => updateItem(item.id, { progress: Math.round((loaded / total) * 100) }));
   };
 
   const uploadMultipart = async (item: UploadItem, uploadId: string) => {
@@ -108,7 +108,7 @@ export function useStudioUploader(eventId: string, licenseId: string) {
       const start = (partNumber - 1) * PART_SIZE_BYTES;
       const chunk = item.file.slice(start, Math.min(start + PART_SIZE_BYTES, item.file.size));
       const previousBytesDone = bytesDone;
-      const eTag = await putWithProgress(url, chunk, 'image/jpeg', (loaded) => {
+      const eTag = await putWithProgress(url, chunk, item.file.type, (loaded) => {
         updateItem(item.id, { progress: Math.round(((previousBytesDone + loaded) / item.file.size) * 100) });
       });
       if (!eTag) throw new Error('MISSING_ETAG');
@@ -126,7 +126,7 @@ export function useStudioUploader(eventId: string, licenseId: string) {
         const batch = await ensureBatch();
         const { upload, uploadUrl, s3UploadId } = await createUpload(batch.id, {
           name: item.file.name,
-          type: 'image/jpeg',
+          type: item.file.type as 'image/jpeg' | 'image/png',
           size: item.file.size,
           fingerprint: fileFingerprint(item.file)
         });

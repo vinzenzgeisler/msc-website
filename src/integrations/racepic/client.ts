@@ -141,7 +141,7 @@ export type CreatedUpload = {
   requiredHeaders: Record<string, string>;
 };
 
-export const createUpload = (batchId: string, file: { name: string; type: 'image/jpeg'; size: number; fingerprint?: string }) =>
+export const createUpload = (batchId: string, file: { name: string; type: 'image/jpeg' | 'image/png'; size: number; fingerprint?: string }) =>
   requestJson<{ ok: true } & CreatedUpload>(`/photographer/batches/${encodeURIComponent(batchId)}/uploads`, {
     method: 'POST',
     auth: true,

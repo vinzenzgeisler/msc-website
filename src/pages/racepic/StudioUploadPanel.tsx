@@ -80,11 +80,11 @@ export default function StudioUploadPanel() {
         className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-10 text-center ${ready ? 'cursor-pointer hover:border-accent' : 'cursor-not-allowed opacity-50'}`}
       >
         <UploadCloud className="h-10 w-10 text-muted-foreground" />
-        <span className="font-medium">JPEG-Dateien hierher ziehen oder klicken</span>
+        <span className="font-medium">JPEG- oder PNG-Dateien hierher ziehen oder klicken</span>
         <span className="text-sm text-muted-foreground">Bis zu 80 MB pro Datei</span>
         <input
           type="file"
-          accept="image/jpeg"
+          accept="image/jpeg,image/png"
           multiple
           disabled={!ready}
           className="hidden"
