@@ -31,6 +31,10 @@ export default function RacePicHomePage() {
   const [events, setEvents] = useState<RacePicEventSummary[]>([]);
   const [error, setError] = useState(false);
   const [visibleCount, setVisibleCount] = useState(INITIAL_GRID_SIZE);
+  // Event-Chips filtern das Discover-Grid auf dieser Seite, statt zur alten Event-Seite zu
+  // navigieren (Bug/Feedback 2026-09-22: "springt zur alten Ansicht statt den Filter zu setzen") -
+  // kein Nachladen noetig, `discover` ist bereits komplett geladen.
+  const [selectedEventSlug, setSelectedEventSlug] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSearchIndex()
@@ -58,6 +62,16 @@ export default function RacePicHomePage() {
 
   const goToResult = (entry: RacePicSearchIndexEntry) => {
     navigate(`/racepic/${entry.eventSlug}/${entry.participantKey}`);
+  };
+
+  const visibleDiscover = useMemo(
+    () => (selectedEventSlug ? (discover ?? []).filter((image) => image.eventSlug === selectedEventSlug) : (discover ?? [])),
+    [discover, selectedEventSlug],
+  );
+
+  const toggleEventFilter = (slug: string) => {
+    setVisibleCount(INITIAL_GRID_SIZE);
+    setSelectedEventSlug((current) => (current === slug ? null : slug));
   };
 
   return (
@@ -105,13 +119,19 @@ export default function RacePicHomePage() {
           {events.length > 0 && (
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
               {events.map((item) => (
-                <Link
+                <button
                   key={item.eventId}
-                  to={`/racepic/${item.slug}`}
-                  className="rounded-full border bg-card px-4 py-1.5 text-sm font-medium transition hover:border-accent"
+                  type="button"
+                  onClick={() => toggleEventFilter(item.slug)}
+                  className={
+                    'rounded-full border px-4 py-1.5 text-sm font-medium transition ' +
+                    (selectedEventSlug === item.slug
+                      ? 'border-accent bg-accent text-accent-foreground'
+                      : 'bg-card hover:border-accent')
+                  }
                 >
                   {item.title}
-                </Link>
+                </button>
               ))}
             </div>
           )}
@@ -124,10 +144,13 @@ export default function RacePicHomePage() {
         {discover && discover.length === 0 && (
           <p className="text-center text-muted-foreground">Noch keine Bilder veröffentlicht.</p>
         )}
-        {discover && discover.length > 0 && (
+        {discover && discover.length > 0 && visibleDiscover.length === 0 && (
+          <p className="text-center text-muted-foreground">Noch keine Bilder für dieses Event.</p>
+        )}
+        {discover && visibleDiscover.length > 0 && (
           <>
             <div className="columns-2 gap-3 sm:columns-3 md:columns-4 [&>*]:mb-3">
-              {discover.slice(0, visibleCount).map((image) => (
+              {visibleDiscover.slice(0, visibleCount).map((image) => (
                 <Link
                   key={image.imageId}
                   to={`/racepic/${image.eventSlug}`}
@@ -143,7 +166,7 @@ export default function RacePicHomePage() {
                 </Link>
               ))}
             </div>
-            {visibleCount < discover.length && (
+            {visibleCount < visibleDiscover.length && (
               <div className="mt-6 text-center">
                 <button
                   type="button"
