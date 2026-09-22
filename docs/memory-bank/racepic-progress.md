@@ -14,6 +14,7 @@
 | 12 | Öffentliches Fotografenprofil `/racepic/fotografen/:slug` | **erledigt** | siehe „Paket 12 – Ergebnis" unten; Backend-Teil siehe MSC-Event-Backend |
 | 14 | UI/UX-Redesign-Grundlage: RacePic-Wortmarke | **erledigt** | siehe „Paket 14 – Ergebnis" unten; Roadmap Paket 14–18 in [racepic-ux-redesign-plan.md](./racepic-ux-redesign-plan.md) |
 | 15 | Studio-Redesign (Website-Teil): Layout, Meine Bilder, Profil, Lizenzseite | **erledigt (ungedeployed)** | siehe „Paket 15 – Ergebnis" unten; Backend-Teil siehe MSC-Event-Backend |
+| 17 | Landingpage (Website-Teil): Suche + Discover-Grid | **erledigt (ungedeployed)** | siehe „Paket 17 – Ergebnis" unten; Backend-Teil siehe MSC-Event-Backend |
 
 ## Paket 2 – Ergebnis (2026-09-21)
 
@@ -108,6 +109,24 @@ Studio-Redesign, siehe [racepic-ux-redesign-plan.md](./racepic-ux-redesign-plan.
 - **Verifiziert:** `tsc --noEmit` und `vite build` fehlerfrei. Kein Browser-Test in dieser
   Sandbox möglich – bitte lokal gegenprüfen (`npm run dev`, `.env.local` zeigt bereits auf die
   echte Prod-API).
+
+## Paket 17 – Ergebnis (Website-Teil, 2026-09-22)
+
+Öffentliche Landingpage im Unsplash/Airbnb-Stil, siehe
+[racepic-ux-redesign-plan.md](./racepic-ux-redesign-plan.md).
+
+- `src/pages/racepic/RacePicHomePage.tsx` komplett neu: `RacePicWordmark` (groß) als Hero-Lockup,
+  große zentrierte Suchleiste mit Autocomplete (max. 8 Treffer, gegen `search-index.json`, Klick
+  führt direkt zur Teilnehmerseite), darunter Chips zu allen veröffentlichten Events (aus dem
+  bestehenden `events.json`) und ein Masonry-Grid (CSS-`columns`, keine JS-Bibliothek nötig) mit
+  Bildvorschlägen aus `discover.json`, "Mehr laden" lädt in 20er-Schritten nach (kein echtes
+  Infinite Scroll nötig bei max. 60 Bildern).
+- `src/integrations/racepic/publicClient.ts`: `fetchDiscoverFeed`/`fetchSearchIndex` gegen die
+  neuen globalen Manifeste.
+- **Backend-Ergänzung (im MSC-Event-Backend-Repo, nicht hier):** `manifests/discover.json` und
+  `manifests/search-index.json` gab es vor Paket 17 noch nicht.
+- **Verifiziert:** `tsc --noEmit` und `vite build` fehlerfrei. Kein Browser-Test in dieser
+  Sandbox möglich.
 
 ## Entscheidungen aus diesem Repo
 

@@ -83,6 +83,32 @@ export type RacePicPhotographerProfile = {
 export const fetchPhotographerProfile = (slug: string) =>
   fetchManifest<RacePicPhotographerProfile>(`/manifests/photographers/${encodeURIComponent(slug)}.json`);
 
+// --- Paket 17: globale Discover-/Suchindex-Manifeste (Landingpage) -----------------------------
+
+export type RacePicDiscoverImage = {
+  imageId: string;
+  thumbUrl: string;
+  previewUrl: string;
+  eventSlug: string;
+  eventTitle: string;
+  capturedAt: string | null;
+};
+
+export const fetchDiscoverFeed = () => fetchManifest<RacePicDiscoverImage[]>('/manifests/discover.json');
+
+export type RacePicSearchIndexEntry = {
+  participantKey: string;
+  eventSlug: string;
+  eventTitle: string;
+  startNumber: string;
+  displayName: string;
+  make: string | null;
+  model: string | null;
+  className: string;
+};
+
+export const fetchSearchIndex = () => fetchManifest<RacePicSearchIndexEntry[]>('/manifests/search-index.json');
+
 /** Absolute CDN-URL fuer einen relativen Manifest-Pfad (z. B. `coverThumbUrl`/`thumbUrl`). */
 export const toCdnUrl = (relativePath: string): string => `${cdnBaseUrl}${relativePath}`;
 
