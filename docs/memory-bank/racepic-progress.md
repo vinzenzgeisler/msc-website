@@ -1,7 +1,7 @@
 <!-- Nur die Architektur (racepic-architecture.md) wird 1:1 in allen 3 Repos synchron gehalten. Diese Fortschrittsdatei ist repo-spezifisch und listet nur die Arbeitspakete, die in msc-website passieren. -->
 # RacePic – Fortschritt (msc-website)
 
-**Stand:** 2026-09-21 · Architektur: [racepic-architecture.md](./racepic-architecture.md) · Lizenzen: [../racepic/licenses.md](../racepic/licenses.md)
+**Stand:** 2026-09-22 · Architektur: [racepic-architecture.md](./racepic-architecture.md) · Lizenzen: [../racepic/licenses.md](../racepic/licenses.md)
 
 ## Arbeitspakete in diesem Repo
 
@@ -9,8 +9,9 @@
 |---|---|---|---|
 | 2b | Identität (Website-Teil): `/racepic/studio` Login (Email-OTP), Einladung/Claim-UI, Profil | **erledigt (Email-OTP; Passkeys offen)** | siehe „Paket 2 – Ergebnis“ unten; Backend-Teil siehe MSC-Event-Backend |
 | 3b | Upload (Website-Teil): Studio-Uploader (eigener Client statt Uppy, s. u.), Event-/Lizenzwahl | **erledigt** | siehe „Paket 3 – Ergebnis“ unten; Backend-Teil siehe MSC-Event-Backend |
-| 8 | Öffentliches RacePic: Routen `/racepic`, `/racepic/:event`, `/racepic/:event/:participant`; Suche, Galerie, Lightbox, Download | **erledigt (ohne Fotografenprofil-Seite)** | siehe „Paket 8 – Ergebnis" unten |
+| 8 | Öffentliches RacePic: Routen `/racepic`, `/racepic/:event`, `/racepic/:event/:participant`; Suche, Galerie, Lightbox, Download | **erledigt** | siehe „Paket 8 – Ergebnis" unten; Fotografenprofil siehe Paket 12 |
 | 10b | Pilot 12. OLD 2026 (Website-Teil): Event veröffentlichen, i18n-Texte | offen | |
+| 12 | Öffentliches Fotografenprofil `/racepic/fotografen/:slug` | **erledigt** | siehe „Paket 12 – Ergebnis" unten; Backend-Teil siehe MSC-Event-Backend |
 
 ## Paket 2 – Ergebnis (2026-09-21)
 
@@ -38,8 +39,31 @@
 - `src/pages/racepic/RacePicParticipantPage.tsx` (`/racepic/:eventSlug/:participantKey`): lädt `manifests/{slug}/p/{participantKey}.json`, Bildergrid mit eigener Dialog-Lightbox (siehe Entscheidung unten) und Download-Buttons für alle vier Größen inkl. Fotograf/Lizenz-Anzeige.
 - Route, Sitemap (nur `/racepic` selbst – siehe offener Punkt) und Hauptnavigation (`Header.tsx`, neuer i18n-Schlüssel `nav.racePic` in allen 4 Sprachen) ergänzt.
 - `.env.example`: `VITE_RACEPIC_CDN_BASE_URL`.
-- **Nicht umgesetzt:** `/racepic/fotografen/:slug` (öffentliches Fotografenprofil) – im Architekturplan als MVP-Bestandteil genannt, hier aus Zeitgründen zurückgestellt; die Backend-Manifeste liefern bereits Fotografeninformationen pro Bild, eine eigene Profilseite fehlt aber.
+- **Nicht umgesetzt (siehe Paket 12 unten):** `/racepic/fotografen/:slug` war hier aus Zeitgründen zurückgestellt.
 - **Verifiziert:** `tsc --noEmit` und `vite build` fehlerfrei.
+
+## Paket 12 – Ergebnis (2026-09-22)
+
+Schließt die in Paket 8 zurückgestellte Lücke – öffentliches Fotografenprofil.
+
+- `src/pages/racepic/RacePicPhotographerPage.tsx` (neu), Route `/racepic/fotografen/:slug`:
+  Name, Copyright-Zeile, Website-/Social-Links, Grid aller veröffentlichten Bilder. Jede Kachel
+  verlinkt auf die jeweilige Event-Galerie statt auf eine einzelne Teilnehmerseite – ein Bild
+  kann mehreren Fahrern zugeordnet sein (Domain-Modell Abschnitt C), eine eindeutige Zielseite
+  gibt es dafür nicht.
+- `src/integrations/racepic/publicClient.ts`: `fetchPhotographerProfile` (liest
+  `manifests/photographers/{slug}.json` vom CDN, wie die übrigen Manifeste – kein API-Aufruf);
+  `RacePicImage.photographer` um `slug` ergänzt.
+- `src/pages/racepic/RacePicParticipantPage.tsx`: Fotografenname in der Lightbox verlinkt jetzt
+  auf das Profil, wenn ein Slug vorhanden ist (Fotografen ohne Slug – sollte es faktisch nicht
+  mehr geben, siehe Backend-Progress – bleiben als reiner Text).
+- `src/App.tsx`: Route registriert. Reihenfolge relativ zu `/racepic/:eventSlug` ist wegen React
+  Routers Bevorzugung statischer Segmente irrelevant (gleiches Prinzip wie beim
+  `/racepic/studio`-Kommentar).
+- **Backend-Ergänzung (im MSC-Event-Backend-Repo, nicht hier):** Fotografen-Slug (automatisch bei
+  Einladung vergeben) und das neue Manifest gab es vor Paket 12 noch nicht, siehe dortige
+  `racepic-progress.md`.
+- **Verifiziert:** `tsc --noEmit` und `vite build` (inkl. Sitemap-/Social-Pages-Skripte) fehlerfrei.
 
 ## Entscheidungen aus diesem Repo
 
@@ -50,7 +74,6 @@
 ## Offene Punkte
 
 - OG-Bilder pro Teilnehmer sind nicht Teil des MVP (nur ein statisches RacePic-OG-Bild).
-- `/racepic/fotografen/:slug` (öffentliches Fotografenprofil) fehlt noch, siehe Paket 8 – Ergebnis.
 - Dynamische Sitemap-Einträge pro Event/Teilnehmer fehlen (nur der statische `/racepic`-Einstieg ist gelistet) – bräuchte einen Sitemap-Build-Schritt, der das RacePic-CDN-Manifest abfragt.
 - Kein Rate-Limiting auf dem Download-Endpunkt (siehe Backend-Progress-Notiz in MSC-Event-Backend).
 - Passkey-Login (WEB_AUTHN) im Studio ist noch nicht implementiert, nur Email-OTP (siehe Paket 2 – Ergebnis). Nachziehen, sobald der Marketplace-Step-up (`strong`) ansteht.

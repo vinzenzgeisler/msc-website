@@ -144,7 +144,15 @@ function Lightbox({ image, onPrev, onNext, hasMultiple }: { image: RacePicImage;
 
       <div className="mt-3 flex flex-col items-center gap-2 text-center text-sm text-white/90">
         <p>
-          Foto: {image.photographer.displayName} · Lizenz: {image.license.title.de ?? image.license.code}
+          Foto:{' '}
+          {image.photographer.slug ? (
+            <Link to={`/racepic/fotografen/${image.photographer.slug}`} className="underline hover:no-underline">
+              {image.photographer.displayName}
+            </Link>
+          ) : (
+            image.photographer.displayName
+          )}{' '}
+          · Lizenz: {image.license.title.de ?? image.license.code}
           {image.license.attributionRequired && ' · Namensnennung erforderlich'}
         </p>
         <div className="flex flex-wrap justify-center gap-2">

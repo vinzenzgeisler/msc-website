@@ -49,7 +49,7 @@ export type RacePicImage = {
   previewUrl: string;
   width: number | null;
   height: number | null;
-  photographer: { displayName: string; website: string | null };
+  photographer: { displayName: string; website: string | null; slug: string | null };
   license: { code: string; title: Record<string, string>; attributionRequired: boolean; attributionTemplate: string | null };
 };
 
@@ -57,6 +57,31 @@ export type RacePicParticipantGallery = { participant: RacePicParticipant; image
 
 export const fetchParticipantGallery = (slug: string, participantKey: string) =>
   fetchManifest<RacePicParticipantGallery>(`/manifests/${slug}/p/${encodeURIComponent(participantKey)}.json`);
+
+// --- Paket 12: öffentliches Fotografenprofil --------------------------------------------------
+
+export type RacePicPhotographerImage = {
+  imageId: string;
+  thumbUrl: string;
+  previewUrl: string;
+  eventSlug: string;
+  eventTitle: string;
+  capturedAt: string | null;
+};
+
+export type RacePicPhotographerProfile = {
+  photographerId: string;
+  slug: string;
+  displayName: string;
+  copyrightLine: string | null;
+  website: string | null;
+  social: Record<string, string>;
+  imageCount: number;
+  images: RacePicPhotographerImage[];
+};
+
+export const fetchPhotographerProfile = (slug: string) =>
+  fetchManifest<RacePicPhotographerProfile>(`/manifests/photographers/${encodeURIComponent(slug)}.json`);
 
 /** Absolute CDN-URL fuer einen relativen Manifest-Pfad (z. B. `coverThumbUrl`/`thumbUrl`). */
 export const toCdnUrl = (relativePath: string): string => `${cdnBaseUrl}${relativePath}`;

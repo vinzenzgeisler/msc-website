@@ -43,6 +43,7 @@ import StudioPage from "./pages/racepic/StudioPage";
 import RacePicHomePage from "./pages/racepic/RacePicHomePage";
 import RacePicEventPage from "./pages/racepic/RacePicEventPage";
 import RacePicParticipantPage from "./pages/racepic/RacePicParticipantPage";
+import RacePicPhotographerPage from "./pages/racepic/RacePicPhotographerPage";
 
 // Admin Pages
 import LoginPage from "./pages/admin/LoginPage";
@@ -120,6 +121,11 @@ const App = () => (
 
               {/* RacePic – öffentliche Galerie (Paket 8) */}
               <Route path="/racepic" element={<RacePicHomePage />} />
+              {/* Fotografenprofil (Paket 12) - vor "/racepic/:eventSlug" registriert, aber die
+                  Reihenfolge ist irrelevant: React Router v6 bevorzugt ohnehin das statische
+                  Segment "fotografen" vor dem dynamischen ":eventSlug", siehe Studio-Kommentar
+                  unten für dasselbe Prinzip. */}
+              <Route path="/racepic/fotografen/:slug" element={<RacePicPhotographerPage />} />
               <Route path="/racepic/:eventSlug" element={<RacePicEventPage />} />
               <Route path="/racepic/:eventSlug/:participantKey" element={<RacePicParticipantPage />} />
 
