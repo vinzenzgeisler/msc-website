@@ -71,6 +71,15 @@ Schließt die in Paket 8 zurückgestellte Lücke – öffentliches Fotografenpro
 - 2026-09-21: Öffentliche Galerie liest vorberechnete JSON-Manifeste aus CloudFront; Suche läuft clientseitig, kein eigener Suchservice nötig.
 - 2026-09-21: Lightbox-Frage aus Paket 2 entschieden: eigene, auf dem bestehenden `ImageGallerySection.tsx`-Dialog-Muster basierende Lightbox statt PhotoSwipe – keine neue Abhängigkeit, konsistent mit dem Rest der Website.
 
+## Bugfix (2026-09-22, gefunden beim ersten echten Login-Test gegen prod)
+
+Der Code-Eingabe-Dialog in `StudioLoginPage.tsx`/`StudioInvitationPage.tsx` (Paket 2) hatte
+`InputOTP maxLength={6}` – Cognito-`EMAIL_OTP`-Codes sind aber **8-stellig**, nicht 6. Dadurch
+ließ sich der Login nie abschließen: das Feld blockierte nach dem sechsten Zeichen, der
+tatsächliche Code aus der E-Mail passte nie zu dem (unvollständigen) eingegebenen Wert –
+`RespondToAuthChallenge` lieferte `CodeMismatchException`. Auf 8 Zeichen korrigiert (beide
+Dateien: `InputOTP`, `InputOTPSlot`-Array, `disabled`-Bedingung des Submit-Buttons).
+
 ## Offene Punkte
 
 - OG-Bilder pro Teilnehmer sind nicht Teil des MVP (nur ein statisches RacePic-OG-Bild).

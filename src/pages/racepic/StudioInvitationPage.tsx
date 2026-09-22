@@ -132,15 +132,16 @@ export default function StudioInvitationPage() {
             {step === 'enter-code' && (
               <form onSubmit={handleCodeSubmit} className="mt-8 space-y-4">
                 <p className="text-sm text-muted-foreground">Bitte gib den Code aus der E-Mail ein.</p>
-                <InputOTP maxLength={6} value={codeInput} onChange={setCodeInput}>
+                {/* Cognito EMAIL_OTP-Codes sind 8-stellig, nicht 6 (Bug gefunden 2026-09-22, siehe StudioLoginPage.tsx). */}
+                <InputOTP maxLength={8} value={codeInput} onChange={setCodeInput}>
                   <InputOTPGroup>
-                    {Array.from({ length: 6 }).map((_, index) => (
+                    {Array.from({ length: 8 }).map((_, index) => (
                       <InputOTPSlot key={index} index={index} />
                     ))}
                   </InputOTPGroup>
                 </InputOTP>
                 {(error || claimError) && <p className="text-sm text-destructive">{error ?? claimError}</p>}
-                <Button type="submit" className="w-full" disabled={pending || claiming || codeInput.length < 6}>
+                <Button type="submit" className="w-full" disabled={pending || claiming || codeInput.length < 8}>
                   {pending || claiming ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Profil aktivieren'}
                 </Button>
               </form>

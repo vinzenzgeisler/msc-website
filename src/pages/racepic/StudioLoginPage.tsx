@@ -57,15 +57,17 @@ export default function StudioLoginPage() {
             <p className="text-sm text-muted-foreground">
               Wir haben einen Code an <strong>{email}</strong> gesendet.
             </p>
-            <InputOTP maxLength={6} value={codeInput} onChange={setCodeInput}>
+            {/* Cognito EMAIL_OTP-Codes sind 8-stellig, nicht 6 (Bug gefunden 2026-09-22: Nutzer
+                konnte den vollen Code nicht eingeben, da das Feld nach 6 Zeichen blockierte). */}
+            <InputOTP maxLength={8} value={codeInput} onChange={setCodeInput}>
               <InputOTPGroup>
-                {Array.from({ length: 6 }).map((_, index) => (
+                {Array.from({ length: 8 }).map((_, index) => (
                   <InputOTPSlot key={index} index={index} />
                 ))}
               </InputOTPGroup>
             </InputOTP>
             {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" className="w-full" disabled={pending || codeInput.length < 6}>
+            <Button type="submit" className="w-full" disabled={pending || codeInput.length < 8}>
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Anmelden'}
             </Button>
           </form>
