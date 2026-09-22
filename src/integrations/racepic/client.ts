@@ -213,9 +213,30 @@ export const hideMyImage = (imageId: string) =>
     body: JSON.stringify({ visibility: 'HIDDEN' })
   });
 
-/** Nur möglich, solange das Bild noch nie veröffentlicht wurde (`visibility='DRAFT'`). */
+/**
+ * Nimmt ein eigenes Bild komplett raus, unabhaengig vom Status (Feedback 2026-09-22: "auch als
+ * Fotograf will ich mal Fotos rausnehmen können wieder"). Ein DRAFT-Bild wird dabei hart geloescht,
+ * ein bereits veroeffentlichtes/verborgenes Bild ueber denselben Weg wie das Admin-"Entfernen"
+ * (Bilddateien weg, Datenbankzeile bleibt vorerst als REMOVED) - siehe removeOwnImage im Backend.
+ */
 export const deleteMyImage = (imageId: string) =>
   requestJson<{ ok: true }>(`/photographer/images/${encodeURIComponent(imageId)}`, { method: 'DELETE', auth: true });
+
+export type OwnImageAssignment = {
+  assignmentId: string;
+  entryId: string;
+  status: string;
+  source: string;
+  confidence: number | null;
+  driverName: string;
+  startNumber: string | null;
+  vehicleMake: string | null;
+  vehicleModel: string | null;
+};
+
+/** Read-only: welche(r) Fahrer wurde(n) diesem eigenen Bild zugeordnet (auch automatisch). */
+export const fetchMyImageAssignments = (imageId: string) =>
+  requestJson<{ ok: true; assignments: OwnImageAssignment[] }>(`/photographer/images/${encodeURIComponent(imageId)}/assignments`, { auth: true });
 
 /** Fuer eine Rohdatei signierte PUT-Anfrage mit Fortschrittsanzeige (XHR statt fetch, da fetch
  * keinen Upload-Fortschritt liefert - siehe Architekturplan Abschnitt D "kein Fortschritt"). */

@@ -49,13 +49,16 @@ export function RacePicImageDialog({ selected, onSelect, onClose }: {
   const image = detail?.image;
   return (
     <Dialog open={selected !== null} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="max-h-[95vh] max-w-6xl overflow-y-auto p-0 sm:rounded-2xl">
+      <DialogContent
+        className="max-h-[95vh] max-w-6xl overflow-y-auto p-0 sm:rounded-2xl"
+        overlayClassName="bg-background/40"
+      >
         {loading && <div className="flex min-h-80 items-center justify-center"><Loader2 className="h-7 w-7 animate-spin" /></div>}
         {error && <div className="p-10 text-center text-muted-foreground">{t.imageLoadError}</div>}
         {detail && image && (
           <>
             <div className="grid lg:grid-cols-[minmax(0,1fr)_320px]">
-              <div className="flex min-h-72 items-center justify-center bg-neutral-950 p-3 sm:p-6">
+              <div className="flex min-h-72 items-center justify-center bg-muted p-3 sm:p-6">
                 <img src={toCdnUrl(image.previewUrl)} alt={image.title || detail.eventTitle} className="max-h-[70vh] w-full object-contain" />
               </div>
               <aside className="space-y-5 p-5 sm:p-7">

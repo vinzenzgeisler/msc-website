@@ -3,8 +3,15 @@ import { Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { deleteMyImage, fetchLicenses, fetchMyEventAccess, hideMyImage, listMyImages, type LicenseOption, type PhotographerEventAccess, type UploadedImage } from '@/integrations/racepic/client';
+import { deleteMyImage, fetchLicenses, fetchMyEventAccess, fetchMyImageAssignments, hideMyImage, listMyImages, type LicenseOption, type OwnImageAssignment, type PhotographerEventAccess, type UploadedImage } from '@/integrations/racepic/client';
 import { StudioImageEditor } from './StudioImageEditor';
+
+const ASSIGNMENT_STATUS_LABEL: Record<string, string> = {
+  AUTO_MATCHED: 'Automatisch erkannt',
+  REVIEW_REQUIRED: 'Wird noch geprüft',
+  MANUALLY_CONFIRMED: 'Bestätigt',
+  MANUALLY_CORRECTED: 'Manuell korrigiert',
+};
 
 const VISIBILITY_LABEL: Record<string, string> = {
   DRAFT: 'Entwurf',
@@ -32,6 +39,9 @@ export function StudioImagesPanel() {
   const [error, setError] = useState('');
   const [editing, setEditing] = useState<UploadedImage | null>(null);
   const [previewing, setPreviewing] = useState<UploadedImage | null>(null);
+  const [assignmentsForId, setAssignmentsForId] = useState<string | null>(null);
+  const [assignments, setAssignments] = useState<OwnImageAssignment[]>([]);
+  const [assignmentsLoading, setAssignmentsLoading] = useState(false);
 
   useEffect(() => {
     fetchMyEventAccess()
@@ -66,16 +76,30 @@ export function StudioImagesPanel() {
   };
 
   const handleDelete = async (imageId: string) => {
-    if (!window.confirm('Bild wirklich löschen? Das kann nicht rückgängig gemacht werden.')) return;
+    if (!window.confirm('Bild wirklich rausnehmen? Das kann nicht rückgängig gemacht werden.')) return;
     setBusyId(imageId);
     try {
       await deleteMyImage(imageId);
       reload();
     } catch {
-      setError('Löschen fehlgeschlagen.');
+      setError('Rausnehmen fehlgeschlagen.');
     } finally {
       setBusyId(null);
     }
+  };
+
+  const toggleAssignments = (imageId: string) => {
+    if (assignmentsForId === imageId) {
+      setAssignmentsForId(null);
+      return;
+    }
+    setAssignmentsForId(imageId);
+    setAssignments([]);
+    setAssignmentsLoading(true);
+    fetchMyImageAssignments(imageId)
+      .then((result) => setAssignments(result.assignments))
+      .catch(() => setAssignments([]))
+      .finally(() => setAssignmentsLoading(false));
   };
 
   return (
@@ -121,7 +145,7 @@ export function StudioImagesPanel() {
                       Verbergen
                     </Button>
                   )}
-                  {image.visibility === 'DRAFT' && (
+                  {image.visibility !== 'REMOVED' && (
                     <Button
                       size="sm"
                       variant="outline"
@@ -129,10 +153,33 @@ export function StudioImagesPanel() {
                       disabled={busyId === image.id}
                       onClick={() => handleDelete(image.id)}
                     >
-                      Löschen
+                      Rausnehmen
+                    </Button>
+                  )}
+                  {image.visibility !== 'REMOVED' && (
+                    <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]" onClick={() => toggleAssignments(image.id)}>
+                      Zuordnung
                     </Button>
                   )}
                 </div>
+                {assignmentsForId === image.id && (
+                  <div className="rounded-md border bg-muted/40 p-2 text-[11px]">
+                    {assignmentsLoading && <span className="text-muted-foreground">Lädt…</span>}
+                    {!assignmentsLoading && assignments.length === 0 && (
+                      <span className="text-muted-foreground">Noch keine Zuordnung - die KI hat entweder noch nicht fertig analysiert oder kein Fahrzeug erkannt.</span>
+                    )}
+                    {!assignmentsLoading && assignments.length > 0 && (
+                      <ul className="space-y-1">
+                        {assignments.map((a) => (
+                          <li key={a.assignmentId} className="flex items-center justify-between gap-2">
+                            <span>#{a.startNumber} {a.driverName}{a.vehicleMake ? ` · ${a.vehicleMake} ${a.vehicleModel ?? ''}`.trimEnd() : ''}</span>
+                            <Badge variant="secondary" className="text-[9px]">{ASSIGNMENT_STATUS_LABEL[a.status] ?? a.status}</Badge>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))}
