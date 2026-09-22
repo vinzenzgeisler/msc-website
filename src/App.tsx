@@ -45,6 +45,9 @@ import RacePicHomePage from "./pages/racepic/RacePicHomePage";
 import RacePicEventPage from "./pages/racepic/RacePicEventPage";
 import RacePicParticipantPage from "./pages/racepic/RacePicParticipantPage";
 import RacePicPhotographerPage from "./pages/racepic/RacePicPhotographerPage";
+// RacePic (Paket 18: Warenkorb-/Konto-UI-Vorbereitung, kein echter Checkout)
+import { RacePicCartProvider } from "@/integrations/racepic/cart";
+import { RacePicCartWidget } from "@/components/racepic/RacePicCartWidget";
 
 // Admin Pages
 import LoginPage from "./pages/admin/LoginPage";
@@ -80,9 +83,11 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <RacePicCartProvider>
             <BrowserRouter>
               <ScrollToTop />
               <AnalyticsManager />
+              <RacePicCartWidget />
               <Routes>
               {/* Main Pages */}
               <Route path="/" element={<Index />} />
@@ -171,6 +176,7 @@ const App = () => (
               </Routes>
               <CookieBanner />
             </BrowserRouter>
+            </RacePicCartProvider>
           </TooltipProvider>
         </AuthProvider>
       </ConsentProvider>

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Download, Loader2 } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Download, Loader2, ShoppingBag } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useRacePicCart } from '@/integrations/racepic/cart';
 import {
   fetchParticipantGallery,
   requestDownload,
@@ -25,6 +26,7 @@ export default function RacePicParticipantPage() {
   const [gallery, setGallery] = useState<RacePicParticipantGallery | null>(null);
   const [error, setError] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const cart = useRacePicCart();
 
   useEffect(() => {
     fetchParticipantGallery(eventSlug, participantKey)
@@ -67,21 +69,31 @@ export default function RacePicParticipantPage() {
             <p className="mt-4 text-sm font-medium">{images.length} Bild(er) gefunden</p>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-3 md:grid-cols-4">
-              {images.map((image, index) => (
-                <button
-                  key={image.imageId}
-                  type="button"
-                  onClick={() => setSelectedIndex(index)}
-                  className="group overflow-hidden rounded-lg border bg-muted"
-                >
-                  <img
-                    src={toCdnUrl(image.thumbUrl)}
-                    alt=""
-                    loading="lazy"
-                    className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                </button>
-              ))}
+              {images.map((image, index) => {
+                const inCart = cart.has(image.imageId);
+                return (
+                  <div key={image.imageId} className="group relative overflow-hidden rounded-lg border bg-muted">
+                    <button type="button" onClick={() => setSelectedIndex(index)} className="block w-full">
+                      <img
+                        src={toCdnUrl(image.thumbUrl)}
+                        alt=""
+                        loading="lazy"
+                        className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        inCart ? cart.removeItem(image.imageId) : cart.addItem({ imageId: image.imageId, eventSlug, thumbUrl: image.thumbUrl })
+                      }
+                      className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow"
+                      aria-label={inCart ? 'Aus Warenkorb entfernen' : 'Zum Warenkorb hinzufügen'}
+                    >
+                      {inCart ? <Check className="h-4 w-4 text-primary" /> : <ShoppingBag className="h-4 w-4 text-foreground" />}
+                    </button>
+                  </div>
+                );
+              })}
               {images.length === 0 && <p className="text-muted-foreground">Noch keine Bilder für dieses Fahrzeug.</p>}
             </div>
 

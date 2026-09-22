@@ -15,6 +15,7 @@
 | 14 | UI/UX-Redesign-Grundlage: RacePic-Wortmarke | **erledigt** | siehe „Paket 14 – Ergebnis" unten; Roadmap Paket 14–18 in [racepic-ux-redesign-plan.md](./racepic-ux-redesign-plan.md) |
 | 15 | Studio-Redesign (Website-Teil): Layout, Meine Bilder, Profil, Lizenzseite | **erledigt (ungedeployed)** | siehe „Paket 15 – Ergebnis" unten; Backend-Teil siehe MSC-Event-Backend |
 | 17 | Landingpage (Website-Teil): Suche + Discover-Grid | **erledigt (ungedeployed)** | siehe „Paket 17 – Ergebnis" unten; Backend-Teil siehe MSC-Event-Backend |
+| 18 | Warenkorb-/Konto-UI-Vorbereitung (kein Checkout) | **erledigt (ungedeployed)** | siehe „Paket 18 – Ergebnis" unten |
 
 ## Paket 2 – Ergebnis (2026-09-21)
 
@@ -127,6 +128,30 @@ Studio-Redesign, siehe [racepic-ux-redesign-plan.md](./racepic-ux-redesign-plan.
   `manifests/search-index.json` gab es vor Paket 17 noch nicht.
 - **Verifiziert:** `tsc --noEmit` und `vite build` fehlerfrei. Kein Browser-Test in dieser
   Sandbox möglich.
+
+## Paket 18 – Ergebnis (2026-09-22)
+
+Warenkorb-/Konto-UI-**Vorbereitung**, kein echter Checkout – siehe
+[racepic-ux-redesign-plan.md](./racepic-ux-redesign-plan.md) und `racepic-open-items.md`
+Abschnitt D für die explizite Abgrenzung.
+
+- `src/integrations/racepic/cart.tsx` (neu): `RacePicCartProvider`/`useRacePicCart` – reiner
+  Client-Zustand (`localStorage`, kein Backend, kein Konto). Sammelt ausgewählte (kostenlose)
+  Bilder für einen bequemen Sammel-Download statt Klick für Klick.
+- `src/components/racepic/RacePicCartWidget.tsx` (neu): schwebender Warenkorb-Button (mit
+  Artikelzähler) + deaktiviertes Konto-Icon mit Tooltip "kommt mit dem RacePic-Shop", nur auf
+  `/racepic/*`-Seiten sichtbar (nicht im Studio – dort gibt es schon die eigene
+  `StudioLayout`-Kopfzeile). Der Sammel-Download ruft für jedes Bild denselben bestehenden
+  `POST /public/racepic/images/{id}/download`-Endpunkt auf wie der bisherige Einzel-Download,
+  öffnet die Ergebnisse in neuen Tabs (mit kurzer Verzögerung gegen Popup-Blocker – kein Ersatz
+  für einen echten Zip-Sammel-Download, der erst mit dem Checkout sinnvoll wird).
+- `src/pages/racepic/RacePicParticipantPage.tsx`: kleiner Warenkorb-Toggle-Button auf jeder
+  Grid-Kachel, zusätzlich zu den bestehenden Einzel-Download-Buttons in der Lightbox (bleiben
+  unverändert).
+- `src/App.tsx`: `RacePicCartProvider` und `RacePicCartWidget` eingehängt.
+- **Verifiziert:** `tsc --noEmit` und `vite build` fehlerfrei. Kein Browser-Test in dieser
+  Sandbox möglich (insbesondere Popup-Blocker-Verhalten beim Sammel-Download bitte im echten
+  Browser gegenprüfen).
 
 ## Entscheidungen aus diesem Repo
 
