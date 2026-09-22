@@ -1,7 +1,7 @@
 // RacePic-API-Client (Paket 2b). Die RacePic-Routen laufen auf derselben HTTP API wie das
 // bestehende Nennungstool-Backend (siehe api-stack.ts im MSC-Event-Backend-Repo), deshalb wird
 // dieselbe Basis-URL/Proxy-Konfiguration wie in ../event-backend/client.ts wiederverwendet.
-import { getPhotographerAccessToken } from './session';
+import { getPhotographerIdToken } from './session';
 
 const configuredEventApiBaseUrl = (import.meta.env.VITE_EVENT_API_BASE_URL || '').replace(/\/$/, '');
 const eventApiBaseUrl = import.meta.env.DEV && configuredEventApiBaseUrl ? '/event-api' : configuredEventApiBaseUrl;
@@ -23,7 +23,7 @@ async function requestJson<T>(path: string, init?: RequestInit & { auth?: boolea
   }
   const headers: Record<string, string> = { 'content-type': 'application/json', ...(init?.headers as Record<string, string> ?? {}) };
   if (init?.auth) {
-    const token = getPhotographerAccessToken();
+    const token = getPhotographerIdToken();
     if (!token) {
       throw new RacePicApiError(401, 'NOT_AUTHENTICATED');
     }

@@ -80,6 +80,19 @@ tatsächliche Code aus der E-Mail passte nie zu dem (unvollständigen) eingegebe
 `RespondToAuthChallenge` lieferte `CodeMismatchException`. Auf 8 Zeichen korrigiert (beide
 Dateien: `InputOTP`, `InputOTPSlot`-Array, `disabled`-Bedingung des Submit-Buttons).
 
+## Bugfix (2026-09-22, gefunden beim ersten echten Claim-Test gegen prod)
+
+Nach erfolgreichem Login (Login-Bug oben behoben) schlug `POST /photographer/claim` mit 403
+fehl (`EMAIL_NOT_VERIFIED`), `GET /photographer/me` mit "Profil konnte nicht geladen werden".
+**Ursache:** `client.ts` schickte das **Access-Token** als Bearer-Token. Cognito-Access-Tokens
+tragen aber keine `email`/`email_verified`-Claims (nur `sub`, `client_id`, `scope`, `auth_time`
+etc.) – `getPhotographerAuthContext` im Backend (`auth.ts`, MSC-Event-Backend) braucht diese
+Claims aber direkt aus dem JWT. Das ID-Token hat sie (plus ein echtes `aud`-Claim, das zum
+`jwtAudience`-Check des API-Gateway-Authorizers sauber passt statt über die
+Cognito-`client_id`-Sonderbehandlung für Access-Tokens zu laufen). **Fix:** neue
+`getPhotographerIdToken()` in `session.ts`, `client.ts` sendet jetzt das ID-Token statt des
+Access-Tokens als `Authorization`-Header für alle authentifizierten RacePic-Aufrufe.
+
 ## Offene Punkte
 
 - OG-Bilder pro Teilnehmer sind nicht Teil des MVP (nur ein statisches RacePic-OG-Bild).
