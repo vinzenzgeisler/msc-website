@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, Search, X } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { RacePicWordmark } from '@/components/racepic/RacePicWordmark';
 import {
@@ -48,6 +49,10 @@ export default function RacePicHomePage() {
   // komplett geladen. Initialwert kommt aus "?event=<slug>", damit externe Links (Fotografenprofil,
   // Teilnehmer-Breadcrumb) direkt gefiltert landen.
   const [selectedEventSlug, setSelectedEventSlug] = useState<string | null>(() => searchParams.get('event'));
+  // Klick auf ein Vorschaubild öffnet es groß (Feedback 2026-09-22: "unter /racepic soll man auf
+  // die Vorschaubilder direkt auch drücken können") - Discover-Bilder haben keine participantKey,
+  // eine Lightbox statt einer eigenen Detailseite reicht hier aus.
+  const [lightboxImage, setLightboxImage] = useState<RacePicDiscoverImage | null>(null);
 
   useEffect(() => {
     fetchSearchIndex()
@@ -251,7 +256,7 @@ export default function RacePicHomePage() {
                   <button
                     key={image.imageId}
                     type="button"
-                    onClick={() => toggleEventFilter(image.eventSlug)}
+                    onClick={() => setLightboxImage(image)}
                     className="group block w-full overflow-hidden rounded-lg border bg-muted text-left"
                     title={image.eventTitle}
                   >
@@ -279,6 +284,29 @@ export default function RacePicHomePage() {
           )}
         </section>
       )}
+
+      <Dialog open={lightboxImage !== null} onOpenChange={(open) => !open && setLightboxImage(null)}>
+        <DialogContent className="max-w-4xl border-none bg-transparent p-0 shadow-none">
+          {lightboxImage && (
+            <div className="relative">
+              <img src={toCdnUrl(lightboxImage.previewUrl)} alt="" className="max-h-[80vh] w-full rounded-lg object-contain" />
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-center text-sm text-white/90">
+                <span>{lightboxImage.eventTitle}</span>
+                <button
+                  type="button"
+                  className="underline hover:no-underline"
+                  onClick={() => {
+                    toggleEventFilter(lightboxImage.eventSlug);
+                    setLightboxImage(null);
+                  }}
+                >
+                  Alle Bilder dieses Events anzeigen
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 }

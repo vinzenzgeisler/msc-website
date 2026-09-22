@@ -47,11 +47,7 @@ export default function RacePicParticipantPage() {
       <section className="container max-w-5xl py-16">
         <p className="text-sm text-muted-foreground">
           <Link to="/racepic" className="hover:underline">
-            RacePic
-          </Link>{' '}
-          /{' '}
-          <Link to={`/racepic?event=${eventSlug}`} className="hover:underline">
-            {eventSlug}
+            ‹ Zurück zu RacePic
           </Link>
         </p>
 
