@@ -106,3 +106,41 @@ export const confirmEmailOtp = async (challenge: EmailOtpChallenge, code: string
     expiresAt: Date.now() + ExpiresIn * 1000
   };
 };
+
+export const signInWithPassword = async (email: string, password: string): Promise<PhotographerTokens> => {
+  const result = await cognitoRequest<InitiateAuthResponse>('InitiateAuth', {
+    AuthFlow: 'USER_PASSWORD_AUTH', ClientId: clientId,
+    AuthParameters: { USERNAME: email.trim().toLowerCase(), PASSWORD: password }
+  });
+  if (!result.AuthenticationResult) throw new CognitoAuthError('UnexpectedChallenge', 'Anmeldung konnte nicht abgeschlossen werden');
+  const { AccessToken, IdToken, RefreshToken, ExpiresIn } = result.AuthenticationResult;
+  return { accessToken: AccessToken, idToken: IdToken, refreshToken: RefreshToken ?? null, expiresAt: Date.now() + ExpiresIn * 1000 };
+};
+
+export const signUpPhotographer = async (email: string, password: string): Promise<void> => {
+  await cognitoRequest('SignUp', {
+    ClientId: clientId, Username: email.trim().toLowerCase(), Password: password,
+    UserAttributes: [{ Name: 'email', Value: email.trim().toLowerCase() }]
+  });
+};
+
+export const confirmPhotographerSignUp = async (email: string, code: string): Promise<void> => {
+  await cognitoRequest('ConfirmSignUp', { ClientId: clientId, Username: email.trim().toLowerCase(), ConfirmationCode: code.trim() });
+};
+
+export const startPasswordReset = async (email: string): Promise<void> => {
+  await cognitoRequest('ForgotPassword', { ClientId: clientId, Username: email.trim().toLowerCase() });
+};
+
+export const confirmPasswordReset = async (email: string, code: string, password: string): Promise<void> => {
+  await cognitoRequest('ConfirmForgotPassword', { ClientId: clientId, Username: email.trim().toLowerCase(), ConfirmationCode: code.trim(), Password: password });
+};
+
+export const refreshPhotographerTokens = async (refreshToken: string): Promise<PhotographerTokens> => {
+  const result = await cognitoRequest<{ AuthenticationResult?: InitiateAuthResponse['AuthenticationResult'] }>('GetTokensFromRefreshToken', {
+    ClientId: clientId, RefreshToken: refreshToken
+  });
+  if (!result.AuthenticationResult) throw new CognitoAuthError('RefreshFailed', 'Sitzung konnte nicht erneuert werden');
+  const { AccessToken, IdToken, RefreshToken, ExpiresIn } = result.AuthenticationResult;
+  return { accessToken: AccessToken, idToken: IdToken, refreshToken: RefreshToken ?? refreshToken, expiresAt: Date.now() + ExpiresIn * 1000 };
+};

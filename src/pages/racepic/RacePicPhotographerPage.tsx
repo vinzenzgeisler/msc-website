@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { RacePicImageDialog } from '@/components/racepic/RacePicImageDialog';
+import { useRacePicText } from '@/i18n/racepic';
 import { fetchPhotographerProfile, toCdnUrl, type RacePicPhotographerProfile } from '@/integrations/racepic/publicClient';
 
 /**
@@ -16,6 +18,12 @@ export default function RacePicPhotographerPage() {
   const { slug = '' } = useParams<{ slug: string }>();
   const [profile, setProfile] = useState<RacePicPhotographerProfile | null>(null);
   const [error, setError] = useState(false);
+  const [params, setParams] = useSearchParams();
+  const t = useRacePicText();
+  const imageParam = params.get('photo');
+  const separator = imageParam?.lastIndexOf('.') ?? -1;
+  const selected = imageParam && separator > 0 ? { eventSlug: imageParam.slice(0, separator), imageId: imageParam.slice(separator + 1) } : null;
+  const select = (image: { eventSlug: string; imageId: string } | null) => setParams((old) => { const next = new URLSearchParams(old); if (image) next.set('photo', `${image.eventSlug}.${image.imageId}`); else next.delete('photo'); return next; });
 
   useEffect(() => {
     fetchPhotographerProfile(slug)
@@ -28,7 +36,7 @@ export default function RacePicPhotographerPage() {
   return (
     <MainLayout
       title={profile ? `RacePic – ${profile.displayName}` : 'RacePic'}
-      description="Alle veröffentlichten Bilder dieser Fotografin bzw. dieses Fotografen bei RacePic."
+      description={t.profileDescription}
       canonicalPath={`/racepic/fotografen/${slug}`}
     >
       <section className="container max-w-5xl py-16">
@@ -39,7 +47,7 @@ export default function RacePicPhotographerPage() {
         </p>
 
         {!profile && !error && <Loader2 className="mt-8 h-8 w-8 animate-spin text-accent" />}
-        {error && <p className="mt-6 text-muted-foreground">Dieses Fotografenprofil wurde nicht gefunden.</p>}
+        {error && <p className="mt-6 text-muted-foreground">{t.profileNotFound}</p>}
 
         {profile && (
           <>
@@ -58,13 +66,14 @@ export default function RacePicPhotographerPage() {
               ))}
             </div>
 
-            <p className="mt-4 text-sm font-medium">{profile.imageCount} veröffentlichte(s) Bild(er)</p>
+            <p className="mt-4 text-sm font-medium">{profile.imageCount} {t.publishedImages}</p>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-3 md:grid-cols-4">
               {profile.images.map((image) => (
-                <Link
+                <button
                   key={image.imageId}
-                  to={`/racepic?event=${image.eventSlug}`}
+                  type="button"
+                  onClick={() => select(image)}
                   className="group overflow-hidden rounded-lg border bg-muted"
                   title={image.eventTitle}
                 >
@@ -74,13 +83,14 @@ export default function RacePicPhotographerPage() {
                     loading="lazy"
                     className="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                </Link>
+                </button>
               ))}
-              {profile.images.length === 0 && <p className="text-muted-foreground">Noch keine veröffentlichten Bilder.</p>}
+              {profile.images.length === 0 && <p className="text-muted-foreground">{t.noPublishedImages}</p>}
             </div>
           </>
         )}
       </section>
+      <RacePicImageDialog selected={selected} onSelect={select} onClose={() => select(null)} />
     </MainLayout>
   );
 }

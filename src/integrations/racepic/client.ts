@@ -1,7 +1,7 @@
 // RacePic-API-Client (Paket 2b). Die RacePic-Routen laufen auf derselben HTTP API wie das
 // bestehende Nennungstool-Backend (siehe api-stack.ts im MSC-Event-Backend-Repo), deshalb wird
 // dieselbe Basis-URL/Proxy-Konfiguration wie in ../event-backend/client.ts wiederverwendet.
-import { getPhotographerIdToken } from './session';
+import { getPhotographerIdTokenAsync } from './session';
 
 const configuredEventApiBaseUrl = (import.meta.env.VITE_EVENT_API_BASE_URL || '').replace(/\/$/, '');
 const eventApiBaseUrl = import.meta.env.DEV && configuredEventApiBaseUrl ? '/event-api' : configuredEventApiBaseUrl;
@@ -23,7 +23,7 @@ async function requestJson<T>(path: string, init?: RequestInit & { auth?: boolea
   }
   const headers: Record<string, string> = { 'content-type': 'application/json', ...(init?.headers as Record<string, string> ?? {}) };
   if (init?.auth) {
-    const token = getPhotographerIdToken();
+    const token = await getPhotographerIdTokenAsync();
     if (!token) {
       throw new RacePicApiError(401, 'NOT_AUTHENTICATED');
     }
@@ -76,6 +76,14 @@ export const claimInvitation = (token: string, termsVersion: string) =>
     body: JSON.stringify({ token, termsVersion })
   });
 
+export const registerMyProfile = (displayName: string, termsVersion: string) =>
+  requestJson<{ ok: true; photographer: PhotographerProfile }>('/photographer/register', {
+    method: 'POST', auth: true, body: JSON.stringify({ displayName, termsVersion })
+  });
+
+export const setMyPassword = (password: string) =>
+  requestJson<{ ok: true }>('/photographer/password', { method: 'POST', auth: true, body: JSON.stringify({ password }) });
+
 export const fetchMyProfile = () => requestJson<{ ok: true; photographer: PhotographerProfile }>('/photographer/me', { auth: true });
 
 export const updateMyProfile = (patch: Partial<Omit<PhotographerProfile, 'id' | 'email' | 'status' | 'termsAcceptedVersion'>>) =>
@@ -101,6 +109,7 @@ export type LicenseOption = {
   title: Record<string, string>;
   summary: Record<string, string>;
   attributionRequired: boolean;
+  pricingKind: 'FREE' | 'PAID';
 };
 
 export const fetchLicenses = () => requestJson<{ ok: true; licenses: LicenseOption[] }>('/photographer/licenses', { auth: true });
@@ -160,6 +169,13 @@ export type UploadedImage = {
   bytes: number | null;
   createdAt: string;
   thumbUrl: string | null;
+  previewUrl: string | null;
+  title: string | null;
+  description: string | null;
+  tags: string[];
+  licenseId: string | null;
+  offerMode: 'FREE' | 'PAID';
+  priceCents: number | null;
 };
 
 export const completeUpload = (uploadId: string, parts?: { partNumber: number; eTag: string }[]) =>
@@ -180,6 +196,12 @@ export const listMyImages = (params: { eventId?: string; status?: string; limit?
   const query = search.toString();
   return requestJson<{ ok: true; images: UploadedImage[] }>(`/photographer/images${query ? `?${query}` : ''}`, { auth: true });
 };
+
+export type OwnImageDetailsPatch = Partial<Pick<UploadedImage, 'title' | 'description' | 'tags' | 'offerMode' | 'priceCents'>> & { licenseId?: string };
+export const updateMyImageDetails = (imageId: string, patch: OwnImageDetailsPatch) =>
+  requestJson<{ ok: true; image: UploadedImage }>(`/photographer/images/${encodeURIComponent(imageId)}/details`, {
+    method: 'PATCH', auth: true, body: JSON.stringify(patch)
+  });
 
 // --- Paket 15: Bild-Selbstverwaltung (Studio-Redesign) ------------------------------------------
 

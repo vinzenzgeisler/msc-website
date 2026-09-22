@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import {
   fetchLicenses,
   updateMyProfile,
+  setMyPassword,
   type LicenseOption,
   type PhotographerProfile,
 } from '@/integrations/racepic/client';
@@ -26,10 +27,12 @@ export function StudioProfilePanel({ profile, onSaved }: { profile: Photographer
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordMessage, setPasswordMessage] = useState('');
 
   useEffect(() => {
     fetchLicenses()
-      .then((result) => setLicenses(result.licenses))
+      .then((result) => setLicenses(result.licenses.filter((license) => license.pricingKind === 'FREE')))
       .catch(() => setLicenses([]));
   }, []);
 
@@ -112,6 +115,19 @@ export function StudioProfilePanel({ profile, onSaved }: { profile: Photographer
         <Button type="submit" disabled={saving}>
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Speichern'}
         </Button>
+      </form>
+
+      <form className="space-y-3 rounded-2xl border bg-card p-6" onSubmit={async (event) => {
+        event.preventDefault(); setPasswordMessage('');
+        try { await setMyPassword(newPassword); setNewPassword(''); setPasswordMessage('Passwort gespeichert.'); }
+        catch { setPasswordMessage('Passwort konnte nicht gespeichert werden. Melde dich erneut an und versuche es innerhalb von zehn Minuten.'); }
+      }}>
+        <h3 className="font-heading text-lg font-bold">Anmeldung</h3>
+        <p className="text-sm text-muted-foreground">Optionales Passwort für künftige Anmeldungen. E-Mail-Code bleibt verfügbar.</p>
+        <Label htmlFor="studio-new-password">Neues Passwort</Label>
+        <Input id="studio-new-password" type="password" minLength={12} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} autoComplete="new-password" required />
+        <Button type="submit" variant="outline">Passwort setzen</Button>
+        {passwordMessage && <p className="text-sm text-muted-foreground">{passwordMessage}</p>}
       </form>
 
       <div className="rounded-2xl border border-dashed bg-muted/30 p-6 opacity-70">

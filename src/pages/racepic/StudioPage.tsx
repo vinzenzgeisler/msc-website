@@ -15,6 +15,7 @@ import { StudioProfilePanel } from './StudioProfilePanel';
  * (Hochladen/Meine Bilder/Profil), dazu die neue StudioLayout-Kopfzeile mit Abmelden.
  */
 export default function StudioPage() {
+  const [tab, setTab] = useState('upload');
   const [profile, setProfile] = useState<PhotographerProfile | null>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -39,8 +40,14 @@ export default function StudioPage() {
       <h1 className="font-heading text-3xl font-black uppercase tracking-tight">RacePic Studio</h1>
       {loading && <Loader2 className="mt-8 h-8 w-8 animate-spin text-accent" />}
       {!loading && error && <p className="mt-4 text-destructive">Profil konnte nicht geladen werden.</p>}
-      {!loading && profile && (
-        <Tabs defaultValue="upload" className="mt-6">
+      {!loading && profile?.status === 'PENDING_APPROVAL' && <div className="mt-7 rounded-2xl border bg-card p-7"><h2 className="font-heading text-xl font-bold">Dein Konto wird geprüft</h2><p className="mt-2 text-sm text-muted-foreground">Deine E-Mail ist bestätigt. Der MSC schaltet passende Veranstaltungen und Upload-Rechte frei. Danach kannst du hier deine Bilder hochladen.</p><div className="mt-5"><StudioProfilePanel profile={profile} onSaved={setProfile} /></div></div>}
+      {!loading && profile && profile.status !== 'PENDING_APPROVAL' && (
+        <Tabs value={tab} onValueChange={setTab} className="mt-6">
+          <div className="mb-6 grid gap-3 sm:grid-cols-3">
+            <button type="button" onClick={() => setTab('profile')} className="rounded-xl border bg-card p-4 text-left transition hover:border-accent"><span className="text-xs font-semibold text-accent">01 · Profil</span><p className="mt-1 text-sm font-medium">Anzeigename, Bildrechte und Standardlizenz prüfen</p></button>
+            <button type="button" onClick={() => setTab('upload')} className="rounded-xl border bg-card p-4 text-left transition hover:border-accent"><span className="text-xs font-semibold text-accent">02 · Hochladen</span><p className="mt-1 text-sm font-medium">Event wählen und Bilder sicher übertragen</p></button>
+            <button type="button" onClick={() => setTab('images')} className="rounded-xl border bg-card p-4 text-left transition hover:border-accent"><span className="text-xs font-semibold text-accent">03 · Bilder verwalten</span><p className="mt-1 text-sm font-medium">Vorschau, Status, Metadaten und Preisentwürfe</p></button>
+          </div>
           <TabsList>
             <TabsTrigger value="upload">Hochladen</TabsTrigger>
             <TabsTrigger value="images">Meine Bilder</TabsTrigger>

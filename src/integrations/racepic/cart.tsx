@@ -21,11 +21,15 @@ type CartContextValue = {
   removeItem: (imageId: string) => void;
   clear: () => void;
   has: (imageId: string) => boolean;
+  savedIds: string[];
+  toggleSaved: (imageId: string) => void;
+  isSaved: (imageId: string) => boolean;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
 
 const STORAGE_KEY = 'racepic_cart';
+const SAVED_STORAGE_KEY = 'racepic_saved_images';
 
 const readStoredItems = (): CartItem[] => {
   try {
@@ -40,6 +44,12 @@ const readStoredItems = (): CartItem[] => {
 
 export function RacePicCartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => readStoredItems());
+  const [savedIds, setSavedIds] = useState<string[]>(() => {
+    try {
+      const value = JSON.parse(window.localStorage.getItem(SAVED_STORAGE_KEY) || '[]');
+      return Array.isArray(value) ? value.filter((id): id is string => typeof id === 'string').slice(0, 1000) : [];
+    } catch { return []; }
+  });
 
   useEffect(() => {
     try {
@@ -48,6 +58,10 @@ export function RacePicCartProvider({ children }: { children: ReactNode }) {
       // Privater Modus o. ä. - Warenkorb lebt dann nur für die aktuelle Sitzung nicht weiter.
     }
   }, [items]);
+
+  useEffect(() => {
+    try { window.localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(savedIds)); } catch { /* private mode */ }
+  }, [savedIds]);
 
   const addItem = useCallback((item: CartItem) => {
     setItems((prev) => (prev.some((existing) => existing.imageId === item.imageId) ? prev : [...prev, item]));
@@ -59,8 +73,12 @@ export function RacePicCartProvider({ children }: { children: ReactNode }) {
 
   const clear = useCallback(() => setItems([]), []);
   const has = useCallback((imageId: string) => items.some((item) => item.imageId === imageId), [items]);
+  const toggleSaved = useCallback((imageId: string) => {
+    setSavedIds((prev) => prev.includes(imageId) ? prev.filter((id) => id !== imageId) : [...prev, imageId]);
+  }, []);
+  const isSaved = useCallback((imageId: string) => savedIds.includes(imageId), [savedIds]);
 
-  return <CartContext.Provider value={{ items, addItem, removeItem, clear, has }}>{children}</CartContext.Provider>;
+  return <CartContext.Provider value={{ items, addItem, removeItem, clear, has, savedIds, toggleSaved, isSaved }}>{children}</CartContext.Provider>;
 }
 
 export function useRacePicCart(): CartContextValue {

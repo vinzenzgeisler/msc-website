@@ -2,13 +2,19 @@ import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { deleteMyImage, fetchMyEventAccess, hideMyImage, listMyImages, type PhotographerEventAccess, type UploadedImage } from '@/integrations/racepic/client';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { deleteMyImage, fetchLicenses, fetchMyEventAccess, hideMyImage, listMyImages, type LicenseOption, type PhotographerEventAccess, type UploadedImage } from '@/integrations/racepic/client';
+import { StudioImageEditor } from './StudioImageEditor';
 
 const VISIBILITY_LABEL: Record<string, string> = {
   DRAFT: 'Entwurf',
   PUBLISHED: 'Veröffentlicht',
   HIDDEN: 'Verborgen',
   REMOVED: 'Entfernt',
+};
+const PROCESSING_LABEL: Record<string, string> = {
+  UPLOADED: 'Upload abgeschlossen', VALIDATED: 'Bild wird geprüft', DERIVED: 'Vorschau erstellt',
+  ANALYZED: 'KI-Analyse abgeschlossen', MATCHED: 'Zuordnung geprüft', FAILED: 'Verarbeitung fehlgeschlagen', DUPLICATE: 'Duplikat'
 };
 
 /**
@@ -18,16 +24,20 @@ const VISIBILITY_LABEL: Record<string, string> = {
  */
 export function StudioImagesPanel() {
   const [events, setEvents] = useState<PhotographerEventAccess[]>([]);
+  const [licenses, setLicenses] = useState<LicenseOption[]>([]);
   const [eventId, setEventId] = useState('');
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [editing, setEditing] = useState<UploadedImage | null>(null);
+  const [previewing, setPreviewing] = useState<UploadedImage | null>(null);
 
   useEffect(() => {
     fetchMyEventAccess()
       .then((result) => setEvents(result.events))
       .catch(() => setEvents([]));
+    fetchLicenses().then((result) => setLicenses(result.licenses)).catch(() => setLicenses([]));
   }, []);
 
   const reload = () => {
@@ -91,18 +101,21 @@ export function StudioImagesPanel() {
       {!loading && images.length === 0 && <p className="text-sm text-muted-foreground">Noch keine Bilder hochgeladen.</p>}
 
       {!loading && images.length > 0 && (
-        <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {images.map((image) => (
             <div key={image.id} className="overflow-hidden rounded-lg border bg-card">
-              <div className="aspect-[4/3] bg-muted">
-                {image.thumbUrl && <img src={image.thumbUrl} alt="" className="h-full w-full object-cover" />}
-              </div>
-              <div className="space-y-1.5 p-2">
+              <button type="button" disabled={!image.previewUrl} onClick={() => setPreviewing(image)} className="block aspect-[4/3] w-full bg-muted text-left">
+                {image.thumbUrl && <img src={image.thumbUrl} alt={image.title ?? 'Eigenes Bild'} className="h-full w-full object-cover" />}
+              </button>
+              <div className="space-y-2 p-3">
                 <Badge variant={image.visibility === 'PUBLISHED' ? 'default' : 'secondary'} className="text-[10px]">
                   {VISIBILITY_LABEL[image.visibility] ?? image.visibility}
                 </Badge>
-                <p className="text-[11px] text-muted-foreground">{image.processingStatus}</p>
+                <p className="text-xs text-muted-foreground">{PROCESSING_LABEL[image.processingStatus] ?? image.processingStatus}</p>
+                {image.title && <p className="truncate text-sm font-semibold">{image.title}</p>}
+                {image.offerMode === 'PAID' && <p className="text-xs font-medium text-accent">Interner Preisentwurf · {((image.priceCents ?? 0) / 100).toFixed(2)} €</p>}
                 <div className="flex flex-wrap gap-1">
+                  {image.visibility !== 'REMOVED' && <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]" onClick={() => setEditing(image)}>Bearbeiten</Button>}
                   {(image.visibility === 'PUBLISHED' || image.visibility === 'DRAFT') && (
                     <Button size="sm" variant="outline" className="h-7 px-2 text-[11px]" disabled={busyId === image.id} onClick={() => handleHide(image.id)}>
                       Verbergen
@@ -125,6 +138,8 @@ export function StudioImagesPanel() {
           ))}
         </div>
       )}
+      <StudioImageEditor image={editing} licenses={licenses} onClose={() => setEditing(null)} onSaved={reload} />
+      <Dialog open={previewing !== null} onOpenChange={(open) => { if (!open) setPreviewing(null); }}><DialogContent className="max-w-5xl"><div className="space-y-3">{previewing?.previewUrl && <img src={previewing.previewUrl} alt={previewing.title ?? 'Eigene Bildvorschau'} className="max-h-[75vh] w-full object-contain" />}{previewing?.offerMode === 'PAID' && <p className="text-center text-sm text-muted-foreground">Interne Wasserzeichen-Vorschau · nicht öffentlich</p>}</div></DialogContent></Dialog>
     </div>
   );
 }

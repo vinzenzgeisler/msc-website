@@ -1,6 +1,6 @@
 // RacePic-Fotografen-Session (Paket 2b). Nur ein `localStorage`-Store fuer den MVP - kein
 // Refresh-Rotation-Flow o.ae. hier; das folgt mit dem Step-up/Marketplace-Ausbau (Abschnitt E).
-import type { PhotographerTokens } from './photographerAuth';
+import { refreshPhotographerTokens, type PhotographerTokens } from './photographerAuth';
 
 const STORAGE_KEY = 'racepic_photographer_session';
 
@@ -15,6 +15,8 @@ const readSession = (): StoredSession | null => {
     return null;
   }
 };
+
+let refreshInFlight: Promise<StoredSession | null> | null = null;
 
 export const savePhotographerSession = (tokens: PhotographerTokens): void => {
   try {
@@ -36,7 +38,6 @@ export const getPhotographerAccessToken = (): string | null => {
   const session = readSession();
   if (!session) return null;
   if (session.expiresAt <= Date.now()) {
-    clearPhotographerSession();
     return null;
   }
   return session.accessToken;
@@ -54,10 +55,26 @@ export const getPhotographerIdToken = (): string | null => {
   const session = readSession();
   if (!session) return null;
   if (session.expiresAt <= Date.now()) {
-    clearPhotographerSession();
     return null;
   }
   return session.idToken;
 };
 
-export const isPhotographerSignedIn = (): boolean => getPhotographerAccessToken() !== null;
+export const getPhotographerIdTokenAsync = async (): Promise<string | null> => {
+  const current = readSession();
+  if (!current) return null;
+  if (current.expiresAt > Date.now() + 30_000) return current.idToken;
+  if (!current.refreshToken) { clearPhotographerSession(); return null; }
+  if (!refreshInFlight) {
+    refreshInFlight = refreshPhotographerTokens(current.refreshToken)
+      .then((tokens) => { savePhotographerSession(tokens); return tokens; })
+      .catch(() => { clearPhotographerSession(); return null; })
+      .finally(() => { refreshInFlight = null; });
+  }
+  return (await refreshInFlight)?.idToken ?? null;
+};
+
+export const isPhotographerSignedIn = (): boolean => {
+  const session = readSession();
+  return !!session && (session.expiresAt > Date.now() || !!session.refreshToken);
+};

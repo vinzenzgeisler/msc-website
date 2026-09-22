@@ -73,30 +73,27 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-16 min-w-0 items-center justify-between gap-3">
         {/* Logo */}
-        <Link to="/" className="flex min-w-0 shrink items-center gap-2">
+        <Link to="/" className="flex min-w-0 shrink-0 items-center gap-2" aria-label="Zur Startseite">
           {settings?.logo_url ? (
             <img
               src={settings.logo_url}
               alt={settings.logo_alt || settings.site_short_name || settings.site_name || 'Logo'}
-              className="h-12 w-12 shrink-0 object-contain"
+              className="h-11 w-11 shrink-0 rounded-md bg-white p-1 object-contain shadow-sm"
             />
           ) : (
             <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-primary text-primary-foreground font-bold text-lg">
               {(settings?.site_short_name || 'MSC').slice(0, 3)}
             </div>
           )}
-          {/* Schwelle von 1700px auf 1850px erhoeht (Bug gefunden 2026-09-22): der zusaetzliche
-              "/racepic"-Navigationspunkt macht die Nav-Leiste breiter, bei 1700px ueberlappte sie
-              sich dadurch mit dem Vereinsnamen. */}
-          <span className="hidden whitespace-nowrap font-heading font-bold uppercase leading-none tracking-wider text-foreground [@media(min-width:1850px)]:inline-block">
+          <span className="hidden max-w-48 truncate whitespace-nowrap font-heading font-bold uppercase leading-none tracking-wider text-foreground min-[1850px]:inline-block">
             {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-1 xl:ml-8 xl:mr-4 xl:flex 2xl:ml-12 2xl:mr-8">
+        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 2xl:flex">
           {navItems.map((item) =>
             item.children ? (
               <DropdownMenu key={item.label}>
@@ -138,7 +135,7 @@ export function Header() {
         </nav>
 
         {/* Right Side: Language Switcher & Theme Toggle */}
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {/* Language Switcher */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -179,7 +176,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="xl:hidden"
+            className="2xl:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -190,7 +187,7 @@ export function Header() {
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="border-t border-border bg-background xl:hidden">
+        <div className="border-t border-border bg-background 2xl:hidden">
           <nav className="container py-4">
             <ul className="space-y-1">
               {navItems.map((item) =>

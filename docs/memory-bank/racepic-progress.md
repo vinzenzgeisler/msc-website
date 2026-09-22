@@ -186,5 +186,10 @@ Access-Tokens als `Authorization`-Header für alle authentifizierten RacePic-Auf
 - OG-Bilder pro Teilnehmer sind nicht Teil des MVP (nur ein statisches RacePic-OG-Bild).
 - Dynamische Sitemap-Einträge pro Event/Teilnehmer fehlen (nur der statische `/racepic`-Einstieg ist gelistet) – bräuchte einen Sitemap-Build-Schritt, der das RacePic-CDN-Manifest abfragt.
 - Kein Rate-Limiting auf dem Download-Endpunkt (siehe Backend-Progress-Notiz in MSC-Event-Backend).
-- Passkey-Login (WEB_AUTHN) im Studio ist noch nicht implementiert, nur Email-OTP (siehe Paket 2 – Ergebnis). Nachziehen, sobald der Marketplace-Step-up (`strong`) ansteht.
+- Passkey-Login (WEB_AUTHN) im Studio ist noch nicht implementiert; E-Mail-OTP und Passwort sind in Paket 20 vorhanden. Vor dem Marketplace-Step-up (`strong`) nachziehen.
 - E-Mail-Änderung im Profil ist bewusst nicht Teil von `PATCH /photographer/me` (braucht Stufe „recent“ + Cognito-Attributänderung, Backend-seitig ebenfalls noch offen).
+## Pakete 19–24 – Implementierungsstand 2026-09-22
+
+Website: gemeinsamer Bilddialog auf Startseite, Fahrzeug- und Fotografenprofil; DE/CZ/EN/PL; paginierte Discovery; Favoriten; Studio mit Passwort, Registrierung, Bildeditor und privaten PAID-Vorschauen.
+
+Dies ist Feature-Branch-Arbeit. Lokal erfolgreich: TypeScript-Typechecks der Website, Backend-API, Backend-Infrastruktur und des Nennungstool-Admins. Ein echter Browser-/Cognito-/AWS-Durchlauf, eine KI-Qualitätsmessung mit bestätigten Bildern und eine rechtliche Freigabe stehen aus. Keine Merges, Deployments oder öffentliche Freischaltung erfolgten in diesem Paket. Das genaue Paket- und Abnahme-Raster steht in racepic-open-items.md, Abschnitt E.

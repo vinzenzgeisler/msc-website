@@ -18,9 +18,10 @@ export default function StudioUploadPanel() {
     Promise.all([fetchMyEventAccess(), fetchLicenses()])
       .then(([eventsResult, licensesResult]) => {
         setEvents(eventsResult.events);
-        setLicenses(licensesResult.licenses);
+        const freeLicenses = licensesResult.licenses.filter((license) => license.pricingKind === 'FREE');
+        setLicenses(freeLicenses);
         if (eventsResult.events.length === 1) setEventId(eventsResult.events[0].eventId);
-        if (licensesResult.licenses.length > 0) setLicenseId(licensesResult.licenses[0].id);
+        if (freeLicenses.length > 0) setLicenseId(freeLicenses[0].id);
       })
       .catch(() => setLoadError(true));
   }, []);

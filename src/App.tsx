@@ -38,6 +38,9 @@ import NotFound from "./pages/NotFound";
 // RacePic (Paket 2b: Identitaet)
 import StudioInvitationPage from "./pages/racepic/StudioInvitationPage";
 import StudioLoginPage from "./pages/racepic/StudioLoginPage";
+import StudioRegisterPage from "./pages/racepic/StudioRegisterPage";
+import StudioTermsPage from "./pages/racepic/StudioTermsPage";
+import StudioPasswordResetPage from "./pages/racepic/StudioPasswordResetPage";
 import StudioPage from "./pages/racepic/StudioPage";
 import StudioLicensesPage from "./pages/racepic/StudioLicensesPage";
 // RacePic (Paket 8: Oeffentliche Galerie)
@@ -143,6 +146,9 @@ const App = () => (
                   "/racepic/studio" nicht mit "/racepic/:eventSlug/:participantKey" oben. */}
               <Route path="/racepic/studio/einladung/:token" element={<StudioInvitationPage />} />
               <Route path="/racepic/studio/login" element={<StudioLoginPage />} />
+              <Route path="/racepic/studio/registrieren" element={<StudioRegisterPage />} />
+              <Route path="/racepic/studio/bedingungen" element={<StudioTermsPage />} />
+              <Route path="/racepic/studio/passwort-vergessen" element={<StudioPasswordResetPage />} />
               <Route path="/racepic/studio/lizenzen" element={<StudioLicensesPage />} />
               <Route path="/racepic/studio" element={<StudioPage />} />
 

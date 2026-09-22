@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useRacePicCart } from '@/integrations/racepic/cart';
 import { requestDownload, toCdnUrl } from '@/integrations/racepic/publicClient';
+import { useRacePicText } from '@/i18n/racepic';
 
 /**
  * Schwebender Warenkorb-/Konto-Einstieg (Paket 18), siehe racepic-ux-redesign-plan.md. Nur auf
@@ -18,6 +19,7 @@ export function RacePicCartWidget() {
   const [open, setOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState('');
+  const t = useRacePicText();
 
   if (!location.pathname.startsWith('/racepic')) return null;
   if (location.pathname.startsWith('/racepic/studio')) return null;
@@ -35,7 +37,7 @@ export function RacePicCartWidget() {
         await new Promise((resolve) => setTimeout(resolve, 400));
       }
     } catch {
-      setError('Download fehlgeschlagen. Bitte einzeln versuchen.');
+      setError(t.downloadError);
     } finally {
       setDownloading(false);
     }
@@ -52,13 +54,13 @@ export function RacePicCartWidget() {
               </Button>
             </span>
           </TooltipTrigger>
-          <TooltipContent>Konto – kommt mit dem RacePic-Shop</TooltipContent>
+          <TooltipContent>{t.accountLater}</TooltipContent>
         </Tooltip>
         <Button
           size="icon"
           className="relative h-11 w-11 rounded-full shadow-lg"
           onClick={() => setOpen(true)}
-          aria-label="Warenkorb öffnen"
+          aria-label={t.openCart}
         >
           <ShoppingBag className="h-5 w-5" />
           {items.length > 0 && (
@@ -72,10 +74,10 @@ export function RacePicCartWidget() {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Warenkorb</SheetTitle>
+            <SheetTitle>{t.cart}</SheetTitle>
           </SheetHeader>
           <div className="mt-4 space-y-3">
-            {items.length === 0 && <p className="text-sm text-muted-foreground">Noch keine Bilder ausgewählt.</p>}
+            {items.length === 0 && <p className="text-sm text-muted-foreground">{t.emptyCart}</p>}
             {items.map((item) => (
               <div key={item.imageId} className="flex items-center gap-3 rounded-lg border p-2">
                 <img src={toCdnUrl(item.thumbUrl)} alt="" className="h-14 w-20 rounded object-cover" />
@@ -90,10 +92,10 @@ export function RacePicCartWidget() {
               <div className="flex gap-2 pt-2">
                 <Button className="flex-1 gap-2" disabled={downloading} onClick={handleDownloadAll}>
                   {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                  Alle herunterladen
+                  {t.downloadAll}
                 </Button>
                 <Button variant="outline" onClick={clear}>
-                  Leeren
+                  {t.clear}
                 </Button>
               </div>
             )}

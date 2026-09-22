@@ -45,6 +45,12 @@ export type RacePicImage = {
   previewUrl: string;
   width: number | null;
   height: number | null;
+  title: string | null;
+  description: string | null;
+  tags: string[];
+  camera: { make?: string | null; model?: string | null } | null;
+  capturedAt: string | null;
+  createdAt: string;
   photographer: { displayName: string; website: string | null; slug: string | null };
   license: { code: string; title: Record<string, string>; attributionRequired: boolean; attributionTemplate: string | null };
 };
@@ -88,9 +94,25 @@ export type RacePicDiscoverImage = {
   eventSlug: string;
   eventTitle: string;
   capturedAt: string | null;
+  createdAt: string;
 };
 
 export const fetchDiscoverFeed = () => fetchManifest<RacePicDiscoverImage[]>('/manifests/discover.json');
+
+export type RacePicDiscoverIndex = { total: number; pageCount: number; pageSize: number };
+export const fetchDiscoverIndex = () => fetchManifest<RacePicDiscoverIndex>('/manifests/discover-index.json');
+export const fetchDiscoverPage = (page: number) =>
+  fetchManifest<RacePicDiscoverImage[]>(`/manifests/discover-pages/${Math.max(1, Math.trunc(page))}.json`);
+
+export type RacePicImageDetail = {
+  image: RacePicImage;
+  eventSlug: string;
+  eventTitle: string;
+  participants: RacePicParticipant[];
+  relatedImages: RacePicImage[];
+};
+export const fetchImageDetail = (eventSlug: string, imageId: string) =>
+  fetchManifest<RacePicImageDetail>(`/manifests/${encodeURIComponent(eventSlug)}/i/${encodeURIComponent(imageId)}.json`);
 
 export type RacePicSearchIndexEntry = {
   participantKey: string;

@@ -2,21 +2,23 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, Search, X } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { RacePicWordmark } from '@/components/racepic/RacePicWordmark';
+import { RacePicImageDialog } from '@/components/racepic/RacePicImageDialog';
+import { useRacePicText } from '@/i18n/racepic';
 import {
   fetchDiscoverFeed,
+  fetchDiscoverIndex,
+  fetchDiscoverPage,
   fetchPublishedEvents,
   fetchSearchIndex,
   toCdnUrl,
   type RacePicDiscoverImage,
+  type RacePicDiscoverIndex,
   type RacePicEventSummary,
   type RacePicSearchIndexEntry,
 } from '@/integrations/racepic/publicClient';
 
-const INITIAL_GRID_SIZE = 20;
-const GRID_PAGE_SIZE = 20;
 const LIVE_SUGGESTION_LIMIT = 8;
 
 /**
@@ -32,6 +34,7 @@ const LIVE_SUGGESTION_LIMIT = 8;
  * Teilnehmer-Breadcrumb) direkt hierher verlinkt wird.
  */
 export default function RacePicHomePage() {
+  const t = useRacePicText();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState('');
@@ -43,7 +46,9 @@ export default function RacePicHomePage() {
   const [discover, setDiscover] = useState<RacePicDiscoverImage[] | null>(null);
   const [events, setEvents] = useState<RacePicEventSummary[]>([]);
   const [error, setError] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(INITIAL_GRID_SIZE);
+  const [discoverIndex, setDiscoverIndex] = useState<RacePicDiscoverIndex | null>(null);
+  const [loadedPage, setLoadedPage] = useState(1);
+  const [pagePending, setPagePending] = useState(false);
   // Event-Chips (und Klicks auf ein Discover-Bild) filtern das Grid auf dieser Seite, statt zur
   // alten Event-Seite zu navigieren - kein Nachladen nötig, `discover`/`searchIndex` sind bereits
   // komplett geladen. Initialwert kommt aus "?event=<slug>", damit externe Links (Fotografenprofil,
@@ -52,7 +57,20 @@ export default function RacePicHomePage() {
   // Klick auf ein Vorschaubild öffnet es groß (Feedback 2026-09-22: "unter /racepic soll man auf
   // die Vorschaubilder direkt auch drücken können") - Discover-Bilder haben keine participantKey,
   // eine Lightbox statt einer eigenen Detailseite reicht hier aus.
-  const [lightboxImage, setLightboxImage] = useState<RacePicDiscoverImage | null>(null);
+  const photoParam = searchParams.get('photo');
+  const separator = photoParam?.lastIndexOf('.') ?? -1;
+  const selectedPhoto = photoParam && separator > 0
+    ? { eventSlug: photoParam.slice(0, separator), imageId: photoParam.slice(separator + 1) }
+    : null;
+
+  const selectPhoto = (image: { eventSlug: string; imageId: string } | null) => {
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      if (image) next.set('photo', `${image.eventSlug}.${image.imageId}`);
+      else next.delete('photo');
+      return next;
+    });
+  };
 
   useEffect(() => {
     fetchSearchIndex()
@@ -61,6 +79,7 @@ export default function RacePicHomePage() {
     fetchDiscoverFeed()
       .then(setDiscover)
       .catch(() => setError(true));
+    fetchDiscoverIndex().then(setDiscoverIndex).catch(() => undefined);
     fetchPublishedEvents()
       .then(setEvents)
       .catch(() => undefined);
@@ -114,7 +133,6 @@ export default function RacePicHomePage() {
   );
 
   const setEventFilter = (slug: string | null) => {
-    setVisibleCount(INITIAL_GRID_SIZE);
     setSelectedEventSlug(slug);
     setSearchParams(
       (previous) => {
@@ -133,24 +151,44 @@ export default function RacePicHomePage() {
 
   const isSearching = submittedQuery.trim().length > 0;
 
+  const loadMore = async () => {
+    if (pagePending || !discoverIndex || loadedPage >= discoverIndex.pageCount) return;
+    setPagePending(true);
+    try {
+      const nextPage = loadedPage + 1;
+      const page = await fetchDiscoverPage(nextPage);
+      setDiscover((previous) => [...(previous ?? []), ...page]);
+      setLoadedPage(nextPage);
+    } catch { setError(true); }
+    finally { setPagePending(false); }
+  };
+
+  // Ein Event kann auf Seite 1 der globalen Entdeckung fehlen. Beim Filtern so lange
+  // nachladen, bis Bilder dieses Events sichtbar sind oder alle Seiten geprüft wurden.
+  useEffect(() => {
+    if (selectedEventSlug && discover && visibleDiscover.length === 0 && !pagePending && discoverIndex && loadedPage < discoverIndex.pageCount) {
+      void loadMore();
+    }
+  }, [selectedEventSlug, discover, visibleDiscover.length, pagePending, discoverIndex, loadedPage]);
+
   return (
     <MainLayout
       title="RacePic"
-      description="Finde alle Bilder deines Fahrzeugs von unseren Motorsportveranstaltungen."
+      description={t.tagline}
       canonicalPath="/racepic"
     >
-      <section className="border-b bg-gradient-to-b from-muted/60 to-background py-16 text-center sm:py-24">
+      <section className="border-b bg-gradient-to-br from-muted/80 via-background to-accent/10 py-14 text-center sm:py-20">
         <div className="container max-w-2xl">
           <RacePicWordmark size="lg" className="mx-auto" />
           <p className="mt-4 text-lg text-muted-foreground">
-            Finde alle Bilder deines Fahrzeugs – zentral, statt in einzelnen Fotografengalerien zu suchen.
+            {t.tagline}
           </p>
 
           <div className="relative mx-auto mt-8 max-w-xl">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <Input
               className="h-14 rounded-full pl-12 pr-12 text-base shadow-lg"
-              placeholder="Name, Startnummer oder Fahrzeug suchen… (Enter für alle Treffer)"
+              placeholder={t.searchPlaceholder}
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);
@@ -163,7 +201,7 @@ export default function RacePicHomePage() {
                 type="button"
                 onClick={clearSearch}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                aria-label="Suche zurücksetzen"
+                aria-label={t.resetSearch}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -212,13 +250,17 @@ export default function RacePicHomePage() {
       </section>
 
       {isSearching ? (
-        <section className="container py-12">
+        <section className="container py-8 sm:py-12">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+            <div><p className="text-xs font-semibold uppercase tracking-widest text-accent">{t.discover}</p><h2 className="font-heading text-2xl font-bold sm:text-3xl">{t.moments}</h2></div>
+            {discoverIndex && <p className="text-sm text-muted-foreground">{discoverIndex.total} {t.images}</p>}
+          </div>
           <p className="text-center text-sm text-muted-foreground">
-            {submittedResults.length} Treffer für „{submittedQuery}“
+            {submittedResults.length} {t.results} „{submittedQuery}“
             {selectedEventSlug && ` · gefiltert auf ${events.find((e) => e.slug === selectedEventSlug)?.title ?? selectedEventSlug}`}
           </p>
           {submittedResults.length === 0 && (
-            <p className="mt-6 text-center text-muted-foreground">Keine Treffer. Versuche einen anderen Namen, eine Startnummer oder ein Fahrzeug.</p>
+            <p className="mt-6 text-center text-muted-foreground">{t.noResults}</p>
           )}
           <div className="mt-6 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
             {submittedResults.map((entry) => (
@@ -242,22 +284,22 @@ export default function RacePicHomePage() {
       ) : (
         <section className="container py-12">
           {!discover && !error && <Loader2 className="mx-auto h-8 w-8 animate-spin text-accent" />}
-          {error && <p className="text-center text-muted-foreground">RacePic ist aktuell nicht erreichbar.</p>}
+          {error && <p className="text-center text-muted-foreground">{t.unavailable}</p>}
           {discover && discover.length === 0 && (
-            <p className="text-center text-muted-foreground">Noch keine Bilder veröffentlicht.</p>
+            <p className="text-center text-muted-foreground">{t.noImages}</p>
           )}
-          {discover && discover.length > 0 && visibleDiscover.length === 0 && (
-            <p className="text-center text-muted-foreground">Noch keine Bilder für dieses Event.</p>
+          {discover && discover.length > 0 && visibleDiscover.length === 0 && loadedPage >= (discoverIndex?.pageCount ?? 1) && (
+            <p className="text-center text-muted-foreground">{t.noEventImages}</p>
           )}
           {discover && visibleDiscover.length > 0 && (
             <>
               <div className="columns-2 gap-3 sm:columns-3 md:columns-4 [&>*]:mb-3">
-                {visibleDiscover.slice(0, visibleCount).map((image) => (
+                {visibleDiscover.map((image) => (
                   <button
                     key={image.imageId}
                     type="button"
-                    onClick={() => setLightboxImage(image)}
-                    className="group block w-full overflow-hidden rounded-lg border bg-muted text-left"
+                    onClick={() => selectPhoto(image)}
+                    className="group relative block w-full overflow-hidden rounded-xl bg-muted text-left shadow-sm transition-shadow hover:shadow-xl"
                     title={image.eventTitle}
                   >
                     <img
@@ -266,47 +308,17 @@ export default function RacePicHomePage() {
                       loading="lazy"
                       className="w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
+                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-3 pb-3 pt-9 text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">{image.eventTitle}</span>
                   </button>
                 ))}
               </div>
-              {visibleCount < visibleDiscover.length && (
-                <div className="mt-6 text-center">
-                  <button
-                    type="button"
-                    onClick={() => setVisibleCount((count) => count + GRID_PAGE_SIZE)}
-                    className="rounded-full border px-6 py-2 text-sm font-medium transition hover:border-accent"
-                  >
-                    Mehr laden
-                  </button>
-                </div>
-              )}
             </>
           )}
+          {discoverIndex && loadedPage < discoverIndex.pageCount && <div className="mt-8 text-center"><button type="button" onClick={loadMore} disabled={pagePending} className="rounded-full border px-7 py-3 text-sm font-semibold transition hover:border-accent disabled:opacity-50">{pagePending ? t.loading : t.loadMore}</button></div>}
         </section>
       )}
 
-      <Dialog open={lightboxImage !== null} onOpenChange={(open) => !open && setLightboxImage(null)}>
-        <DialogContent className="max-w-4xl border-none bg-transparent p-0 shadow-none">
-          {lightboxImage && (
-            <div className="relative">
-              <img src={toCdnUrl(lightboxImage.previewUrl)} alt="" className="max-h-[80vh] w-full rounded-lg object-contain" />
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-center text-sm text-white/90">
-                <span>{lightboxImage.eventTitle}</span>
-                <button
-                  type="button"
-                  className="underline hover:no-underline"
-                  onClick={() => {
-                    toggleEventFilter(lightboxImage.eventSlug);
-                    setLightboxImage(null);
-                  }}
-                >
-                  Alle Bilder dieses Events anzeigen
-                </button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <RacePicImageDialog selected={selectedPhoto} onSelect={selectPhoto} onClose={() => selectPhoto(null)} />
     </MainLayout>
   );
 }
