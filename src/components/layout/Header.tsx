@@ -86,7 +86,10 @@ export function Header() {
               {(settings?.site_short_name || 'MSC').slice(0, 3)}
             </div>
           )}
-          <span className="hidden whitespace-nowrap font-heading font-bold uppercase leading-none tracking-wider text-foreground [@media(min-width:1700px)]:inline-block">
+          {/* Schwelle von 1700px auf 1850px erhoeht (Bug gefunden 2026-09-22): der zusaetzliche
+              "/racepic"-Navigationspunkt macht die Nav-Leiste breiter, bei 1700px ueberlappte sie
+              sich dadurch mit dem Vereinsnamen. */}
+          <span className="hidden whitespace-nowrap font-heading font-bold uppercase leading-none tracking-wider text-foreground [@media(min-width:1850px)]:inline-block">
             {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}
           </span>
         </Link>
