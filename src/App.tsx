@@ -39,6 +39,7 @@ import NotFound from "./pages/NotFound";
 import StudioInvitationPage from "./pages/racepic/StudioInvitationPage";
 import StudioLoginPage from "./pages/racepic/StudioLoginPage";
 import StudioPage from "./pages/racepic/StudioPage";
+import StudioLicensesPage from "./pages/racepic/StudioLicensesPage";
 // RacePic (Paket 8: Oeffentliche Galerie)
 import RacePicHomePage from "./pages/racepic/RacePicHomePage";
 import RacePicEventPage from "./pages/racepic/RacePicEventPage";
@@ -135,6 +136,7 @@ const App = () => (
                   "/racepic/studio" nicht mit "/racepic/:eventSlug" oben. */}
               <Route path="/racepic/studio/einladung/:token" element={<StudioInvitationPage />} />
               <Route path="/racepic/studio/login" element={<StudioLoginPage />} />
+              <Route path="/racepic/studio/lizenzen" element={<StudioLicensesPage />} />
               <Route path="/racepic/studio" element={<StudioPage />} />
 
               {/* Admin Pages */}

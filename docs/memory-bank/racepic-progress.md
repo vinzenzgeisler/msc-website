@@ -13,6 +13,7 @@
 | 10b | Pilot 12. OLD 2026 (Website-Teil): Event veröffentlichen, i18n-Texte | offen | |
 | 12 | Öffentliches Fotografenprofil `/racepic/fotografen/:slug` | **erledigt** | siehe „Paket 12 – Ergebnis" unten; Backend-Teil siehe MSC-Event-Backend |
 | 14 | UI/UX-Redesign-Grundlage: RacePic-Wortmarke | **erledigt** | siehe „Paket 14 – Ergebnis" unten; Roadmap Paket 14–18 in [racepic-ux-redesign-plan.md](./racepic-ux-redesign-plan.md) |
+| 15 | Studio-Redesign (Website-Teil): Layout, Meine Bilder, Profil, Lizenzseite | **erledigt (ungedeployed)** | siehe „Paket 15 – Ergebnis" unten; Backend-Teil siehe MSC-Event-Backend |
 
 ## Paket 2 – Ergebnis (2026-09-21)
 
@@ -77,6 +78,36 @@ nach explizitem Wunsch des Vereins nach dem ersten echten End-to-End-Test).
 - `src/components/layout/Header.tsx`: Nav-Link zu `/racepic` (Desktop und Mobile) zeigt jetzt die
   Wortmarke statt reinem Text.
 - **Verifiziert:** `tsc --noEmit` und `vite build` fehlerfrei.
+
+## Paket 15 – Ergebnis (Website-Teil, 2026-09-22)
+
+Studio-Redesign, siehe [racepic-ux-redesign-plan.md](./racepic-ux-redesign-plan.md). Auf
+`feature/racepic-ux-redesign` (nicht `main`, siehe Backend-Progress-Notiz zum selben Paket).
+
+- `src/pages/racepic/StudioLayout.tsx` (neu): Kopfzeile für alle `/racepic/studio/*`-Seiten nach
+  dem Login (Wortmarke, Fotografenname, "Abmelden" – bisher nirgends aufrufbar). Bewusst **kein**
+  globaler Event-Switcher in der Kopfzeile: `StudioUploadPanel` hat schon eine eigene Event-/
+  Lizenzauswahl für den Upload-Zielort, ein zweiter, redundanter Auswahlzustand hätte nur
+  verwirrt – "Meine Bilder" hat stattdessen einen eigenen, unabhängigen Event-Filter.
+- `src/pages/racepic/StudioPage.tsx`: umgebaut auf `StudioLayout` + Tabs (Hochladen/Meine
+  Bilder/Profil) statt einer langen Spalte.
+- `src/pages/racepic/StudioImagesPanel.tsx` (neu, "Meine Bilder"): Grid der eigenen Uploads
+  (Thumbnail, Verarbeitungsstatus, Sichtbarkeits-Badge), Event-Filter, "Verbergen"-/"Löschen"-
+  Aktionen gegen die neuen Backend-Endpunkte. `listMyImages` existierte als API-Client-Funktion
+  bereits, wurde aber nirgends verwendet.
+- `src/pages/racepic/StudioProfilePanel.tsx` (neu, "Profil"): Formular gegen `updateMyProfile()`
+  (Anzeigename, Copyright-Zeile, Website, Instagram/Facebook, Standard-Lizenz), plus eine
+  deaktivierte Karte "Zahlungen & Auszahlung – kommt mit dem RacePic-Shop" als Ankündigung ohne
+  Versprechen (echte Stripe-Connect-Einbindung folgt erst nach der Rechtsprüfung, siehe
+  `racepic-open-items.md`).
+- `src/pages/racepic/StudioLicensesPage.tsx` (neu), Route `/racepic/studio/lizenzen`: Karten je
+  Lizenz mit Titel/Kurzbeschreibung/Namensnennungs-Hinweis aus `fetchLicenses()` – verlinkt aus
+  dem Lizenz-Auswahlfeld im Profil-Formular.
+- `src/integrations/racepic/client.ts`: `UploadedImage` um `thumbUrl` ergänzt; neue
+  `hideMyImage`/`deleteMyImage`-Funktionen gegen die neuen Backend-Endpunkte.
+- **Verifiziert:** `tsc --noEmit` und `vite build` fehlerfrei. Kein Browser-Test in dieser
+  Sandbox möglich – bitte lokal gegenprüfen (`npm run dev`, `.env.local` zeigt bereits auf die
+  echte Prod-API).
 
 ## Entscheidungen aus diesem Repo
 

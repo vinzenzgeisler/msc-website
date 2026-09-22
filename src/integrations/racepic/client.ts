@@ -152,7 +152,15 @@ export const listUploadedParts = (uploadId: string) =>
     { auth: true }
   );
 
-export type UploadedImage = { id: string; eventId: string; processingStatus: string; visibility: string; bytes: number | null; createdAt: string };
+export type UploadedImage = {
+  id: string;
+  eventId: string;
+  processingStatus: string;
+  visibility: string;
+  bytes: number | null;
+  createdAt: string;
+  thumbUrl: string | null;
+};
 
 export const completeUpload = (uploadId: string, parts?: { partNumber: number; eTag: string }[]) =>
   requestJson<{ ok: true; image: UploadedImage | null; alreadyCompleted: boolean }>(`/photographer/uploads/${encodeURIComponent(uploadId)}/complete`, {
@@ -172,6 +180,20 @@ export const listMyImages = (params: { eventId?: string; status?: string; limit?
   const query = search.toString();
   return requestJson<{ ok: true; images: UploadedImage[] }>(`/photographer/images${query ? `?${query}` : ''}`, { auth: true });
 };
+
+// --- Paket 15: Bild-Selbstverwaltung (Studio-Redesign) ------------------------------------------
+
+/** Nur `visibility: 'HIDDEN'` erlaubt - veröffentlichen/entfernen bleibt Admin-Sache, siehe Backend. */
+export const hideMyImage = (imageId: string) =>
+  requestJson<{ ok: true; visibility: 'HIDDEN' }>(`/photographer/images/${encodeURIComponent(imageId)}`, {
+    method: 'PATCH',
+    auth: true,
+    body: JSON.stringify({ visibility: 'HIDDEN' })
+  });
+
+/** Nur möglich, solange das Bild noch nie veröffentlicht wurde (`visibility='DRAFT'`). */
+export const deleteMyImage = (imageId: string) =>
+  requestJson<{ ok: true }>(`/photographer/images/${encodeURIComponent(imageId)}`, { method: 'DELETE', auth: true });
 
 /** Fuer eine Rohdatei signierte PUT-Anfrage mit Fortschrittsanzeige (XHR statt fetch, da fetch
  * keinen Upload-Fortschritt liefert - siehe Architekturplan Abschnitt D "kein Fortschritt"). */
