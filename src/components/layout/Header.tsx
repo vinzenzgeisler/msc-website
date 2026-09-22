@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { RacePicWordmark } from '@/components/racepic/RacePicWordmark';
 import type { Locale } from '@/i18n/translations';
 
 const languages: { code: Locale; label: string; flag: string }[] = [
@@ -129,7 +130,7 @@ export function Header() {
                       'bg-accent text-accent-foreground'
                   )}
                 >
-                  {item.label}
+                  {item.path === '/racepic' ? <RacePicWordmark size="sm" /> : item.label}
                 </Button>
               </Link>
             )
@@ -211,7 +212,7 @@ export function Header() {
                         isActive(item.path) && 'bg-accent'
                       )}
                     >
-                      {item.label}
+                      {item.path === '/racepic' ? <RacePicWordmark size="sm" /> : item.label}
                     </Link>
                   </li>
                 )

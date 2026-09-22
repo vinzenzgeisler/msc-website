@@ -12,6 +12,7 @@
 | 8 | Öffentliches RacePic: Routen `/racepic`, `/racepic/:event`, `/racepic/:event/:participant`; Suche, Galerie, Lightbox, Download | **erledigt** | siehe „Paket 8 – Ergebnis" unten; Fotografenprofil siehe Paket 12 |
 | 10b | Pilot 12. OLD 2026 (Website-Teil): Event veröffentlichen, i18n-Texte | offen | |
 | 12 | Öffentliches Fotografenprofil `/racepic/fotografen/:slug` | **erledigt** | siehe „Paket 12 – Ergebnis" unten; Backend-Teil siehe MSC-Event-Backend |
+| 14 | UI/UX-Redesign-Grundlage: RacePic-Wortmarke | **erledigt** | siehe „Paket 14 – Ergebnis" unten; Roadmap Paket 14–18 in [racepic-ux-redesign-plan.md](./racepic-ux-redesign-plan.md) |
 
 ## Paket 2 – Ergebnis (2026-09-21)
 
@@ -64,6 +65,18 @@ Schließt die in Paket 8 zurückgestellte Lücke – öffentliches Fotografenpro
   Einladung vergeben) und das neue Manifest gab es vor Paket 12 noch nicht, siehe dortige
   `racepic-progress.md`.
 - **Verifiziert:** `tsc --noEmit` und `vite build` (inkl. Sitemap-/Social-Pages-Skripte) fehlerfrei.
+
+## Paket 14 – Ergebnis (2026-09-22)
+
+Erste Umsetzung aus der [UI/UX-Redesign-Roadmap](./racepic-ux-redesign-plan.md) (Pakete 14–18,
+nach explizitem Wunsch des Vereins nach dem ersten echten End-to-End-Test).
+
+- `src/components/racepic/RacePicWordmark.tsx` (neu): CSS/Tailwind-Wortmarke ("Race" in der
+  Vordergrundfarbe, "Pic" in `text-accent`, `font-heading`/Oswald, leichter Skew), Größen `sm`
+  (Nav) und `md`/`lg` (spätere Verwendung, z. B. Hero der Landingpage in Paket 17).
+- `src/components/layout/Header.tsx`: Nav-Link zu `/racepic` (Desktop und Mobile) zeigt jetzt die
+  Wortmarke statt reinem Text.
+- **Verifiziert:** `tsc --noEmit` und `vite build` fehlerfrei.
 
 ## Entscheidungen aus diesem Repo
 
