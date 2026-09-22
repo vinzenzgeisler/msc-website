@@ -42,7 +42,6 @@ import StudioPage from "./pages/racepic/StudioPage";
 import StudioLicensesPage from "./pages/racepic/StudioLicensesPage";
 // RacePic (Paket 8: Oeffentliche Galerie)
 import RacePicHomePage from "./pages/racepic/RacePicHomePage";
-import RacePicEventPage from "./pages/racepic/RacePicEventPage";
 import RacePicParticipantPage from "./pages/racepic/RacePicParticipantPage";
 import RacePicPhotographerPage from "./pages/racepic/RacePicPhotographerPage";
 // RacePic (Paket 18: Warenkorb-/Konto-UI-Vorbereitung, kein echter Checkout)
@@ -125,20 +124,23 @@ const App = () => (
               <Route path="/newsletter/confirm" element={<NewsletterConfirmPage />} />
               <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
 
-              {/* RacePic – öffentliche Galerie (Paket 8) */}
+              {/* RacePic – öffentliche Galerie (Paket 8). Die frühere Event-Übersichtsseite
+                  "/racepic/:eventSlug" (Paket 8) wurde entfernt (Feedback 2026-09-22: "die
+                  brauch es ja aber nicht ... weil das ja über Filter gemacht werden soll") -
+                  das Filtern nach Event passiert jetzt clientseitig auf der Startseite
+                  (RacePicHomePage, "?event=<slug>"). */}
               <Route path="/racepic" element={<RacePicHomePage />} />
-              {/* Fotografenprofil (Paket 12) - vor "/racepic/:eventSlug" registriert, aber die
-                  Reihenfolge ist irrelevant: React Router v6 bevorzugt ohnehin das statische
-                  Segment "fotografen" vor dem dynamischen ":eventSlug", siehe Studio-Kommentar
-                  unten für dasselbe Prinzip. */}
+              {/* Fotografenprofil (Paket 12) - vor "/racepic/:eventSlug/:participantKey"
+                  registriert, aber die Reihenfolge ist irrelevant: React Router v6 bevorzugt
+                  ohnehin das statische Segment "fotografen" vor einem dynamischen Segment, siehe
+                  Studio-Kommentar unten für dasselbe Prinzip. */}
               <Route path="/racepic/fotografen/:slug" element={<RacePicPhotographerPage />} />
-              <Route path="/racepic/:eventSlug" element={<RacePicEventPage />} />
               <Route path="/racepic/:eventSlug/:participantKey" element={<RacePicParticipantPage />} />
 
               {/* RacePic Studio (Fotograf:innen, Paket 2b) - bewusst nicht in der Hauptnavigation
                   und nicht in der Sitemap, siehe docs/memory-bank/racepic-progress.md. React
                   Router v6 bevorzugt statische vor dynamischen Segmenten, daher kollidiert
-                  "/racepic/studio" nicht mit "/racepic/:eventSlug" oben. */}
+                  "/racepic/studio" nicht mit "/racepic/:eventSlug/:participantKey" oben. */}
               <Route path="/racepic/studio/einladung/:token" element={<StudioInvitationPage />} />
               <Route path="/racepic/studio/login" element={<StudioLoginPage />} />
               <Route path="/racepic/studio/lizenzen" element={<StudioLicensesPage />} />

@@ -8,7 +8,9 @@ import { fetchPhotographerProfile, toCdnUrl, type RacePicPhotographerProfile } f
  * Öffentliches Fotografenprofil (Paket 12), siehe docs/memory-bank/racepic-architecture.md
  * Abschnitt H/J. Bilder verlinken bewusst auf die Event-Galerie statt auf eine einzelne
  * Teilnehmerseite: ein Bild kann mehreren Fahrern zugeordnet sein (Abschnitt C), eine eindeutige
- * "richtige" Teilnehmerseite gibt es dafür nicht.
+ * "richtige" Teilnehmerseite gibt es dafür nicht. Verlinkt daher (seit dem Wegfall der
+ * separaten Event-Übersichtsseite, Feedback 2026-09-22) auf die RacePic-Startseite mit
+ * gesetztem Event-Filter statt auf eine eigene Event-Route.
  */
 export default function RacePicPhotographerPage() {
   const { slug = '' } = useParams<{ slug: string }>();
@@ -62,7 +64,7 @@ export default function RacePicPhotographerPage() {
               {profile.images.map((image) => (
                 <Link
                   key={image.imageId}
-                  to={`/racepic/${image.eventSlug}`}
+                  to={`/racepic?event=${image.eventSlug}`}
                   className="group overflow-hidden rounded-lg border bg-muted"
                   title={image.eventTitle}
                 >

@@ -50,7 +50,7 @@ export default function RacePicParticipantPage() {
             RacePic
           </Link>{' '}
           /{' '}
-          <Link to={`/racepic/${eventSlug}`} className="hover:underline">
+          <Link to={`/racepic?event=${eventSlug}`} className="hover:underline">
             {eventSlug}
           </Link>
         </p>

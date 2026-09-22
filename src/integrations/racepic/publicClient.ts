@@ -39,10 +39,6 @@ export type RacePicParticipant = {
   coverThumbUrl: string;
 };
 
-export type RacePicEventIndex = { eventId: string; slug: string; title: string; participants: RacePicParticipant[] };
-
-export const fetchEventIndex = (slug: string) => fetchManifest<RacePicEventIndex>(`/manifests/${slug}/index.json`);
-
 export type RacePicImage = {
   imageId: string;
   thumbUrl: string;
