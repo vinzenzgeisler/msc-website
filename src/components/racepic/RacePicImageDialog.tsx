@@ -49,8 +49,15 @@ export function RacePicImageDialog({ selected, onSelect, onClose }: {
   const image = detail?.image;
   return (
     <Dialog open={selected !== null} onOpenChange={(open) => { if (!open) onClose(); }}>
+      {/* Nutzerwunsch 2026-09-23: "hätte das Fenster ja gerne fullscreen, jetzt ist noch oben
+          unten der Hintergrund" - die geerbten Basiswerte aus dialog.tsx (fixed + zentriert per
+          top/left 50% + translate, dazu nur `max-h-[95vh]`) lassen auf dem Handy oben/unten Luft,
+          weil die Hoehe sich am Bildinhalt orientiert statt den Viewport zu fuellen. Unterhalb von
+          `sm` jetzt randlos/vollflaechig (inset-0, volle Viewport-Hoehe per `100dvh` statt `100vh`
+          - vermeidet den Sprung durchs Ein-/Ausblenden der mobilen Adressleiste), ab `sm` wieder
+          das zentrierte Fenster wie bisher. */}
       <DialogContent
-        className="max-h-[95vh] max-w-6xl overflow-y-auto p-0 sm:rounded-2xl"
+        className="inset-0 top-0 h-[100dvh] max-h-[100dvh] w-full max-w-full translate-x-0 translate-y-0 overflow-y-auto rounded-none border-0 p-0 sm:inset-auto sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-h-[95vh] sm:w-full sm:max-w-6xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border"
         overlayClassName="bg-background/40"
       >
         {loading && <div className="flex min-h-80 items-center justify-center"><Loader2 className="h-7 w-7 animate-spin" /></div>}
