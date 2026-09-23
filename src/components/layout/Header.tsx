@@ -38,12 +38,14 @@ export function Header() {
 
   const isActive = (path: string) => location.pathname === path;
 
+  // Nutzerwunsch 2026-09-23: RacePic aus der zentralen Nav-Leiste raus (siehe eigener Button unten
+  // bei Sprache/Theme) - macht in der mittleren Nav-Reihe Platz, u. a. fuer den Vereinsnamen im
+  // Logo-Bereich, der sonst selbst auf grossen Bildschirmen abgeschnitten wurde.
   const navItems = [
     { path: '/', label: t.nav.home },
     { path: '/event', label: t.nav.event },
     { path: '/calendar', label: t.nav.calendar },
     { path: '/news', label: t.nav.news },
-    { path: '/racepic', label: t.nav.racePic },
     {
       label: t.nav.club,
       children: [
@@ -73,7 +75,12 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
-      <div className="container flex h-16 min-w-0 items-center justify-between gap-3">
+      {/* Bug gefunden 2026-09-23 (Nutzer-Feedback: Vereinsname zeigt "..." selbst auf grossen
+          Bildschirmen): die geteilte `.container`-Klasse deckelt ab dem 2xl-Breakpoint (>=1536px)
+          fest auf 1400px (siehe tailwind.config.ts) - mehr Monitorbreite brachte dem Header dadurch
+          nie zusaetzlichen Platz, egal wie breit der Bildschirm tatsaechlich war. Hier bewusst eine
+          eigene, groesszuegigere Breite statt der globalen `.container`. */}
+      <div className="mx-auto flex h-16 w-full max-w-[1800px] min-w-0 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link to="/" className="flex min-w-0 shrink-0 items-center gap-2" aria-label="Zur Startseite">
           {settings?.logo_url ? (
@@ -87,7 +94,12 @@ export function Header() {
               {(settings?.site_short_name || 'MSC').slice(0, 3)}
             </div>
           )}
-          <span className="hidden max-w-48 truncate whitespace-nowrap font-heading font-bold uppercase leading-none tracking-wider text-foreground min-[1850px]:inline-block">
+          {/* max-w-48 (192px) war zu schmal fuer den vollen Vereinsnamen und schnitt ihn dadurch
+              praktisch immer mit "..." ab; max-w-sm (384px) reicht dafuer komfortabel. Sichtbar ab
+              2xl statt der bisherigen willkuerlichen 1850px-Marke, sobald die Nav ohnehin auf die
+              horizontale Ansicht wechselt - RacePic ist jetzt aus der Nav-Mitte raus (siehe unten),
+              das schafft dafuer zusaetzlichen Platz. */}
+          <span className="hidden max-w-sm truncate whitespace-nowrap font-heading font-bold uppercase leading-none tracking-wider text-foreground 2xl:inline-block">
             {settings?.site_name || 'MSC Oberlausitzer Dreiländereck e.V.'}
           </span>
         </Link>
@@ -127,15 +139,25 @@ export function Header() {
                       'bg-accent text-accent-foreground'
                   )}
                 >
-                  {item.path === '/racepic' ? <RacePicWordmark size="sm" /> : item.label}
+                  {item.label}
                 </Button>
               </Link>
             )
           )}
         </nav>
 
-        {/* Right Side: Language Switcher & Theme Toggle */}
+        {/* Right Side: RacePic, Language Switcher & Theme Toggle */}
         <div className="flex shrink-0 items-center gap-2">
+          {/* RacePic (aus der zentralen Nav geholt, siehe Kommentar bei navItems oben) */}
+          <Link to="/racepic" className="hidden 2xl:block">
+            <Button
+              variant="ghost"
+              className={cn(isActive('/racepic') && 'bg-accent text-accent-foreground')}
+            >
+              <RacePicWordmark size="sm" active={isActive('/racepic')} />
+            </Button>
+          </Link>
+
           {/* Language Switcher */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -190,6 +212,18 @@ export function Header() {
         <div className="border-t border-border bg-background 2xl:hidden">
           <nav className="container py-4">
             <ul className="space-y-1">
+              <li>
+                <Link
+                  to="/racepic"
+                  onClick={() => setIsMenuOpen(false)}
+                  className={cn(
+                    'block rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent',
+                    isActive('/racepic') && 'bg-accent'
+                  )}
+                >
+                  <RacePicWordmark size="sm" active={isActive('/racepic')} />
+                </Link>
+              </li>
               {navItems.map((item) =>
                 item.children ? (
                   <MobileSubmenu
@@ -209,7 +243,7 @@ export function Header() {
                         isActive(item.path) && 'bg-accent'
                       )}
                     >
-                      {item.path === '/racepic' ? <RacePicWordmark size="sm" /> : item.label}
+                      {item.label}
                     </Link>
                   </li>
                 )
