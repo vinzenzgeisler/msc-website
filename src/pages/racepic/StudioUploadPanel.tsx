@@ -37,6 +37,24 @@ export default function StudioUploadPanel() {
     [ready, uploader]
   );
 
+  // Nutzerwunsch 2026-09-23: "ich will im Studio auch Copy-Paste die Bilder reinladen können" -
+  // globaler Paste-Listener statt an ein einzelnes Element gebunden, da ein <label> von sich aus
+  // kein Paste-Ziel ist und Nutzer typischerweise einfach irgendwo auf der Seite Strg+V drücken,
+  // ohne vorher gezielt das Upload-Feld zu fokussieren.
+  useEffect(() => {
+    const handlePaste = (event: ClipboardEvent) => {
+      if (!ready || !event.clipboardData) return;
+      const files = Array.from(event.clipboardData.files).filter(
+        (file) => file.type === 'image/jpeg' || file.type === 'image/png'
+      );
+      if (files.length === 0) return;
+      event.preventDefault();
+      uploader.addFiles(files);
+    };
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [ready, uploader]);
+
   if (loadError) {
     return <p className="text-destructive">Events/Lizenzen konnten nicht geladen werden.</p>;
   }
@@ -80,7 +98,7 @@ export default function StudioUploadPanel() {
         className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-10 text-center ${ready ? 'cursor-pointer hover:border-accent' : 'cursor-not-allowed opacity-50'}`}
       >
         <UploadCloud className="h-10 w-10 text-muted-foreground" />
-        <span className="font-medium">JPEG- oder PNG-Dateien hierher ziehen oder klicken</span>
+        <span className="font-medium">JPEG- oder PNG-Dateien hierher ziehen, klicken oder einfügen (Strg+V)</span>
         <span className="text-sm text-muted-foreground">Bis zu 80 MB pro Datei</span>
         <input
           type="file"
