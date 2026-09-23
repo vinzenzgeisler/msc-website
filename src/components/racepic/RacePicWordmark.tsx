@@ -27,7 +27,8 @@ export function RacePicWordmark({
    * man auf dem Menüpunkt ist. Da müsste das 'Pic' weiß werden"): "Pic" ist fest in Akzentgelb
    * (`text-accent`) eingefärbt - auf dem aktiven Menüpunkt ist der Hintergrund selbst Akzentgelb
    * (`bg-accent`), wodurch "Pic" darauf unsichtbar wird (Gelb auf Gelb). `active` faerbt "Pic"
-   * stattdessen weiss, wenn die Wortmarke auf einem Akzent-Hintergrund sitzt.
+   * stattdessen um (Nutzer-Feedback 2026-09-23: erst Weiss, auf Wunsch danach zu Schwarz
+   * geaendert), wenn die Wortmarke auf einem Akzent-Hintergrund sitzt.
    */
   active?: boolean;
 }) {
@@ -40,7 +41,7 @@ export function RacePicWordmark({
       )}
     >
       <span className="text-foreground">Race</span>
-      <span className={active ? 'text-white' : 'text-accent'}>Pic</span>
+      <span className={active ? 'text-black' : 'text-accent'}>Pic</span>
     </span>
   );
 }

@@ -84,10 +84,16 @@ export function Header() {
         {/* Logo */}
         <Link to="/" className="flex min-w-0 shrink-0 items-center gap-2" aria-label="Zur Startseite">
           {settings?.logo_url ? (
+            // Bug gefunden 2026-09-23 (Nutzer-Feedback: "hier nimmt es das falsche Logo... das
+            // hatte vor dem Feature noch funktioniert ohne weißen Rand"): das aktuell hinterlegte
+            // Logo (`msc_remove_bunt_...png`, laut Dateiname bewusst freigestellt/transparent)
+            // bekam durch `bg-white p-1` einen erzwungenen weissen Kasten dahinter - sichtbar als
+            // Rand um das freigestellte Wappen. Ein freigestelltes Logo braucht diesen Weiss-Fallback
+            // nicht (der war fuer ein Logo mit eigenem, undurchsichtigem Hintergrund gedacht).
             <img
               src={settings.logo_url}
               alt={settings.logo_alt || settings.site_short_name || settings.site_name || 'Logo'}
-              className="h-11 w-11 shrink-0 rounded-md bg-white p-1 object-contain shadow-sm"
+              className="h-11 w-11 shrink-0 object-contain"
             />
           ) : (
             <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-primary text-primary-foreground font-bold text-lg">
