@@ -42,8 +42,15 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-accent data-[state=open]:text-muted-foreground hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
-        <X className="h-4 w-4" />
+      {/* Bug gefunden 2026-09-23 (Nutzer-Feedback: "kann die Popups bzw. Fenster der Bilder
+          schlecht schließen und hat so ein komisches Schließkreuz. Wirkt nicht passend"): ein
+          nacktes 16px-Icon ohne eigenen Hintergrund/Trefferflaeche, das direkt auf Bildinhalten
+          sitzt (z. B. RacePicImageDialog, p-0) - auf Touch-Geraeten schwer zu treffen und je nach
+          Bildfarbe kaum sichtbar. Jetzt ein 36x36px-Kreis mit halbtransparentem Hintergrund
+          (folgt automatisch dem Theme), zusaetzlich per rounded-full/bg gut sichtbar auf jedem
+          Bildinhalt, nicht nur auf einfarbigem Dialoghintergrund. */}
+      <DialogPrimitive.Close className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground opacity-100 shadow-sm ring-offset-background backdrop-blur transition-colors hover:bg-background data-[state=open]:bg-accent data-[state=open]:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none sm:right-4 sm:top-4">
+        <X className="h-5 w-5" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
