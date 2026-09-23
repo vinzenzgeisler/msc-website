@@ -23,14 +23,16 @@ export function RacePicWordmark({
   size?: RacePicWordmarkSize;
   className?: string;
   /**
-   * Bug gefunden 2026-09-23 (Nutzer-Feedback: "der RacePic Schriftzug unterstützt kein Gelb wenn
-   * man auf dem Menüpunkt ist. Da müsste das 'Pic' weiß werden", spaeter: "muss auch bei hovern
-   * dunkel [werden]. generell bei gelben hintergrund komplett schwarz"): "Pic" ist fest in
-   * Akzentgelb eingefärbt, "Race" in der normalen Vordergrundfarbe (die im Dark Mode hell ist) -
-   * beides wird auf einem Akzent-/Hover-Hintergrund (in Header.tsx bewusst zu Blau statt Gelb
-   * geaendert, siehe dort) unlesbar. `active` faerbt BEIDE Woerter schwarz; der Elternknoten in
-   * Header.tsx traegt zusaetzlich `group`, sodass `group-hover:text-black` denselben Effekt beim
-   * Hovern auslöst (ein reiner CSS-Zustand, den diese Komponente nicht als Prop kennen kann).
+   * Bug gefunden 2026-09-23 (Nutzer-Feedback, in dieser Reihenfolge: "der RacePic Schriftzug
+   * unterstützt kein Gelb wenn man auf dem Menüpunkt ist. Da müsste das 'Pic' weiß werden" ->
+   * "muss auch bei hovern dunkel [werden]" -> "ich wollte nicht blauen Button Hintergrund sondern
+   * weiterhin gelb aber die Schrift soll schwarz, bis auf 'PIC' der soll blau"): der Hintergrund
+   * bleibt Akzentgelb (Header.tsx nutzt wieder bg-accent/hover:bg-accent wie jedes andere
+   * Nav-Item). "Race" ist fest in der normalen Vordergrundfarbe (im Dark Mode hell) und "Pic" fest
+   * in Akzentgelb eingefärbt - beides unlesbar auf demselben Gelb. `active` faerbt "Race" schwarz
+   * und "Pic" blau (`text-primary`, dieselbe Markenfarbe wie sonst auf der Seite); der Elternknoten
+   * in Header.tsx traegt zusaetzlich `group`, sodass `group-hover:*` denselben Effekt beim Hovern
+   * ausloest (ein reiner CSS-Zustand, den diese Komponente nicht als Prop kennen kann).
    */
   active?: boolean;
 }) {
@@ -43,7 +45,7 @@ export function RacePicWordmark({
       )}
     >
       <span className={cn('group-hover:text-black', active ? 'text-black' : 'text-foreground')}>Race</span>
-      <span className={cn('group-hover:text-black', active ? 'text-black' : 'text-accent')}>Pic</span>
+      <span className={cn('group-hover:text-primary', active ? 'text-primary' : 'text-accent')}>Pic</span>
     </span>
   );
 }
