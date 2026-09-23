@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   abortUpload,
   completeUpload,
@@ -65,6 +65,19 @@ export function useStudioUploader(eventId: string, licenseId: string) {
   const [items, setItems] = useState<UploadItem[]>([]);
   const batchRef = useRef<UploadBatch | null>(null);
   const runningRef = useRef(false);
+  // Bug gefunden 2026-09-23 (Nutzer-Feedback: "bei einigen hat es korrekt Duplikate erkannt, bei
+  // anderen muss ich aber auch teilweise erneut draufklicken damit es hochlaedt" beim Massen-Upload
+  // im Studio): `start()` nahm bisher eine feste Momentaufnahme der wartenden Dateien beim Klick auf
+  // "Upload starten". Fotos, die WAEHREND ein Batch noch laeuft dazukamen (Drop-Zone/Strg+V sind
+  // nicht wie der Start-Button gesperrt), blieben als "wartend" liegen - der laufende Worker-Pool
+  // wusste nichts von ihnen, bis der Nutzer erneut klickte. `itemsRef` haelt eine live Sicht auf den
+  // aktuellen Stand fuer die Worker-Schleife unten; `claimedIdsRef` verhindert synchron (unabhaengig
+  // von Reacts asynchronem State-Update), dass zwei Worker dieselbe Datei doppelt aufgreifen.
+  const itemsRef = useRef<UploadItem[]>([]);
+  const claimedIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   const updateItem = useCallback((id: string, patch: Partial<UploadItem>) => {
     setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...patch } : item)));
@@ -152,24 +165,24 @@ export function useStudioUploader(eventId: string, licenseId: string) {
   const start = useCallback(async () => {
     if (runningRef.current) return;
     runningRef.current = true;
+    claimedIdsRef.current = new Set();
     try {
-      // Worker-Pool ueber einen gemeinsamen Index statt ueber den React-State zu iterieren - der
-      // waere hier nur eine Momentaufnahme zum Zeitpunkt des Aufrufs und wuerde sich waehrend der
-      // laufenden Uploads nicht aktualisieren.
-      const queue = items.filter((item) => item.status === 'queued');
-      let cursor = 0;
+      // Live-Queue statt fester Momentaufnahme (siehe Kommentar bei itemsRef oben): jeder Worker
+      // greift sich beim Freiwerden die naechste noch nicht beanspruchte "queued"-Datei aus dem
+      // aktuellen Stand - dadurch werden auch Dateien erfasst, die erst NACH dem Start dazukamen.
       const worker = async () => {
-        while (cursor < queue.length) {
-          const item = queue[cursor];
-          cursor += 1;
-          await processItem(item);
+        while (true) {
+          const next = itemsRef.current.find((item) => item.status === 'queued' && !claimedIdsRef.current.has(item.id));
+          if (!next) return;
+          claimedIdsRef.current.add(next.id);
+          await processItem(next);
         }
       };
-      await Promise.all(Array.from({ length: Math.min(MAX_CONCURRENT_FILES, queue.length) }, () => worker()));
+      await Promise.all(Array.from({ length: MAX_CONCURRENT_FILES }, () => worker()));
     } finally {
       runningRef.current = false;
     }
-  }, [items, processItem]);
+  }, [processItem]);
 
   const retry = useCallback(
     (id: string) => {
