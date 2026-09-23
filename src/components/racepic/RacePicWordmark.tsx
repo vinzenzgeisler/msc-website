@@ -24,11 +24,13 @@ export function RacePicWordmark({
   className?: string;
   /**
    * Bug gefunden 2026-09-23 (Nutzer-Feedback: "der RacePic Schriftzug unterstützt kein Gelb wenn
-   * man auf dem Menüpunkt ist. Da müsste das 'Pic' weiß werden"): "Pic" ist fest in Akzentgelb
-   * (`text-accent`) eingefärbt - auf dem aktiven Menüpunkt ist der Hintergrund selbst Akzentgelb
-   * (`bg-accent`), wodurch "Pic" darauf unsichtbar wird (Gelb auf Gelb). `active` faerbt "Pic"
-   * stattdessen um (Nutzer-Feedback 2026-09-23: erst Weiss, auf Wunsch danach zu Schwarz
-   * geaendert), wenn die Wortmarke auf einem Akzent-Hintergrund sitzt.
+   * man auf dem Menüpunkt ist. Da müsste das 'Pic' weiß werden", spaeter: "muss auch bei hovern
+   * dunkel [werden]. generell bei gelben hintergrund komplett schwarz"): "Pic" ist fest in
+   * Akzentgelb eingefärbt, "Race" in der normalen Vordergrundfarbe (die im Dark Mode hell ist) -
+   * beides wird auf einem Akzent-/Hover-Hintergrund (in Header.tsx bewusst zu Blau statt Gelb
+   * geaendert, siehe dort) unlesbar. `active` faerbt BEIDE Woerter schwarz; der Elternknoten in
+   * Header.tsx traegt zusaetzlich `group`, sodass `group-hover:text-black` denselben Effekt beim
+   * Hovern auslöst (ein reiner CSS-Zustand, den diese Komponente nicht als Prop kennen kann).
    */
   active?: boolean;
 }) {
@@ -40,8 +42,8 @@ export function RacePicWordmark({
         className,
       )}
     >
-      <span className="text-foreground">Race</span>
-      <span className={active ? 'text-black' : 'text-accent'}>Pic</span>
+      <span className={cn('group-hover:text-black', active ? 'text-black' : 'text-foreground')}>Race</span>
+      <span className={cn('group-hover:text-black', active ? 'text-black' : 'text-accent')}>Pic</span>
     </span>
   );
 }

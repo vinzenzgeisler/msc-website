@@ -154,11 +154,18 @@ export function Header() {
 
         {/* Right Side: RacePic, Language Switcher & Theme Toggle */}
         <div className="flex shrink-0 items-center gap-2">
-          {/* RacePic (aus der zentralen Nav geholt, siehe Kommentar bei navItems oben) */}
-          <Link to="/racepic" className="hidden 2xl:block">
+          {/* RacePic (aus der zentralen Nav geholt, siehe Kommentar bei navItems oben).
+              Nutzerwunsch 2026-09-23: Hover-/Aktiv-Hintergrund bewusst Blau (bg-primary) statt des
+              sonst ueberall genutzten Akzentgelb - vermeidet grundsaetzlich den Gelb-auf-Gelb-
+              Konflikt mit der Wortmarke, statt ihn nur nachtraeglich einzufaerben. `group` gibt
+              RacePicWordmark einen Hover-Zustand zum Reagieren (siehe dort). */}
+          <Link to="/racepic" className="group hidden 2xl:block">
             <Button
               variant="ghost"
-              className={cn(isActive('/racepic') && 'bg-accent text-accent-foreground')}
+              className={cn(
+                'hover:bg-primary hover:text-primary-foreground',
+                isActive('/racepic') && 'bg-primary text-primary-foreground'
+              )}
             >
               <RacePicWordmark size="sm" active={isActive('/racepic')} />
             </Button>
@@ -223,8 +230,8 @@ export function Header() {
                   to="/racepic"
                   onClick={() => setIsMenuOpen(false)}
                   className={cn(
-                    'block rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent',
-                    isActive('/racepic') && 'bg-accent'
+                    'group block rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-primary',
+                    isActive('/racepic') && 'bg-primary'
                   )}
                 >
                   <RacePicWordmark size="sm" active={isActive('/racepic')} />
