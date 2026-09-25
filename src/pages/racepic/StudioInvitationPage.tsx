@@ -5,12 +5,8 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-import { claimInvitation, fetchInvitationPreview, startInvitation, type InvitationPreview } from '@/integrations/racepic/client';
+import { claimInvitation, fetchInvitationPreview, fetchRacePicConfig, startInvitation, type InvitationPreview } from '@/integrations/racepic/client';
 import { useEmailOtpLogin } from './useEmailOtpLogin';
-
-// Version der Fotografen-Nutzungsbedingungen aus docs/privacy/racepic-legal-texts-v1.md (Abschnitt 2)
-// im MSC-Event-Backend-Repo. Bei inhaltlichen Aenderungen dort UND hier erhoehen.
-const PHOTOGRAPHER_TERMS_VERSION = '2026-09-21';
 
 type LoadState = { kind: 'loading' } | { kind: 'error'; message: string } | { kind: 'ready'; preview: InvitationPreview };
 
@@ -61,7 +57,8 @@ export default function StudioInvitationPage() {
     setClaiming(true);
     setClaimError(null);
     try {
-      await claimInvitation(token, PHOTOGRAPHER_TERMS_VERSION);
+      const config = await fetchRacePicConfig();
+      await claimInvitation(token, config.photographerTermsVersion);
       navigate('/racepic/studio');
     } catch {
       setClaimError('Die Einladung konnte nicht abgeschlossen werden. Bitte versuche es erneut oder kontaktiere den MSC.');

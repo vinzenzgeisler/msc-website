@@ -6,9 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { confirmPhotographerSignUp, signInWithPassword, signUpPhotographer } from '@/integrations/racepic/photographerAuth';
 import { savePhotographerSession } from '@/integrations/racepic/session';
-import { registerMyProfile } from '@/integrations/racepic/client';
-
-const TERMS_VERSION = '2026-09-22';
+import { fetchRacePicConfig, registerMyProfile } from '@/integrations/racepic/client';
 
 export default function StudioRegisterPage() {
   const navigate = useNavigate();
@@ -32,7 +30,8 @@ export default function StudioRegisterPage() {
         await confirmPhotographerSignUp(email, code);
         const tokens = await signInWithPassword(email, password);
         savePhotographerSession(tokens);
-        await registerMyProfile(displayName, TERMS_VERSION);
+        const config = await fetchRacePicConfig();
+        await registerMyProfile(displayName, config.photographerTermsVersion);
         navigate('/racepic/studio');
       }
     } catch { setError(step === 'details' ? 'Registrierung fehlgeschlagen. Prüfe die Angaben oder nutze bei bestehendem Konto den Login.' : 'Bestätigung fehlgeschlagen. Bitte Code prüfen.'); }

@@ -39,6 +39,9 @@ async function requestJson<T>(path: string, init?: RequestInit & { auth?: boolea
 
 export { RacePicApiError };
 
+export type RacePicPublicConfig = { enabled: boolean; photographerTermsVersion: string };
+export const fetchRacePicConfig = () => requestJson<{ ok: true } & RacePicPublicConfig>('/public/racepic/config');
+
 export type InvitationPreview = {
   eventNames: string[];
   maskedEmail: string;
@@ -139,6 +142,8 @@ export type CreatedUpload = {
   uploadUrl: string | null;
   s3UploadId: string | null;
   requiredHeaders: Record<string, string>;
+  resumed: boolean;
+  completed: boolean;
 };
 
 export const createUpload = (batchId: string, file: { name: string; type: 'image/jpeg' | 'image/png'; size: number; fingerprint?: string }) =>
@@ -240,9 +245,10 @@ export const fetchMyImageAssignments = (imageId: string) =>
 
 /** Fuer eine Rohdatei signierte PUT-Anfrage mit Fortschrittsanzeige (XHR statt fetch, da fetch
  * keinen Upload-Fortschritt liefert - siehe Architekturplan Abschnitt D "kein Fortschritt"). */
-export const putWithProgress = (url: string, file: Blob, contentType: string, onProgress: (loaded: number, total: number) => void): Promise<string | null> =>
+export const putWithProgress = (url: string, file: Blob, contentType: string, onProgress: (loaded: number, total: number) => void, signal?: AbortSignal): Promise<string | null> =>
   new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
+    const abort = () => xhr.abort();
     xhr.open('PUT', url, true);
     xhr.setRequestHeader('content-type', contentType);
     xhr.upload.onprogress = (event) => {
@@ -250,11 +256,15 @@ export const putWithProgress = (url: string, file: Blob, contentType: string, on
     };
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
+        signal?.removeEventListener('abort', abort);
         resolve(xhr.getResponseHeader('ETag'));
       } else {
         reject(new Error(`HTTP_${xhr.status}`));
       }
     };
     xhr.onerror = () => reject(new Error('NETWORK_ERROR'));
+    xhr.onabort = () => reject(new DOMException('Upload aborted', 'AbortError'));
+    signal?.addEventListener('abort', abort, { once: true });
+    if (signal?.aborted) return abort();
     xhr.send(file);
   });

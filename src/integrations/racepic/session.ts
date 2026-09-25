@@ -1,16 +1,22 @@
-// RacePic-Fotografen-Session (Paket 2b). Nur ein `localStorage`-Store fuer den MVP - kein
-// Refresh-Rotation-Flow o.ae. hier; das folgt mit dem Step-up/Marketplace-Ausbau (Abschnitt E).
 import { refreshPhotographerTokens, type PhotographerTokens } from './photographerAuth';
+import { z } from 'zod';
 
 const STORAGE_KEY = 'racepic_photographer_session';
 
 type StoredSession = PhotographerTokens;
+const storedSessionSchema = z.object({
+  accessToken: z.string().min(1),
+  idToken: z.string().min(1),
+  refreshToken: z.string().min(1).nullable(),
+  expiresAt: z.number().finite().positive()
+});
 
 const readSession = (): StoredSession | null => {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as StoredSession;
+    const parsed = storedSessionSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data as StoredSession : null;
   } catch {
     return null;
   }

@@ -75,19 +75,30 @@ export function useStudioUploader(eventId: string, licenseId: string) {
   // von Reacts asynchronem State-Update), dass zwei Worker dieselbe Datei doppelt aufgreifen.
   const itemsRef = useRef<UploadItem[]>([]);
   const claimedIdsRef = useRef<Set<string>>(new Set());
+  const drainRef = useRef<(() => Promise<void>) | null>(null);
+  const abortControllersRef = useRef(new Map<string, AbortController>());
   useEffect(() => {
     itemsRef.current = items;
   }, [items]);
 
   const updateItem = useCallback((id: string, patch: Partial<UploadItem>) => {
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+    setItems((prev) => {
+      const next = prev.map((item) => (item.id === id ? { ...item, ...patch } : item));
+      itemsRef.current = next;
+      return next;
+    });
   }, []);
 
   const addFiles = useCallback((files: FileList | File[]) => {
     const next: UploadItem[] = Array.from(files)
       .filter((file) => file.type === 'image/jpeg' || file.type === 'image/png')
       .map((file) => ({ id: `${fileFingerprint(file)}-${crypto.randomUUID()}`, file, status: 'queued', progress: 0, error: null, uploadId: null }));
-    setItems((prev) => [...prev, ...next]);
+    setItems((prev) => {
+      const updated = [...prev, ...next];
+      itemsRef.current = updated;
+      return updated;
+    });
+    queueMicrotask(() => void drainRef.current?.());
   }, []);
 
   const ensureBatch = useCallback(async (): Promise<UploadBatch> => {
@@ -97,11 +108,11 @@ export function useStudioUploader(eventId: string, licenseId: string) {
     return batch;
   }, [eventId, licenseId]);
 
-  const uploadSingle = async (item: UploadItem, uploadUrl: string) => {
-    await putWithProgress(uploadUrl, item.file, item.file.type, (loaded, total) => updateItem(item.id, { progress: Math.round((loaded / total) * 100) }));
-  };
+  const uploadSingle = useCallback(async (item: UploadItem, uploadUrl: string, signal: AbortSignal) => {
+    await putWithProgress(uploadUrl, item.file, item.file.type, (loaded, total) => updateItem(item.id, { progress: Math.round((loaded / total) * 100) }), signal);
+  }, [updateItem]);
 
-  const uploadMultipart = async (item: UploadItem, uploadId: string) => {
+  const uploadMultipart = useCallback(async (item: UploadItem, uploadId: string, signal: AbortSignal) => {
     const totalParts = Math.ceil(item.file.size / PART_SIZE_BYTES);
     const partNumbers = Array.from({ length: totalParts }, (_, index) => index + 1);
     // Session-Resume: bereits hochgeladene Teile (z. B. nach einem Retry) nicht erneut senden.
@@ -123,21 +134,23 @@ export function useStudioUploader(eventId: string, licenseId: string) {
       const previousBytesDone = bytesDone;
       const eTag = await putWithProgress(url, chunk, item.file.type, (loaded) => {
         updateItem(item.id, { progress: Math.round(((previousBytesDone + loaded) / item.file.size) * 100) });
-      });
+      }, signal);
       if (!eTag) throw new Error('MISSING_ETAG');
       completedParts.set(partNumber, eTag);
       bytesDone += chunk.size;
     }
 
     return partNumbers.map((partNumber) => ({ partNumber, eTag: completedParts.get(partNumber)! }));
-  };
+  }, [updateItem]);
 
   const processItem = useCallback(
     async (item: UploadItem) => {
       updateItem(item.id, { status: 'uploading', progress: 0, error: null });
+      const controller = new AbortController();
+      abortControllersRef.current.set(item.id, controller);
       try {
         const batch = await ensureBatch();
-        const { upload, uploadUrl, s3UploadId } = await createUpload(batch.id, {
+        const { upload, uploadUrl, s3UploadId, completed } = await createUpload(batch.id, {
           name: item.file.name,
           type: item.file.type as 'image/jpeg' | 'image/png',
           size: item.file.size,
@@ -145,21 +158,26 @@ export function useStudioUploader(eventId: string, licenseId: string) {
         });
         updateItem(item.id, { uploadId: upload.id });
 
-        if (s3UploadId) {
-          const parts = await uploadMultipart(item, upload.id);
+        if (completed) {
+          await completeUpload(upload.id);
+        } else if (s3UploadId) {
+          const parts = await uploadMultipart(item, upload.id, controller.signal);
           await completeUpload(upload.id, parts);
         } else if (uploadUrl) {
-          await uploadSingle(item, uploadUrl);
+          await uploadSingle(item, uploadUrl, controller.signal);
           await completeUpload(upload.id);
         } else {
           throw new Error('NO_UPLOAD_TARGET');
         }
         updateItem(item.id, { status: 'done', progress: 100 });
       } catch (error) {
-        updateItem(item.id, { status: 'error', error: errorMessage(error) });
+        updateItem(item.id, { status: 'error', error: controller.signal.aborted ? 'Upload abgebrochen.' : errorMessage(error) });
+      } finally {
+        abortControllersRef.current.delete(item.id);
+        claimedIdsRef.current.delete(item.id);
       }
     },
-    [ensureBatch, updateItem]
+    [ensureBatch, updateItem, uploadMultipart, uploadSingle]
   );
 
   const start = useCallback(async () => {
@@ -181,33 +199,45 @@ export function useStudioUploader(eventId: string, licenseId: string) {
       await Promise.all(Array.from({ length: MAX_CONCURRENT_FILES }, () => worker()));
     } finally {
       runningRef.current = false;
+      if (itemsRef.current.some((item) => item.status === 'queued')) {
+        queueMicrotask(() => void drainRef.current?.());
+      }
     }
   }, [processItem]);
+  drainRef.current = start;
 
   const retry = useCallback(
     (id: string) => {
-      // Direkt fuer dieses eine Item erneut ausfuehren statt ueber start() - dessen Queue-Snapshot
-      // wuerde den gerade zurueckgesetzten Status wegen React's asynchronem State-Update sonst
-      // noch nicht sehen.
+      // Update the ref before restarting the drain because React state updates are asynchronous.
       const item = items.find((entry) => entry.id === id);
       if (!item) return;
       const resetItem: UploadItem = { ...item, status: 'queued', error: null, progress: 0 };
-      setItems((prev) => prev.map((entry) => (entry.id === id ? resetItem : entry)));
-      void processItem(resetItem);
+      setItems((prev) => {
+        const next = prev.map((entry) => (entry.id === id ? resetItem : entry));
+        itemsRef.current = next;
+        return next;
+      });
+      queueMicrotask(() => void drainRef.current?.());
     },
-    [items, processItem]
+    [items]
   );
 
   const removeQueued = useCallback((id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id || item.status !== 'queued'));
+    setItems((prev) => {
+      const next = prev.filter((item) => item.id !== id || item.status !== 'queued');
+      itemsRef.current = next;
+      return next;
+    });
   }, []);
 
   const cancel = useCallback(async (id: string) => {
     const item = items.find((entry) => entry.id === id);
     if (item?.uploadId && item.status === 'uploading') {
+      abortControllersRef.current.get(id)?.abort();
       await abortUpload(item.uploadId).catch(() => undefined);
+      updateItem(id, { status: 'error', error: 'Upload abgebrochen.' });
     }
-  }, [items]);
+  }, [items, updateItem]);
 
   const stats = {
     total: items.length,

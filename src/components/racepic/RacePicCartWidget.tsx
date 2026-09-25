@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Download, Loader2, ShoppingBag, User, X } from 'lucide-react';
+import { Download, Loader2, ShoppingBag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useRacePicCart } from '@/integrations/racepic/cart';
+import { useRacePicCart } from '@/integrations/racepic/cart-context';
 import { requestDownload, toCdnUrl } from '@/integrations/racepic/publicClient';
 import { useRacePicText } from '@/i18n/racepic';
 
@@ -19,6 +18,7 @@ export function RacePicCartWidget() {
   const [open, setOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState('');
+  const [preparedDownloads, setPreparedDownloads] = useState<Record<string, string>>({});
   const t = useRacePicText();
 
   if (!location.pathname.startsWith('/racepic')) return null;
@@ -30,11 +30,7 @@ export function RacePicCartWidget() {
     try {
       for (const item of items) {
         const result = await requestDownload(item.imageId, 'medium');
-        window.open(result.url, '_blank', 'noopener');
-        // Kleine Verzögerung zwischen den Downloads, damit Browser-Popup-Blocker nicht alle bis
-        // auf den ersten unterdrücken - kein Ersatz für einen echten Sammel-Download/Zip, der
-        // erst mit dem Checkout (Paket M1-M5) sinnvoll wird.
-        await new Promise((resolve) => setTimeout(resolve, 400));
+        setPreparedDownloads((current) => ({ ...current, [item.imageId]: result.url }));
       }
     } catch {
       setError(t.downloadError);
@@ -46,16 +42,6 @@ export function RacePicCartWidget() {
   return (
     <>
       <div className="fixed bottom-5 right-5 z-40 flex items-center gap-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span>
-              <Button variant="outline" size="icon" className="h-11 w-11 rounded-full shadow-lg" disabled>
-                <User className="h-5 w-5" />
-              </Button>
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>{t.accountLater}</TooltipContent>
-        </Tooltip>
         <Button
           size="icon"
           className="relative h-11 w-11 rounded-full shadow-lg"
@@ -82,6 +68,11 @@ export function RacePicCartWidget() {
               <div key={item.imageId} className="flex items-center gap-3 rounded-lg border p-2">
                 <img src={toCdnUrl(item.thumbUrl)} alt="" className="h-14 w-20 rounded object-cover" />
                 <span className="flex-1 text-xs text-muted-foreground">{item.eventSlug}</span>
+                {preparedDownloads[item.imageId] && (
+                  <Button asChild variant="outline" size="sm">
+                    <a href={preparedDownloads[item.imageId]} target="_blank" rel="noopener noreferrer"><Download className="h-4 w-4" /></a>
+                  </Button>
+                )}
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeItem(item.imageId)}>
                   <X className="h-4 w-4" />
                 </Button>

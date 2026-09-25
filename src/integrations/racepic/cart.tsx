@@ -1,4 +1,6 @@
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
+import { z } from 'zod';
+import { CartContext, type CartItem } from './cart-context';
 
 /**
  * Client-seitiger Warenkorb (Paket 18), siehe racepic-ux-redesign-plan.md - reine
@@ -9,34 +11,20 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useState 
  * geräte-/browserlokal (kein Konto, kein serverseitiger Zustand).
  */
 
-export type CartItem = {
-  imageId: string;
-  eventSlug: string;
-  thumbUrl: string;
-};
-
-type CartContextValue = {
-  items: CartItem[];
-  addItem: (item: CartItem) => void;
-  removeItem: (imageId: string) => void;
-  clear: () => void;
-  has: (imageId: string) => boolean;
-  savedIds: string[];
-  toggleSaved: (imageId: string) => void;
-  isSaved: (imageId: string) => boolean;
-};
-
-const CartContext = createContext<CartContextValue | null>(null);
-
 const STORAGE_KEY = 'racepic_cart';
 const SAVED_STORAGE_KEY = 'racepic_saved_images';
+const cartItemSchema = z.object({
+  imageId: z.string().uuid(),
+  eventSlug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  thumbUrl: z.string().regex(/^\/public\/[0-9a-f-]+\/thumb\.webp$/i)
+});
 
 const readStoredItems = (): CartItem[] => {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = z.array(cartItemSchema).max(100).safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data as CartItem[] : [];
   } catch {
     return [];
   }
@@ -47,7 +35,8 @@ export function RacePicCartProvider({ children }: { children: ReactNode }) {
   const [savedIds, setSavedIds] = useState<string[]>(() => {
     try {
       const value = JSON.parse(window.localStorage.getItem(SAVED_STORAGE_KEY) || '[]');
-      return Array.isArray(value) ? value.filter((id): id is string => typeof id === 'string').slice(0, 1000) : [];
+      const parsed = z.array(z.string().uuid()).max(1000).safeParse(value);
+      return parsed.success ? parsed.data : [];
     } catch { return []; }
   });
 
@@ -79,10 +68,4 @@ export function RacePicCartProvider({ children }: { children: ReactNode }) {
   const isSaved = useCallback((imageId: string) => savedIds.includes(imageId), [savedIds]);
 
   return <CartContext.Provider value={{ items, addItem, removeItem, clear, has, savedIds, toggleSaved, isSaved }}>{children}</CartContext.Provider>;
-}
-
-export function useRacePicCart(): CartContextValue {
-  const context = useContext(CartContext);
-  if (!context) throw new Error('useRacePicCart must be used within a RacePicCartProvider');
-  return context;
 }

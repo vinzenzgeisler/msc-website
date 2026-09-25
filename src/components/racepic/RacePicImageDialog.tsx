@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Bookmark, Check, Download, Loader2, ShoppingBag } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useRacePicCart } from '@/integrations/racepic/cart';
+import { useRacePicCart } from '@/integrations/racepic/cart-context';
 import { fetchImageDetail, requestDownload, toCdnUrl, type RacePicImageDetail } from '@/integrations/racepic/publicClient';
 import { useRacePicText } from '@/i18n/racepic';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -22,19 +22,21 @@ export function RacePicImageDialog({ selected, onSelect, onClose }: {
   const cart = useRacePicCart();
   const t = useRacePicText();
   const { locale } = useLanguage();
+  const selectedEventSlug = selected?.eventSlug;
+  const selectedImageId = selected?.imageId;
 
   useEffect(() => {
-    if (!selected) { setDetail(null); return; }
+    if (!selectedEventSlug || !selectedImageId) { setDetail(null); return; }
     let current = true;
     setLoading(true);
     setError(false);
     setDetail(null);
-    fetchImageDetail(selected.eventSlug, selected.imageId)
+    fetchImageDetail(selectedEventSlug, selectedImageId)
       .then((value) => { if (current) setDetail(value); })
       .catch(() => { if (current) setError(true); })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
-  }, [selected?.eventSlug, selected?.imageId]);
+  }, [selectedEventSlug, selectedImageId]);
 
   const download = async () => {
     if (!detail) return;

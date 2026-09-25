@@ -28,6 +28,7 @@ const languages: { code: Locale; label: string; flag: string }[] = [
 ];
 
 export function Header() {
+  const racePicEnabled = import.meta.env.VITE_ENABLE_RACEPIC === 'true';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { locale, setLocale, t } = useLanguage();
   const { toggleTheme, isDark } = useTheme();
@@ -36,7 +37,7 @@ export function Header() {
 
   const currentLang = languages.find((l) => l.code === locale) || languages[0];
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => path === '/' ? location.pathname === '/' : location.pathname === path || location.pathname.startsWith(`${path}/`);
 
   // Nutzerwunsch 2026-09-23: RacePic aus der zentralen Nav-Leiste raus (siehe eigener Button unten
   // bei Sprache/Theme) - macht in der mittleren Nav-Reihe Platz, u. a. fuer den Vereinsnamen im
@@ -159,14 +160,14 @@ export function Header() {
               anderen Nav-Item (kein bg-primary mehr) - nur die Wortmarke selbst faerbt sich darauf
               um (siehe RacePicWordmark: "Race" schwarz, "Pic" blau statt Gelb-auf-Gelb). `group`
               gibt RacePicWordmark einen Hover-Zustand zum Reagieren. */}
-          <Link to="/racepic" className="group hidden 2xl:block">
+          {racePicEnabled && <Link to="/racepic" className="group hidden 2xl:block">
             <Button
               variant="ghost"
               className={cn(isActive('/racepic') && 'bg-accent text-accent-foreground')}
             >
               <RacePicWordmark size="sm" active={isActive('/racepic')} />
             </Button>
-          </Link>
+          </Link>}
 
           {/* Language Switcher */}
           <DropdownMenu>
@@ -222,7 +223,7 @@ export function Header() {
         <div className="border-t border-border bg-background 2xl:hidden">
           <nav className="container py-4">
             <ul className="space-y-1">
-              <li>
+              {racePicEnabled && <li>
                 <Link
                   to="/racepic"
                   onClick={() => setIsMenuOpen(false)}
@@ -233,7 +234,7 @@ export function Header() {
                 >
                   <RacePicWordmark size="sm" active={isActive('/racepic')} />
                 </Link>
-              </li>
+              </li>}
               {navItems.map((item) =>
                 item.children ? (
                   <MobileSubmenu

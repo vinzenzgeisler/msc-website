@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { lazy, Suspense, type ReactNode } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -36,20 +37,9 @@ import NewsletterUnsubscribePage from "./pages/NewsletterUnsubscribePage";
 import NotFound from "./pages/NotFound";
 
 // RacePic (Paket 2b: Identitaet)
-import StudioInvitationPage from "./pages/racepic/StudioInvitationPage";
-import StudioLoginPage from "./pages/racepic/StudioLoginPage";
-import StudioRegisterPage from "./pages/racepic/StudioRegisterPage";
-import StudioTermsPage from "./pages/racepic/StudioTermsPage";
-import StudioPasswordResetPage from "./pages/racepic/StudioPasswordResetPage";
-import StudioPage from "./pages/racepic/StudioPage";
-import StudioLicensesPage from "./pages/racepic/StudioLicensesPage";
 // RacePic (Paket 8: Oeffentliche Galerie)
-import RacePicHomePage from "./pages/racepic/RacePicHomePage";
-import RacePicParticipantPage from "./pages/racepic/RacePicParticipantPage";
-import RacePicPhotographerPage from "./pages/racepic/RacePicPhotographerPage";
 // RacePic (Paket 18: Warenkorb-/Konto-UI-Vorbereitung, kein echter Checkout)
 import { RacePicCartProvider } from "@/integrations/racepic/cart";
-import { RacePicCartWidget } from "@/components/racepic/RacePicCartWidget";
 
 // Admin Pages
 import LoginPage from "./pages/admin/LoginPage";
@@ -76,6 +66,19 @@ import EventGalleryArchivePage from "./pages/admin/EventGalleryArchivePage";
 import { AdminLayout } from "./components/admin/AdminLayout";
 
 const queryClient = new QueryClient();
+const racePicEnabled = import.meta.env.VITE_ENABLE_RACEPIC === 'true';
+const RacePicHomePage = lazy(() => import('./pages/racepic/RacePicHomePage'));
+const RacePicParticipantPage = lazy(() => import('./pages/racepic/RacePicParticipantPage'));
+const RacePicPhotographerPage = lazy(() => import('./pages/racepic/RacePicPhotographerPage'));
+const StudioInvitationPage = lazy(() => import('./pages/racepic/StudioInvitationPage'));
+const StudioLoginPage = lazy(() => import('./pages/racepic/StudioLoginPage'));
+const StudioRegisterPage = lazy(() => import('./pages/racepic/StudioRegisterPage'));
+const StudioTermsPage = lazy(() => import('./pages/racepic/StudioTermsPage'));
+const StudioPasswordResetPage = lazy(() => import('./pages/racepic/StudioPasswordResetPage'));
+const StudioPage = lazy(() => import('./pages/racepic/StudioPage'));
+const StudioLicensesPage = lazy(() => import('./pages/racepic/StudioLicensesPage'));
+const RacePicCartWidget = lazy(() => import('@/components/racepic/RacePicCartWidget').then((module) => ({ default: module.RacePicCartWidget })));
+const racePicRoute = (element: ReactNode) => <Suspense fallback={null}>{element}</Suspense>;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -89,7 +92,7 @@ const App = () => (
             <BrowserRouter>
               <ScrollToTop />
               <AnalyticsManager />
-              <RacePicCartWidget />
+              {racePicEnabled && <Suspense fallback={null}><RacePicCartWidget /></Suspense>}
               <Routes>
               {/* Main Pages */}
               <Route path="/" element={<Index />} />
@@ -132,25 +135,27 @@ const App = () => (
                   brauch es ja aber nicht ... weil das ja über Filter gemacht werden soll") -
                   das Filtern nach Event passiert jetzt clientseitig auf der Startseite
                   (RacePicHomePage, "?event=<slug>"). */}
-              <Route path="/racepic" element={<RacePicHomePage />} />
+              {racePicEnabled ? <>
+              <Route path="/racepic" element={racePicRoute(<RacePicHomePage />)} />
               {/* Fotografenprofil (Paket 12) - vor "/racepic/:eventSlug/:participantKey"
                   registriert, aber die Reihenfolge ist irrelevant: React Router v6 bevorzugt
                   ohnehin das statische Segment "fotografen" vor einem dynamischen Segment, siehe
                   Studio-Kommentar unten für dasselbe Prinzip. */}
-              <Route path="/racepic/fotografen/:slug" element={<RacePicPhotographerPage />} />
-              <Route path="/racepic/:eventSlug/:participantKey" element={<RacePicParticipantPage />} />
+              <Route path="/racepic/fotografen/:slug" element={racePicRoute(<RacePicPhotographerPage />)} />
+              <Route path="/racepic/:eventSlug/:participantKey" element={racePicRoute(<RacePicParticipantPage />)} />
 
               {/* RacePic Studio (Fotograf:innen, Paket 2b) - bewusst nicht in der Hauptnavigation
                   und nicht in der Sitemap, siehe docs/memory-bank/racepic-progress.md. React
                   Router v6 bevorzugt statische vor dynamischen Segmenten, daher kollidiert
                   "/racepic/studio" nicht mit "/racepic/:eventSlug/:participantKey" oben. */}
-              <Route path="/racepic/studio/einladung/:token" element={<StudioInvitationPage />} />
-              <Route path="/racepic/studio/login" element={<StudioLoginPage />} />
-              <Route path="/racepic/studio/registrieren" element={<StudioRegisterPage />} />
-              <Route path="/racepic/studio/bedingungen" element={<StudioTermsPage />} />
-              <Route path="/racepic/studio/passwort-vergessen" element={<StudioPasswordResetPage />} />
-              <Route path="/racepic/studio/lizenzen" element={<StudioLicensesPage />} />
-              <Route path="/racepic/studio" element={<StudioPage />} />
+              <Route path="/racepic/studio/einladung/:token" element={racePicRoute(<StudioInvitationPage />)} />
+              <Route path="/racepic/studio/login" element={racePicRoute(<StudioLoginPage />)} />
+              <Route path="/racepic/studio/registrieren" element={racePicRoute(<StudioRegisterPage />)} />
+              <Route path="/racepic/studio/bedingungen" element={racePicRoute(<StudioTermsPage />)} />
+              <Route path="/racepic/studio/passwort-vergessen" element={racePicRoute(<StudioPasswordResetPage />)} />
+              <Route path="/racepic/studio/lizenzen" element={racePicRoute(<StudioLicensesPage />)} />
+              <Route path="/racepic/studio" element={racePicRoute(<StudioPage />)} />
+              </> : <Route path="/racepic/*" element={<NotFound />} />}
 
               {/* Admin Pages */}
               <Route path="/admin/login" element={<LoginPage />} />

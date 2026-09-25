@@ -1,7 +1,16 @@
 <!-- Nur die Architektur (racepic-architecture.md) wird 1:1 in allen 3 Repos synchron gehalten. Diese Fortschrittsdatei ist repo-spezifisch und listet nur die Arbeitspakete, die in msc-website passieren. -->
 # RacePic – Fortschritt (msc-website)
 
-**Stand:** 2026-09-22 · Architektur: [racepic-architecture.md](./racepic-architecture.md) · Offene Punkte (konsolidiert): [racepic-open-items.md](./racepic-open-items.md) · Lizenzen: [../racepic/licenses.md](../racepic/licenses.md)
+**Stand:** 2026-09-25 · Architektur: [racepic-architecture.md](./racepic-architecture.md) · Offene Punkte (konsolidiert): [racepic-open-items.md](./racepic-open-items.md) · Lizenzen: [../racepic/licenses.md](../racepic/licenses.md)
+
+## Gesamt-Review 2026-09-25
+
+- RacePic ist standardmäßig per `VITE_ENABLE_RACEPIC=false` deaktiviert; Navigation, Routen und Warenkorb werden nur bei expliziter Freigabe geladen.
+- CDN-Manifeste und Download-Antworten werden mit Zod validiert; Markdown/HTML-Ausgabe wird sanitisiert und Security-Header sind für das Hosting dokumentiert.
+- Registrierung und Einladung lesen die kanonische Terms-Version aus `GET /public/racepic/config`.
+- Der Uploader unterstützt Abort, sicheren Retry, serverseitiges Multipart-Resume und vermeidet verlorene Queue-Einträge durch synchron gehaltene Refs.
+- Warenkorb-/Merkliste validieren gespeicherten Browserzustand. Sammeldownloads werden als bewusste Einzellinks angeboten, statt mehrere Popup-Downloads zu erzwingen.
+- Lokal verifiziert: Typecheck, 21 Tests und Produktions-Build erfolgreich. Der repositoryweite Lint bleibt wegen bereits vorhandener, RacePic-fremder Fehler offen; Regeln wurden nicht abgeschwächt.
 
 ## Arbeitspakete in diesem Repo
 

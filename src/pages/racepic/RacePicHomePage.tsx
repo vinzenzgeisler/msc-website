@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, Search, X } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -151,7 +151,7 @@ export default function RacePicHomePage() {
 
   const isSearching = submittedQuery.trim().length > 0;
 
-  const loadMore = async () => {
+  const loadMore = useCallback(async () => {
     if (pagePending || !discoverIndex || loadedPage >= discoverIndex.pageCount) return;
     setPagePending(true);
     try {
@@ -161,7 +161,7 @@ export default function RacePicHomePage() {
       setLoadedPage(nextPage);
     } catch { setError(true); }
     finally { setPagePending(false); }
-  };
+  }, [discoverIndex, loadedPage, pagePending]);
 
   // Ein Event kann auf Seite 1 der globalen Entdeckung fehlen. Beim Filtern so lange
   // nachladen, bis Bilder dieses Events sichtbar sind oder alle Seiten geprüft wurden.
@@ -169,7 +169,7 @@ export default function RacePicHomePage() {
     if (selectedEventSlug && discover && visibleDiscover.length === 0 && !pagePending && discoverIndex && loadedPage < discoverIndex.pageCount) {
       void loadMore();
     }
-  }, [selectedEventSlug, discover, visibleDiscover.length, pagePending, discoverIndex, loadedPage]);
+  }, [selectedEventSlug, discover, visibleDiscover.length, pagePending, discoverIndex, loadedPage, loadMore]);
 
   return (
     <MainLayout
