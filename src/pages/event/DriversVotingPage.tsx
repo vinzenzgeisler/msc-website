@@ -21,13 +21,6 @@ const jumpCopy = {
   pl: 'Przejdź do głosowania'
 } as const;
 
-const resultJumpCopy = {
-  de: 'Direkt zu den Ergebnissen',
-  en: 'Jump to the results',
-  cz: 'Přejít přímo k výsledkům',
-  pl: 'Przejdź do wyników'
-} as const;
-
 export default function DriversVotingPage() {
   const { locale } = useLanguage();
   const { data: event } = useMainEvent();
@@ -38,5 +31,5 @@ export default function DriversVotingPage() {
   const activeClassIds = phase === 'live' ? live.current?.backend_class_ids ?? [] : [];
   const postEvent = phase === 'post';
   const pageCopy = copy[locale];
-  return <MainLayout title={postEvent ? pageCopy.resultsTitle : pageCopy.title} description={postEvent ? pageCopy.resultsDescription : pageCopy.description} canonicalPath="/event/fahrer"><EventSubnav phase={phase}/><div className="container max-w-5xl space-y-6 py-8 md:space-y-10 md:py-12"><div className="flex justify-end"><a href="#publikumsvoting" className="text-sm font-semibold text-primary hover:underline">{postEvent ? resultJumpCopy[locale] : jumpCopy[locale]} →</a></div><HighlightsSection classIds={activeClassIds} compact/><VotingSection priorityClassIds={activeClassIds} mode={postEvent ? 'results' : 'interactive'}/></div></MainLayout>;
+  return <MainLayout title={postEvent ? pageCopy.resultsTitle : pageCopy.title} description={postEvent ? pageCopy.resultsDescription : pageCopy.description} canonicalPath="/event/fahrer"><EventSubnav phase={phase}/><div className="container max-w-5xl space-y-6 py-8 md:space-y-10 md:py-12">{!postEvent && <div className="flex justify-end"><a href="#publikumsvoting" className="text-sm font-semibold text-primary hover:underline">{jumpCopy[locale]} →</a></div>}<HighlightsSection classIds={activeClassIds} compact/><VotingSection priorityClassIds={activeClassIds} mode={postEvent ? 'results' : 'interactive'}/></div></MainLayout>;
 }

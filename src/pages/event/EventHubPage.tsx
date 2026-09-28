@@ -12,7 +12,7 @@ import { useMainEvent } from "@/hooks/useMainEvent";
 import { useEventContent } from "@/hooks/useEventContent";
 import { useEventLiveNotices } from "@/hooks/useEventHub";
 import { EventSubnav } from "@/components/event/EventSubnav";
-import { AftermovieButton } from "@/components/event/AftermovieDialog";
+import { AftermoviePlayer } from "@/components/event/AftermovieDialog";
 import { EventFeatureNudge, EventFeatureTeasers } from "@/components/event/EventFeatureTeasers";
 import { HighlightsSection } from "@/components/event/highlights/HighlightsSection";
 import { DayScheduleBlocks } from "@/components/event/schedule/DayScheduleBlocks";
@@ -20,6 +20,7 @@ import { useDownloads } from "@/hooks/useDownloads";
 import { useSponsors } from "@/hooks/useSponsors";
 import { MainSponsorMarquee } from "@/components/sponsors/SponsorDisplays";
 import { useMediaAlbums, useMediaFiles } from "@/hooks/useMedia";
+import { usePosts } from "@/hooks/usePosts";
 import {
   useContentWithFallback,
   useSectionContent,
@@ -28,6 +29,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { getDateFnsLocale, localize } from "@/i18n/locale-utils";
 import { parseSelectedDownloadIds } from "@/lib/download-selection";
+import { getSafeTimestamp } from "@/lib/date";
 import {
   formatCountdown,
   resolveEventPhase,
@@ -51,6 +53,7 @@ import {
   Info,
   Map,
   MapPin,
+  Newspaper,
   Route,
   ShieldCheck,
   Sparkles,
@@ -144,6 +147,7 @@ export default function EventHubPage() {
   const { data: sponsors } = useSponsors();
   const { data: settings } = useSettings();
   const { data: albums } = useMediaAlbums();
+  const { data: posts } = usePosts();
   const { data: selectedDownloadsContent } = useSectionContent(
     "event",
     "downloads",
@@ -191,6 +195,12 @@ export default function EventHubPage() {
   const mainSponsors = (sponsors || []).filter(
     (item) => item.active && item.tier === "main",
   );
+  const latestEventPost = [...(posts || [])]
+    .filter((post) => post.status === "published" && post.category === "event")
+    .sort(
+      (a, b) =>
+        getSafeTimestamp(b.display_date) - getSafeTimestamp(a.display_date),
+    )[0];
   const selectedIds = parseSelectedDownloadIds(
     selectedDownloadsContent?.content,
   );
@@ -205,10 +215,74 @@ export default function EventHubPage() {
     `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event?.location || "Oberlausitzer Dreieck")}`;
   const dateLocale = getDateFnsLocale(locale);
   const postCopy = localize(locale, {
-    de: { description: "Danke an alle Fahrer, Helfer, Partner und Besucher. Erlebt das 12. Oberlausitzer Dreieck im Aftermovie noch einmal und entdeckt Fahrer, Fahrzeuge und die Ergebnisse des Publikumsvotings.", results: "Fahrer & Ergebnisse", allResults: "Fahrer & Voting-Ergebnisse", driversKicker: "Rückblick", driversTitle: "Fahrer & Fahrzeuge", driversText: "Entdeckt ausgewählte Teilnehmer, ihre Fahrzeuge und die Gewinner des Publikumsvotings." },
-    en: { description: "Thank you to every driver, volunteer, partner and visitor. Relive the 12th Oberlausitzer Dreieck in our aftermovie and discover the drivers, vehicles and audience vote results.", results: "Drivers & results", allResults: "Drivers & voting results", driversKicker: "Review", driversTitle: "Drivers & vehicles", driversText: "Discover selected participants, their vehicles and the audience vote winners." },
-    cz: { description: "Děkujeme všem jezdcům, pomocníkům, partnerům a návštěvníkům. Připomeňte si 12. Oberlausitzer Dreieck v aftermovie a objevte jezdce, vozidla a výsledky hlasování diváků.", results: "Jezdci a výsledky", allResults: "Jezdci a výsledky hlasování", driversKicker: "Ohlédnutí", driversTitle: "Jezdci a vozidla", driversText: "Objevte vybrané účastníky, jejich vozidla a vítěze diváckého hlasování." },
-    pl: { description: "Dziękujemy wszystkim kierowcom, pomocnikom, partnerom i gościom. Przeżyjcie ponownie 12. Oberlausitzer Dreieck w aftermovie i poznajcie kierowców, pojazdy oraz wyniki głosowania publiczności.", results: "Kierowcy i wyniki", allResults: "Kierowcy i wyniki głosowania", driversKicker: "Podsumowanie", driversTitle: "Kierowcy i pojazdy", driversText: "Poznajcie wybranych uczestników, ich pojazdy i zwycięzców głosowania publiczności." },
+    de: {
+      description: "Rund 265 Nennungen und etwa 3.700 Zuschauer machten das 12. Oberlausitzer Dreieck erneut zu einem großen Motorsportwochenende.",
+      results: "Fahrer & Ergebnisse",
+      allResults: "Fahrer & Voting-Ergebnisse",
+      overviewKicker: "Rückblick 2026",
+      overviewTitle: "Ein Wochenende, das in Erinnerung bleibt",
+      overviewParagraphs: [
+        "Mit rund 265 Nennungen einschließlich der Doppelstarter durften wir ein großes und vielfältiges Teilnehmerfeld begrüßen. Trotz des wechselhaften Wetters kamen über das Wochenende etwa 3.700 Zuschauer an die Strecke.",
+        "Ein neues Nennungstool, digitale Abläufe im Organisationsbüro und die technische Abnahme per QR-Code machten viele Wege vor Ort schneller. Möglich wurde das Wochenende durch den Einsatz unserer Helfer, Streckenposten, Rettungs- und Einsatzkräfte sowie unserer Partner.",
+        "Der Sonntagnachmittag wurde von einem schweren Unfall mit Todesfolge überschattet. Die Veranstaltung wurde daraufhin beendet. Unsere Gedanken und unser tiefes Mitgefühl gelten den Angehörigen, Freunden und Wegbegleitern des Verstorbenen.",
+      ],
+      aftermovieKicker: "Filmischer Rückblick",
+      aftermovieTitle: "Das Aftermovie 2026",
+      aftermovieText: "Momente von der Strecke, aus den Fahrerlagern und von den Menschen, die das Oberlausitzer Dreieck möglich machen.",
+      pressLabel: "Offizielle Mitteilung",
+      pressCta: "Pressemitteilung lesen",
+    },
+    en: {
+      description: "Around 265 entries and some 3,700 spectators made the 12th Oberlausitzer Dreieck another major motorsport weekend.",
+      results: "Drivers & results",
+      allResults: "Drivers & voting results",
+      overviewKicker: "2026 review",
+      overviewTitle: "A weekend that will stay with us",
+      overviewParagraphs: [
+        "With around 265 entries including double starters, we welcomed a large and varied field. Despite changeable weather, some 3,700 spectators visited the course over the weekend.",
+        "A new entry tool, digital processes in the event office and QR-based technical scrutineering made many procedures quicker. The weekend was made possible by our volunteers, marshals, emergency services and partners.",
+        "Sunday afternoon was overshadowed by a serious accident in which a participant lost his life. The event was subsequently ended. Our thoughts and deepest sympathy are with his family, friends and companions.",
+      ],
+      aftermovieKicker: "Film review",
+      aftermovieTitle: "The 2026 aftermovie",
+      aftermovieText: "Moments from the course, the paddocks and the people who make the Oberlausitzer Dreieck possible.",
+      pressLabel: "Official statement",
+      pressCta: "Read the press release",
+    },
+    cz: {
+      description: "Přibližně 265 přihlášek a kolem 3 700 diváků udělalo z 12. ročníku Oberlausitzer Dreieck opět velký motoristický víkend.",
+      results: "Jezdci a výsledky",
+      allResults: "Jezdci a výsledky hlasování",
+      overviewKicker: "Ohlédnutí za rokem 2026",
+      overviewTitle: "Víkend, který zůstane v paměti",
+      overviewParagraphs: [
+        "S přibližně 265 přihláškami včetně dvojitých startů jsme přivítali velké a pestré startovní pole. Navzdory proměnlivému počasí dorazilo během víkendu ke trati přibližně 3 700 diváků.",
+        "Nový přihlašovací nástroj, digitální procesy v organizační kanceláři a technická přejímka pomocí QR kódu mnohé urychlily. Víkend umožnilo nasazení dobrovolníků, traťových komisařů, záchranných složek a partnerů.",
+        "Nedělní odpoledne zastínila vážná nehoda, při níž jeden z účastníků zemřel. Akce byla následně ukončena. Naše myšlenky a hluboká soustrast patří jeho rodině, přátelům a blízkým.",
+      ],
+      aftermovieKicker: "Filmové ohlédnutí",
+      aftermovieTitle: "Aftermovie 2026",
+      aftermovieText: "Okamžiky z trati, depa a od lidí, kteří umožňují konání Oberlausitzer Dreieck.",
+      pressLabel: "Oficiální prohlášení",
+      pressCta: "Přečíst tiskovou zprávu",
+    },
+    pl: {
+      description: "Około 265 zgłoszeń i blisko 3700 widzów sprawiło, że 12. Oberlausitzer Dreieck ponownie stał się wielkim weekendem motorsportowym.",
+      results: "Kierowcy i wyniki",
+      allResults: "Kierowcy i wyniki głosowania",
+      overviewKicker: "Podsumowanie 2026",
+      overviewTitle: "Weekend, który pozostanie w pamięci",
+      overviewParagraphs: [
+        "Przy około 265 zgłoszeniach, w tym podwójnych startach, powitaliśmy duże i różnorodne grono uczestników. Pomimo zmiennej pogody trasę odwiedziło w weekend około 3700 widzów.",
+        "Nowe narzędzie zgłoszeniowe, cyfrowe procesy w biurze organizacyjnym i odbiór techniczny za pomocą kodu QR przyspieszyły wiele działań. Weekend był możliwy dzięki pracy wolontariuszy, sędziów, służb ratunkowych i partnerów.",
+        "Niedzielne popołudnie zostało przyćmione przez poważny wypadek, w którym zginął uczestnik. Wydarzenie zostało następnie zakończone. Nasze myśli i najgłębsze wyrazy współczucia kierujemy do rodziny, przyjaciół i bliskich zmarłego.",
+      ],
+      aftermovieKicker: "Filmowe podsumowanie",
+      aftermovieTitle: "Aftermovie 2026",
+      aftermovieText: "Chwile z trasy, paddocków i spotkania z ludźmi, dzięki którym Oberlausitzer Dreieck jest możliwy.",
+      pressLabel: "Oficjalny komunikat",
+      pressCta: "Przeczytaj komunikat prasowy",
+    },
   });
   const dateText = event
     ? `${format(new Date(event.start_dt), "d.", { locale: dateLocale })}/${format(new Date(event.end_dt || event.start_dt), "d. MMMM yyyy", { locale: dateLocale })}`
@@ -315,7 +389,7 @@ export default function EventHubPage() {
       )}
       <section className="relative min-h-[460px] overflow-hidden bg-[#111827] text-white md:min-h-[500px]">
         <img
-          src={phase === "post" ? "/media/aftermovie-2026-poster.webp" : "https://backend.msc-oberlausitz.de/api/files/pbc_2526955808/t48pa6itcliieot/whats_app_image_2026_08_07_at_10_00_93mecy9y97.532.jpeg"}
+          src="https://backend.msc-oberlausitz.de/api/files/pbc_2526955808/t48pa6itcliieot/whats_app_image_2026_08_07_at_10_00_93mecy9y97.532.jpeg"
           alt="Motorräder auf der Strecke des Oberlausitzer Dreiecks"
           className="absolute inset-0 h-full w-full object-cover object-[45%_center] md:object-[50%_58%]"
         />
@@ -356,20 +430,14 @@ export default function EventHubPage() {
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 {phase === "post" ? (
-                  <>
-                    <AftermovieButton
-                      variant="outline"
-                      className="border-2 border-white/50 bg-black/20 text-white hover:border-white hover:bg-white hover:text-black"
-                    />
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="border-white/60 bg-black/20 text-white hover:bg-white hover:text-black"
-                      asChild
-                    >
-                      <Link to="/event/fahrer#publikumsvoting">{postCopy.results}</Link>
-                    </Button>
-                  </>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-white/60 bg-black/20 text-white hover:bg-white hover:text-black"
+                    asChild
+                  >
+                    <Link to="/event/fahrer#publikumsvoting">{postCopy.results}</Link>
+                  </Button>
                 ) : (
                   <>
                     <Button
@@ -516,15 +584,73 @@ export default function EventHubPage() {
         </div>
       </nav>}
       <EventSubnav phase={phase} />
+      {phase === "post" && (
+        <section className="py-12 md:py-20">
+          <div className={`container max-w-5xl ${latestEventPost ? "grid gap-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-start" : ""}`}>
+            <div>
+              <SectionHeading
+                kicker={postCopy.overviewKicker}
+                title={postCopy.overviewTitle}
+              />
+              <div className="space-y-4 text-base leading-relaxed text-muted-foreground md:text-lg">
+                {postCopy.overviewParagraphs.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
+            </div>
+            {latestEventPost && (
+              <Link
+                to={`/news/${latestEventPost.slug}`}
+                className="group overflow-hidden border border-border bg-card transition-colors hover:border-primary"
+              >
+                {latestEventPost.image_url && (
+                  <div className="aspect-[16/9] overflow-hidden bg-muted">
+                    <img
+                      src={latestEventPost.image_url}
+                      alt={latestEventPost.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+                <div className="p-5 md:p-6">
+                  <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
+                    <Newspaper className="h-4 w-4" /> {postCopy.pressLabel}
+                  </p>
+                  <h3 className="mt-3 text-xl font-black leading-tight group-hover:text-primary">
+                    {latestEventPost.title}
+                  </h3>
+                  {latestEventPost.excerpt && (
+                    <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-muted-foreground">
+                      {latestEventPost.excerpt}
+                    </p>
+                  )}
+                  <span className="mt-5 inline-flex items-center text-sm font-semibold text-primary">
+                    {postCopy.pressCta} <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </div>
+              </Link>
+            )}
+          </div>
+        </section>
+      )}
+      {phase === "post" && (
+        <section id="aftermovie" className="bg-[#111827] py-12 text-white md:py-20">
+          <div className="container max-w-5xl">
+            <SectionHeading
+              kicker={postCopy.aftermovieKicker}
+              title={postCopy.aftermovieTitle}
+              invert
+            />
+            <p className="-mt-4 mb-7 max-w-2xl text-white/70 md:-mt-6 md:mb-9 md:text-lg">
+              {postCopy.aftermovieText}
+            </p>
+            <AftermoviePlayer className="border border-white/15 shadow-2xl" />
+          </div>
+        </section>
+      )}
       {phase !== "post" && <EventFeatureTeasers />}
       <div className={`container max-w-5xl ${phase === "post" ? "py-10 md:py-14" : "py-6 md:py-8"}`}>
-        {phase === "post" && (
-          <div className="mb-6 max-w-2xl">
-            <p className="text-sm font-semibold text-primary">{postCopy.driversKicker}</p>
-            <h2 className="mt-2 text-3xl font-black">{postCopy.driversTitle}</h2>
-            <p className="mt-3 text-muted-foreground">{postCopy.driversText}</p>
-          </div>
-        )}
         <HighlightsSection classIds={phase === "live" ? live.current?.backend_class_ids ?? [] : []} />
         {phase === "post" && (
           <div className="mt-6 flex">

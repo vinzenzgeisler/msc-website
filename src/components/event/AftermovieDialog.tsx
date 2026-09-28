@@ -13,25 +13,11 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { localize } from '@/i18n/locale-utils';
 
 const YOUTUBE_URL = 'https://youtu.be/PLvxsLHZ4nk';
-const YOUTUBE_EMBED_URL = 'https://www.youtube-nocookie.com/embed/PLvxsLHZ4nk?autoplay=1&rel=0';
+const YOUTUBE_EMBED_URL = 'https://www.youtube-nocookie.com/embed/PLvxsLHZ4nk';
 
-interface AftermovieButtonProps {
-  className?: string;
-  label?: string;
-  size?: ButtonProps['size'];
-  variant?: ButtonProps['variant'];
-}
-
-export function AftermovieButton({
-  className,
-  label,
-  size = 'lg',
-  variant = 'default',
-}: AftermovieButtonProps) {
+function useAftermovieCopy() {
   const { locale } = useLanguage();
-  const { preferences, savePreferences } = useConsent();
-  const [open, setOpen] = useState(false);
-  const copy = localize(locale, {
+  return localize(locale, {
     de: {
       button: 'Aftermovie ansehen',
       title: 'Aftermovie · 12. Oberlausitzer Dreieck',
@@ -56,7 +42,7 @@ export function AftermovieButton({
       description: 'Podívejte se na celé aftermovie se zvukem na YouTube.',
       consentTitle: 'Načíst video z YouTube',
       consentText: 'Připojení k YouTube bude navázáno až po vašem souhlasu. Data mohou být předána společnosti Google.',
-      consentButton: 'Povolit externí média a spustit video',
+      consentButton: 'Povolit externí média a spustit film',
       external: 'Otevřít na YouTube',
     },
     pl: {
@@ -69,10 +55,86 @@ export function AftermovieButton({
       external: 'Otwórz w YouTube',
     },
   });
+}
+
+export function AftermoviePlayer({
+  autoPlay = false,
+  className = '',
+}: {
+  autoPlay?: boolean;
+  className?: string;
+}) {
+  const { preferences, savePreferences } = useConsent();
+  const copy = useAftermovieCopy();
 
   const allowExternalMedia = () => {
     savePreferences({ ...preferences, externalMedia: true });
   };
+
+  return (
+    <div className={`relative aspect-video overflow-hidden bg-slate-950 ${className}`}>
+      {preferences.externalMedia ? (
+        <iframe
+          src={`${YOUTUBE_EMBED_URL}?${autoPlay ? 'autoplay=1&' : ''}rel=0`}
+          title={copy.title}
+          className="absolute inset-0 h-full w-full"
+          allow="accelerometer; autoplay; encrypted-media; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+        />
+      ) : (
+        <>
+          <img
+            src="/media/aftermovie-2026-poster.webp"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover opacity-55"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/20" />
+          <div className="relative flex h-full flex-col items-center justify-center px-5 text-center">
+            <span className="mb-4 grid h-14 w-14 place-items-center rounded-full bg-accent text-accent-foreground shadow-xl">
+              <Play className="h-6 w-6 fill-current" />
+            </span>
+            <h2 className="text-xl font-black sm:text-3xl">{copy.consentTitle}</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/75 sm:text-base">
+              {copy.consentText}
+            </p>
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+              <Button type="button" onClick={allowExternalMedia}>
+                {copy.consentButton}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="border-white/40 bg-black/20 text-white hover:bg-white hover:text-black"
+                asChild
+              >
+                <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer">
+                  {copy.external} <ExternalLink />
+                </a>
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+interface AftermovieButtonProps {
+  className?: string;
+  label?: string;
+  size?: ButtonProps['size'];
+  variant?: ButtonProps['variant'];
+}
+
+export function AftermovieButton({
+  className,
+  label,
+  size = 'lg',
+  variant = 'default',
+}: AftermovieButtonProps) {
+  const [open, setOpen] = useState(false);
+  const copy = useAftermovieCopy();
 
   return (
     <>
@@ -92,51 +154,7 @@ export function AftermovieButton({
             <DialogTitle>{copy.title}</DialogTitle>
             <DialogDescription>{copy.description}</DialogDescription>
           </DialogHeader>
-          <div className="relative aspect-video overflow-hidden bg-slate-950">
-            {preferences.externalMedia ? (
-              <iframe
-                src={YOUTUBE_EMBED_URL}
-                title={copy.title}
-                className="absolute inset-0 h-full w-full"
-                allow="accelerometer; autoplay; encrypted-media; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              />
-            ) : (
-              <>
-                <img
-                  src="/media/aftermovie-2026-poster.webp"
-                  alt=""
-                  className="absolute inset-0 h-full w-full object-cover opacity-55"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/20" />
-                <div className="relative flex h-full flex-col items-center justify-center px-5 text-center">
-                  <span className="mb-4 grid h-14 w-14 place-items-center rounded-full bg-accent text-accent-foreground shadow-xl">
-                    <Play className="h-6 w-6 fill-current" />
-                  </span>
-                  <h2 className="text-xl font-black sm:text-3xl">{copy.consentTitle}</h2>
-                  <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/75 sm:text-base">
-                    {copy.consentText}
-                  </p>
-                  <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-                    <Button type="button" onClick={allowExternalMedia}>
-                      {copy.consentButton}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="border-white/40 bg-black/20 text-white hover:bg-white hover:text-black"
-                      asChild
-                    >
-                      <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer">
-                        {copy.external} <ExternalLink />
-                      </a>
-                    </Button>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+          <AftermoviePlayer autoPlay />
         </DialogContent>
       </Dialog>
     </>
