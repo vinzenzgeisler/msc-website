@@ -206,3 +206,12 @@ Dies ist Feature-Branch-Arbeit. Lokal erfolgreich: TypeScript-Typechecks der Web
 ## Marketplace-/Checkout-Plan (2026-09-25)
 
 Der vollständige Plan ist in [racepic-marketplace-checkout-plan.md](./racepic-marketplace-checkout-plan.md) dokumentiert. Dieses Repo übernimmt Shopkatalog, serverautorisierten Warenkorb/Quote, Hosted-Checkout-Übergabe, Gastzugriff, passwortloses Käuferkonto, Käuferportal und den FREE→PAID-Antrag im Fotografenstudio. Die vorhandene Warenkorb-/Konto-UI ist weiterhin nur Vorbereitung; Stripe, Buyer-Backend und PAID-Verkauf sind noch nicht implementiert oder aktiviert.
+
+## Commerce: FREE→PAID-Antrag und Preisanzeige (Branch `feature/racepic/commerce-conversion-ui`)
+
+Stand 2026-09-28, nichts deployt, im Browser nicht gegen ein echtes Backend geprüft:
+
+- **Studio:** `StudioImagesPanel` bietet die Auswahl veröffentlichter, kostenloser Bilder und den Dialog `StudioConversionDialog` (Preisstufe 5/10/15/20 €, kostenpflichtige Lizenz, Rechtebestätigung, Idempotency-Key pro Antragsversuch) sowie eine Liste der Anträge mit Status und Hinweis bei Ablehnung. Sichtbar nur, wenn `GET /public/racepic/config` `commerce.commerceFreeToPaidConversion = true` liefert (kein eigenes `VITE_ENABLE_*`; Abweichung vom Plan). Der Text der Rechtebestätigung ist vorläufig (AP00); bei einer Änderung `CONVERSION_RIGHTS_VERSION` im Backend anpassen.
+- **Galerie:** Das Manifest-Schema kennt `offer { mode, priceCents, currency }` (optional, ältere Manifeste = kostenlos). Der Bilddialog zeigt bei PAID Preis und „Der Kauf ist noch nicht verfügbar“ statt Download und Warenkorb-Button; der Preis ist nur ein Anzeigewert, ohne Steuerhinweis. Der Warenkorb-Download überspringt Bilder, die der Server mit 402 ablehnt, und zeigt einen Hinweis. Texte in DE/CZ/EN/PL.
+- **Warenkorb:** speichert weiterhin nur `imageId`, `eventSlug` und `thumbUrl` (keine Preise, keine Angebotsdaten). Das erfüllt bereits die Regel „Client speichert IDs, niemals autoritative Preise“; eine Schema-Migration war nicht nötig (Abweichung vom Plan, der eine Reduktion vorsah). Der Discover-Feed trägt noch kein `offer`.
+- **Tests und Prüfungen:** `src/integrations/racepic/commerce.test.ts` (Formatierung, Manifest-Schema, API-Aufruf mit Idempotency-Key, Fehlermeldungen). `vitest run`, `tsc -b` und `vite build` (in ein Scratch-Verzeichnis) laufen durch, ESLint für die geänderten Ordner ist sauber. `npm run build` mit den Social-/Sitemap-Skripten wurde bewusst nicht ausgeführt, weil die Skripte die unabhängigen, uncommitteten Dateien im Arbeitsbaum berühren könnten.

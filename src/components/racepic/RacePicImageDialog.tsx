@@ -4,7 +4,8 @@ import { Bookmark, Check, Download, Loader2, ShoppingBag } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useRacePicCart } from '@/integrations/racepic/cart-context';
-import { fetchImageDetail, requestDownload, toCdnUrl, type RacePicImageDetail } from '@/integrations/racepic/publicClient';
+import { fetchImageDetail, isPaidImage, requestDownload, toCdnUrl, type RacePicImageDetail } from '@/integrations/racepic/publicClient';
+import { formatEuroCents } from '@/integrations/racepic/format';
 import { useRacePicText } from '@/i18n/racepic';
 import { useLanguage } from '@/i18n/LanguageContext';
 
@@ -49,6 +50,9 @@ export function RacePicImageDialog({ selected, onSelect, onClose }: {
   };
 
   const image = detail?.image;
+  // Kostenpflichtige Bilder: nur Anzeige. Bis zum Checkout gibt es weder Download noch Warenkorb dafuer; der Server
+  // lehnt den Download ohnehin ab (402), der Preis im Manifest ist nur ein Anzeigewert.
+  const paid = image ? isPaidImage(image) : false;
   return (
     <Dialog open={selected !== null} onOpenChange={(open) => { if (!open) onClose(); }}>
       {/* Nutzerwunsch 2026-09-23: "hätte das Fenster ja gerne fullscreen, jetzt ist noch oben
@@ -81,15 +85,24 @@ export function RacePicImageDialog({ selected, onSelect, onClose }: {
                     <Bookmark className="mr-2 h-4 w-4" fill={cart.isSaved(image.imageId) ? 'currentColor' : 'none'} />
                     {cart.isSaved(image.imageId) ? t.saved : t.save}
                   </Button>
-                  <Button variant="outline" onClick={() => cart.has(image.imageId) ? cart.removeItem(image.imageId) : cart.addItem({ imageId: image.imageId, eventSlug: detail.eventSlug, thumbUrl: image.thumbUrl })}>
-                    {cart.has(image.imageId) ? <Check className="mr-2 h-4 w-4" /> : <ShoppingBag className="mr-2 h-4 w-4" />}
-                    {cart.has(image.imageId) ? t.inCart : t.addToCart}
-                  </Button>
+                  {!paid && (
+                    <Button variant="outline" onClick={() => cart.has(image.imageId) ? cart.removeItem(image.imageId) : cart.addItem({ imageId: image.imageId, eventSlug: detail.eventSlug, thumbUrl: image.thumbUrl })}>
+                      {cart.has(image.imageId) ? <Check className="mr-2 h-4 w-4" /> : <ShoppingBag className="mr-2 h-4 w-4" />}
+                      {cart.has(image.imageId) ? t.inCart : t.addToCart}
+                    </Button>
+                  )}
                 </div>
-                <Button className="w-full" disabled={downloading} onClick={download}>
-                  {downloading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-                  {t.freeDownload}
-                </Button>
+                {paid ? (
+                  <div className="rounded-lg border p-3 text-sm">
+                    <p className="font-semibold">{t.paidBadge}{image.offer?.priceCents ? ` · ${t.price} ${formatEuroCents(image.offer.priceCents, locale)}` : ''}</p>
+                    <p className="mt-1 text-muted-foreground">{t.paidNotAvailable}</p>
+                  </div>
+                ) : (
+                  <Button className="w-full" disabled={downloading} onClick={download}>
+                    {downloading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+                    {t.freeDownload}
+                  </Button>
+                )}
                 <dl className="space-y-3 border-t pt-4 text-sm">
                   <div><dt className="text-muted-foreground">{t.photographer}</dt><dd className="font-medium">{image.photographer.slug ? <Link className="hover:underline" to={`/racepic/fotografen/${image.photographer.slug}`} onClick={onClose}>{image.photographer.displayName}</Link> : image.photographer.displayName}</dd></div>
                   <div><dt className="text-muted-foreground">{t.license}</dt><dd>{image.license.title[locale] || image.license.title.de || image.license.code}{image.license.attributionRequired ? ` · ${t.attribution}` : ''}</dd></div>

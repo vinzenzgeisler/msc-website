@@ -4,7 +4,7 @@ import { Download, Loader2, ShoppingBag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useRacePicCart } from '@/integrations/racepic/cart-context';
-import { requestDownload, toCdnUrl } from '@/integrations/racepic/publicClient';
+import { RacePicPublicError, requestDownload, toCdnUrl } from '@/integrations/racepic/publicClient';
 import { useRacePicText } from '@/i18n/racepic';
 
 /**
@@ -28,10 +28,18 @@ export function RacePicCartWidget() {
     setDownloading(true);
     setError('');
     try {
+      let skippedPaid = false;
       for (const item of items) {
-        const result = await requestDownload(item.imageId, 'medium');
-        setPreparedDownloads((current) => ({ ...current, [item.imageId]: result.url }));
+        try {
+          const result = await requestDownload(item.imageId, 'medium');
+          setPreparedDownloads((current) => ({ ...current, [item.imageId]: result.url }));
+        } catch (itemError) {
+          // 402: das Bild ist inzwischen kostenpflichtig (z. B. nach einer Preisumstellung) und noch nicht kaeuflich.
+          if (itemError instanceof RacePicPublicError && itemError.status === 402) skippedPaid = true;
+          else throw itemError;
+        }
       }
+      if (skippedPaid) setError(t.paidSkippedInCart);
     } catch {
       setError(t.downloadError);
     } finally {

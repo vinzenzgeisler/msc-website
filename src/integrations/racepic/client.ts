@@ -39,7 +39,15 @@ async function requestJson<T>(path: string, init?: RequestInit & { auth?: boolea
 
 export { RacePicApiError };
 
-export type RacePicPublicConfig = { enabled: boolean; photographerTermsVersion: string };
+// Commerce-Feature-Flags des Backends (Marketplace-Plan Abschnitt 11). Fehlen sie (aelteres Backend), gilt alles als aus.
+export type RacePicCommerceFlags = {
+  commerceBuyerAccounts: boolean;
+  commercePaidOffers: boolean;
+  commerceCheckout: boolean;
+  commerceSettlement: boolean;
+  commerceFreeToPaidConversion: boolean;
+};
+export type RacePicPublicConfig = { enabled: boolean; photographerTermsVersion: string; commerce?: Partial<RacePicCommerceFlags> };
 export const fetchRacePicConfig = () => requestJson<{ ok: true } & RacePicPublicConfig>('/public/racepic/config');
 
 export type InvitationPreview = {
@@ -268,3 +276,35 @@ export const putWithProgress = (url: string, file: Blob, contentType: string, on
     if (signal?.aborted) return abort();
     xhr.send(file);
   });
+
+// --- Commerce: FREE->PAID-Antrag (Marketplace-Plan Abschnitt 5) --------------------------------
+
+export type OfferConversionStatus = 'REQUESTED' | 'PREPARING_ASSETS' | 'READY_FOR_REVIEW' | 'APPROVED' | 'REJECTED' | 'FAILED';
+
+export type OfferConversion = {
+  id: string;
+  status: OfferConversionStatus;
+  priceCents: number;
+  licenseId: string;
+  createdAt: string;
+  decidedAt: string | null;
+  finalized: boolean;
+  failureReason: string | null;
+  reviewNote: string | null;
+  items: { imageId: string; artifactStatus: 'PENDING' | 'RUNNING' | 'READY' | 'FAILED'; artifactError: string | null }[];
+};
+
+/** Der Idempotency-Key gehoert zu genau einem Antragsversuch; bei Wiederholung nach einem Fehler denselben Key erneut senden. */
+export const requestOfferConversion = (
+  input: { imageIds: string[]; priceCents: number; licenseId: string; rightsConfirmed: true },
+  idempotencyKey: string
+) =>
+  requestJson<{ ok: true; conversion: OfferConversion; created: boolean }>('/photographer/offer-conversions', {
+    method: 'POST',
+    auth: true,
+    headers: { 'idempotency-key': idempotencyKey },
+    body: JSON.stringify(input)
+  });
+
+export const listMyOfferConversions = () =>
+  requestJson<{ ok: true; conversions: OfferConversion[] }>('/photographer/offer-conversions', { auth: true });

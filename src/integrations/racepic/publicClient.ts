@@ -47,6 +47,12 @@ const participantSchema = z.object({
   make: z.string().nullable(), model: z.string().nullable(), imageCount: z.number().int().nonnegative(), coverThumbUrl: z.string()
 });
 
+export type RacePicOffer = { mode: 'FREE' | 'PAID'; priceCents: number | null; currency: 'EUR' };
+const offerSchema = z.object({ mode: z.enum(['FREE', 'PAID']), priceCents: z.number().int().nonnegative().nullable(), currency: z.literal('EUR') });
+
+/** Wahr, wenn das Manifest das Bild als kostenpflichtig ausweist. */
+export const isPaidImage = (image: { offer?: RacePicOffer }): boolean => image.offer?.mode === 'PAID';
+
 export type RacePicImage = {
   imageId: string;
   thumbUrl: string;
@@ -61,6 +67,8 @@ export type RacePicImage = {
   createdAt: string;
   photographer: { displayName: string; website: string | null; slug: string | null };
   license: { code: string; title: Record<string, string>; attributionRequired: boolean; attributionTemplate: string | null };
+  /** Angebot laut Manifest, nur zur Anzeige. Preis und Kaufbarkeit entscheidet immer der Server. Fehlt bei aelteren Manifesten (= kostenlos). */
+  offer?: RacePicOffer;
 };
 const imageSchema = z.object({
   imageId: z.string().uuid(), thumbUrl: z.string(), previewUrl: z.string(), width: z.number().int().nullable(), height: z.number().int().nullable(),
@@ -68,7 +76,8 @@ const imageSchema = z.object({
   camera: z.object({ make: z.string().nullable().optional(), model: z.string().nullable().optional() }).passthrough().nullable(),
   capturedAt: z.string().nullable(), createdAt: z.string(),
   photographer: z.object({ displayName: z.string(), website: z.string().nullable(), slug: z.string().nullable() }),
-  license: z.object({ code: z.string(), title: z.record(z.string()), attributionRequired: z.boolean(), attributionTemplate: z.string().nullable() })
+  license: z.object({ code: z.string(), title: z.record(z.string()), attributionRequired: z.boolean(), attributionTemplate: z.string().nullable() }),
+  offer: offerSchema.optional()
 });
 
 export type RacePicParticipantGallery = { participant: RacePicParticipant; images: RacePicImage[] };
