@@ -30,7 +30,6 @@ export function SponsorsSection() {
 
   const mainSponsors = (sponsors || []).filter(s => s.tier === 'main' && s.active);
   const partners = (sponsors || []).filter(s => s.tier === 'partner' && s.active);
-  const supporters = (sponsors || []).filter(s => s.tier === 'supporter' && s.active);
 
   if (isLoading) {
     return (
@@ -173,34 +172,6 @@ export function SponsorsSection() {
                       {sponsor.name}
                     </span>
                   )}
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Supporters */}
-        {supporters.length > 0 && (
-          <div className="mb-10">
-            <p className="mb-6 text-center text-sm font-bold uppercase tracking-widest text-muted-foreground">
-              Unterstützer
-            </p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-              {supporters.map((sponsor) => (
-                <a
-                  key={sponsor.id}
-                  href={sponsor.website || '#'}
-                  target={sponsor.website ? '_blank' : undefined}
-                  rel="noopener noreferrer"
-                  onClick={() => sponsor.website && trackEvent('sponsor_click', {
-                    category: 'outbound',
-                    label: `home_supporter:${sponsor.name}`,
-                    sponsor_tier: sponsor.tier,
-                    cta_position: 'home_supporter_grid',
-                  })}
-                  className="flex min-h-12 items-center justify-center rounded-none border border-border bg-card px-4 py-3 text-center text-sm font-medium text-muted-foreground transition-all hover:border-primary/50 hover:text-foreground hover:shadow-sm"
-                >
-                  {sponsor.name}
                 </a>
               ))}
             </div>
