@@ -308,3 +308,49 @@ export const requestOfferConversion = (
 
 export const listMyOfferConversions = () =>
   requestJson<{ ok: true; conversions: OfferConversion[] }>('/photographer/offer-conversions', { auth: true });
+
+// --- Commerce: Passkeys, Step-up strong und Zahlungskonto (Backend: api/src/racepic/stepUpRoutes.ts, api/src/commerce/paymentAccountRoutes.ts) ---
+
+export type PasskeySummary = { id: string; label: string | null; createdAt: string; lastUsedAt: string | null; deviceType: string | null; backedUp: boolean };
+export type StepUpAction = 'PAYMENT_ACCOUNT' | 'IDENTITY_CHANGE';
+
+export const listMyPasskeys = () => requestJson<{ ok: true; passkeys: PasskeySummary[] }>('/photographer/passkeys', { auth: true });
+
+/** Die WebAuthn-Optionen kommen als JSON vom Server und werden unveraendert an @simplewebauthn/browser gereicht. */
+export const fetchPasskeyRegistrationOptions = () =>
+  requestJson<{ ok: true; options: unknown }>('/photographer/passkeys/registration-options', { method: 'POST', auth: true, body: '{}' });
+
+export const verifyPasskeyRegistration = (response: unknown, label?: string) =>
+  requestJson<{ ok: true; passkey: { id: string } }>('/photographer/passkeys/registration-verify', {
+    method: 'POST', auth: true, body: JSON.stringify({ response, ...(label ? { label } : {}) })
+  });
+
+export const deleteMyPasskey = (passkeyId: string) =>
+  requestJson<{ ok: true }>(`/photographer/passkeys/${encodeURIComponent(passkeyId)}`, { method: 'DELETE', auth: true });
+
+export const fetchStepUpChallenge = (action: StepUpAction) =>
+  requestJson<{ ok: true; options: unknown }>('/photographer/step-up/challenge', { method: 'POST', auth: true, body: JSON.stringify({ action }) });
+
+export const verifyStepUp = (action: StepUpAction, response: unknown) =>
+  requestJson<{ ok: true; expiresAt: string }>('/photographer/step-up/verify', { method: 'POST', auth: true, body: JSON.stringify({ action, response }) });
+
+export type PaymentAccountView = {
+  hasAccount: boolean;
+  status: 'PENDING' | 'ENABLED' | 'RESTRICTED' | 'DISABLED' | null;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+  detailsSubmitted: boolean;
+  requirements: { currentlyDue: string[]; pastDue: string[]; disabledReason: string | null; currentDeadline: number | null } | null;
+  syncedAt: string | null;
+  payoutsReleased: boolean;
+};
+
+export const fetchPaymentAccount = (refresh = false) =>
+  requestJson<{ ok: true; paymentAccount: PaymentAccountView }>(`/photographer/payment-account${refresh ? '?refresh=true' : ''}`, { auth: true });
+
+/** Beide Link-Aufrufe brauchen einen frischen Passkey-Nachweis (Step-up strong); der Server antwortet sonst mit 403 STEP_UP_REQUIRED. */
+export const createPaymentOnboardingLink = () =>
+  requestJson<{ ok: true; url: string; expiresAt: string }>('/photographer/payment-account/onboarding-link', { method: 'POST', auth: true, body: '{}' });
+
+export const createPaymentDashboardLink = () =>
+  requestJson<{ ok: true; url: string }>('/photographer/payment-account/dashboard-link', { method: 'POST', auth: true, body: '{}' });

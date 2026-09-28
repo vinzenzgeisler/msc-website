@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { fetchMyProfile, type PhotographerProfile } from '@/integrations/racepic/client';
+import { fetchMyProfile, fetchRacePicConfig, type PhotographerProfile } from '@/integrations/racepic/client';
 import { isPhotographerSignedIn } from '@/integrations/racepic/session';
 import { StudioLayout } from './StudioLayout';
 import StudioUploadPanel from './StudioUploadPanel';
 import { StudioImagesPanel } from './StudioImagesPanel';
 import { StudioProfilePanel } from './StudioProfilePanel';
+import { StudioPayoutsPanel } from './StudioPayoutsPanel';
 
 /**
  * Fotografen-Dashboard (Paket 2b/3b, neu strukturiert in Paket 15 - siehe
@@ -15,7 +16,10 @@ import { StudioProfilePanel } from './StudioProfilePanel';
  * (Hochladen/Meine Bilder/Profil), dazu die neue StudioLayout-Kopfzeile mit Abmelden.
  */
 export default function StudioPage() {
-  const [tab, setTab] = useState('upload');
+  const [searchParams] = useSearchParams();
+  // ?tab=payouts (Rueckkehr von Stripe) oeffnet direkt den Auszahlungsbereich, sofern er freigeschaltet ist.
+  const [tab, setTab] = useState(searchParams.get('tab') === 'payouts' ? 'payouts' : 'upload');
+  const [payoutsEnabled, setPayoutsEnabled] = useState(false);
   const [profile, setProfile] = useState<PhotographerProfile | null>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -29,6 +33,13 @@ export default function StudioPage() {
       .then((result) => setProfile(result.photographer))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    // Das Backend-Flag commerceSettlement entscheidet; ohne (oder bei aelterem Backend) bleibt der Bereich unsichtbar.
+    fetchRacePicConfig()
+      .then((config) => setPayoutsEnabled(config.commerce?.commerceSettlement === true))
+      .catch(() => setPayoutsEnabled(false));
   }, []);
 
   if (!isPhotographerSignedIn()) {
@@ -52,6 +63,7 @@ export default function StudioPage() {
             <TabsTrigger value="upload">Hochladen</TabsTrigger>
             <TabsTrigger value="images">Meine Bilder</TabsTrigger>
             <TabsTrigger value="profile">Profil</TabsTrigger>
+            {payoutsEnabled && <TabsTrigger value="payouts">Auszahlungen</TabsTrigger>}
           </TabsList>
           <TabsContent value="upload" className="pt-4">
             <StudioUploadPanel />
@@ -62,6 +74,11 @@ export default function StudioPage() {
           <TabsContent value="profile" className="pt-4">
             <StudioProfilePanel profile={profile} onSaved={setProfile} />
           </TabsContent>
+          {payoutsEnabled && (
+            <TabsContent value="payouts" className="pt-4">
+              <StudioPayoutsPanel />
+            </TabsContent>
+          )}
         </Tabs>
       )}
     </StudioLayout>
