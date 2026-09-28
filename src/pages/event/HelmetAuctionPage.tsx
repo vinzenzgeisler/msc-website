@@ -10,9 +10,8 @@ const copy = {
     intro: 'Der signierte Helm von Didier Grams hat einen neuen Besitzer. Vielen Dank an alle, die sich an der Versteigerung beteiligt haben.',
     winner: 'Gewinner',
     bid: 'Höchstgebot',
-    helmet: 'Der signierte Helm aus dem Nennungstool',
     helmetAlt: 'Signierter Helm von Didier Grams',
-    handover: 'Übergabe an Auktionsgewinner David Träber',
+    handoverAlt: 'David Träber bei der Übergabe des signierten Helms',
   },
   en: {
     kicker: 'Auction closed',
@@ -20,9 +19,8 @@ const copy = {
     intro: 'The signed helmet of Didier Grams has a new owner. Thank you to everyone who took part in the auction.',
     winner: 'Winner',
     bid: 'Winning bid',
-    helmet: 'The signed helmet from the entry portal',
     helmetAlt: 'Signed helmet of Didier Grams',
-    handover: 'Handover to auction winner David Träber',
+    handoverAlt: 'David Träber receiving the signed helmet',
   },
   cz: {
     kicker: 'Aukce ukončena',
@@ -30,9 +28,8 @@ const copy = {
     intro: 'Podepsaná helma Didiera Gramse má nového majitele. Děkujeme všem, kteří se aukce zúčastnili.',
     winner: 'Vítěz',
     bid: 'Vítězná nabídka',
-    helmet: 'Podepsaná helma z přihlašovacího portálu',
     helmetAlt: 'Podepsaná helma Didiera Gramse',
-    handover: 'Předání vítězi aukce Davidu Träberovi',
+    handoverAlt: 'David Träber při předání podepsané helmy',
   },
   pl: {
     kicker: 'Aukcja zakończona',
@@ -40,9 +37,8 @@ const copy = {
     intro: 'Podpisany kask Didiera Gramse ma nowego właściciela. Dziękujemy wszystkim uczestnikom aukcji.',
     winner: 'Zwycięzca',
     bid: 'Zwycięska oferta',
-    helmet: 'Podpisany kask z portalu zgłoszeniowego',
     helmetAlt: 'Podpisany kask Didiera Gramse',
-    handover: 'Przekazanie kasku zwycięzcy aukcji Davidowi Träberowi',
+    handoverAlt: 'David Träber podczas przekazania podpisanego kasku',
   },
 } as const;
 
@@ -73,19 +69,17 @@ export default function HelmetAuctionPage() {
           </div>
         </header>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-2 md:gap-8">
-          <figure className="border border-border bg-card p-3">
-            <div className="aspect-[4/5] overflow-hidden bg-muted">
-              <img src="/media/didier-grams-helm-2026.webp" alt={content.helmetAlt} className="h-full w-full object-contain" />
-            </div>
-            <figcaption className="p-3 pb-1 text-sm text-muted-foreground">{content.helmet}</figcaption>
-          </figure>
-          <figure className="border border-border bg-card p-3">
-            <div className="aspect-[4/5] overflow-hidden bg-muted">
-              <img src="/media/helmauktion-uebergabe-2026.jpeg" alt={content.handover} className="h-full w-full object-cover" />
-            </div>
-            <figcaption className="p-3 pb-1 text-sm text-muted-foreground">{content.handover}</figcaption>
-          </figure>
+        <div className="mx-auto mt-12 grid max-w-4xl gap-4 sm:grid-cols-2 md:gap-6">
+          <img
+            src="/media/didier-grams-helm-2026.webp"
+            alt={content.helmetAlt}
+            className="aspect-[3/4] h-full w-full object-cover"
+          />
+          <img
+            src="/media/helmauktion-uebergabe-2026.jpeg"
+            alt={content.handoverAlt}
+            className="aspect-[3/4] h-full w-full object-cover"
+          />
         </div>
       </div>
     </MainLayout>

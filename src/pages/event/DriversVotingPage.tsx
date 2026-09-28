@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { EventSubnav } from '@/components/event/EventSubnav';
 import { HighlightsSection } from '@/components/event/highlights/HighlightsSection';
@@ -22,6 +23,7 @@ const jumpCopy = {
 } as const;
 
 export default function DriversVotingPage() {
+  const location = useLocation();
   const { locale } = useLanguage();
   const { data: event } = useMainEvent();
   const { data: content } = useEventContent(event?.id);
@@ -31,5 +33,37 @@ export default function DriversVotingPage() {
   const activeClassIds = phase === 'live' ? live.current?.backend_class_ids ?? [] : [];
   const postEvent = phase === 'post';
   const pageCopy = copy[locale];
-  return <MainLayout title={postEvent ? pageCopy.resultsTitle : pageCopy.title} description={postEvent ? pageCopy.resultsDescription : pageCopy.description} canonicalPath="/event/fahrer"><EventSubnav phase={phase}/><div className="container max-w-5xl space-y-6 py-8 md:space-y-10 md:py-12">{!postEvent && <div className="flex justify-end"><a href="#publikumsvoting" className="text-sm font-semibold text-primary hover:underline">{jumpCopy[locale]} →</a></div>}<HighlightsSection classIds={activeClassIds} compact/><VotingSection priorityClassIds={activeClassIds} mode={postEvent ? 'results' : 'interactive'}/></div></MainLayout>;
+  const votingFirst = location.hash === '#publikumsvoting';
+  const drivers = <HighlightsSection classIds={activeClassIds} compact />;
+  const voting = <VotingSection priorityClassIds={activeClassIds} mode={postEvent ? 'results' : 'interactive'} />;
+
+  return (
+    <MainLayout
+      title={postEvent ? pageCopy.resultsTitle : pageCopy.title}
+      description={postEvent ? pageCopy.resultsDescription : pageCopy.description}
+      canonicalPath="/event/fahrer"
+    >
+      <EventSubnav phase={phase} />
+      <div className="container max-w-5xl space-y-6 py-8 md:space-y-10 md:py-12">
+        {!postEvent && (
+          <div className="flex justify-end">
+            <a href="#publikumsvoting" className="text-sm font-semibold text-primary hover:underline">
+              {jumpCopy[locale]} →
+            </a>
+          </div>
+        )}
+        {votingFirst ? (
+          <>
+            {voting}
+            {drivers}
+          </>
+        ) : (
+          <>
+            {drivers}
+            {voting}
+          </>
+        )}
+      </div>
+    </MainLayout>
+  );
 }

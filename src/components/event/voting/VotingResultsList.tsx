@@ -14,6 +14,9 @@ export function VotingResultsList({ classes, emptyText }: VotingResultsListProps
   const isLoading = classQueries.some((query) => query.isLoading);
   const isError = classQueries.some((query) => query.isError);
   const winners = collectVotingWinners(classes, classQueries.map((query) => query.data?.result));
+  const candidatesByEntryId = new Map(
+    classQueries.flatMap((query) => query.data?.candidates ?? []).map((candidate) => [candidate.entryId, candidate])
+  );
 
   if (isLoading) {
     return <div className="h-64 animate-pulse rounded-xl bg-muted" aria-label={t.common.loading} />;
@@ -30,14 +33,33 @@ export function VotingResultsList({ classes, emptyText }: VotingResultsListProps
         <Badge variant="secondary">{t.voting.resultsTitle}</Badge>
       </div>
       {winners.length > 0 ? (
-        <ul className="divide-y">
-          {winners.map((winner) => (
-            <li key={`${winner.classId}-${winner.entryId}`} className="flex items-center gap-3 px-4 py-3">
-              <span className="text-lg" aria-hidden>🏆</span>
-              <span className="min-w-0 flex-1 font-medium">{winner.driverName}</span>
-              <span className="shrink-0 text-right text-sm text-muted-foreground">{winner.className}</span>
-            </li>
-          ))}
+        <ul className="grid gap-px bg-border sm:grid-cols-2">
+          {winners.map((winner) => {
+            const candidate = candidatesByEntryId.get(winner.entryId);
+            const vehicle = [candidate?.vehicleMake, candidate?.vehicleModel, candidate?.vehicleYear].filter(Boolean).join(' · ');
+
+            return (
+              <li key={`${winner.classId}-${winner.entryId}`} className="group relative min-h-56 overflow-hidden bg-slate-950 text-white">
+                {candidate?.vehicleImageUrl ? (
+                  <img
+                    src={candidate.vehicleImageUrl}
+                    alt={vehicle ? `${winner.driverName}, ${vehicle}` : winner.driverName}
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/60 to-slate-950" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/5" />
+                <div className="relative flex min-h-56 flex-col justify-end p-5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-white/70">{winner.className}</p>
+                  <h4 className="mt-1 text-xl font-black">{winner.driverName}</h4>
+                  {vehicle && <p className="mt-1 text-sm text-white/75">{vehicle}</p>}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <p className="px-4 py-5 text-sm text-muted-foreground">{emptyText || t.voting.votingClosed}</p>
