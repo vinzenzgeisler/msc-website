@@ -70,6 +70,8 @@ const racePicEnabled = import.meta.env.VITE_ENABLE_RACEPIC === 'true';
 const RacePicHomePage = lazy(() => import('./pages/racepic/RacePicHomePage'));
 const RacePicParticipantPage = lazy(() => import('./pages/racepic/RacePicParticipantPage'));
 const RacePicPhotographerPage = lazy(() => import('./pages/racepic/RacePicPhotographerPage'));
+const RacePicCheckoutSuccessPage = lazy(() => import('./pages/racepic/RacePicCheckoutSuccessPage'));
+const RacePicCheckoutCancelledPage = lazy(() => import('./pages/racepic/RacePicCheckoutCancelledPage'));
 const StudioInvitationPage = lazy(() => import('./pages/racepic/StudioInvitationPage'));
 const StudioLoginPage = lazy(() => import('./pages/racepic/StudioLoginPage'));
 const StudioRegisterPage = lazy(() => import('./pages/racepic/StudioRegisterPage'));
@@ -142,6 +144,9 @@ const App = () => (
                   ohnehin das statische Segment "fotografen" vor einem dynamischen Segment, siehe
                   Studio-Kommentar unten für dasselbe Prinzip. */}
               <Route path="/racepic/fotografen/:slug" element={racePicRoute(<RacePicPhotographerPage />)} />
+              {/* Kauf (AP15) - statische Segmente, kollidieren nicht mit /racepic/:eventSlug/:participantKey. */}
+              <Route path="/racepic/kauf/erfolg" element={racePicRoute(<RacePicCheckoutSuccessPage />)} />
+              <Route path="/racepic/kauf/abgebrochen" element={racePicRoute(<RacePicCheckoutCancelledPage />)} />
               <Route path="/racepic/:eventSlug/:participantKey" element={racePicRoute(<RacePicParticipantPage />)} />
 
               {/* RacePic Studio (Fotograf:innen, Paket 2b) - bewusst nicht in der Hauptnavigation

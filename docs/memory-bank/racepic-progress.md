@@ -234,3 +234,12 @@ Stand 2026-09-28: Entscheidung nach Rückfrage (Zielgruppe kennt Passkeys überw
 - `passkeySupport.ts`: `checkPasskeySupport`, `checkPlatformAuthenticatorAvailable`, `platformAuthenticatorLabel` (userAgent-basiert, bewusst grob). Getestet in `passkeySupport.test.ts`.
 - `StudioPayoutsPanel.tsx`: zeigt vor jeder Aktion, die eine frische Gerätebestätigung braucht, eine Vorwarnung mit dem plattformspezifischen Namen, statt den System-Dialog kommentarlos aufpoppen zu lassen. Das Wort „Passkey" taucht nur noch als Klammerzusatz auf, die Führung heißt „Gerät bestätigen"/„Gerätebestätigung".
 - Nicht geändert: das Backend-Verhalten (AP05) bleibt gleich, nur die Website-Oberfläche wurde überarbeitet.
+
+## Commerce: Kaufablauf im Bilddialog (AP15-UI, Branch `feature/racepic/commerce-buy-flow`)
+
+Stand 2026-09-28, nicht auf `main`:
+
+- `commerceClient.ts`: `createQuote`, `createCheckoutSession`, `fetchOrderConfirmation` gegen die neuen Backend-Routen (AP15). Preis kommt ausschließlich vom Server.
+- `RacePicBuyPanel.tsx`: ersetzt im Bilddialog bei PAID-Bildern den bisherigen „Kauf noch nicht verfügbar"-Hinweis durch einen echten Kaufablauf (E-Mail, zwei Pflicht-Checkboxen aus dem Rechtstextentwurf, Button „Zahlungspflichtig bestellen") → Weiterleitung zu Stripe Hosted Checkout. Hinweis, dass die Rechtstexte noch Entwurf sind und nur im Stripe-Testmodus abgerechnet wird.
+- Neue Seiten `/racepic/kauf/erfolg` (pollt die Bestellbestätigung, bis der Webhook sie auf PAID gesetzt hat, zeigt dann Downloadlinks mit Attribution) und `/racepic/kauf/abgebrochen`.
+- **Bewusst nicht angefasst:** Der Warenkorb (`cart.tsx`/`RacePicCartWidget`) bleibt FREE-only; ein Kaufablauf über mehrere Bilder aus dem Warenkorb ist nicht gebaut, nur der Einzelbild-Kauf direkt im Dialog.

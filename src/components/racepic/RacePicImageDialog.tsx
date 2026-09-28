@@ -5,6 +5,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useRacePicCart } from '@/integrations/racepic/cart-context';
 import { fetchImageDetail, isPaidImage, requestDownload, toCdnUrl, type RacePicImageDetail } from '@/integrations/racepic/publicClient';
+import { RacePicBuyPanel } from './RacePicBuyPanel';
 import { formatEuroCents } from '@/integrations/racepic/format';
 import { useRacePicText } from '@/i18n/racepic';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -93,9 +94,9 @@ export function RacePicImageDialog({ selected, onSelect, onClose }: {
                   )}
                 </div>
                 {paid ? (
-                  <div className="rounded-lg border p-3 text-sm">
+                  <div className="space-y-3">
                     <p className="font-semibold">{t.paidBadge}{image.offer?.priceCents ? ` · ${t.price} ${formatEuroCents(image.offer.priceCents, locale)}` : ''}</p>
-                    <p className="mt-1 text-muted-foreground">{t.paidNotAvailable}</p>
+                    <RacePicBuyPanel imageId={image.imageId} />
                   </div>
                 ) : (
                   <Button className="w-full" disabled={downloading} onClick={download}>
