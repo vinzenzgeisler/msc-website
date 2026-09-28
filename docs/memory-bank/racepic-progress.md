@@ -225,3 +225,12 @@ Stand 2026-09-28, nichts deployt, kein echter Passkey- oder Stripe-Durchlauf im 
 - Der Hinweis „Auszahlungen werden nach geklärtem Steuerstatus freigegeben“ erscheint, wenn das Konto bereit ist, der MSC Auszahlungen aber noch nicht freigegeben hat.
 - Tests: `src/integrations/racepic/payouts.test.ts` (Step-up-Ablauf inkl. Abbruch und Endlosschleifen-Schutz, Fehlermeldungen). `vitest run`, `tsc -b`, `vite build` (in ein Scratch-Verzeichnis) laufen durch, ESLint der geänderten Ordner ist sauber.
 - **Offen:** Die Passkey-Abfrage selbst (`navigator.credentials`) und der Stripe-Redirect sind nicht in einem Browser geprüft. Fotograf:innen müssen für das Anlegen eines Passkeys frisch angemeldet sein (Backend-Stufe `recent`); die Oberfläche zeigt dann „Bitte melde dich erneut an“, bietet aber noch keinen direkten Weg zur erneuten Anmeldung an.
+
+## Passkey-Onboarding für Auszahlungen (Branch `feature/racepic/commerce-payouts-ui`)
+
+Stand 2026-09-28: Entscheidung nach Rückfrage (Zielgruppe kennt Passkeys überwiegend nicht) — Passkey bleibt technisch, aber mit deutlich ausgebautem Onboarding statt eines Fachbegriff-Buttons.
+
+- `StudioPasskeyOnboarding.tsx`: alltagssprachliche Erklärung vor der ersten Einrichtung („wie beim Entsperren deines Handys"), plattformspezifischer Hinweis (Touch ID, Windows Hello, Face ID …), erkennt fehlende Browserunterstützung und zeigt dann einen Hinweis statt eines nicht funktionierenden Buttons. Nach der ersten Einrichtung kurze Erfolgsmeldung (`StudioPasskeySetupSuccess`), erst danach die kompakte Geräteliste.
+- `passkeySupport.ts`: `checkPasskeySupport`, `checkPlatformAuthenticatorAvailable`, `platformAuthenticatorLabel` (userAgent-basiert, bewusst grob). Getestet in `passkeySupport.test.ts`.
+- `StudioPayoutsPanel.tsx`: zeigt vor jeder Aktion, die eine frische Gerätebestätigung braucht, eine Vorwarnung mit dem plattformspezifischen Namen, statt den System-Dialog kommentarlos aufpoppen zu lassen. Das Wort „Passkey" taucht nur noch als Klammerzusatz auf, die Führung heißt „Gerät bestätigen"/„Gerätebestätigung".
+- Nicht geändert: das Backend-Verhalten (AP05) bleibt gleich, nur die Website-Oberfläche wurde überarbeitet.

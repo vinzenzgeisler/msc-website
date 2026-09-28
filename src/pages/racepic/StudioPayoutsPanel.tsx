@@ -17,6 +17,8 @@ import {
   type PaymentAccountView
 } from '@/integrations/racepic/client';
 import { isPasskeyRequired, payoutsErrorMessage, runWithStrongStepUp, type StepUpSteps } from '@/integrations/racepic/payoutsFlow';
+import { platformAuthenticatorLabel } from '@/integrations/racepic/passkeySupport';
+import { StudioPasskeyOnboarding, StudioPasskeySetupSuccess } from './StudioPasskeyOnboarding';
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Einrichtung läuft',
@@ -43,6 +45,8 @@ export function StudioPayoutsPanel() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  // Zeigt nach der allerersten Einrichtung kurz eine Erfolgsmeldung statt sofort zur Kontoliste zu springen.
+  const [justSetUpPasskey, setJustSetUpPasskey] = useState(false);
 
   const load = useCallback(async (refresh: boolean) => {
     try {
@@ -70,7 +74,7 @@ export function StudioPayoutsPanel() {
     try {
       await task();
     } catch (err) {
-      setError(isPasskeyRequired(err) ? 'Bitte lege zuerst einen Passkey an.' : payoutsErrorMessage(err));
+      setError(isPasskeyRequired(err) ? 'Bitte bestätige zuerst einmal dein Gerät (siehe oben).' : payoutsErrorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -78,10 +82,12 @@ export function StudioPayoutsPanel() {
 
   const addPasskey = () =>
     run(async () => {
+      const wasFirst = passkeys.length === 0;
       const { options } = await fetchPasskeyRegistrationOptions();
       const response = await startRegistration({ optionsJSON: options as Parameters<typeof startRegistration>[0]['optionsJSON'] });
       await verifyPasskeyRegistration(response, navigator.platform || undefined);
-      setMessage('Passkey wurde angelegt.');
+      if (wasFirst) setJustSetUpPasskey(true);
+      else setMessage('Passkey wurde angelegt.');
       await load(false);
     });
 
@@ -95,6 +101,9 @@ export function StudioPayoutsPanel() {
 
   const openLink = (create: () => Promise<{ url: string }>) =>
     run(async () => {
+      // Vorwarnung, bevor der Browser ungefragt den Geraete-Dialog oeffnet ("gleich" statt "jetzt": der Dialog
+      // erscheint nur, wenn die Sitzung nicht mehr frisch genug ist, nicht bei jedem Aufruf).
+      setMessage(`Falls dein Gerät gleich nach einer Bestätigung fragt: Das ist ${platformAuthenticatorLabel()}.`);
       const link = await runWithStrongStepUp(create, stepUpSteps);
       window.location.assign(link.url);
     });
@@ -107,29 +116,30 @@ export function StudioPayoutsPanel() {
       {error && <p className="text-sm text-destructive">{error}</p>}
       {message && <p className="text-sm text-muted-foreground">{message}</p>}
 
-      <section className="space-y-3 rounded-lg border bg-card p-4">
-        <h2 className="font-heading text-lg font-bold">Passkey</h2>
-        <p className="text-sm text-muted-foreground">
-          Für die Einrichtung deines Auszahlungskontos bestätigst du jeweils mit einem Passkey (Fingerabdruck, Gesichtserkennung oder Gerätecode).
-        </p>
-        {passkeys.length > 0 && (
-          <ul className="space-y-2 text-sm">
-            {passkeys.map((passkey) => (
-              <li key={passkey.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2">
-                <span>
-                  {passkey.label || 'Passkey'} · angelegt {new Date(passkey.createdAt).toLocaleDateString('de-DE')}
-                  {passkey.lastUsedAt ? ` · zuletzt genutzt ${new Date(passkey.lastUsedAt).toLocaleDateString('de-DE')}` : ''}
-                </span>
-                <Button size="sm" variant="outline" className="h-7 px-2 text-[11px] text-destructive" disabled={busy} onClick={() => void removePasskey(passkey.id)}>
-                  Entfernen
-                </Button>
-              </li>
-            ))}
-          </ul>
+      <section className="space-y-3">
+        {passkeys.length === 0 && !justSetUpPasskey && <StudioPasskeyOnboarding busy={busy} onSetup={() => void addPasskey()} />}
+        {justSetUpPasskey && <StudioPasskeySetupSuccess onContinue={() => setJustSetUpPasskey(false)} />}
+        {passkeys.length > 0 && !justSetUpPasskey && (
+          <div className="space-y-3 rounded-lg border bg-card p-4">
+            <h2 className="font-heading text-lg font-bold">Gerätebestätigung</h2>
+            <ul className="space-y-2 text-sm">
+              {passkeys.map((passkey) => (
+                <li key={passkey.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2">
+                  <span>
+                    {passkey.label || 'Gerät'} · eingerichtet {new Date(passkey.createdAt).toLocaleDateString('de-DE')}
+                    {passkey.lastUsedAt ? ` · zuletzt genutzt ${new Date(passkey.lastUsedAt).toLocaleDateString('de-DE')}` : ''}
+                  </span>
+                  <Button size="sm" variant="outline" className="h-7 px-2 text-[11px] text-destructive" disabled={busy} onClick={() => void removePasskey(passkey.id)}>
+                    Entfernen
+                  </Button>
+                </li>
+              ))}
+            </ul>
+            <Button size="sm" variant="outline" disabled={busy} onClick={() => void addPasskey()}>
+              Weiteres Gerät hinzufügen
+            </Button>
+          </div>
         )}
-        <Button size="sm" disabled={busy} onClick={() => void addPasskey()}>
-          {busy ? 'Bitte warten…' : 'Passkey hinzufügen'}
-        </Button>
       </section>
 
       <section className="space-y-3 rounded-lg border bg-card p-4">
@@ -144,7 +154,7 @@ export function StudioPayoutsPanel() {
         {account?.status === 'ENABLED' && !account.payoutsReleased && (
           <p className="text-sm text-muted-foreground">Dein Konto ist bereit. Der MSC gibt Auszahlungen frei, sobald dein Steuerstatus geklärt ist.</p>
         )}
-        {needsPasskey && <p className="text-sm text-muted-foreground">Lege zuerst einen Passkey an.</p>}
+        {needsPasskey && <p className="text-sm text-muted-foreground">Bestätige zuerst einmal dein Gerät (siehe oben).</p>}
         <div className="flex flex-wrap gap-2">
           <Button size="sm" disabled={busy || needsPasskey || account?.status === 'DISABLED'} onClick={() => void openLink(createPaymentOnboardingLink)}>
             {account?.hasAccount ? 'Einrichtung fortsetzen' : 'Einrichtung starten'}
