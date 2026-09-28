@@ -3,13 +3,16 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight, Calendar } from 'lucide-react';
+import { ArrowRight, Calendar, ExternalLink } from 'lucide-react';
 import { useMainEvent } from '@/hooks/useMainEvent';
 import { useSettings } from '@/hooks/useSettings';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { format } from 'date-fns';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { getDateFnsLocale, isEnglishLocale } from '@/i18n/locale-utils';
+import { localize } from '@/i18n/locale-utils';
+import { resolveEventPhase } from '@/lib/event-hub';
+import { AftermovieButton } from '@/components/event/AftermovieDialog';
 const CYCLE_INTERVAL = 8000;
 
 // Module-level flag: true on fresh page load, false after first HeroSection mount
@@ -91,7 +94,130 @@ function useCountdown(targetDate: Date | null) {
 }
 
 
+function PostEventHero() {
+  const { locale } = useLanguage();
+  const [loadVideo, setLoadVideo] = useState(false);
+  const [videoVisible, setVideoVisible] = useState(false);
+  const defaults = localize(locale, {
+    de: {
+      title: 'Motorsport verbindet. Das ganze Jahr.',
+      subtitle: 'Wir sind der MSC Oberlausitzer Dreiländereck e.V. – zuhause im Motorsport, getragen von Gemeinschaft. Erlebt das 12. Oberlausitzer Dreieck im Aftermovie noch einmal.',
+      kicker: 'Rückblick 2026 · Vereinsleben das ganze Jahr',
+      cta: 'Verein kennenlernen',
+    },
+    en: {
+      title: 'Motorsport brings us together. All year round.',
+      subtitle: 'We are MSC Oberlausitzer Dreiländereck e.V. – at home in motorsport and powered by community. Relive the 12th Oberlausitzer Dreieck in our aftermovie.',
+      kicker: '2026 review · Club life all year round',
+      cta: 'Discover our club',
+    },
+    cz: {
+      title: 'Motorsport nás spojuje. Po celý rok.',
+      subtitle: 'Jsme MSC Oberlausitzer Dreiländereck e.V. – doma v motorsportu a silní díky komunitě. Připomeňte si 12. Oberlausitzer Dreieck v našem aftermovie.',
+      kicker: 'Ohlédnutí za rokem 2026 · Klubový život po celý rok',
+      cta: 'Poznejte náš klub',
+    },
+    pl: {
+      title: 'Motorsport łączy. Przez cały rok.',
+      subtitle: 'Jesteśmy MSC Oberlausitzer Dreiländereck e.V. – żyjemy motorsportem i wspólnotą. Przeżyjcie ponownie 12. Oberlausitzer Dreieck w naszym aftermovie.',
+      kicker: 'Podsumowanie 2026 · Życie klubu przez cały rok',
+      cta: 'Poznaj nasz klub',
+    },
+  });
+  const content = useContentWithFallback('home', 'hero_post', {
+    title: defaults.title,
+    subtitle: defaults.subtitle,
+    content: defaults.kicker,
+  });
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    if (reducedMotion || connection?.saveData) return;
+    const timer = window.setTimeout(() => setLoadVideo(true), 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  return (
+    <section className="relative flex min-h-[calc(100svh-4rem)] items-center overflow-hidden bg-slate-950 md:min-h-[76vh]">
+      <img
+        src="/media/aftermovie-2026-poster.webp"
+        alt="Fahrerlager des Oberlausitzer Dreiecks aus der Luft"
+        className="absolute inset-0 h-full w-full object-cover"
+        width={1600}
+        height={694}
+      />
+      {loadVideo && (
+        <video
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity ${videoVisible ? 'opacity-100' : 'opacity-0'}`}
+          style={{ transitionDuration: '1200ms' }}
+          muted
+          loop
+          playsInline
+          autoPlay
+          preload="none"
+          poster="/media/aftermovie-2026-poster.webp"
+          aria-hidden="true"
+          onCanPlay={() => setVideoVisible(true)}
+          onError={() => {
+            setLoadVideo(false);
+            setVideoVisible(false);
+          }}
+        >
+          <source src="/media/aftermovie-2026-hero-mobile.mp4" media="(max-width: 767px)" type="video/mp4" />
+          <source src="/media/aftermovie-2026-hero-desktop.mp4" type="video/mp4" />
+        </video>
+      )}
+      <div className="absolute inset-0 bg-slate-950/35" />
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/75 to-slate-950/20" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-slate-950/35" />
+      <div className="container relative z-10 py-14 md:py-20">
+        <div className="mx-auto max-w-4xl text-center text-white md:mx-0 md:max-w-3xl md:text-left">
+          <p className="mb-5 inline-block max-w-full border-l-4 border-accent bg-black/35 px-4 py-2 text-left text-xs font-bold uppercase tracking-[0.12em] text-white/90 backdrop-blur-sm md:text-sm md:tracking-[0.16em]">
+            {content.content || defaults.kicker}
+          </p>
+          <h1 className="font-display text-3xl font-black uppercase leading-[0.98] tracking-tight drop-shadow-[0_3px_16px_rgba(0,0,0,0.8)] sm:text-5xl md:text-7xl">
+            {content.title}
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] md:text-xl">
+            {content.subtitle}
+          </p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row md:justify-start">
+            <HeroPrimaryButton
+              url={content.primary_button_url || '/club/about'}
+              label={content.primary_button_label || defaults.cta}
+            />
+            <AftermovieButton
+              label={content.secondary_button_label || undefined}
+              variant="outline"
+              className="border-2 border-white/50 bg-black/20 text-white hover:border-white hover:bg-white hover:text-black"
+            />
+          </div>
+        </div>
+      </div>
+      <a
+        href="https://www.instagram.com/atmaxray/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="absolute bottom-5 right-6 z-20 hidden items-center gap-1 text-xs font-semibold tracking-wide text-white/70 transition-colors hover:text-white md:flex"
+      >
+        Film: @atmaxray <ExternalLink className="h-3 w-3" />
+      </a>
+    </section>
+  );
+}
+
 export function HeroSection() {
+  const { data: mainEvent, isLoading } = useMainEvent();
+  const isPostEvent = Boolean(
+    mainEvent && resolveEventPhase(new Date(), mainEvent) === 'post',
+  );
+
+  if (!isLoading && isPostEvent) return <PostEventHero />;
+  return <EventHeroSection />;
+}
+
+function EventHeroSection() {
   const t = useTranslation();
   const { locale } = useLanguage();
   const [shouldAnimate] = useState(() => {

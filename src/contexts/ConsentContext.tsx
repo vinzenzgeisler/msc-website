@@ -3,6 +3,7 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, 
 export interface ConsentPreferences {
   necessary: true;
   statistics: boolean;
+  externalMedia: boolean;
 }
 
 interface StoredConsentPreferences extends ConsentPreferences {
@@ -23,11 +24,12 @@ interface ConsentContextValue {
 }
 
 const CONSENT_STORAGE_KEY = 'msc_cookie_consent';
-const CONSENT_VERSION = 2;
+const CONSENT_VERSION = 3;
 
 const defaultPreferences: ConsentPreferences = {
   necessary: true,
   statistics: false,
+  externalMedia: false,
 };
 
 const ConsentContext = createContext<ConsentContextValue | undefined>(undefined);
@@ -49,6 +51,7 @@ function readStoredConsent(): StoredConsentPreferences | null {
       updatedAt: String(parsed.updatedAt || new Date().toISOString()),
       necessary: true,
       statistics: Boolean(parsed.statistics),
+      externalMedia: Boolean(parsed.externalMedia),
     };
   } catch {
     return null;
@@ -63,6 +66,7 @@ function writeStoredConsent(preferences: ConsentPreferences) {
     updatedAt: new Date().toISOString(),
     necessary: true,
     statistics: preferences.statistics,
+    externalMedia: preferences.externalMedia,
   };
 
   window.localStorage.setItem(CONSENT_STORAGE_KEY, JSON.stringify(payload));
@@ -80,6 +84,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     setPreferences({
       necessary: true,
       statistics: storedConsent.statistics,
+      externalMedia: storedConsent.externalMedia,
     });
     setHasStoredConsent(true);
   }, []);
@@ -88,6 +93,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     const normalizedPreferences = {
       necessary: true as const,
       statistics: Boolean(nextPreferences.statistics),
+      externalMedia: Boolean(nextPreferences.externalMedia),
     };
 
     setPreferences(normalizedPreferences);
@@ -100,6 +106,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     savePreferences({
       necessary: true,
       statistics: false,
+      externalMedia: false,
     });
   }, [savePreferences]);
 
@@ -107,6 +114,7 @@ export function ConsentProvider({ children }: { children: ReactNode }) {
     savePreferences({
       necessary: true,
       statistics: true,
+      externalMedia: true,
     });
   }, [savePreferences]);
 

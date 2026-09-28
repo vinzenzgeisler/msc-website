@@ -5,9 +5,10 @@ import { collectVotingWinners, type EventHubClass } from '@/lib/eventHubVoting';
 
 interface VotingResultsListProps {
   classes: EventHubClass[];
+  emptyText?: string;
 }
 
-export function VotingResultsList({ classes }: VotingResultsListProps) {
+export function VotingResultsList({ classes, emptyText }: VotingResultsListProps) {
   const { t } = useLanguage();
   const classQueries = useEventHubClasses(classes.map((eventClass) => eventClass.id));
   const isLoading = classQueries.some((query) => query.isLoading);
@@ -39,7 +40,7 @@ export function VotingResultsList({ classes }: VotingResultsListProps) {
           ))}
         </ul>
       ) : (
-        <p className="px-4 py-5 text-sm text-muted-foreground">{t.voting.votingClosed}</p>
+        <p className="px-4 py-5 text-sm text-muted-foreground">{emptyText || t.voting.votingClosed}</p>
       )}
     </div>
   );

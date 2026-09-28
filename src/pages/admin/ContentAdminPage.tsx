@@ -81,6 +81,7 @@ const PAGE_LABELS: Record<PageKey, string> = {
 
 const SECTION_LABELS: Record<string, string> = {
   hero: 'Hero-Bereich',
+  hero_post: 'Hero nach der Veranstaltung',
   club_teaser: 'Club-Teaser',
   upcoming_events: 'Kommende Termine',
   news: 'News-Bereich',
@@ -121,6 +122,7 @@ const SECTION_LABELS: Record<string, string> = {
   map: 'Karte',
   cta: 'Call-to-Action',
   content: 'Inhalt',
+  external_media: 'Externe Medien / YouTube',
   fees: 'Gebühren',
   safety: 'Sicherheitshinweise',
   directions: 'Anfahrt',

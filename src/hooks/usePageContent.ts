@@ -33,7 +33,7 @@ export interface PageContent {
 }
 
 export const PAGE_SECTIONS = {
-  home: ['hero', 'club_teaser', 'upcoming_events', 'news', 'newsletter', 'sponsors'],
+  home: ['hero', 'hero_post', 'club_teaser', 'upcoming_events', 'news', 'newsletter', 'sponsors'],
   about: ['intro', 'mission', 'values'],
   board: ['intro'],
   history: ['intro', 'founding', 'track'],
@@ -48,7 +48,7 @@ export const PAGE_SECTIONS = {
   sponsors: ['intro', 'cta'],
   partner_clubs: ['intro'],
   imprint: ['content', 'funding'],
-  privacy: ['content'],
+  privacy: ['content', 'external_media'],
   newsletter: ['intro'],
 } as const;
 

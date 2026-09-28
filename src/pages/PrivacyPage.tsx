@@ -4,6 +4,8 @@ import { useTranslation } from '@/i18n/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useContentWithFallback } from '@/hooks/usePageContent';
 import { RichContent } from '@/components/content/RichContent';
+import { useLanguage } from '@/i18n/LanguageContext';
+import { localize } from '@/i18n/locale-utils';
 
 const DEFAULT_PRIVACY_CONTENT = `
 <h3>1. Verantwortlicher</h3>
@@ -115,10 +117,30 @@ E-Mail: info@msc-oberlausitzer-dreilaendereck.eu</p>
 
 export default function PrivacyPage() {
   const t = useTranslation();
+  const { locale } = useLanguage();
   const privacy = useContentWithFallback('privacy', 'content', {
     title: 'Datenschutzerklärung',
     content: DEFAULT_PRIVACY_CONTENT,
   });
+  const externalMediaDefaults = localize(locale, {
+    de: {
+      title: 'Externe Medien und YouTube',
+      content: '<p>Auf einzelnen Seiten binden wir Videos des Anbieters YouTube ein. Anbieter ist Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland. Der YouTube-Player wird erst geladen, nachdem Sie in den Datenschutz-Einstellungen ausdrücklich in externe Medien eingewilligt haben. Beim Laden können insbesondere Ihre IP-Adresse, Geräte- und Browserinformationen sowie Angaben zur Nutzung des Videos an Google übermittelt werden. Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO. Sie können die Einwilligung jederzeit über die Datenschutz-Einstellungen mit Wirkung für die Zukunft widerrufen.</p>',
+    },
+    en: {
+      title: 'External media and YouTube',
+      content: '<p>Some pages embed videos provided by YouTube, a service of Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland. The YouTube player is loaded only after you explicitly consent to external media in the privacy settings. Loading it may transfer your IP address, device and browser information, and information about video usage to Google. Processing is based on your consent. You can withdraw this consent at any time in the privacy settings.</p>',
+    },
+    cz: {
+      title: 'Externí média a YouTube',
+      content: '<p>Na některých stránkách vkládáme videa poskytovaná službou YouTube společnosti Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irsko. Přehrávač YouTube se načte až po vašem výslovném souhlasu s externími médii v nastavení ochrany soukromí. Při načtení mohou být společnosti Google předány vaše IP adresa, informace o zařízení a prohlížeči a údaje o používání videa. Souhlas můžete kdykoli odvolat v nastavení ochrany soukromí.</p>',
+    },
+    pl: {
+      title: 'Media zewnętrzne i YouTube',
+      content: '<p>Na wybranych stronach osadzamy filmy z serwisu YouTube, którego dostawcą jest Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irlandia. Odtwarzacz YouTube jest ładowany dopiero po wyrażeniu wyraźnej zgody na media zewnętrzne w ustawieniach prywatności. Podczas ładowania do Google mogą zostać przekazane adres IP, informacje o urządzeniu i przeglądarce oraz dane dotyczące korzystania z filmu. Zgodę można w każdej chwili wycofać w ustawieniach prywatności.</p>',
+    },
+  });
+  const externalMedia = useContentWithFallback('privacy', 'external_media', externalMediaDefaults);
 
   return (
     <MainLayout>
@@ -134,8 +156,14 @@ export default function PrivacyPage() {
                 <Skeleton className="h-6 w-3/4" />
               </div>
             ) : (
-              <div className="rounded-xl border border-border/60 bg-card p-6 md:p-8 shadow-sm">
-                <RichContent content={privacy.content} className="prose-lg prose-p:text-muted-foreground prose-li:text-muted-foreground" />
+              <div className="space-y-6">
+                <div className="rounded-xl border border-border/60 bg-card p-6 shadow-sm md:p-8">
+                  <RichContent content={privacy.content} className="prose-lg prose-p:text-muted-foreground prose-li:text-muted-foreground" />
+                </div>
+                <div className="rounded-xl border border-border/60 bg-card p-6 shadow-sm md:p-8">
+                  <h2 className="mb-4 text-2xl font-bold">{externalMedia.title}</h2>
+                  <RichContent content={externalMedia.content} className="prose-lg prose-p:text-muted-foreground" />
+                </div>
               </div>
             )}
           </div>

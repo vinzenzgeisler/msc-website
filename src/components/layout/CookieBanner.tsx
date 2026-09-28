@@ -11,8 +11,11 @@ import {
 import { Link } from 'react-router-dom';
 import { useConsent } from '@/contexts/ConsentContext';
 import { useEffect, useState } from 'react';
+import { useLanguage } from '@/i18n/LanguageContext';
+import { localize } from '@/i18n/locale-utils';
 
 export function CookieBanner() {
+  const { locale } = useLanguage();
   const {
     preferences,
     isBannerVisible,
@@ -25,10 +28,18 @@ export function CookieBanner() {
   } = useConsent();
 
   const [statisticsEnabled, setStatisticsEnabled] = useState(preferences.statistics);
+  const [externalMediaEnabled, setExternalMediaEnabled] = useState(preferences.externalMedia);
+  const externalMediaCopy = localize(locale, {
+    de: { title: 'Externe Medien', text: 'Lädt eingebettete Videos von YouTube. Dabei können Daten an Google übertragen werden.' },
+    en: { title: 'External media', text: 'Loads embedded videos from YouTube. Data may be transferred to Google.' },
+    cz: { title: 'Externí média', text: 'Načítá vložená videa z YouTube. Data mohou být předána společnosti Google.' },
+    pl: { title: 'Media zewnętrzne', text: 'Wczytuje osadzone filmy z YouTube. Dane mogą zostać przekazane firmie Google.' },
+  });
 
   useEffect(() => {
     setStatisticsEnabled(preferences.statistics);
-  }, [preferences.statistics, isPreferencesOpen]);
+    setExternalMediaEnabled(preferences.externalMedia);
+  }, [preferences.externalMedia, preferences.statistics, isPreferencesOpen]);
 
   return (
     <>
@@ -37,7 +48,7 @@ export function CookieBanner() {
           <div className="container flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex-1 text-sm text-muted-foreground">
               Wir verwenden lokale Schriftarten und keine externen Google-Fonts-Requests. Optionale Statistik
-              mit Google Analytics wird nur nach deiner Zustimmung aktiviert.{' '}
+              und eingebettete externe Medien werden nur nach deiner Zustimmung aktiviert.{' '}
               <Link to="/privacy" className="text-primary underline hover:no-underline">
                 Datenschutzerklärung
               </Link>
@@ -50,7 +61,7 @@ export function CookieBanner() {
                 Nur notwendige
               </Button>
               <Button size="sm" onClick={acceptAll}>
-                Statistik erlauben
+                Alle erlauben
               </Button>
             </div>
           </div>
@@ -62,8 +73,8 @@ export function CookieBanner() {
           <DialogHeader>
             <DialogTitle>Datenschutz-Einstellungen</DialogTitle>
             <DialogDescription>
-              Notwendige Speicherungen sind immer aktiv. Statistik hilft uns zu verstehen, welche Inhalte auf der
-              Vereinswebsite besonders genutzt werden.
+              Notwendige Speicherungen sind immer aktiv. Statistik und externe Medien werden nur mit deiner
+              Zustimmung geladen.
             </DialogDescription>
           </DialogHeader>
 
@@ -97,6 +108,22 @@ export function CookieBanner() {
                 />
               </div>
             </div>
+
+            <div className="rounded-lg border p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="font-semibold">{externalMediaCopy.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {externalMediaCopy.text}
+                  </p>
+                </div>
+                <Switch
+                  checked={externalMediaEnabled}
+                  onCheckedChange={setExternalMediaEnabled}
+                  aria-label={externalMediaCopy.title}
+                />
+              </div>
+            </div>
           </div>
 
           <DialogFooter>
@@ -108,6 +135,7 @@ export function CookieBanner() {
                 savePreferences({
                   necessary: true,
                   statistics: statisticsEnabled,
+                  externalMedia: externalMediaEnabled,
                 })
               }
             >

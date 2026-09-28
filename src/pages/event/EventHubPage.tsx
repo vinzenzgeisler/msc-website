@@ -12,6 +12,7 @@ import { useMainEvent } from "@/hooks/useMainEvent";
 import { useEventContent } from "@/hooks/useEventContent";
 import { useEventLiveNotices } from "@/hooks/useEventHub";
 import { EventSubnav } from "@/components/event/EventSubnav";
+import { AftermovieButton } from "@/components/event/AftermovieDialog";
 import { EventFeatureNudge, EventFeatureTeasers } from "@/components/event/EventFeatureTeasers";
 import { HighlightsSection } from "@/components/event/highlights/HighlightsSection";
 import { DayScheduleBlocks } from "@/components/event/schedule/DayScheduleBlocks";
@@ -25,7 +26,7 @@ import {
 } from "@/hooks/usePageContent";
 import { useSettings } from "@/hooks/useSettings";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { getDateFnsLocale } from "@/i18n/locale-utils";
+import { getDateFnsLocale, localize } from "@/i18n/locale-utils";
 import { parseSelectedDownloadIds } from "@/lib/download-selection";
 import {
   formatCountdown,
@@ -203,6 +204,12 @@ export default function EventHubPage() {
     locationMap.primary_button_url ||
     `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event?.location || "Oberlausitzer Dreieck")}`;
   const dateLocale = getDateFnsLocale(locale);
+  const postCopy = localize(locale, {
+    de: { description: "Danke an alle Fahrer, Helfer, Partner und Besucher. Erlebt das 12. Oberlausitzer Dreieck im Aftermovie noch einmal und entdeckt Fahrer, Fahrzeuge und die Ergebnisse des Publikumsvotings.", results: "Fahrer & Ergebnisse", allResults: "Fahrer & Voting-Ergebnisse", driversKicker: "Rückblick", driversTitle: "Fahrer & Fahrzeuge", driversText: "Entdeckt ausgewählte Teilnehmer, ihre Fahrzeuge und die Gewinner des Publikumsvotings." },
+    en: { description: "Thank you to every driver, volunteer, partner and visitor. Relive the 12th Oberlausitzer Dreieck in our aftermovie and discover the drivers, vehicles and audience vote results.", results: "Drivers & results", allResults: "Drivers & voting results", driversKicker: "Review", driversTitle: "Drivers & vehicles", driversText: "Discover selected participants, their vehicles and the audience vote winners." },
+    cz: { description: "Děkujeme všem jezdcům, pomocníkům, partnerům a návštěvníkům. Připomeňte si 12. Oberlausitzer Dreieck v aftermovie a objevte jezdce, vozidla a výsledky hlasování diváků.", results: "Jezdci a výsledky", allResults: "Jezdci a výsledky hlasování", driversKicker: "Ohlédnutí", driversTitle: "Jezdci a vozidla", driversText: "Objevte vybrané účastníky, jejich vozidla a vítěze diváckého hlasování." },
+    pl: { description: "Dziękujemy wszystkim kierowcom, pomocnikom, partnerom i gościom. Przeżyjcie ponownie 12. Oberlausitzer Dreieck w aftermovie i poznajcie kierowców, pojazdy oraz wyniki głosowania publiczności.", results: "Kierowcy i wyniki", allResults: "Kierowcy i wyniki głosowania", driversKicker: "Podsumowanie", driversTitle: "Kierowcy i pojazdy", driversText: "Poznajcie wybranych uczestników, ich pojazdy i zwycięzców głosowania publiczności." },
+  });
   const dateText = event
     ? `${format(new Date(event.start_dt), "d.", { locale: dateLocale })}/${format(new Date(event.end_dt || event.start_dt), "d. MMMM yyyy", { locale: dateLocale })}`
     : "12./13. September 2026";
@@ -215,7 +222,10 @@ export default function EventHubPage() {
         startDate: event.start_dt,
         endDate: event.end_dt || undefined,
         eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-        eventStatus: "https://schema.org/EventScheduled",
+        eventStatus:
+          phase === "post"
+            ? "https://schema.org/EventCompleted"
+            : "https://schema.org/EventScheduled",
         location: { "@type": "Place", name: event.location },
         organizer: {
           "@type": "Organization",
@@ -305,7 +315,7 @@ export default function EventHubPage() {
       )}
       <section className="relative min-h-[460px] overflow-hidden bg-[#111827] text-white md:min-h-[500px]">
         <img
-          src="https://backend.msc-oberlausitz.de/api/files/pbc_2526955808/t48pa6itcliieot/whats_app_image_2026_08_07_at_10_00_93mecy9y97.532.jpeg"
+          src={phase === "post" ? "/media/aftermovie-2026-poster.webp" : "https://backend.msc-oberlausitz.de/api/files/pbc_2526955808/t48pa6itcliieot/whats_app_image_2026_08_07_at_10_00_93mecy9y97.532.jpeg"}
           alt="Motorräder auf der Strecke des Oberlausitzer Dreiecks"
           className="absolute inset-0 h-full w-full object-cover object-[45%_center] md:object-[50%_58%]"
         />
@@ -341,42 +351,61 @@ export default function EventHubPage() {
                 {event?.title || "Oberlausitzer Dreieck"}
               </h1>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-white/90 md:text-lg">
-                {event?.description ||
+                {phase === "post" ? postCopy.description : event?.description ||
                   "Historischer Motorsport auf der legendären Strecke im Zittauer Gebirge."}
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white/60 bg-black/20 text-white hover:bg-white hover:text-black"
-                  asChild
-                >
-                  <a href={phase === "live" ? "#live" : "#schedule"}>
-                    {phase === "live" ? "Live-Status" : "Programm ansehen"}
-                  </a>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white/60 bg-black/20 text-white hover:bg-white hover:text-black"
-                  asChild
-                >
-                  <Link to="/event/fahrer">Voting</Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white/60 bg-black/20 text-white hover:bg-white hover:text-black"
-                  asChild
-                >
-                  <Link to="/event/helm-versteigerung">Didier-Auktion</Link>
-                </Button>
+                {phase === "post" ? (
+                  <>
+                    <AftermovieButton
+                      variant="outline"
+                      className="border-2 border-white/50 bg-black/20 text-white hover:border-white hover:bg-white hover:text-black"
+                    />
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-white/60 bg-black/20 text-white hover:bg-white hover:text-black"
+                      asChild
+                    >
+                      <Link to="/event/fahrer#publikumsvoting">{postCopy.results}</Link>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-white/60 bg-black/20 text-white hover:bg-white hover:text-black"
+                      asChild
+                    >
+                      <a href={phase === "live" ? "#live" : "#schedule"}>
+                        {phase === "live" ? "Live-Status" : "Programm ansehen"}
+                      </a>
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-white/60 bg-black/20 text-white hover:bg-white hover:text-black"
+                      asChild
+                    >
+                      <Link to="/event/fahrer">Voting</Link>
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-white/60 bg-black/20 text-white hover:bg-white hover:text-black"
+                      asChild
+                    >
+                      <Link to="/event/helm-versteigerung">Didier-Auktion</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </>
           )}
         </div>
       </section>
-      <section className="bg-background">
+      {phase !== "post" && <section className="bg-background">
         <div className="container grid max-w-5xl grid-cols-2 border-b border-border md:grid-cols-4">
           {phase === "pre" ? (
             <Fact
@@ -413,7 +442,7 @@ export default function EventHubPage() {
             }
           />
         </div>
-      </section>
+      </section>}
       {phase === "live" && (
         <section id="live" className="bg-[#111827] py-8 text-white md:py-10">
           <div className="container max-w-5xl">
@@ -465,7 +494,7 @@ export default function EventHubPage() {
           </div>
         </section>
       )}
-      <nav
+      {phase !== "post" && <nav
         className={`z-30 border-b border-border bg-background/95 backdrop-blur ${phase === "live" ? "sticky top-0" : ""}`}
       >
         <div className="container flex max-w-5xl gap-5 overflow-x-auto py-3 md:gap-7 md:py-4">
@@ -485,14 +514,30 @@ export default function EventHubPage() {
             </a>
           ))}
         </div>
-      </nav>
-      <EventSubnav />
-      <EventFeatureTeasers />
-      <div className="container max-w-5xl py-6 md:py-8">
+      </nav>}
+      <EventSubnav phase={phase} />
+      {phase !== "post" && <EventFeatureTeasers />}
+      <div className={`container max-w-5xl ${phase === "post" ? "py-10 md:py-14" : "py-6 md:py-8"}`}>
+        {phase === "post" && (
+          <div className="mb-6 max-w-2xl">
+            <p className="text-sm font-semibold text-primary">{postCopy.driversKicker}</p>
+            <h2 className="mt-2 text-3xl font-black">{postCopy.driversTitle}</h2>
+            <p className="mt-3 text-muted-foreground">{postCopy.driversText}</p>
+          </div>
+        )}
         <HighlightsSection classIds={phase === "live" ? live.current?.backend_class_ids ?? [] : []} />
+        {phase === "post" && (
+          <div className="mt-6 flex">
+            <Button asChild variant="outline">
+              <Link to="/event/fahrer#publikumsvoting">
+                {postCopy.allResults} <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        )}
       </div>
       {phase !== "post" && scheduleSection}
-      <EventFeatureNudge />
+      {phase !== "post" && <EventFeatureNudge />}
       {mainSponsors.length > 0 && (
         <section className="bg-muted/40 py-10 md:py-14">
           <div className="container max-w-5xl">
@@ -506,6 +551,8 @@ export default function EventHubPage() {
           </div>
         </section>
       )}
+      {phase !== "post" && (
+        <>
       <section id="visitors" className="py-12 md:py-20">
         <div className="container max-w-5xl">
           <SectionHeading kicker="Vor Ort" title="Besucherinformationen" />
@@ -631,6 +678,8 @@ export default function EventHubPage() {
           </div>
         </div>
       </section>
+        </>
+      )}
       <section id="gallery" className="py-12 md:py-20">
         <div className="container max-w-5xl">
           <SectionHeading
@@ -664,7 +713,6 @@ export default function EventHubPage() {
           )}
         </div>
       </section>
-      {phase === "post" && scheduleSection}
       <Dialog
         open={galleryIndex !== null}
         onOpenChange={(open) => !open && setGalleryIndex(null)}

@@ -10,13 +10,15 @@ import { VotingResultsList } from './VotingResultsList';
 interface VotingSectionProps {
   /** Classes to surface first (e.g. the class currently running), from the schedule. */
   priorityClassIds?: string[];
+  mode?: 'interactive' | 'results';
 }
 
-export function VotingSection({ priorityClassIds = [] }: VotingSectionProps) {
-  const { t } = useLanguage();
+export function VotingSection({ priorityClassIds = [], mode = 'interactive' }: VotingSectionProps) {
+  const { t, locale } = useLanguage();
   const { data, isLoading, votingEnabled, votingPreview } = useEventHubVoting();
   const eventId = data?.event.id;
-  const deviceStatus = useDeviceVoteStatus(votingEnabled ? eventId : undefined);
+  const resultsMode = mode === 'results' || data?.votingStatus === 'closed';
+  const deviceStatus = useDeviceVoteStatus(votingEnabled && !resultsMode ? eventId : undefined);
   const castVote = useCastVote(eventId);
   const [voteError, setVoteError] = useState<string | null>(null);
   const [activeClassId, setActiveClassId] = useState('');
@@ -30,7 +32,7 @@ export function VotingSection({ priorityClassIds = [] }: VotingSectionProps) {
 
   const classes = sortClassesWithPriority(data?.classes ?? [], priorityClassIds);
   const activeClass = classes.find((item) => item.id === activeClassId) ?? classes[0];
-  const classQuery = useEventHubClass(votingEnabled && data?.votingStatus !== 'closed' ? activeClass?.id : undefined);
+  const classQuery = useEventHubClass(votingEnabled && !resultsMode ? activeClass?.id : undefined);
 
   if (!votingEnabled || !data) {
     return null;
@@ -71,8 +73,16 @@ export function VotingSection({ priorityClassIds = [] }: VotingSectionProps) {
       {isLoading && <p className="text-sm text-muted-foreground">{t.common.loading}</p>}
       {voteError && <p className="mb-3 text-sm text-destructive">{voteError}</p>}
 
-      {data.votingStatus === 'closed' ? (
-        <VotingResultsList classes={classes} />
+      {resultsMode ? (
+        <VotingResultsList
+          classes={classes}
+          emptyText={{
+            de: 'Die Ergebnisse werden in Kürze veröffentlicht.',
+            en: 'The results will be published shortly.',
+            cz: 'Výsledky budou brzy zveřejněny.',
+            pl: 'Wyniki zostaną wkrótce opublikowane.',
+          }[locale]}
+        />
       ) : (
         <>
           <div className="-mx-4 mb-3 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
