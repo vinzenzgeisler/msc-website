@@ -97,27 +97,32 @@ function useCountdown(targetDate: Date | null) {
 function PostEventHero() {
   const { locale } = useLanguage();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoSrc] = useState(() =>
+    window.matchMedia('(max-width: 767px)').matches
+      ? '/media/aftermovie-2026-hero-mobile.mp4'
+      : '/media/aftermovie-2026-hero-desktop.mp4',
+  );
   const [videoEnabled, setVideoEnabled] = useState(false);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [revealVideo, setRevealVideo] = useState(false);
   const defaults = localize(locale, {
     de: {
-      title: 'Motorsport verbindet. Das ganze Jahr.',
+      title: 'Motorsport verbindet.',
       subtitle: 'Wir sind der MSC Oberlausitzer Dreiländereck e.V. – zuhause im Motorsport, getragen von Gemeinschaft. Erlebt das 12. Oberlausitzer Dreieck im Aftermovie noch einmal.',
       cta: 'Verein kennenlernen',
     },
     en: {
-      title: 'Motorsport brings us together. All year round.',
+      title: 'Motorsport brings us together.',
       subtitle: 'We are MSC Oberlausitzer Dreiländereck e.V. – at home in motorsport and powered by community. Relive the 12th Oberlausitzer Dreieck in our aftermovie.',
       cta: 'Discover our club',
     },
     cz: {
-      title: 'Motorsport nás spojuje. Po celý rok.',
+      title: 'Motorsport nás spojuje.',
       subtitle: 'Jsme MSC Oberlausitzer Dreiländereck e.V. – doma v motorsportu a silní díky komunitě. Připomeňte si 12. Oberlausitzer Dreieck v našem aftermovie.',
       cta: 'Poznejte náš klub',
     },
     pl: {
-      title: 'Motorsport łączy. Przez cały rok.',
+      title: 'Motorsport łączy.',
       subtitle: 'Jesteśmy MSC Oberlausitzer Dreiländereck e.V. – żyjemy motorsportem i wspólnotą. Przeżyjcie ponownie 12. Oberlausitzer Dreieck w naszym aftermovie.',
       cta: 'Poznaj nasz klub',
     },
@@ -150,10 +155,13 @@ function PostEventHero() {
         className="absolute inset-0 h-full w-full object-cover"
         width={1600}
         height={692}
+        loading="eager"
+        fetchPriority="high"
       />
       {videoEnabled && (
         <video
           ref={videoRef}
+          src={videoSrc}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity ${videoVisible ? 'opacity-100' : 'opacity-0'}`}
           style={{ transitionDuration: '1200ms' }}
           muted
@@ -168,10 +176,7 @@ function PostEventHero() {
             setVideoEnabled(false);
             setVideoPlaying(false);
           }}
-        >
-          <source src="/media/aftermovie-2026-hero-mobile.mp4" media="(max-width: 767px)" type="video/mp4" />
-          <source src="/media/aftermovie-2026-hero-desktop.mp4" type="video/mp4" />
-        </video>
+        />
       )}
       <div className="absolute inset-0 bg-black/30" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/45" />
