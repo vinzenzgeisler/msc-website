@@ -15,7 +15,7 @@ interface VotingSectionProps {
 
 export function VotingSection({ priorityClassIds = [], mode = 'interactive' }: VotingSectionProps) {
   const { t, locale } = useLanguage();
-  const { data, isLoading, votingEnabled, votingPreview } = useEventHubVoting();
+  const { data, isLoading, isError, votingEnabled, votingPreview } = useEventHubVoting();
   const eventId = data?.event.id;
   const resultsMode = mode === 'results' || data?.votingStatus === 'closed';
   const deviceStatus = useDeviceVoteStatus(votingEnabled && !resultsMode ? eventId : undefined);
@@ -34,8 +34,18 @@ export function VotingSection({ priorityClassIds = [], mode = 'interactive' }: V
   const activeClass = classes.find((item) => item.id === activeClassId) ?? classes[0];
   const classQuery = useEventHubClass(votingEnabled && !resultsMode ? activeClass?.id : undefined);
 
+  if (isLoading) {
+    return <section id="publikumsvoting" className="scroll-mt-24"><div className="mb-4 h-7 w-56 animate-pulse rounded bg-muted"/><div className="h-64 animate-pulse rounded-xl bg-muted" aria-label={t.common.loading}/></section>;
+  }
+
   if (!votingEnabled || !data) {
-    return null;
+    const unavailable = {
+      de: 'Die Fahrer- und Voting-Ergebnisse konnten gerade nicht geladen werden. Bitte versucht es in Kürze erneut.',
+      en: 'The driver and voting results could not be loaded right now. Please try again shortly.',
+      cz: 'Výsledky jezdců a hlasování se nyní nepodařilo načíst. Zkuste to prosím znovu za chvíli.',
+      pl: 'Nie udało się teraz wczytać wyników kierowców i głosowania. Spróbuj ponownie za chwilę.',
+    }[locale];
+    return <section id="publikumsvoting" className="scroll-mt-24"><h2 className="flex items-center gap-2 text-xl font-bold sm:text-2xl"><Vote className="h-6 w-6 text-primary" aria-hidden/>{t.voting.sectionTitle}</h2><p className={`mt-4 rounded-xl border p-4 text-sm ${isError ? 'border-destructive/30 text-destructive' : 'text-muted-foreground'}`}>{unavailable}</p></section>;
   }
 
   const votedClassIds = deviceStatus.data?.votedClassIds ?? [];
@@ -70,7 +80,6 @@ export function VotingSection({ priorityClassIds = [], mode = 'interactive' }: V
         )}
       </div>
 
-      {isLoading && <p className="text-sm text-muted-foreground">{t.common.loading}</p>}
       {voteError && <p className="mb-3 text-sm text-destructive">{voteError}</p>}
 
       {resultsMode ? (

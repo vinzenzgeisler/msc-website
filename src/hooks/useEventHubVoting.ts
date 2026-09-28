@@ -7,6 +7,7 @@ import { useMainEvent } from '@/hooks/useMainEvent';
 interface UseEventHubVotingResult {
   data: EventHubSummaryResponse | undefined;
   isLoading: boolean;
+  isError: boolean;
   /** false when the backend isn't configured, unreachable, or the CMS/backend "current" events have drifted apart. */
   votingEnabled: boolean;
   /** Development-only mode for trying the complete voting flow without sending votes. */
@@ -55,6 +56,7 @@ export function useEventHubVoting(): UseEventHubVotingResult {
   return {
     data: query.data && votingPreview ? { ...query.data, votingStatus: 'open' } : query.data,
     isLoading: query.isLoading,
+    isError: query.isError,
     votingEnabled: isEventBackendConfigured() && Boolean(query.data) && eventMatches,
     votingPreview
   };

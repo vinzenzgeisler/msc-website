@@ -49,6 +49,7 @@ import {
   Download,
   ExternalLink,
   Flag,
+  Gavel,
   Image,
   Info,
   Map,
@@ -58,6 +59,7 @@ import {
   ShieldCheck,
   Sparkles,
   Ticket,
+  Trophy,
   Users,
 } from "lucide-react";
 
@@ -218,24 +220,33 @@ export default function EventHubPage() {
     de: {
       description: "Rund 265 Nennungen und etwa 3.700 Zuschauer machten das 12. Oberlausitzer Dreieck erneut zu einem großen Motorsportwochenende.",
       results: "Fahrer & Ergebnisse",
-      allResults: "Fahrer & Voting-Ergebnisse",
       overviewKicker: "Rückblick 2026",
       overviewTitle: "Ein Wochenende, das in Erinnerung bleibt",
       overviewParagraphs: [
-        "Mit rund 265 Nennungen einschließlich der Doppelstarter durften wir ein großes und vielfältiges Teilnehmerfeld begrüßen. Trotz des wechselhaften Wetters kamen über das Wochenende etwa 3.700 Zuschauer an die Strecke.",
-        "Ein neues Nennungstool, digitale Abläufe im Organisationsbüro und die technische Abnahme per QR-Code machten viele Wege vor Ort schneller. Möglich wurde das Wochenende durch den Einsatz unserer Helfer, Streckenposten, Rettungs- und Einsatzkräfte sowie unserer Partner.",
-        "Der Sonntagnachmittag wurde von einem schweren Unfall mit Todesfolge überschattet. Die Veranstaltung wurde daraufhin beendet. Unsere Gedanken und unser tiefes Mitgefühl gelten den Angehörigen, Freunden und Wegbegleitern des Verstorbenen.",
+        "Mit rund 265 Nennungen einschließlich der Doppelstarter durften wir auch in diesem Jahr wieder ein großes und vielfältiges Teilnehmerfeld begrüßen. Trotz des wechselhaften Wetters kamen an beiden Veranstaltungstagen rund 3.700 Zuschauer an die Strecke und sorgten für eine besondere Atmosphäre rund um das Oberlausitzer Dreieck.",
+        "Auch organisatorisch gab es in diesem Jahr einige Neuerungen. Ein neues Nennungstool, digitale Abläufe im Organisationsbüro und die technische Abnahme per QR-Code erleichterten viele Prozesse vor Ort. Möglich wurde die Durchführung der Veranstaltung vor allem durch den großen Einsatz unserer Helfer, Streckenposten, Rettungs- und Einsatzkräfte sowie unserer Partner. Dafür möchten wir uns nochmals herzlich bedanken.",
+        "Der Sonntag nahm am Nachmittag durch einen schweren Unfall mit Todesfolge einen tragischen Verlauf. Die Veranstaltung wurde daraufhin beendet. Dieser Moment überschattet den Rückblick auf das 12. Oberlausitzer Dreieck. Unsere Gedanken und unser tief empfundenes Mitgefühl gelten den Angehörigen, Freunden und Wegbegleitern des Verstorbenen.",
       ],
       aftermovieKicker: "Filmischer Rückblick",
       aftermovieTitle: "Das Aftermovie 2026",
       aftermovieText: "Momente von der Strecke, aus den Fahrerlagern und von den Menschen, die das Oberlausitzer Dreieck möglich machen.",
       pressLabel: "Offizielle Mitteilung",
       pressCta: "Pressemitteilung lesen",
+      featuresKicker: "Menschen & Ergebnisse",
+      featuresTitle: "Fahrer, Voting & Helmauktion",
+      driversTitle: "Fahrer im Fokus",
+      driversText: "Entdeckt ausgewählte Fahrer, ihre Fahrzeuge und die Vielfalt eines Teilnehmerfeldes mit rund 265 Nennungen.",
+      driversCta: "Fahrer ansehen",
+      votingTitle: "Publikumsvoting",
+      votingText: "Die Abstimmung ist beendet. Alle veröffentlichten Klassensieger findet ihr in der Ergebnisübersicht.",
+      votingCta: "Ergebnisse ansehen",
+      auctionTitle: "Didier-Grams-Helmauktion",
+      auctionText: "David Träber sicherte sich den signierten Helm mit dem Höchstgebot von 333 Euro.",
+      auctionCta: "Auktionsergebnis ansehen",
     },
     en: {
       description: "Around 265 entries and some 3,700 spectators made the 12th Oberlausitzer Dreieck another major motorsport weekend.",
       results: "Drivers & results",
-      allResults: "Drivers & voting results",
       overviewKicker: "2026 review",
       overviewTitle: "A weekend that will stay with us",
       overviewParagraphs: [
@@ -248,11 +259,21 @@ export default function EventHubPage() {
       aftermovieText: "Moments from the course, the paddocks and the people who make the Oberlausitzer Dreieck possible.",
       pressLabel: "Official statement",
       pressCta: "Read the press release",
+      featuresKicker: "People & results",
+      featuresTitle: "Drivers, voting & helmet auction",
+      driversTitle: "Featured drivers",
+      driversText: "Discover selected drivers, their vehicles and the variety of a field with around 265 entries.",
+      driversCta: "View drivers",
+      votingTitle: "Audience voting",
+      votingText: "Voting has closed. Find all published class winners in the results overview.",
+      votingCta: "View results",
+      auctionTitle: "Didier Grams helmet auction",
+      auctionText: "David Träber secured the signed helmet with the winning bid of 333 euros.",
+      auctionCta: "View auction result",
     },
     cz: {
       description: "Přibližně 265 přihlášek a kolem 3 700 diváků udělalo z 12. ročníku Oberlausitzer Dreieck opět velký motoristický víkend.",
       results: "Jezdci a výsledky",
-      allResults: "Jezdci a výsledky hlasování",
       overviewKicker: "Ohlédnutí za rokem 2026",
       overviewTitle: "Víkend, který zůstane v paměti",
       overviewParagraphs: [
@@ -265,11 +286,21 @@ export default function EventHubPage() {
       aftermovieText: "Okamžiky z trati, depa a od lidí, kteří umožňují konání Oberlausitzer Dreieck.",
       pressLabel: "Oficiální prohlášení",
       pressCta: "Přečíst tiskovou zprávu",
+      featuresKicker: "Lidé a výsledky",
+      featuresTitle: "Jezdci, hlasování a aukce helmy",
+      driversTitle: "Jezdci v centru pozornosti",
+      driversText: "Poznejte vybrané jezdce, jejich vozidla a pestrost startovního pole s přibližně 265 přihláškami.",
+      driversCta: "Zobrazit jezdce",
+      votingTitle: "Divácké hlasování",
+      votingText: "Hlasování skončilo. V přehledu výsledků najdete všechny zveřejněné vítěze tříd.",
+      votingCta: "Zobrazit výsledky",
+      auctionTitle: "Aukce helmy Didiera Gramse",
+      auctionText: "David Träber získal podepsanou helmu s vítěznou nabídkou 333 eur.",
+      auctionCta: "Zobrazit výsledek aukce",
     },
     pl: {
       description: "Około 265 zgłoszeń i blisko 3700 widzów sprawiło, że 12. Oberlausitzer Dreieck ponownie stał się wielkim weekendem motorsportowym.",
       results: "Kierowcy i wyniki",
-      allResults: "Kierowcy i wyniki głosowania",
       overviewKicker: "Podsumowanie 2026",
       overviewTitle: "Weekend, który pozostanie w pamięci",
       overviewParagraphs: [
@@ -282,6 +313,17 @@ export default function EventHubPage() {
       aftermovieText: "Chwile z trasy, paddocków i spotkania z ludźmi, dzięki którym Oberlausitzer Dreieck jest możliwy.",
       pressLabel: "Oficjalny komunikat",
       pressCta: "Przeczytaj komunikat prasowy",
+      featuresKicker: "Ludzie i wyniki",
+      featuresTitle: "Kierowcy, głosowanie i aukcja kasku",
+      driversTitle: "Kierowcy w centrum uwagi",
+      driversText: "Poznaj wybranych kierowców, ich pojazdy oraz różnorodność stawki liczącej około 265 zgłoszeń.",
+      driversCta: "Zobacz kierowców",
+      votingTitle: "Głosowanie publiczności",
+      votingText: "Głosowanie zostało zakończone. Wszystkich opublikowanych zwycięzców klas znajdziesz w zestawieniu wyników.",
+      votingCta: "Zobacz wyniki",
+      auctionTitle: "Aukcja kasku Didiera Gramse",
+      auctionText: "David Träber zdobył podpisany kask zwycięską ofertą w wysokości 333 euro.",
+      auctionCta: "Zobacz wynik aukcji",
     },
   });
   const dateText = event
@@ -650,18 +692,35 @@ export default function EventHubPage() {
         </section>
       )}
       {phase !== "post" && <EventFeatureTeasers />}
-      <div className={`container max-w-5xl ${phase === "post" ? "py-10 md:py-14" : "py-6 md:py-8"}`}>
-        <HighlightsSection classIds={phase === "live" ? live.current?.backend_class_ids ?? [] : []} />
-        {phase === "post" && (
-          <div className="mt-6 flex">
-            <Button asChild variant="outline">
-              <Link to="/event/fahrer#publikumsvoting">
-                {postCopy.allResults} <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+      {phase === "post" ? (
+        <section id="event-results" className="scroll-mt-24 py-12 md:py-20">
+          <div className="container max-w-5xl">
+            <SectionHeading kicker={postCopy.featuresKicker} title={postCopy.featuresTitle} />
+            <div className="grid gap-5 md:grid-cols-3">
+              {[
+                { icon: Users, title: postCopy.driversTitle, text: postCopy.driversText, cta: postCopy.driversCta, to: "/event/fahrer#fahrer-im-fokus" },
+                { icon: Trophy, title: postCopy.votingTitle, text: postCopy.votingText, cta: postCopy.votingCta, to: "/event/fahrer#publikumsvoting" },
+                { icon: Gavel, title: postCopy.auctionTitle, text: postCopy.auctionText, cta: postCopy.auctionCta, to: "/event/helm-versteigerung" },
+              ].map(({ icon: Icon, title, text, cta, to }) => (
+                <Link key={to} to={to} className="group flex min-h-64 flex-col border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary hover:shadow-lg">
+                  <span className="grid h-11 w-11 place-items-center bg-primary/10 text-primary">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <h3 className="mt-6 text-xl font-black leading-tight group-hover:text-primary">{title}</h3>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">{text}</p>
+                  <span className="mt-6 inline-flex items-center text-sm font-semibold text-primary">
+                    {cta} <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </Link>
+              ))}
+            </div>
           </div>
-        )}
-      </div>
+        </section>
+      ) : (
+        <div className="container max-w-5xl py-6 md:py-8">
+          <HighlightsSection classIds={phase === "live" ? live.current?.backend_class_ids ?? [] : []} />
+        </div>
+      )}
       {phase !== "post" && scheduleSection}
       {phase !== "post" && <EventFeatureNudge />}
       {mainSponsors.length > 0 && (

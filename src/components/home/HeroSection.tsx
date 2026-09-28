@@ -140,7 +140,10 @@ function PostEventHero() {
     setVideoEnabled(true);
     const timer = window.setTimeout(() => {
       setRevealVideo(true);
-      void videoRef.current?.play().catch(() => setVideoPlaying(false));
+      const video = videoRef.current;
+      if (!video) return;
+      video.currentTime = 0;
+      void video.play().catch(() => setVideoPlaying(false));
     }, 2500);
     return () => window.clearTimeout(timer);
   }, []);
@@ -148,26 +151,19 @@ function PostEventHero() {
   const videoVisible = revealVideo && videoPlaying;
 
   return (
-    <section className="relative flex min-h-[calc(100svh-4rem)] items-center overflow-hidden bg-slate-950 md:min-h-[76vh]">
-      <img
-        src="/media/aftermovie-2026-poster.webp"
-        alt="Fahrerlager des Oberlausitzer Dreiecks aus der Luft"
-        className="absolute inset-0 h-full w-full object-cover"
-        width={1600}
-        height={692}
-        loading="eager"
-        fetchPriority="high"
-      />
+    <section className="relative flex min-h-[calc(100svh-4rem)] items-center overflow-hidden bg-primary md:min-h-[76vh]">
+      <div className="absolute inset-0 bg-primary">
+        <div className="racing-stripe h-full w-full" />
+      </div>
       {videoEnabled && (
         <video
           ref={videoRef}
           src={videoSrc}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity ${videoVisible ? 'opacity-100' : 'opacity-0'}`}
-          style={{ transitionDuration: '1200ms' }}
+          style={{ transitionDuration: '1800ms' }}
           muted
           loop
           playsInline
-          autoPlay
           preload="auto"
           poster="/media/aftermovie-2026-poster.webp"
           aria-hidden="true"
@@ -178,14 +174,26 @@ function PostEventHero() {
           }}
         />
       )}
-      <div className="absolute inset-0 bg-black/30" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/45" />
+      <div
+        className={`absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.56)_0%,rgba(0,0,0,0.30)_58%,rgba(0,0,0,0.12)_100%)] transition-opacity ${videoVisible ? 'opacity-100' : 'opacity-0'}`}
+        style={{ transitionDuration: '1800ms' }}
+      />
+      <div
+        className={`absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/40 transition-opacity ${videoVisible ? 'opacity-100' : 'opacity-0'}`}
+        style={{ transitionDuration: '1800ms' }}
+      />
       <div className="container relative z-10 py-14 md:py-20">
         <div className="mx-auto max-w-4xl text-center text-white">
-          <h1 className="font-display text-3xl font-black uppercase leading-[0.98] tracking-tight drop-shadow-[0_3px_16px_rgba(0,0,0,0.8)] sm:text-5xl md:text-7xl">
+          <h1
+            className={`font-display text-3xl font-black uppercase leading-[0.98] tracking-tight transition-[filter] sm:text-5xl md:text-7xl ${videoVisible ? 'drop-shadow-[0_3px_16px_rgba(0,0,0,0.8)]' : ''}`}
+            style={{ transitionDuration: '1800ms' }}
+          >
             {content.title}
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] md:text-xl">
+          <p
+            className={`mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white transition-[filter] md:text-xl ${videoVisible ? 'drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]' : ''}`}
+            style={{ transitionDuration: '1800ms' }}
+          >
             {content.subtitle}
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

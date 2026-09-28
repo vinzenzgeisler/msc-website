@@ -18,6 +18,7 @@ export function EventSubnav({ phase }: { phase?: EventPhase }) {
     ? [
         { to: '/event', label: copy.review, icon: CalendarDays, end: true },
         { to: '/event/fahrer', label: copy.results, icon: UsersRound, end: false },
+        { to: '/event/helm-versteigerung', label: copy.auction, icon: Gavel, end: false },
       ]
     : [
         { to: '/event', label: copy.event, icon: CalendarDays, end: true },
