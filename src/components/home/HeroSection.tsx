@@ -175,7 +175,7 @@ function PostEventHero() {
         />
       )}
       <div
-        className={`absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.56)_0%,rgba(0,0,0,0.30)_58%,rgba(0,0,0,0.12)_100%)] transition-opacity ${videoVisible ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-[radial-gradient(ellipse_85%_72%_at_50%_48%,rgba(0,0,0,0.50)_0%,rgba(0,0,0,0.36)_32%,rgba(0,0,0,0.20)_60%,rgba(0,0,0,0.08)_80%,transparent_100%)] transition-opacity ${videoVisible ? 'opacity-100' : 'opacity-0'}`}
         style={{ transitionDuration: '1800ms' }}
       />
       <div
@@ -185,14 +185,20 @@ function PostEventHero() {
       <div className="container relative z-10 py-14 md:py-20">
         <div className="mx-auto max-w-4xl text-center text-white">
           <h1
-            className={`font-display text-3xl font-black uppercase leading-[0.98] tracking-tight transition-[filter] sm:text-5xl md:text-7xl ${videoVisible ? 'drop-shadow-[0_3px_16px_rgba(0,0,0,0.8)]' : ''}`}
-            style={{ transitionDuration: '1800ms' }}
+            className="font-display text-3xl font-black uppercase leading-[0.98] tracking-tight transition-[text-shadow] sm:text-5xl md:text-7xl"
+            style={{
+              textShadow: videoVisible ? '0 3px 18px rgba(0, 0, 0, 0.78)' : '0 3px 18px rgba(0, 0, 0, 0)',
+              transitionDuration: '1800ms',
+            }}
           >
             {content.title}
           </h1>
           <p
-            className={`mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white transition-[filter] md:text-xl ${videoVisible ? 'drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]' : ''}`}
-            style={{ transitionDuration: '1800ms' }}
+            className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white transition-[text-shadow] md:text-xl"
+            style={{
+              textShadow: videoVisible ? '0 2px 10px rgba(0, 0, 0, 0.88)' : '0 2px 10px rgba(0, 0, 0, 0)',
+              transitionDuration: '1800ms',
+            }}
           >
             {content.subtitle}
           </p>
