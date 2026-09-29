@@ -20,6 +20,21 @@
       "source": "/old/accommodation",
       "destination": "/event/accommodation",
       "permanent": true
+    },
+    {
+      "source": "/sections/touring",
+      "destination": "/club/touring",
+      "permanent": true
+    },
+    {
+      "source": "/sections/motocross",
+      "destination": "/club/motocross",
+      "permanent": true
+    },
+    {
+      "source": "/sections/trial",
+      "destination": "/club/trial",
+      "permanent": true
     }
   ],
   "rewrites": [

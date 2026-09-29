@@ -49,14 +49,9 @@ export function Header() {
         { path: '/club/board', label: t.nav.board },
         { path: '/club/history', label: t.nav.history },
         { path: '/club/membership', label: t.nav.membership },
-      ],
-    },
-    {
-      label: t.nav.sections,
-      children: [
-        { path: '/sections/touring', label: t.nav.touring },
-        { path: '/sections/motocross', label: t.nav.motocross },
-        { path: '/sections/trial', label: t.nav.trial },
+        { path: '/club/touring', label: t.nav.touring },
+        { path: '/club/motocross', label: t.nav.motocross },
+        { path: '/club/trial', label: t.nav.trial },
       ],
     },
     {

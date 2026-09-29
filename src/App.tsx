@@ -91,11 +91,12 @@ const App = () => (
               <Route path="/club/board" element={<BoardPage />} />
               <Route path="/club/history" element={<HistoryPage />} />
               <Route path="/club/membership" element={<MembershipPage />} />
-              
-              {/* Sections Pages */}
-              <Route path="/sections/touring" element={<TouringPage />} />
-              <Route path="/sections/motocross" element={<MotocrossPage />} />
-              <Route path="/sections/trial" element={<TrialPage />} />
+              <Route path="/club/touring" element={<TouringPage />} />
+              <Route path="/club/motocross" element={<MotocrossPage />} />
+              <Route path="/club/trial" element={<TrialPage />} />
+              <Route path="/sections/touring" element={<Navigate to="/club/touring" replace />} />
+              <Route path="/sections/motocross" element={<Navigate to="/club/motocross" replace />} />
+              <Route path="/sections/trial" element={<Navigate to="/club/trial" replace />} />
               
               {/* Partner Pages */}
               <Route path="/partners/sponsors" element={<SponsorsPage />} />

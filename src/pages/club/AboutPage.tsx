@@ -59,9 +59,9 @@ export default function AboutPage() {
   ];
 
   const sections = [
-    { icon: Bike, title: t.nav.motocross, path: '/sections/motocross' },
-    { icon: Target, title: t.nav.trial, path: '/sections/trial' },
-    { icon: MapPin, title: t.nav.touring, path: '/sections/touring' },
+    { icon: Bike, title: t.nav.motocross, path: '/club/motocross' },
+    { icon: Target, title: t.nav.trial, path: '/club/trial' },
+    { icon: MapPin, title: t.nav.touring, path: '/club/touring' },
   ];
 
   return (
