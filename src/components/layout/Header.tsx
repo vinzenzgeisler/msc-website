@@ -86,7 +86,7 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-1 xl:ml-8 xl:mr-4 xl:flex 2xl:ml-12 2xl:mr-8">
+        <nav className="hidden items-center gap-1 xl:ml-auto xl:flex">
           {navItems.map((item) =>
             item.children ? (
               <DropdownMenu key={item.label}>
@@ -128,11 +128,11 @@ export function Header() {
         </nav>
 
         {/* Right Side: Language Switcher & Theme Toggle */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 xl:ml-2">
           {/* Language Switcher */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1">
+              <Button variant="outline" className="h-10 w-14 gap-1 p-0">
                 <span>{currentLang.code.toUpperCase()}</span>
                 <ChevronDown className="h-3 w-3" />
               </Button>
@@ -154,7 +154,7 @@ export function Header() {
           {/* Theme Toggle */}
           <Button
             variant="outline"
-            size="icon"
+            className="h-10 w-14 p-0"
             onClick={toggleTheme}
             aria-label="Toggle theme"
           >

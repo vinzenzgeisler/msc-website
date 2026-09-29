@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useLanguage, useTranslation } from '@/i18n/LanguageContext';
 import { localize } from '@/i18n/locale-utils';
-import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
+import { Facebook, Instagram, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { useSettings } from '@/hooks/useSettings';
 import { useConsent } from '@/contexts/ConsentContext';
 import { trackEvent } from '@/lib/analytics';
@@ -59,6 +59,13 @@ export function Footer() {
               >
                 <Instagram className="h-5 w-5" />
               </a>
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                <MessageCircle className="h-4 w-4" />
+                {t.nav.contact}
+              </Link>
             </div>
           </div>
 
@@ -135,14 +142,14 @@ export function Footer() {
                 </li>
               )}
               <li>
-                <a
-                  href={`mailto:${settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.eu'}`}
+                <Link
+                  to="/contact"
                   onClick={() => trackEvent('contact_click', { category: 'engagement', label: 'footer_email' })}
                   className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <Mail className="h-4 w-4" />
                   {settings?.contact_email || 'info@msc-oberlausitzer-dreilaendereck.eu'}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
