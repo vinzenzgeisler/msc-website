@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Facebook-Profilbild | MSC Oberlausitzer Dreiländereck e. V.</title>
+    <style>
+      :root {
+        --primary-dark: hsl(220 70% 30%);
+        --accent: hsl(48 100% 50%);
+        --profile-size: 1200px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        min-width: var(--profile-size);
+        min-height: var(--profile-size);
+        background: transparent;
+      }
+
+      .profile {
+        position: relative;
+        display: grid;
+        width: var(--profile-size);
+        height: var(--profile-size);
+        place-items: center;
+        overflow: hidden;
+        background: var(--primary-dark);
+      }
+
+      .logo {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 790px;
+        height: 790px;
+        object-fit: contain;
+        filter:
+          invert(1)
+          drop-shadow(0 28px 28px hsl(220 70% 12% / 0.42))
+          drop-shadow(0 7px 8px hsl(220 70% 10% / 0.28));
+      }
+    </style>
+  </head>
+  <body>
+    <main class="profile" aria-label="Facebook-Profilbild des MSC Oberlausitzer Dreiländereck e. V.">
+      <img
+        class="logo"
+        src="../../../MSC-logo-clean.svg"
+        alt="Logo des MSC Oberlausitzer Dreiländereck e. V."
+        width="1254"
+        height="1254"
+      />
+    </main>
+  </body>
+</html>

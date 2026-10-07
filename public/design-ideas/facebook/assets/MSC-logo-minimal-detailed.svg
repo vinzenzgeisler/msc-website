@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-labelledby="title">
+  <title id="title">Detailliertes reduziertes Logo des MSC Oberlausitzer Dreiländereck</title>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0b1e43" flood-opacity=".4"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <path
+      d="M158 160Q500 38 842 160L812 614Q791 800 500 932Q209 800 188 614Z"
+      fill="#173f86"
+      stroke="#fff"
+      stroke-width="31"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M199 191Q500 91 801 191L775 594Q756 752 500 873Q244 752 225 594Z"
+      fill="none"
+      stroke="#fff"
+      stroke-width="10"
+      stroke-linejoin="round"
+      opacity=".34"
+    />
+
+    <path
+      d="M258 438C334 392 397 336 448 260C482 210 516 208 552 258L665 414C697 458 736 476 787 492C820 502 830 528 813 551C795 575 763 580 724 568C659 548 610 513 558 484C497 450 433 449 371 472C328 488 289 521 251 526C224 530 207 514 210 492C213 471 232 454 258 438Z"
+      fill="none"
+      stroke="#ffcc00"
+      stroke-width="39"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M258 438C334 392 397 336 448 260C482 210 516 208 552 258L665 414C697 458 736 476 787 492C820 502 830 528 813 551C795 575 763 580 724 568C659 548 610 513 558 484C497 450 433 449 371 472C328 488 289 521 251 526C224 530 207 514 210 492C213 471 232 454 258 438Z"
+      fill="none"
+      stroke="#173f86"
+      stroke-width="17"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <g transform="translate(718 478) rotate(18)">
+      <path d="M0 0V92" stroke="#fff" stroke-width="13" stroke-linecap="round"/>
+      <path d="M25 0V92" stroke="#fff" stroke-width="13" stroke-linecap="round"/>
+      <path d="M50 0V92" stroke="#fff" stroke-width="13" stroke-linecap="round"/>
+    </g>
+
+    <text
+      x="500"
+      y="800"
+      fill="#fff"
+      font-family="Oswald, Arial Narrow, sans-serif"
+      font-size="225"
+      font-weight="700"
+      letter-spacing="7"
+      text-anchor="middle"
+    >MSC</text>
+
+    <path d="M345 832H655" stroke="#ffcc00" stroke-width="10" stroke-linecap="square"/>
+  </g>
+</svg>

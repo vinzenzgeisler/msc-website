@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Facebook-Profilbild – Reduziertes Logo aus Originalbestandteilen</title>
+    <style>
+      :root {
+        --primary-dark: hsl(220 70% 30%);
+        --profile-size: 1200px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        min-width: var(--profile-size);
+        min-height: var(--profile-size);
+        background: transparent;
+      }
+
+      .profile {
+        position: relative;
+        width: var(--profile-size);
+        height: var(--profile-size);
+        overflow: hidden;
+        background: var(--primary-dark);
+      }
+
+      .shield,
+      .shield-inner,
+      .track,
+      .monogram {
+        position: absolute;
+        display: block;
+        object-fit: contain;
+      }
+
+      .shield {
+        inset: 95px;
+        width: 1010px;
+        height: 1010px;
+        filter: drop-shadow(0 25px 26px hsl(220 70% 12% / 0.38));
+      }
+
+      .shield-inner {
+        inset: 142px;
+        width: 916px;
+        height: 916px;
+        opacity: 0.42;
+      }
+
+      .track {
+        top: 185px;
+        left: 195px;
+        width: 810px;
+        height: 715px;
+        filter:
+          invert(1)
+          drop-shadow(0 16px 18px hsl(220 70% 12% / 0.34));
+        transform: rotate(-2deg);
+      }
+
+      .monogram {
+        z-index: 2;
+        top: 735px;
+        left: 395px;
+        width: 410px;
+        height: auto;
+        filter:
+          drop-shadow(0 14px 14px hsl(220 70% 12% / 0.36));
+      }
+    </style>
+  </head>
+  <body>
+    <main class="profile" aria-label="Reduziertes MSC-Logo aus Originalbestandteilen">
+      <img class="shield" src="../assets/MSC-shield-outline.svg" alt="" aria-hidden="true" />
+      <img class="shield-inner" src="../assets/MSC-shield-outline.svg" alt="" aria-hidden="true" />
+      <img class="track" src="../assets/msc-map.svg" alt="Oberlausitzer Dreieck" />
+      <img class="monogram" src="../assets/MSC-monogram.png" alt="MSC" />
+    </main>
+  </body>
+</html>

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Facebook-Profilbild – Modernes reduziertes MSC-Landschaftslogo</title>
+    <style>
+      :root {
+        --primary-dark: hsl(220 70% 30%);
+        --primary-deep: hsl(220 70% 24%);
+        --accent: hsl(48 100% 50%);
+        --profile-size: 1200px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        min-width: var(--profile-size);
+        min-height: var(--profile-size);
+        background: transparent;
+      }
+
+      .profile {
+        position: relative;
+        width: var(--profile-size);
+        height: var(--profile-size);
+        overflow: hidden;
+        background: var(--primary-dark);
+      }
+
+      .shield,
+      .shield-inner,
+      .track,
+      .monogram {
+        position: absolute;
+        display: block;
+        object-fit: contain;
+      }
+
+      .shield {
+        z-index: 1;
+        inset: 92px;
+        width: 1016px;
+        height: 1016px;
+        filter: drop-shadow(0 25px 28px hsl(220 70% 10% / 0.4));
+      }
+
+      .shield-inner {
+        z-index: 2;
+        inset: 136px;
+        width: 928px;
+        height: 928px;
+        opacity: 0.5;
+      }
+
+      .landscape {
+        position: absolute;
+        z-index: 0;
+        inset: 0;
+      }
+
+      .mountain-back,
+      .mountain-front {
+        position: absolute;
+        left: 150px;
+        width: 900px;
+        background: var(--accent);
+      }
+
+      .mountain-back {
+        top: 222px;
+        height: 310px;
+        opacity: 0.92;
+        clip-path: polygon(0 62%, 15% 39%, 25% 46%, 41% 17%, 55% 44%, 72% 26%, 100% 55%, 100% 100%, 0 100%);
+      }
+
+      .mountain-front {
+        top: 340px;
+        height: 255px;
+        opacity: 0.5;
+        clip-path: polygon(0 48%, 18% 31%, 35% 43%, 51% 20%, 67% 48%, 82% 33%, 100% 50%, 100% 100%, 0 100%);
+      }
+
+      .landscape-base {
+        position: absolute;
+        top: 495px;
+        left: 142px;
+        width: 916px;
+        height: 470px;
+        background: var(--primary-deep);
+        clip-path: polygon(0 0, 100% 0, 93% 63%, 76% 82%, 50% 100%, 24% 82%, 7% 63%);
+      }
+
+      .track {
+        z-index: 4;
+        top: 205px;
+        left: 220px;
+        width: 760px;
+        height: 665px;
+        filter:
+          invert(1)
+          drop-shadow(0 16px 18px hsl(220 70% 10% / 0.34));
+        transform: rotate(-2deg);
+      }
+
+      .monogram {
+        z-index: 5;
+        top: 742px;
+        left: 390px;
+        width: 420px;
+        height: auto;
+        filter:
+          drop-shadow(0 15px 16px hsl(220 70% 10% / 0.42));
+      }
+    </style>
+  </head>
+  <body>
+    <main class="profile" aria-label="Modernes reduziertes MSC-Logo mit Bergen und Oberlausitzer Dreieck">
+      <div class="landscape" aria-hidden="true">
+        <div class="mountain-back"></div>
+        <div class="mountain-front"></div>
+        <div class="landscape-base"></div>
+      </div>
+      <img class="shield" src="../assets/MSC-shield-outline.svg" alt="" aria-hidden="true" />
+      <img class="shield-inner" src="../assets/MSC-shield-outline.svg" alt="" aria-hidden="true" />
+      <img class="track" src="../assets/msc-map.svg" alt="Oberlausitzer Dreieck" />
+      <img class="monogram" src="../assets/MSC-monogram.png" alt="MSC" />
+    </main>
+  </body>
+</html>

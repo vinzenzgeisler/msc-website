@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Facebook-Profilbild – Strecke | MSC Oberlausitzer Dreiländereck e. V.</title>
+    <style>
+      :root {
+        --primary-dark: hsl(220 70% 30%);
+        --profile-size: 1200px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        min-width: var(--profile-size);
+        min-height: var(--profile-size);
+        background: transparent;
+      }
+
+      .profile {
+        position: relative;
+        display: grid;
+        width: var(--profile-size);
+        height: var(--profile-size);
+        place-items: center;
+        overflow: hidden;
+        background: var(--primary-dark);
+      }
+
+      .track {
+        display: block;
+        width: 940px;
+        height: 940px;
+        object-fit: contain;
+        filter:
+          invert(1)
+          drop-shadow(0 26px 28px hsl(220 70% 12% / 0.42))
+          drop-shadow(0 7px 8px hsl(220 70% 10% / 0.24));
+        transform: rotate(-8deg);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="profile" aria-label="Facebook-Profilbild mit Streckensilhouette des MSC Oberlausitzer Dreiländereck e. V.">
+      <img class="track" src="../assets/msc-map.svg" alt="Streckensilhouette" />
+    </main>
+  </body>
+</html>

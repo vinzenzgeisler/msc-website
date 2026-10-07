@@ -11,6 +11,7 @@ import { RichContent } from '@/components/content/RichContent';
 import { toast } from 'sonner';
 import { useSettings } from '@/hooks/useSettings';
 import { getDateFnsLocale, localize } from '@/i18n/locale-utils';
+import { getNewsSocialImageUrl } from '@/lib/news-social-images';
 
 export default function NewsDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -85,6 +86,7 @@ export default function NewsDetailPage() {
   const displayDate = formatDateSafe(article.display_date, 'd. MMMM yyyy', dateLocale, '');
   const publishedTime = toValidDate(article.published_at || article.created_at)?.toISOString();
   const modifiedTime = toValidDate(article.updated_at)?.toISOString();
+  const socialImageUrl = getNewsSocialImageUrl(article.slug) || article.image_url || settings?.default_og_image_url || undefined;
 
   const publishedLabel =
     localize(locale, {
@@ -105,7 +107,7 @@ export default function NewsDetailPage() {
     '@type': 'Article',
     headline: article.title,
     description: article.excerpt || undefined,
-    image: article.image_url ? [article.image_url] : settings?.default_og_image_url ? [settings.default_og_image_url] : undefined,
+    image: socialImageUrl ? [socialImageUrl] : undefined,
     datePublished: publishedTime,
     dateModified: modifiedTime,
     mainEntityOfPage: `https://www.msc-oberlausitz.de${canonicalPath}`,
@@ -149,7 +151,7 @@ export default function NewsDetailPage() {
         description={article.excerpt || undefined}
         canonicalPath={canonicalPath}
         ogType="article"
-        imageUrl={article.image_url || settings?.default_og_image_url || undefined}
+        imageUrl={socialImageUrl}
         imageAlt={article.title}
         articlePublishedTime={publishedTime}
         articleModifiedTime={modifiedTime}

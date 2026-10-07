@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Facebook Cover – Vereinsname im Fokus, dunkles Blau | MSC Oberlausitzer Dreiländereck e. V.</title>
+    <style>
+      @font-face {
+        font-family: "Barlow";
+        font-style: normal;
+        font-weight: 400;
+        src: url("../../../fonts/barlow-latin-400.woff2") format("woff2");
+      }
+
+      @font-face {
+        font-family: "Barlow";
+        font-style: normal;
+        font-weight: 700;
+        src: url("../../../fonts/barlow-latin-700.woff2") format("woff2");
+      }
+
+      @font-face {
+        font-family: "Oswald";
+        font-style: normal;
+        font-weight: 700;
+        src: url("../../../fonts/oswald-latin-700.woff2") format("woff2");
+      }
+
+      :root {
+        --primary: hsl(220 70% 35%);
+        --primary-dark: hsl(220 70% 25%);
+        --primary-soft: hsl(220 70% 39%);
+        --accent: hsl(48 100% 50%);
+        --accent-foreground: hsl(220 40% 10%);
+        --white: hsl(0 0% 100%);
+        --cover-width: 1640px;
+        --cover-height: 624px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        min-width: var(--cover-width);
+        min-height: var(--cover-height);
+        background: transparent;
+        font-family: "Barlow", system-ui, sans-serif;
+      }
+
+      .cover {
+        position: relative;
+        width: var(--cover-width);
+        height: var(--cover-height);
+        overflow: hidden;
+        color: var(--white);
+        background: hsl(220 70% 30%);
+      }
+
+      .track-map,
+      .diagonal-accent,
+      .safe-content {
+        position: absolute;
+      }
+
+      .track-map {
+        top: -150px;
+        left: 110px;
+        width: 1060px;
+        height: 930px;
+        object-fit: contain;
+        opacity: 0.07;
+        filter: invert(1);
+        transform: rotate(-8deg);
+      }
+
+      .diagonal-accent {
+        z-index: 1;
+        inset: 0 0 0 auto;
+        width: 184px;
+        height: 100%;
+        background: var(--accent);
+        clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      }
+
+      .safe-content {
+        z-index: 2;
+        inset: 0;
+        display: grid;
+        grid-template-columns: 760px 330px;
+        align-items: center;
+        gap: 72px;
+        padding: 62px 240px;
+      }
+
+      .club-copy {
+        align-self: center;
+      }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin: 0 0 22px;
+        color: var(--accent);
+        font-size: 19px;
+        font-weight: 700;
+        letter-spacing: 0.17em;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        width: 54px;
+        height: 7px;
+        content: "";
+        background: var(--accent);
+        transform: skewX(-18deg);
+      }
+
+      .club-name,
+      .event-title,
+      .event-date {
+        font-family: "Oswald", system-ui, sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .club-name {
+        max-width: 760px;
+        margin: 0;
+        font-size: 78px;
+        letter-spacing: -0.025em;
+        line-height: 1.12;
+      }
+
+      .tagline {
+        margin: 27px 0 0;
+        color: hsl(0 0% 100% / 0.8);
+        font-size: 26px;
+        letter-spacing: 0.025em;
+        line-height: 1.2;
+      }
+
+      .event {
+        position: relative;
+        align-self: end;
+        margin-bottom: 22px;
+        border-left: 4px solid var(--accent);
+        padding: 7px 0 6px 24px;
+      }
+
+      .event::before {
+        position: absolute;
+        top: 8px;
+        left: 24px;
+        color: hsl(0 0% 100% / 0.58);
+        content: "VERANSTALTUNG 2026";
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .event-title {
+        margin: 34px 0 17px;
+        font-size: 42px;
+        letter-spacing: 0.025em;
+        line-height: 1.08;
+      }
+
+      .event-date {
+        display: inline-block;
+        margin: 0;
+        padding: 13px 18px 14px;
+        color: var(--accent-foreground);
+        background: var(--accent);
+        box-shadow: 8px 8px 0 hsl(220 70% 20% / 0.22);
+        font-size: 23px;
+        letter-spacing: 0.035em;
+        line-height: 1;
+        white-space: nowrap;
+      }
+
+      @media print {
+        @page {
+          size: 1640px 624px;
+          margin: 0;
+        }
+
+        body {
+          display: block;
+          background: transparent;
+        }
+
+      }
+    </style>
+  </head>
+  <body>
+    <main class="cover" aria-label="Facebook-Titelbild des MSC Oberlausitzer Dreiländereck e. V.">
+      <img class="track-map" src="../assets/msc-map.svg" alt="" aria-hidden="true" />
+      <div class="diagonal-accent" aria-hidden="true"></div>
+
+      <section class="safe-content">
+        <div class="club-copy">
+          <p class="eyebrow">Motorsportclub</p>
+          <h1 class="club-name">MSC Oberlausitzer<br />Dreiländereck e. V.</h1>
+          <p class="tagline">Motorsport mit Leidenschaft</p>
+        </div>
+
+        <aside class="event" aria-label="Veranstaltungstermin">
+          <h2 class="event-title">Oberlausitzer<br />Dreieck</h2>
+          <p class="event-date">12.09. – 13.09.2026</p>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>

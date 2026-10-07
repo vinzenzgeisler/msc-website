@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -52,7 +52,7 @@ async function fetchCollection(collectionName) {
   return items;
 }
 
-function buildArticleHead(post, settings) {
+function buildArticleHead(post, settings, dedicatedImageUrl) {
   const slug = safeSlug(post.slug);
   if (!slug) return null;
 
@@ -62,7 +62,7 @@ function buildArticleHead(post, settings) {
   const socialTitle = String(post.seoTitle || articleTitle).trim();
   const description = String(post.seoDescription || post.excerpt || settings?.metaDescription || '').trim();
   const canonicalUrl = `${SITE_URL}/news/${slug}`;
-  const imageUrl = fileUrl('posts', post.id, post.ogImage || post.image) || fileUrl('siteSettings', settings?.id, settings?.defaultOgImage);
+  const imageUrl = dedicatedImageUrl || fileUrl('posts', post.id, post.ogImage || post.image) || fileUrl('siteSettings', settings?.id, settings?.defaultOgImage);
   const publishedTime = toIsoDate(post.publishedAt || post.created);
   const modifiedTime = toIsoDate(post.updated);
   const fullTitle = articleTitle === siteTitle ? articleTitle : `${articleTitle} | ${siteTitle}`;
@@ -108,6 +108,16 @@ function buildArticleHead(post, settings) {
   return { slug, tags: tags.join('\n    ') };
 }
 
+async function findDedicatedSocialImage(distDir, slug) {
+  const relativePath = `/social/news/${slug}.png`;
+  try {
+    await access(path.join(distDir, 'social', 'news', `${slug}.png`));
+    return `${SITE_URL}${relativePath}`;
+  } catch {
+    return null;
+  }
+}
+
 function injectHead(html, articleHead) {
   return html
     .replace(/\s*<title>[\s\S]*?<\/title>/i, '')
@@ -125,7 +135,10 @@ async function generateSocialPages() {
 
   for (const post of posts) {
     if (post?.published !== true || post?.locale !== 'de') continue;
-    const article = buildArticleHead(post, settings);
+    const slug = safeSlug(post.slug);
+    if (!slug) continue;
+    const dedicatedImageUrl = await findDedicatedSocialImage(distDir, slug);
+    const article = buildArticleHead(post, settings, dedicatedImageUrl);
     if (!article) continue;
 
     const outputDir = path.join(distDir, 'news', article.slug);

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Facebook-Profilbild – Minimalisiertes MSC-Logo</title>
+    <style>
+      :root {
+        --primary-dark: hsl(220 70% 30%);
+        --profile-size: 1200px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        min-width: var(--profile-size);
+        min-height: var(--profile-size);
+        background: transparent;
+      }
+
+      .profile {
+        display: grid;
+        width: var(--profile-size);
+        height: var(--profile-size);
+        place-items: center;
+        overflow: hidden;
+        background: var(--primary-dark);
+      }
+
+      .minimal-logo {
+        display: block;
+        width: 900px;
+        height: 900px;
+        object-fit: contain;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="profile" aria-label="Facebook-Profilbild mit minimalisiertem MSC-Logo">
+      <img class="minimal-logo" src="../assets/MSC-logo-minimal.svg" alt="Minimalisiertes MSC-Logo" />
+    </main>
+  </body>
+</html>

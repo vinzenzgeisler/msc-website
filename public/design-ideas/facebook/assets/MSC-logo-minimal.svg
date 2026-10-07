@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-labelledby="title">
+  <title id="title">Minimalisiertes Logo des MSC Oberlausitzer Dreiländereck</title>
+  <style>
+    @font-face {
+      font-family: "Oswald";
+      font-style: normal;
+      font-weight: 700;
+      src: url("../../../fonts/oswald-latin-700.woff2") format("woff2");
+    }
+  </style>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0b1e43" flood-opacity=".38"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <path
+      d="M170 170Q500 54 830 170L800 612Q780 790 500 916Q220 790 200 612Z"
+      fill="none"
+      stroke="#fff"
+      stroke-width="34"
+      stroke-linejoin="round"
+    />
+
+    <path
+      d="M268 397C338 352 395 315 451 250C485 210 511 203 544 250L650 405C678 446 709 459 765 467"
+      fill="none"
+      stroke="#ffcc00"
+      stroke-width="30"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M268 397C337 437 397 465 480 480C592 500 647 545 731 630"
+      fill="none"
+      stroke="#ffcc00"
+      stroke-width="30"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <g transform="translate(688 435) rotate(-8)">
+      <rect width="116" height="116" rx="8" fill="#fff"/>
+      <path d="M0 0h58v58H0zm58 58h58v58H58z" fill="#173f86"/>
+    </g>
+
+    <text
+      x="500"
+      y="730"
+      fill="#fff"
+      font-family="Oswald, Arial Narrow, sans-serif"
+      font-size="250"
+      font-weight="700"
+      letter-spacing="8"
+      text-anchor="middle"
+    >MSC</text>
+  </g>
+</svg>

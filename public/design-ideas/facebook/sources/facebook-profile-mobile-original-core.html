@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Facebook-Profilbild – Reduzierter Original-Logo-Kern</title>
+    <style>
+      :root {
+        --primary-dark: hsl(220 70% 30%);
+        --profile-size: 1200px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        min-width: var(--profile-size);
+        min-height: var(--profile-size);
+        background: transparent;
+      }
+
+      .profile {
+        position: relative;
+        width: var(--profile-size);
+        height: var(--profile-size);
+        overflow: hidden;
+        background: var(--primary-dark);
+      }
+
+      .original-logo,
+      .shield,
+      .shield-inner,
+      .lower-cleanup {
+        position: absolute;
+      }
+
+      .original-logo {
+        z-index: 1;
+        top: 115px;
+        left: 115px;
+        width: 970px;
+        height: 970px;
+        object-fit: contain;
+        filter: drop-shadow(0 24px 26px hsl(220 70% 10% / 0.4));
+      }
+
+      .lower-cleanup {
+        z-index: 2;
+        top: 755px;
+        left: 235px;
+        width: 730px;
+        height: 250px;
+        background: var(--primary-dark);
+        clip-path: polygon(0 0, 100% 0, 87% 62%, 50% 100%, 13% 62%);
+      }
+
+      .shield,
+      .shield-inner {
+        z-index: 3;
+        display: block;
+        object-fit: contain;
+        pointer-events: none;
+      }
+
+      .shield {
+        inset: 95px;
+        width: 1010px;
+        height: 1010px;
+      }
+
+      .shield-inner {
+        inset: 139px;
+        width: 922px;
+        height: 922px;
+        opacity: 0.42;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="profile" aria-label="Reduzierter Kern des originalen MSC-Logos">
+      <img class="original-logo" src="../assets/MSC-logo-clean-color.png" alt="MSC Oberlausitzer Dreiländereck" />
+      <div class="lower-cleanup" aria-hidden="true"></div>
+      <img class="shield" src="../assets/MSC-shield-outline.svg" alt="" aria-hidden="true" />
+      <img class="shield-inner" src="../assets/MSC-shield-outline.svg" alt="" aria-hidden="true" />
+    </main>
+  </body>
+</html>
