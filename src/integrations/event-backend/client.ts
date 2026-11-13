@@ -4,14 +4,16 @@ const configuredEventApiBaseUrl = (import.meta.env.VITE_EVENT_API_BASE_URL || ''
 // The event API only allows the production origin. Vite proxies local requests
 // so the real data can still be exercised during development without weakening CORS.
 const eventApiBaseUrl = import.meta.env.DEV && configuredEventApiBaseUrl ? '/event-api' : configuredEventApiBaseUrl;
+const newsletterApiBaseUrl = (import.meta.env.VITE_NEWSLETTER_API_BASE_URL || '').replace(/\/$/, '') || eventApiBaseUrl;
 
 export const isEventBackendConfigured = (): boolean => configuredEventApiBaseUrl.length > 0;
+export const isNewsletterBackendConfigured = (): boolean => newsletterApiBaseUrl.length > 0;
 
-async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
-  if (!isEventBackendConfigured()) {
+async function requestJson<T>(path: string, init?: RequestInit, baseUrl = eventApiBaseUrl): Promise<T> {
+  if (!baseUrl) {
     throw new Error('EVENT_API_NOT_CONFIGURED');
   }
-  const response = await fetch(`${eventApiBaseUrl}${path}`, {
+  const response = await fetch(`${baseUrl}${path}`, {
     ...init,
     headers: { 'content-type': 'application/json', ...(init?.headers ?? {}) }
   });
@@ -150,7 +152,7 @@ export interface NewsletterConfig {
 }
 
 export function fetchNewsletterConfig(locale: NewsletterLocale) {
-  return requestJson<NewsletterConfig>(`/public/newsletter/config?locale=${encodeURIComponent(locale)}`);
+  return requestJson<NewsletterConfig>(`/public/newsletter/config?locale=${encodeURIComponent(locale)}`, undefined, newsletterApiBaseUrl);
 }
 
 export function subscribeToNewsletter(input: {
@@ -163,26 +165,26 @@ export function subscribeToNewsletter(input: {
   return requestJson<{ accepted: true }>('/public/newsletter/subscriptions', {
     method: 'POST',
     body: JSON.stringify(input)
-  });
+  }, newsletterApiBaseUrl);
 }
 
 export function confirmNewsletterSubscription(token: string) {
   return requestJson<{ status: NewsletterActionStatus }>('/public/newsletter/confirm', {
     method: 'POST',
     body: JSON.stringify({ token })
-  });
+  }, newsletterApiBaseUrl);
 }
 
 export function requestNewsletterUnsubscribe(input: { email: string; locale: NewsletterLocale; website: string }) {
   return requestJson<{ accepted: true }>('/public/newsletter/unsubscribe-request', {
     method: 'POST',
     body: JSON.stringify(input)
-  });
+  }, newsletterApiBaseUrl);
 }
 
 export function unsubscribeFromNewsletter(token: string) {
   return requestJson<{ status: NewsletterActionStatus }>('/public/newsletter/unsubscribe', {
     method: 'POST',
     body: JSON.stringify({ token })
-  });
+  }, newsletterApiBaseUrl);
 }
